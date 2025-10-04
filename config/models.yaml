@@ -1,0 +1,29 @@
+# Vox Poetica Studio Web - LLM Provider Configuration
+# Exact provider specifications from vpts.yml workflow
+
+providers:
+  tongyi:
+    api_key_env: "TONGYI_API_KEY"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    type: "openai_compatible"
+    models:
+      - "qwen-max-latest"
+      - "qwen-max-0919"
+    default_model: "qwen-max-latest"
+
+  deepseek:
+    api_key_env: "DEEPSEEK_API_KEY"
+    base_url: "https://api.deepseek.com/v1"
+    type: "openai_compatible"
+    models:
+      - "deepseek-reasoner"
+      - "deepseek-chat"
+    default_model: "deepseek-reasoner"
+
+# Global provider settings
+provider_settings:
+  timeout: 120.0
+  max_retries: 3
+  retry_delay: 1.0
+  request_timeout: 30.0
+  connection_pool_size: 10

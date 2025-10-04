@@ -1,0 +1,46 @@
+# Vox Poetica Studio Web - Main Configuration
+# Exact configuration from vpts.yml workflow specification
+
+workflow:
+  name: "vox_poetica_translation"
+  version: "1.0.0"
+  steps:
+    initial_translation:
+      provider: "tongyi"
+      model: "qwen-max-latest"
+      temperature: 0.7
+      max_tokens: 4096
+      prompt_template: "prompts/initial_translation.yaml"
+      timeout: 120.0
+      retry_attempts: 3
+
+    editor_review:
+      provider: "tongyi"
+      model: "qwen-max-latest"
+      temperature: 0.3
+      max_tokens: 8192
+      prompt_template: "prompts/editor_review.yaml"
+      timeout: 120.0
+      retry_attempts: 3
+
+    translator_revision:
+      provider: "tongyi"
+      model: "qwen-max-latest"
+      temperature: 0.2
+      max_tokens: 8001
+      prompt_template: "prompts/translator_revision.yaml"
+      timeout: 120.0
+      retry_attempts: 3
+
+storage:
+  output_dir: "outputs"
+  format: "json"
+  include_timestamp: true
+  pretty_print: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "vpsweb.log"
+  max_file_size: 10485760  # 10MB
+  backup_count: 5

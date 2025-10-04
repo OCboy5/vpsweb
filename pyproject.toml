@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "vpsweb"
+version = "0.1.0"
+description = "Vox Poetica Studio Web - Professional AI-powered poetry translation using a collaborative Translator→Editor→Translator workflow"
+authors = ["VPSWeb Development Team <dev@vpsweb.ai>"]
+readme = "README.md"
+packages = [{include = "src/vpsweb"}]
+keywords = ["poetry", "translation", "ai", "llm", "chinese", "english", "literature", "natural-language-processing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Software Development :: Internationalization"
+]
+include = ["CHANGELOG.md", "STATUS.md", "DEVELOPMENT.md", "CONTRIBUTING.md", "LICENSE"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyyaml = "^6.0"
+pydantic = ">=2.0"
+httpx = "^0.25.0"
+click = "^8.1.0"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.0.0"
+flake8 = "^6.0.0"
+mypy = "^1.5.0"
+
+[tool.poetry.scripts]
+vpsweb = "vpsweb.__main__:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=vpsweb --cov-report=term-missing --cov-report=html"
+asyncio_mode = "auto"

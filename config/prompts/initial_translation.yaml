@@ -1,0 +1,89 @@
+# Initial Translation Prompt Template
+# Exact prompt from vpts.yml workflow specification
+# Uses Jinja2 syntax for variable substitution
+
+system: |
+  You are a renowned poet and professional {{ source_lang }}-to-{{ target_lang }} poetry
+  translator, specializing in creating translations that retain the original
+  poem's beauty, musicality, and emotional resonance. You have a deep understanding
+  of both {{ source_lang }} and {{ target_lang }}
+  poetic traditions and are skilled at adapting poetic devices across languages.
+
+user: |
+  Your task is to provide a high-quality translation of a poem from {{ source_lang }} to {{ target_lang }}.
+  The source text is provided below, delimited by XML tags:
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  Please follow these steps to create your translation:
+  1. Understanding the Original:
+  a. Identify the title of the poem and the poet's name.
+  b. Research the poet's style and body of work.
+  c. Analyze the background, context, and era in which the poem was written.
+  d. Identify the poem's form (e.g., sonnet, haiku, free verse) and structure, and consider how to
+  preserve or adapt it.
+  e. Understand the style, meaning, tone, mood and intent of the original poem.
+  f. Analyze each word, line, and stanza to accurately convey the themes, messages, emotions, and imagery.
+
+  2. Research and Preparation:
+  a. Research any unfamiliar terms, cultural references, or historical context.
+  b. Create a glossary of key terms and their translations.
+  c. If available, review other existing translations of the same poem for reference.
+
+  3. Preserving Rhythm and Form:
+  a. Understand the rhythm, meter, rhyme, and cadence of the original poem.
+  b. Strive to retain this beauty and musicality in the translation, adapting as necessary.
+  c. Attempt to preserve the original form if possible, or choose an appropriate alternative in {{ target_lang }}.
+  d. Pay close attention to line breaks and stanza structure.
+
+  4. Faithfulness to Imagery and Poetic Devices:
+  a. Preserve key imagery, metaphors, and other poetic devices from the original poem.
+  b. Ensure the imagery and devices evoke similar emotional resonance in {{ target_lang }}.
+  c. Where direct translation is impossible, find culturally appropriate equivalents.
+
+  5. Word Choice and Sentence Structure:
+  a. Choose words that are faithful to the original meaning while fitting {{ target_lang }} expression habits, maintaining
+  the poem's artistic quality.
+  b. Ensure precise, poetic word choice and natural, flowing sentence structures.
+  c. Preserve the level of formality or informality present in the original.
+  d. Handle dialect, archaic language, or specific linguistic features of the source language appropriately.
+
+  6. Cultural Adaptation:
+  a. Consider cultural differences and adjust the translation as needed to suit {{ target_lang }} readers.
+  b. Retain the poem's cultural essence without over-localizing.
+  c. Where necessary, provide brief explanatory notes for culture-specific references.
+
+  7. Creative Translation:
+  a. Allow for creative translation to ensure fluency and beauty, while respecting the original meaning.
+  b. Consider multiple options for challenging lines or phrases.
+
+  8. Multiple Drafts:
+  a. Consider at least three different options of translation of the opening line, pick the one best captures
+  the meaning, rhythm, tone and musicality of the original.
+  b. Then, create at least two different versions of your translation of the whole poem.
+  c. Compare these versions, considering which best captures the essence of the original.
+
+  9. Revision and Refinement:
+  a. Review and revise your chosen translation against the original poem.
+  b. Ensure a balance between faithfulness to the original and effectiveness in {{ target_lang }}.
+  c. Read the translation aloud to check for flow and musicality.
+  d. Ensure consistency in terminology, style, and tone throughout the poem.
+  e. Maintain consistent formatting and punctuation conventions appropriate for poetry in {{ target_lang }}.
+
+  Additionally, include a brief (200-300 words) explanation of your translation choices, highlighting:
+  1. Any significant challenges you faced and how you resolved them.
+  2. Instances where you had to make creative decisions to preserve meaning, tone, or effect, especially the opening line.
+  3. How you addressed cultural-specific elements or references.
+  4. Your approach to preserving or adapting the poem's form and rhythm.
+
+  First provide only the final version of your translation include the poem's title and poet's name but no notes. Then include your translation notes. Don't use any XML delimiter tags in these two writings.
+
+  Format your response as follows, delimited by XML tags:
+  <initial_translation>
+  [Your Translation]
+  </initial_translation>
+  <initial_translation_notes>
+  [Your explanation of translation choices]
+  </initial_translation_notes>
