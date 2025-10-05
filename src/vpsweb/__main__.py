@@ -162,9 +162,7 @@ async def execute_translation_workflow(
     try:
         # Execute workflow
         click.echo("🚀 Starting translation workflow...")
-        with click.progressbar(length=100, label='Translating') as bar:
-            translation_output = await workflow.execute(input_data, show_progress=True)
-            bar.update(100)
+        translation_output = await workflow.execute(input_data, show_progress=True)
 
         # Save results (both JSON and markdown)
         click.echo("💾 Saving translation results...")
@@ -196,21 +194,10 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
     click.echo(f"⏱️  Total time: {translation_output.duration_seconds:.2f}s")
     click.echo(f"🧮 Total tokens: {translation_output.total_tokens}")
 
-    # Translation preview
-    initial = translation_output.initial_translation.initial_translation
-    revised = translation_output.revised_translation.revised_translation
-
-    click.echo("\n📝 TRANSLATION PREVIEW:")
-    click.echo("-" * 40)
-    click.echo("Initial Translation:")
-    click.echo(f"  {initial[:100]}{'...' if len(initial) > 100 else ''}")
-    click.echo("\nRevised Translation:")
-    click.echo(f"  {revised[:100]}{'...' if len(revised) > 100 else ''}")
-
     # Editor suggestions count
     editor_suggestions = translation_output.editor_review.editor_suggestions
     suggestions_count = len([line for line in editor_suggestions.split('\n') if line.strip().startswith(('1.', '2.', '3.', '4.', '5.'))])
-    click.echo(f"\n📋 Editor suggestions: {suggestions_count}")
+    click.echo(f"📋 Editor suggestions: {suggestions_count}")
 
     click.echo("\n✅ Translation saved successfully!")
 
