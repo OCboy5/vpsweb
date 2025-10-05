@@ -15,8 +15,8 @@ workflow:
       retry_attempts: 3
 
     editor_review:
-      provider: "tongyi"
-      model: "qwen-max-latest"
+      provider: "deepseek"
+      model: "deepseek-reasoner"
       temperature: 0.3
       max_tokens: 8192
       prompt_template: "prompts/editor_review.yaml"
