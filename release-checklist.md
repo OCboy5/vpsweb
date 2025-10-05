@@ -52,7 +52,13 @@ This checklist ensures consistent, high-quality releases by following the lesson
 ./dev-check.sh --release-mode --fix
 ```
 
-### 2. Commit Changes
+### 2. Create Local Backup (IMPORTANT)
+```bash
+# Create local backup before pushing to GitHub
+./save-version.sh "{VERSION}"
+```
+
+### 3. Commit Changes
 ```bash
 # Add all changes
 git add -A
@@ -85,7 +91,7 @@ git commit -m "feat: release v{VERSION} - {BRIEF_DESCRIPTION}
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
-### 3. Create Release
+### 4. Create GitHub Release
 ```bash
 # Use the improved push script
 ./push-version.sh "{VERSION}" "{COMPREHENSIVE_RELEASE_NOTES}"
@@ -159,18 +165,24 @@ If critical issues are discovered after release:
   - `--test-only`: Run only tests
   - `--fix`: Auto-fix issues where possible
 
-### `push-version.sh` (v2.0)
+### `save-version.sh` - Local Backup Creation
+- **Purpose**: Create local backup versions before GitHub release
+- **Usage**: `./save-version.sh <version>`
+- **Creates**: Local tag and backup branch
+- **When to use**: ALWAYS before pushing to GitHub
+- **Benefits**:
+  - Local safety net before remote operations
+  - Easy rollback if GitHub release fails
+  - Complete version history preservation
+
+### `push-version.sh` (v2.0) - GitHub Release Creation
 - **Purpose**: Create and push GitHub releases reliably
 - **Usage**: `./push-version.sh <version> [release_notes]`
 - **Features**:
   - Pre-flight checks (clean repo, main branch, GitHub CLI)
   - Uses GitHub CLI instead of unreliable GitHub Actions
   - Automatic release verification
-
-### `save-version.sh`
-- **Purpose**: Create local backup versions
-- **Usage**: `./save-version.sh <version>`
-- **Creates**: Local tag and backup branch
+- **When to use**: AFTER creating local backup with save-version.sh
 
 ## 🎯 Best Practices
 
