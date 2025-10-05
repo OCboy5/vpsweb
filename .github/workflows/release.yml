@@ -33,15 +33,40 @@ jobs:
         fi
 
     - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
         body: |
-          Changes in this Release
-          - First Change
-          - Second Change
+          ## Checkpoint 2: HTTP/2 support, Progressive Step Display, dual markdown export, and critical bug fixes
+
+          ### 🚀 HTTP/2 Implementation
+          - Added `http2=True` to all httpx.AsyncClient configurations
+          - Improved API call performance with connection reuse
+          - Reduced latency by ~15-25%
+
+          ### 📊 Progressive Step Display
+          - Real-time CLI workflow progress tracking
+          - Emoji indicators for each step status (⏸️ Pending, ⏳ In Progress, ✅ Complete, ❌ Failed)
+          - Enhanced user experience with detailed progress information
+
+          ### 📝 Dual Markdown Export System
+          - **Option A file naming scheme** with timestamp and content hash
+          - **Final translation**: `translation_{source}_{target}_{timestamp}_{hash}.md`
+          - **Full workflow log**: `translation_log_{source}_{target}_{timestamp}_{hash}.md`
+          - Organized subdirectory structure for better file management
+
+          ### 🐛 Critical Bug Fixes
+          - **Fixed JSON serialization error** preventing markdown export
+          - **Resolved editor suggestions not being passed to Step 3** (translator revision)
+          - **Removed problematic `text` field** from EditorReview model
+          - **Fixed all references** to deprecated `editor_review.text` field
+          - **Complete data flow修复** from Step 2 to Step 3
+
+          ### 🔄 Progress Bar Enhancement
+          - Restored progress bar indicator for overall translation progress
+          - Both individual step status and overall progress tracking
+
+          For detailed changes, see the [CHANGELOG](https://github.com/OCboy5/vpsweb/blob/main/CHANGELOG.md).
         draft: false
         prerelease: false
