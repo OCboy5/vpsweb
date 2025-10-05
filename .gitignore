@@ -101,3 +101,52 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Sensitive configuration and data
+config/secrets.yaml
+config/production.yaml
+config/staging.yaml
+*secrets*
+*credentials*
+*.p12
+*.jks
+
+# Copyrighted content and test materials
+tests/fixtures/poems/copyrighted_*
+tests/fixtures/sample_poems/copyrighted_*
+*.pdf
+*.epub
+*.mobi
+*copyright*
+*proprietary*
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache and temporary data
+.cache/
+cache/
+tmp/
+temp/
+
+# Security and audit files
+bandit-report.json
+safety-report.json
+*.audit
+
+# Local development overrides
+config/local.yaml
+config/dev.yaml
+.env.local
+.env.dev
+.env.test

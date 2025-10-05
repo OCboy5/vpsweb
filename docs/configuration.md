@@ -120,6 +120,7 @@ tongyi:
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   timeout: 60                               # Request timeout
   max_retries: 3                            # Maximum retry attempts
+  http2: true                               # Enable HTTP/2 protocol (default: true)
 ```
 
 #### DeepSeek
@@ -130,6 +131,7 @@ deepseek:
   base_url: "https://api.deepseek.com"
   timeout: 60
   max_retries: 3
+  http2: true                               # Enable HTTP/2 protocol (default: true)
 ```
 
 #### OpenAI-Compatible Providers
@@ -142,7 +144,53 @@ custom_provider:
   base_url: "https://api.custom-provider.com/v1"
   timeout: 60
   max_retries: 3
+  http2: true                               # Enable HTTP/2 protocol (default: true)
 ```
+
+## HTTP/2 Support
+
+VPSWeb supports HTTP/2 protocol for improved performance and connection efficiency:
+
+### HTTP/2 Benefits
+
+- **Multiplexing**: Multiple requests over single connection
+- **Header compression**: Reduced bandwidth usage
+- **Server push**: Optional server-initiated content delivery
+- **Binary protocol**: More efficient data representation
+
+### HTTP/2 Configuration
+
+HTTP/2 is enabled by default for all providers. To disable it:
+
+```yaml
+providers:
+  providers:
+    tongyi:
+      api_key: "${TONGYI_API_KEY}"
+      base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      http2: false                            # Disable HTTP/2
+```
+
+### HTTP/2 Compatibility
+
+All supported providers work with HTTP/2:
+
+| Provider | HTTP/2 Support | Notes |
+|----------|---------------|-------|
+| Tongyi (Qwen) | ✅ Supported | Recommended for production |
+| DeepSeek | ✅ Supported | Improved response times |
+| OpenAI | ✅ Supported | Compatible with all models |
+| Custom OpenAI-Compatible | ✅ Supported | Depends on provider |
+
+### Fallback Behavior
+
+If HTTP/2 negotiation fails, VPSWeb automatically falls back to HTTP/1.1:
+
+1. **HTTP/2 Attempt**: Client initiates HTTP/2 connection
+2. **Protocol Negotiation**: Server indicates HTTP/2 support
+3. **Fallback**: If server doesn't support HTTP/2, uses HTTP/1.1
+
+This ensures maximum compatibility while taking advantage of HTTP/2 when available.
 
 ## Environment Variables
 

@@ -219,7 +219,8 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             try:
                 async with httpx.AsyncClient(
                     timeout=httpx.Timeout(self.timeout),
-                    limits=httpx.Limits(max_connections=self.connection_pool_size)
+                    limits=httpx.Limits(max_connections=self.connection_pool_size),
+                    http2=True
                 ) as client:
 
                     logger.info(f"Making POST request to {self.base_url}/chat/completions")

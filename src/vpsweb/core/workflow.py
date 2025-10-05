@@ -9,7 +9,7 @@ import asyncio
 import time
 import logging
 import uuid
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from ..services.llm.factory import LLMFactory
@@ -26,6 +26,7 @@ from ..models.translation import (
     extract_initial_translation_from_xml,
     extract_revised_translation_from_xml
 )
+from ..utils.progress import ProgressTracker, StepStatus
 
 logger = logging.getLogger(__name__)
 
@@ -73,12 +74,13 @@ class TranslationWorkflow:
         logger.info(f"Initialized TranslationWorkflow: {config.name} v{config.version}")
         logger.info(f"Available steps: {list(config.steps.keys())}")
 
-    async def execute(self, input_data: TranslationInput) -> TranslationOutput:
+    async def execute(self, input_data: TranslationInput, show_progress: bool = True) -> TranslationOutput:
         """
         Execute complete translation workflow.
 
         Args:
             input_data: Translation input with poem and language information
+            show_progress: Whether to display progress updates
 
         Returns:
             Complete translation output with all intermediate results
@@ -94,33 +96,81 @@ class TranslationWorkflow:
         logger.info(f"Translation: {input_data.source_lang} → {input_data.target_lang}")
         logger.info(f"Poem length: {len(input_data.original_poem)} characters")
 
+        # Initialize progress tracker
+        progress_tracker: Optional[ProgressTracker] = None
+        if show_progress:
+            progress_tracker = ProgressTracker([
+                "initial_translation",
+                "editor_review",
+                "translator_revision"
+            ])
+
         try:
             # Step 1: Initial Translation
             log_entries.append(f"=== STEP 1: INITIAL TRANSLATION ===")
             log_entries.append(f"Input: {input_data.original_poem[:100]}...")
 
+            if progress_tracker:
+                progress_tracker.start_step("initial_translation")
+
             initial_translation = await self._initial_translation(input_data)
             log_entries.append(f"Initial translation completed: {initial_translation.tokens_used} tokens")
             log_entries.append(f"Translation: {initial_translation.initial_translation[:100]}...")
 
-            # Step 2: Editor Review (ENABLED for testing)
+            if progress_tracker:
+                progress_tracker.complete_step("initial_translation", {
+                    'original_poem': input_data.original_poem,
+                    'initial_translation': initial_translation.initial_translation,
+                    'initial_translation_notes': initial_translation.initial_translation_notes,
+                    'tokens_used': initial_translation.tokens_used
+                })
+
+            # Step 2: Editor Review
             log_entries.append(f"\n=== STEP 2: EDITOR REVIEW ===")
 
             logger.info(f"Starting editor review with {initial_translation.tokens_used} tokens from initial translation")
+
+            if progress_tracker:
+                progress_tracker.start_step("editor_review")
+
             editor_review = await self._editor_review(input_data, initial_translation)
             logger.info(f"Editor review step completed successfully")
             log_entries.append(f"Editor review completed: {editor_review.tokens_used} tokens")
-            log_entries.append(f"Review length: {len(editor_review.text)} characters")
-            log_entries.append(f"Review preview: {editor_review.text[:200]}...")
+            log_entries.append(f"Review length: {len(editor_review.editor_suggestions)} characters")
+            log_entries.append(f"Review preview: {editor_review.editor_suggestions[:200]}...")
 
-            # Step 3: Translator Revision (ENABLED)
+            if progress_tracker:
+                progress_tracker.complete_step("editor_review", {
+                    'editor_suggestions': editor_review.editor_suggestions,
+                    'tokens_used': editor_review.tokens_used
+                })
+
+            # Step 3: Translator Revision
             log_entries.append(f"\n=== STEP 3: TRANSLATOR REVISION ===")
+
+            if progress_tracker:
+                progress_tracker.start_step("translator_revision")
 
             revised_translation = await self._translator_revision(
                 input_data, initial_translation, editor_review
             )
             log_entries.append(f"Translator revision completed: {revised_translation.tokens_used} tokens")
             log_entries.append(f"Revised translation length: {len(revised_translation.revised_translation)} characters")
+
+            if progress_tracker:
+                progress_tracker.complete_step("translator_revision", {
+                    'revised_translation': revised_translation.revised_translation,
+                    'revised_translation_notes': revised_translation.revised_translation_notes,
+                    'tokens_used': revised_translation.tokens_used
+                })
+
+            # Show final summary if progress tracking
+            if progress_tracker:
+                summary = progress_tracker.get_summary()
+                print(f"\n🎉 Translation Complete!")
+                print(f"   Total Steps: {summary['completed_steps']}/{summary['total_steps']}")
+                print(f"   Total Tokens: {summary['total_tokens']}")
+                print(f"   Total Duration: {summary['total_duration']:.2f}s")
 
             # Aggregate results
             duration = time.time() - start_time
@@ -145,6 +195,14 @@ class TranslationWorkflow:
             )
 
         except Exception as e:
+            if progress_tracker:
+                # Determine which step failed based on current progress
+                for step_name in reversed(progress_tracker.step_order):
+                    step = progress_tracker.steps[step_name]
+                    if step.status == StepStatus.IN_PROGRESS:
+                        progress_tracker.fail_step(step_name, str(e))
+                        break
+
             logger.error(f"Workflow {workflow_id} failed: {e}")
             raise WorkflowError(f"Translation workflow failed: {e}")
 
@@ -234,19 +292,19 @@ class TranslationWorkflow:
             )
 
             # Extract editor text from result
-            editor_text = ''
+            editor_suggestions = ''
             if 'output' in result:
                 output_data = result['output']
                 # Try different possible field names
-                editor_text = output_data.get('text', output_data.get('editor_suggestions', ''))
+                editor_suggestions = output_data.get('editor_suggestions', '')
 
-            if not editor_text:
+            if not editor_suggestions:
                 # Fallback: use content directly
-                editor_text = result.get('metadata', {}).get('raw_response', {}).get('content_preview', '')
+                editor_suggestions = result.get('metadata', {}).get('raw_response', {}).get('content_preview', '')
 
             # Create EditorReview model
             return EditorReview(
-                text=editor_text,
+                editor_suggestions=editor_suggestions,
                 model_info={
                     'provider': step_config.provider,
                     'model': step_config.model,

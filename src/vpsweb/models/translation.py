@@ -125,10 +125,6 @@ class InitialTranslation(BaseModel):
 class EditorReview(BaseModel):
     """Output from editor review step with structured suggestions from vpts.yml."""
 
-    text: str = Field(
-        default="",
-        description="Raw editor response text (fallback if XML parsing fails)"
-    )
     editor_suggestions: str = Field(
         default="",
         description="Structured editor suggestions extracted from XML"
@@ -150,8 +146,7 @@ class EditorReview(BaseModel):
     def get_suggestions_list(self) -> List[str]:
         """Extract numbered suggestions from the editor's text."""
         import re
-        # Use editor_suggestions if available, fallback to text
-        text_to_search = self.editor_suggestions if self.editor_suggestions else self.text
+        text_to_search = self.editor_suggestions
         # Look for numbered suggestions like "1. [suggestion text]"
         suggestions = re.findall(r'^\s*(\d+)\.\s*(.+)$', text_to_search, re.MULTILINE)
         return [suggestion[1].strip() for suggestion in suggestions]
@@ -159,8 +154,7 @@ class EditorReview(BaseModel):
     def get_overall_assessment(self) -> str:
         """Extract the overall assessment from the editor's text."""
         import re
-        # Use editor_suggestions if available, fallback to text
-        text_to_search = self.editor_suggestions if self.editor_suggestions else self.text
+        text_to_search = self.editor_suggestions
         # Look for the overall assessment after the suggestions
         assessment_match = re.search(r'overall assessment:?\s*(.+)', text_to_search, re.IGNORECASE | re.DOTALL)
         if assessment_match:
@@ -169,10 +163,14 @@ class EditorReview(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with ISO format timestamp."""
-        data = self.dict()
-        data['timestamp'] = self.timestamp.isoformat()
-        data['suggestions'] = self.get_suggestions_list()
-        data['overall_assessment'] = self.get_overall_assessment()
+        data = {
+            'editor_suggestions': self.editor_suggestions,
+            'timestamp': self.timestamp.isoformat(),
+            'model_info': self.model_info,
+            'tokens_used': self.tokens_used,
+            'suggestions': self.get_suggestions_list(),
+            'overall_assessment': self.get_overall_assessment()
+        }
         return data
 
     @classmethod
@@ -278,7 +276,7 @@ class TranslationOutput(BaseModel):
             "original_poem": self.input.original_poem,
             "initial_translation": self.initial_translation.initial_translation,
             "initial_translation_notes": self.initial_translation.initial_translation_notes,
-            "editor_suggestions": self.editor_review.text,
+            "editor_suggestions": self.editor_review.editor_suggestions,
             "revised_translation": self.revised_translation.revised_translation,
             "revised_translation_notes": self.revised_translation.revised_translation_notes
         }

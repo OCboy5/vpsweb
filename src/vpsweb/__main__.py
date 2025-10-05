@@ -8,7 +8,7 @@ import sys
 import asyncio
 import click
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 # Load environment variables from .env file
 try:
@@ -162,34 +162,27 @@ async def execute_translation_workflow(
     try:
         # Execute workflow
         click.echo("🚀 Starting translation workflow...")
+        with click.progressbar(length=100, label='Translating') as bar:
+            translation_output = await workflow.execute(input_data, show_progress=True)
+            bar.update(100)
 
-        with click.progressbar(
-            length=3,
-            label="Translating",
-            show_eta=False,
-            show_percent=True
-        ) as bar:
-            # We'll update progress manually in the workflow
-            translation_output = await workflow.execute(input_data)
-            bar.update(3)  # Complete the progress bar
-
-        # Save results
+        # Save results (both JSON and markdown)
         click.echo("💾 Saving translation results...")
-        file_path = storage_handler.save_translation(translation_output)
+        saved_files = storage_handler.save_translation_with_markdown(translation_output)
 
-        return translation_output, file_path
+        return translation_output, saved_files
 
     except Exception as e:
         raise WorkflowError(f"Translation workflow failed: {e}")
 
 
-def display_summary(translation_output, file_path: Path) -> None:
+def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
     """
     Display a summary of the translation results.
 
     Args:
         translation_output: The translation output
-        file_path: Path to the saved file
+        saved_files: Dictionary with paths to saved files
     """
     click.echo("\n" + "=" * 60)
     click.echo("🎉 TRANSLATION COMPLETE!")
@@ -197,7 +190,9 @@ def display_summary(translation_output, file_path: Path) -> None:
 
     # Basic info
     click.echo(f"📋 Workflow ID: {translation_output.workflow_id}")
-    click.echo(f"📁 Output file: {file_path}")
+    click.echo(f"📁 Output file: {saved_files['json']}")
+    click.echo(f"📄 Markdown (final): {saved_files['markdown_final']}")
+    click.echo(f"📋 Markdown (log): {saved_files['markdown_log']}")
     click.echo(f"⏱️  Total time: {translation_output.duration_seconds:.2f}s")
     click.echo(f"🧮 Total tokens: {translation_output.total_tokens}")
 
@@ -213,8 +208,8 @@ def display_summary(translation_output, file_path: Path) -> None:
     click.echo(f"  {revised[:100]}{'...' if len(revised) > 100 else ''}")
 
     # Editor suggestions count
-    editor_text = translation_output.editor_review.text
-    suggestions_count = len([line for line in editor_text.split('\n') if line.strip().startswith(('1.', '2.', '3.', '4.', '5.'))])
+    editor_suggestions = translation_output.editor_review.editor_suggestions
+    suggestions_count = len([line for line in editor_suggestions.split('\n') if line.strip().startswith(('1.', '2.', '3.', '4.', '5.'))])
     click.echo(f"\n📋 Editor suggestions: {suggestions_count}")
 
     click.echo("\n✅ Translation saved successfully!")
@@ -250,7 +245,7 @@ def validate_input_only(input_data: TranslationInput, config_path: Optional[str]
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="vpsweb")
+@click.version_option(version="0.1.1", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 

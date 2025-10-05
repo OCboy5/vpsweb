@@ -8,11 +8,12 @@ serialization/deserialization of Pydantic models and comprehensive error handlin
 import json
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime
 import uuid
 
 from ..models.translation import TranslationOutput
+from .markdown_export import MarkdownExporter
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,10 @@ class StorageHandler:
             # Create output directory if it doesn't exist
             self.output_dir.mkdir(parents=True, exist_ok=True)
             logger.info(f"Storage handler initialized with output directory: {self.output_dir.absolute()}")
+
+            # Initialize markdown exporter
+            self.markdown_exporter = MarkdownExporter(output_dir)
+
         except Exception as e:
             logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
             raise StorageError(f"Could not create output directory '{self.output_dir}': {e}")
@@ -95,7 +100,7 @@ class StorageHandler:
 
             return file_path
 
-        except json.JSONEncodeError as e:
+        except Exception as e:
             logger.error(f"JSON serialization failed for workflow {output.workflow_id}: {e}")
             raise SaveError(f"Failed to serialize translation output: {e}")
         except IOError as e:
@@ -138,7 +143,7 @@ class StorageHandler:
 
             return translation_output
 
-        except json.JSONDecodeError as e:
+        except Exception as e:
             logger.error(f"JSON parsing failed for file {file_path}: {e}")
             raise LoadError(f"Invalid JSON format in translation file: {e}")
         except KeyError as e:
@@ -242,6 +247,48 @@ class StorageHandler:
         except Exception as e:
             logger.error(f"Failed to delete translation file {file_path}: {e}")
             raise StorageError(f"Failed to delete translation file: {e}")
+
+    def save_translation_with_markdown(self, output: TranslationOutput) -> Dict[str, Path]:
+        """
+        Save a translation output to both JSON and markdown files.
+
+        Args:
+            output: TranslationOutput instance to save
+
+        Returns:
+            Dictionary with paths to saved files:
+            {
+                'json': Path to JSON file,
+                'markdown_final': Path to final translation markdown,
+                'markdown_log': Path to full log markdown
+            }
+
+        Raises:
+            SaveError: If saving fails due to file I/O or serialization issues
+        """
+        try:
+            # Save JSON file (existing functionality)
+            json_path = self.save_translation(output)
+
+            # Save markdown files (new functionality)
+            markdown_paths = self.markdown_exporter.export_both(output)
+
+            result = {
+                'json': json_path,
+                'markdown_final': Path(markdown_paths['final_translation']),
+                'markdown_log': Path(markdown_paths['full_log'])
+            }
+
+            logger.info(f"Translation saved to multiple formats:")
+            logger.info(f"  JSON: {result['json']}")
+            logger.info(f"  Markdown (final): {result['markdown_final']}")
+            logger.info(f"  Markdown (log): {result['markdown_log']}")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Failed to save translation with markdown: {e}")
+            raise SaveError(f"Failed to save translation with markdown: {e}")
 
     def get_storage_info(self) -> dict:
         """
