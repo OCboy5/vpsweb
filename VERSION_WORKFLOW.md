@@ -104,10 +104,11 @@ python -m black --check src/ tests/
    ```
 
 #### Release Process
-1. Commit all changes
-2. Create local backup: `./save-version.sh X.Y.Z`
-3. Push to GitHub: `./push-version.sh X.Y.Z "Release notes"`
-4. Verify CI/CD passes on GitHub
+1. **Update all relevant documents (README.md, CHANGELOG.md, etc.) accordingly**
+2. Commit all changes
+3. Create local backup: `./save-version.sh X.Y.Z`
+4. Push to GitHub: `./push-version.sh X.Y.Z "Release notes"`
+5. Verify CI/CD passes on GitHub
 
 ## Best Practices (Updated)
 1. Always save locally before major changes
@@ -115,7 +116,8 @@ python -m black --check src/ tests/
 3. Use semantic versioning (major.minor.patch)
 4. Include meaningful release notes for GitHub releases
 5. Keep your working directory clean before pushing releases
-6. **NEW**: Verify version consistency across ALL files before release
-7. **NEW**: Run Black formatting checks before pushing to GitHub
-8. **NEW**: Test imports and functionality locally before release
-9. **NEW**: Monitor GitHub Actions after release for CI/CD compliance
+6. **NEW**: Update all relevant documents (README.md, CHANGELOG.md, etc.) before any release
+7. **NEW**: Verify version consistency across ALL files before release
+8. **NEW**: Run Black formatting checks before pushing to GitHub
+9. **NEW**: Test imports and functionality locally before release
+10. **NEW**: Monitor GitHub Actions after release for CI/CD compliance
