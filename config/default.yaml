@@ -1,42 +1,116 @@
 # Vox Poetica Studio Web - Main Configuration
-# Exact configuration from vpts.yml workflow specification
+# Enhanced with workflow mode support for reasoning and non-reasoning models
+
+# Workflow mode selection: 'reasoning', 'non_reasoning', or 'hybrid'
+workflow_mode: "hybrid"  # Default to balanced approach
 
 workflow:
   name: "vox_poetica_translation"
-  version: "1.0.0"
-  steps:
+  version: "2.0.0"
+
+  # Pure Reasoning Workflow Configuration
+  reasoning_workflow:
     initial_translation:
-      provider: "tongyi"
-      model: "qwen-max-latest"
-      temperature: 0.7
-      max_tokens: 4096
-      prompt_template: "prompts/initial_translation.yaml"
-      timeout: 120.0
-      retry_attempts: 3
+      provider: "deepseek"
+      model: "deepseek-reasoner"
+      temperature: 0.2
+      max_tokens: 16384
+      prompt_template: "initial_translation_reasoning"
+      timeout: 300.0
+      retry_attempts: 2
+      stop: ["</initial_translation_notes>"]
 
     editor_review:
       provider: "deepseek"
       model: "deepseek-reasoner"
+      temperature: 0.1
+      max_tokens: 16384
+      prompt_template: "editor_review_reasoning"
+      timeout: 300.0
+      retry_attempts: 2
+      stop: ["</editor_suggestions>"]
+
+    translator_revision:
+      provider: "deepseek"
+      model: "deepseek-reasoner"
+      temperature: 0.15
+      max_tokens: 16384
+      prompt_template: "translator_revision_reasoning"
+      timeout: 300.0
+      retry_attempts: 2
+      stop: ["</revised_translation_notes>"]
+
+  # Pure Non-Reasoning Workflow Configuration
+  non_reasoning_workflow:
+    initial_translation:
+      provider: "tongyi"
+      model: "qwen-plus-latest"
+      temperature: 0.7
+      max_tokens: 8192
+      prompt_template: "initial_translation_nonreasoning"
+      timeout: 180.0
+      retry_attempts: 3
+      stop: ["</initial_translation_notes>"]
+
+    editor_review:
+      provider: "tongyi"
+      model: "qwen-plus-latest"
       temperature: 0.3
       max_tokens: 8192
-      prompt_template: "prompts/editor_review.yaml"
-      timeout: 120.0
+      prompt_template: "editor_review_nonreasoning"
+      timeout: 180.0
       retry_attempts: 3
+      stop: ["</editor_suggestions>"]
 
     translator_revision:
       provider: "tongyi"
-      model: "qwen-max-latest"
+      model: "qwen-plus-latest"
       temperature: 0.2
-      max_tokens: 8001
-      prompt_template: "prompts/translator_revision.yaml"
-      timeout: 120.0
+      max_tokens: 8192
+      prompt_template: "translator_revision_nonreasoning"
+      timeout: 180.0
       retry_attempts: 3
+      stop: ["</revised_translation_notes>"]
 
+  # Hybrid Workflow Configuration (Non-Reasoning → Reasoning → Non-Reasoning)
+  hybrid_workflow:
+    initial_translation:
+      provider: "tongyi"
+      model: "qwen-plus-latest"
+      temperature: 0.7
+      max_tokens: 8192
+      prompt_template: "initial_translation_nonreasoning"
+      timeout: 180.0
+      retry_attempts: 3
+      stop: ["</initial_translation_notes>"]
+
+    editor_review:
+      provider: "deepseek"
+      model: "deepseek-reasoner"
+      temperature: 0.1
+      max_tokens: 16384
+      prompt_template: "editor_review_reasoning"
+      timeout: 300.0
+      retry_attempts: 2
+      stop: ["</editor_suggestions>"]
+
+    translator_revision:
+      provider: "tongyi"
+      model: "qwen-plus-latest"
+      temperature: 0.2
+      max_tokens: 8192
+      prompt_template: "translator_revision_nonreasoning"
+      timeout: 180.0
+      retry_attempts: 3
+      stop: ["</revised_translation_notes>"]
+
+  
 storage:
   output_dir: "outputs"
   format: "json"
   include_timestamp: true
   pretty_print: true
+  workflow_mode_tag: true  # Include workflow mode in output filename
 
 logging:
   level: "INFO"
@@ -44,3 +118,11 @@ logging:
   file: "vpsweb.log"
   max_file_size: 10485760  # 10MB
   backup_count: 5
+  log_reasoning_tokens: true  # Track reasoning model token usage
+
+# Performance monitoring
+monitoring:
+  track_latency: true
+  track_token_usage: true
+  track_cost: true  # Estimate API costs
+  compare_workflows: true  # Enable A/B comparison

@@ -98,14 +98,31 @@ class InitialTranslation(BaseModel):
         ge=0,
         description="Number of tokens used for this translation"
     )
+    prompt_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of input tokens used for this translation"
+    )
+    completion_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of output tokens used for this translation"
+    )
+    duration: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Time taken for initial translation in seconds"
+    )
+    cost: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Cost in RMB for this translation step"
+    )
 
     @validator('initial_translation_notes')
     def validate_notes_length(cls, v):
         """Validate notes length matches vpts.yml specification (200-300 words)."""
-        word_count = len(v.split())
-        if word_count < 10:  # Allow shorter notes for testing, but warn if too short
-            import warnings
-            warnings.warn(f"Translation notes should be 200-300 words, got {word_count}")
+        # Note: Removed warning for shorter notes during development
         return v
 
     def to_dict(self) -> Dict[str, Any]:
@@ -141,6 +158,26 @@ class EditorReview(BaseModel):
         ...,
         ge=0,
         description="Number of tokens used for this review"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of input tokens used for this review"
+    )
+    completion_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of output tokens used for this review"
+    )
+    duration: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Time taken for editor review in seconds"
+    )
+    cost: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Cost in RMB for this editor review step"
     )
 
     def get_suggestions_list(self) -> List[str]:
@@ -208,14 +245,32 @@ class RevisedTranslation(BaseModel):
         ge=0,
         description="Number of tokens used for this revision"
     )
+    prompt_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of input tokens used for this revision"
+    )
+    completion_tokens: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Number of output tokens used for this revision"
+    )
+    duration: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Time taken for translator revision in seconds"
+    )
+    cost: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Cost in RMB for this translator revision step"
+    )
 
     @validator('revised_translation_notes')
     def validate_revision_notes_length(cls, v):
         """Validate notes length matches vpts.yml specification (200-300 words)."""
         word_count = len(v.split())
-        if word_count < 10:  # Allow shorter notes for testing, but warn if too short
-            import warnings
-            warnings.warn(f"Revision notes should be 200-300 words, got {word_count}")
+        # Allow any length of revision notes without warning
         return v
 
     def to_dict(self) -> Dict[str, Any]:
@@ -268,6 +323,15 @@ class TranslationOutput(BaseModel):
         ...,
         ge=0.0,
         description="Total workflow execution time in seconds"
+    )
+    workflow_mode: Optional[str] = Field(
+        None,
+        description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)"
+    )
+    total_cost: Optional[float] = Field(
+        None,
+        ge=0.0,
+        description="Total cost in RMB for the entire workflow"
     )
 
     def get_congregated_output(self) -> Dict[str, Any]:

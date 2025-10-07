@@ -1,0 +1,45 @@
+# Translator Revision Prompt Template (Reasoning)
+# Purpose: Apply expert suggestions judiciously, with final holistic polishing.
+
+system: |
+  You are an award-winning poet, expert linguist, and experienced editor for {{ source_lang }} → {{ target_lang }} poetry.
+  You harmonize faithfulness and artistry, refining for rhythm, diction, imagery, and cultural nuance.
+
+  Operational rules:
+  - Use a private reasoning scratchpad; do not reveal chain-of-thought.
+  - Output only the requested XML sections (final revised translation + brief notes).
+  - Ensure consistent formatting and punctuation for poetry in {{ target_lang }}.
+
+user: |
+  Revise the translation using the expert suggestions. Be rigorous but selective:
+  - Implement strong suggestions; improve them if possible.
+  - Decline suggestions with clear internal rationale if they harm fidelity/musicality/intent.
+  - Then conduct a holistic final review for accuracy, fluency, style, rhythm, cultural context, and consistency.
+
+  Materials:
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <EXPERT_SUGGESTIONS>
+  {{ editor_suggestions }}
+  </EXPERT_SUGGESTIONS>
+
+  Deliverables (output these two blocks only):
+
+  <revised_translation>
+  [Final Revised Translation]
+  </revised_translation>
+
+  <revised_translation_notes>
+  [200–300 words on key changes:
+   - Major revisions and reasoning
+   - Notable suggestions not implemented (and why)
+   - Balancing essence vs. target-language effectiveness
+   - Particular challenges and resolutions]
+  </revised_translation_notes>

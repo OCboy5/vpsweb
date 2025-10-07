@@ -16,7 +16,7 @@ from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService
 from ..services.parser import OutputParser
 from ..core.executor import StepExecutor
-from ..models.config import WorkflowConfig, StepConfig
+from ..models.config import WorkflowConfig, StepConfig, WorkflowMode
 from ..models.translation import (
     TranslationInput,
     InitialTranslation,
@@ -56,23 +56,29 @@ class TranslationWorkflow:
     3. Translator Revision
     """
 
-    def __init__(self, config: WorkflowConfig, providers_config):
+    def __init__(self, config: WorkflowConfig, providers_config, workflow_mode: WorkflowMode = WorkflowMode.HYBRID):
         """
         Initialize the translation workflow.
 
         Args:
             config: Workflow configuration with step configurations
             providers_config: Provider configurations for LLM factory
+            workflow_mode: Workflow mode to use (reasoning, non_reasoning, hybrid)
         """
         self.config = config
+        self.workflow_mode = workflow_mode
 
         # Initialize services
         self.llm_factory = LLMFactory(providers_config)
         self.prompt_service = PromptService()
         self.step_executor = StepExecutor(self.llm_factory, self.prompt_service)
 
+        # Get the appropriate workflow steps for the mode
+        self.workflow_steps = config.get_workflow_steps(workflow_mode)
+
         logger.info(f"Initialized TranslationWorkflow: {config.name} v{config.version}")
-        logger.info(f"Available steps: {list(config.steps.keys())}")
+        logger.info(f"Workflow mode: {workflow_mode.value}")
+        logger.info(f"Available steps: {list(self.workflow_steps.keys())}")
 
     async def execute(self, input_data: TranslationInput, show_progress: bool = True) -> TranslationOutput:
         """
@@ -107,13 +113,31 @@ class TranslationWorkflow:
 
         try:
             # Step 1: Initial Translation
-            log_entries.append(f"=== STEP 1: INITIAL TRANSLATION ===")
+            log_entries.append(f"=== STEP 1: INITIAL TRANSLATION ({self.workflow_mode.value.upper()} MODE) ===")
             log_entries.append(f"Input: {input_data.original_poem[:100]}...")
 
             if progress_tracker:
-                progress_tracker.start_step("initial_translation")
+                step_config = self.workflow_steps['initial_translation']
+                model_info = {
+                    'provider': step_config.provider,
+                    'model': step_config.model,
+                    'temperature': str(step_config.temperature)
+                }
+                progress_tracker.start_step("initial_translation", model_info)
 
+            step_start_time = time.time()
             initial_translation = await self._initial_translation(input_data)
+            step_duration = time.time() - step_start_time
+            initial_translation.duration = step_duration
+
+            # Calculate cost for this step
+            step_config = self.workflow_steps['initial_translation']
+            # Use actual token counts from API response
+            input_tokens = getattr(initial_translation, 'prompt_tokens', 0) or 0
+            output_tokens = getattr(initial_translation, 'completion_tokens', 0) or 0
+            initial_translation.cost = self._calculate_step_cost(
+                step_config.provider, step_config.model, input_tokens, output_tokens
+            )
             log_entries.append(f"Initial translation completed: {initial_translation.tokens_used} tokens")
             log_entries.append(f"Translation: {initial_translation.initial_translation[:100]}...")
 
@@ -122,18 +146,40 @@ class TranslationWorkflow:
                     'original_poem': input_data.original_poem,
                     'initial_translation': initial_translation.initial_translation,
                     'initial_translation_notes': initial_translation.initial_translation_notes,
-                    'tokens_used': initial_translation.tokens_used
+                    'tokens_used': initial_translation.tokens_used,
+                    'duration': getattr(initial_translation, 'duration', None),
+                    'cost': getattr(initial_translation, 'cost', None),
+                    'workflow_mode': self.workflow_mode.value,
+                    'model_info': initial_translation.model_info
                 })
 
             # Step 2: Editor Review
-            log_entries.append(f"\n=== STEP 2: EDITOR REVIEW ===")
+            log_entries.append(f"\n=== STEP 2: EDITOR REVIEW ({self.workflow_mode.value.upper()} MODE) ===")
 
             logger.info(f"Starting editor review with {initial_translation.tokens_used} tokens from initial translation")
 
             if progress_tracker:
-                progress_tracker.start_step("editor_review")
+                step_config = self.workflow_steps['editor_review']
+                model_info = {
+                    'provider': step_config.provider,
+                    'model': step_config.model,
+                    'temperature': str(step_config.temperature)
+                }
+                progress_tracker.start_step("editor_review", model_info)
 
+            step_start_time = time.time()
             editor_review = await self._editor_review(input_data, initial_translation)
+            step_duration = time.time() - step_start_time
+            editor_review.duration = step_duration
+
+            # Calculate cost for this step
+            step_config = self.workflow_steps['editor_review']
+            # Use actual token counts from API response
+            input_tokens = getattr(editor_review, 'prompt_tokens', 0) or 0
+            output_tokens = getattr(editor_review, 'completion_tokens', 0) or 0
+            editor_review.cost = self._calculate_step_cost(
+                step_config.provider, step_config.model, input_tokens, output_tokens
+            )
             logger.info(f"Editor review step completed successfully")
             log_entries.append(f"Editor review completed: {editor_review.tokens_used} tokens")
             log_entries.append(f"Review length: {len(editor_review.editor_suggestions)} characters")
@@ -142,17 +188,39 @@ class TranslationWorkflow:
             if progress_tracker:
                 progress_tracker.complete_step("editor_review", {
                     'editor_suggestions': editor_review.editor_suggestions,
-                    'tokens_used': editor_review.tokens_used
+                    'tokens_used': editor_review.tokens_used,
+                    'duration': getattr(editor_review, 'duration', None),
+                    'cost': getattr(editor_review, 'cost', None),
+                    'workflow_mode': self.workflow_mode.value,
+                    'model_info': editor_review.model_info
                 })
 
             # Step 3: Translator Revision
-            log_entries.append(f"\n=== STEP 3: TRANSLATOR REVISION ===")
+            log_entries.append(f"\n=== STEP 3: TRANSLATOR REVISION ({self.workflow_mode.value.upper()} MODE) ===")
 
             if progress_tracker:
-                progress_tracker.start_step("translator_revision")
+                step_config = self.workflow_steps['translator_revision']
+                model_info = {
+                    'provider': step_config.provider,
+                    'model': step_config.model,
+                    'temperature': str(step_config.temperature)
+                }
+                progress_tracker.start_step("translator_revision", model_info)
 
+            step_start_time = time.time()
             revised_translation = await self._translator_revision(
                 input_data, initial_translation, editor_review
+            )
+            step_duration = time.time() - step_start_time
+            revised_translation.duration = step_duration
+
+            # Calculate cost for this step
+            step_config = self.workflow_steps['translator_revision']
+            # Use actual token counts from API response
+            input_tokens = getattr(revised_translation, 'prompt_tokens', 0) or 0
+            output_tokens = getattr(revised_translation, 'completion_tokens', 0) or 0
+            revised_translation.cost = self._calculate_step_cost(
+                step_config.provider, step_config.model, input_tokens, output_tokens
             )
             log_entries.append(f"Translator revision completed: {revised_translation.tokens_used} tokens")
             log_entries.append(f"Revised translation length: {len(revised_translation.revised_translation)} characters")
@@ -161,16 +229,17 @@ class TranslationWorkflow:
                 progress_tracker.complete_step("translator_revision", {
                     'revised_translation': revised_translation.revised_translation,
                     'revised_translation_notes': revised_translation.revised_translation_notes,
-                    'tokens_used': revised_translation.tokens_used
+                    'tokens_used': revised_translation.tokens_used,
+                    'duration': getattr(revised_translation, 'duration', None),
+                    'cost': getattr(revised_translation, 'cost', None),
+                    'workflow_mode': self.workflow_mode.value,
+                    'model_info': revised_translation.model_info
                 })
 
-            # Show final summary if progress tracking
-            if progress_tracker:
-                summary = progress_tracker.get_summary()
-                print(f"\n🎉 Translation Complete!")
-                print(f"   Total Steps: {summary['completed_steps']}/{summary['total_steps']}")
-                print(f"   Total Tokens: {summary['total_tokens']}")
-                print(f"   Total Duration: {summary['total_duration']:.2f}s")
+            # Calculate total cost
+            total_cost = self._calculate_total_cost(
+                initial_translation, editor_review, revised_translation
+            )
 
             # Aggregate results
             duration = time.time() - start_time
@@ -183,6 +252,9 @@ class TranslationWorkflow:
             logger.info(f"Workflow {workflow_id} completed successfully in {duration:.2f}s")
             logger.info(f"Total tokens used: {total_tokens}")
 
+            # Calculate total cost
+            total_cost = self._calculate_total_cost(initial_translation, editor_review, revised_translation)
+
             return self._aggregate_output(
                 workflow_id=workflow_id,
                 input_data=input_data,
@@ -191,7 +263,8 @@ class TranslationWorkflow:
                 revised_translation=revised_translation,
                 log_entries=log_entries,
                 total_tokens=total_tokens,
-                duration=duration
+                duration=duration,
+                total_cost=total_cost
             )
 
         except Exception as e:
@@ -223,7 +296,7 @@ class TranslationWorkflow:
             StepExecutionError: If translation step fails
         """
         try:
-            step_config = self.config.steps['initial_translation']
+            step_config = self.workflow_steps['initial_translation']
 
             # Prepare input context
             input_context = {
@@ -250,6 +323,7 @@ class TranslationWorkflow:
                 notes = extracted.get('initial_translation_notes', '')
 
             # Create InitialTranslation model
+            usage = result.get('metadata', {}).get('usage', {})
             return InitialTranslation(
                 initial_translation=translation,
                 initial_translation_notes=notes,
@@ -258,7 +332,9 @@ class TranslationWorkflow:
                     'model': step_config.model,
                     'temperature': str(step_config.temperature)
                 },
-                tokens_used=result.get('metadata', {}).get('usage', {}).get('tokens_used', 0)
+                tokens_used=usage.get('tokens_used', 0),
+                prompt_tokens=usage.get('prompt_tokens'),
+                completion_tokens=usage.get('completion_tokens')
             )
 
         except Exception as e:
@@ -284,7 +360,7 @@ class TranslationWorkflow:
             StepExecutionError: If review step fails
         """
         try:
-            step_config = self.config.steps['editor_review']
+            step_config = self.workflow_steps['editor_review']
 
             # Execute step
             result = await self.step_executor.execute_editor_review(
@@ -303,6 +379,7 @@ class TranslationWorkflow:
                 editor_suggestions = result.get('metadata', {}).get('raw_response', {}).get('content_preview', '')
 
             # Create EditorReview model
+            usage = result.get('metadata', {}).get('usage', {})
             return EditorReview(
                 editor_suggestions=editor_suggestions,
                 model_info={
@@ -310,7 +387,9 @@ class TranslationWorkflow:
                     'model': step_config.model,
                     'temperature': str(step_config.temperature)
                 },
-                tokens_used=result.get('metadata', {}).get('usage', {}).get('tokens_used', 0)
+                tokens_used=usage.get('tokens_used', 0),
+                prompt_tokens=usage.get('prompt_tokens'),
+                completion_tokens=usage.get('completion_tokens')
             )
 
         except Exception as e:
@@ -338,7 +417,7 @@ class TranslationWorkflow:
             StepExecutionError: If revision step fails
         """
         try:
-            step_config = self.config.steps['translator_revision']
+            step_config = self.workflow_steps['translator_revision']
 
             # Execute step
             result = await self.step_executor.execute_translator_revision(
@@ -358,6 +437,7 @@ class TranslationWorkflow:
                 notes = extracted.get('revised_translation_notes', '')
 
             # Create RevisedTranslation model
+            usage = result.get('metadata', {}).get('usage', {})
             return RevisedTranslation(
                 revised_translation=translation,
                 revised_translation_notes=notes,
@@ -366,7 +446,9 @@ class TranslationWorkflow:
                     'model': step_config.model,
                     'temperature': str(step_config.temperature)
                 },
-                tokens_used=result.get('metadata', {}).get('usage', {}).get('tokens_used', 0)
+                tokens_used=usage.get('tokens_used', 0),
+                prompt_tokens=usage.get('prompt_tokens'),
+                completion_tokens=usage.get('completion_tokens')
             )
 
         except Exception as e:
@@ -382,7 +464,8 @@ class TranslationWorkflow:
         revised_translation: RevisedTranslation,
         log_entries: list,
         total_tokens: int,
-        duration: float
+        duration: float,
+        total_cost: float
     ) -> TranslationOutput:
         """
         Aggregate all workflow results into final output.
@@ -406,6 +489,7 @@ class TranslationWorkflow:
         # Add summary to log
         full_log += f"\n\n=== WORKFLOW SUMMARY ==="
         full_log += f"\nWorkflow ID: {workflow_id}"
+        full_log += f"\nWorkflow Mode: {self.workflow_mode.value}"
         full_log += f"\nTotal tokens: {total_tokens}"
         full_log += f"\nDuration: {duration:.2f}s"
         full_log += f"\nCompleted: {datetime.now().isoformat()}"
@@ -418,8 +502,42 @@ class TranslationWorkflow:
             revised_translation=revised_translation,
             full_log=full_log,
             total_tokens=total_tokens,
-            duration_seconds=duration
+            duration_seconds=duration,
+            workflow_mode=self.workflow_mode.value,
+            total_cost=total_cost
         )
+
+    def _calculate_total_cost(self, initial_translation, editor_review, revised_translation):
+        """Calculate total cost of the workflow."""
+        total_cost = 0.0
+
+        # Calculate cost for each step if we have the pricing info
+        for step_result in [initial_translation, editor_review, revised_translation]:
+            if hasattr(step_result, 'cost') and step_result.cost is not None:
+                total_cost += step_result.cost
+
+        return total_cost
+
+    def _calculate_step_cost(self, provider: str, model: str, input_tokens: int, output_tokens: int):
+        """Calculate cost for a single step."""
+        try:
+            # Get pricing from configuration
+            providers_config = self.llm_factory.providers_config
+
+            if hasattr(providers_config, 'pricing') and providers_config.pricing:
+                pricing = providers_config.pricing
+
+                # Get pricing for this provider and model
+                if provider in pricing and model in pricing[provider]:
+                    model_pricing = pricing[provider][model]
+                    input_cost = (input_tokens / 1000000) * model_pricing.get('input', 0)
+                    output_cost = (output_tokens / 1000000) * model_pricing.get('output', 0)
+                    return input_cost + output_cost
+
+            return 0.0
+        except Exception as e:
+            logger.warning(f"Failed to calculate cost for {provider}/{model}: {e}")
+            return 0.0
 
     def __repr__(self) -> str:
         """String representation of the workflow."""

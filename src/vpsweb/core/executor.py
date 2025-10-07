@@ -63,11 +63,6 @@ class StepExecutor:
         """
         self.llm_factory = llm_factory
         self.prompt_service = prompt_service
-        self._step_templates = {
-            "initial_translation": "initial_translation",
-            "editor_review": "editor_review",
-            "translator_revision": "translator_revision"
-        }
         logger.info("Initialized StepExecutor with LLM factory and prompt service")
 
     async def execute_step(
@@ -103,7 +98,7 @@ class StepExecutor:
 
             # Step 3: Render prompt template
             system_prompt, user_prompt = await self._render_prompt_template(
-                step_name, input_data
+                step_name, input_data, config
             )
             logger.debug(f"Rendered system prompt: {len(system_prompt)} chars")
             logger.debug(f"Rendered user prompt: {len(user_prompt)} chars")
@@ -147,8 +142,7 @@ class StepExecutor:
         if not step_name:
             raise ValueError("Step name cannot be empty")
 
-        if step_name not in self._step_templates:
-            raise ValueError(f"Unknown step name: {step_name}. Available: {list(self._step_templates.keys())}")
+        # Step name validation - valid steps are handled by workflow configuration
 
         if not isinstance(input_data, dict):
             raise ValueError("Input data must be a dictionary")
@@ -175,10 +169,11 @@ class StepExecutor:
     async def _render_prompt_template(
         self,
         step_name: str,
-        input_data: Dict[str, Any]
+        input_data: Dict[str, Any],
+        config: StepConfig
     ) -> tuple[str, str]:
         """Render the appropriate prompt template for the step."""
-        template_name = self._step_templates[step_name]
+        template_name = config.prompt_template
 
         try:
             logger.debug(f"Rendering template: {template_name} with variables: {list(input_data.keys())}")

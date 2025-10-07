@@ -1,5 +1,5 @@
 # Vox Poetica Studio Web - LLM Provider Configuration
-# Exact provider specifications from vpts.yml workflow
+# Enhanced with model classification and reasoning capabilities
 
 providers:
   tongyi:
@@ -7,23 +7,59 @@ providers:
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     type: "openai_compatible"
     models:
-      - "qwen-max-latest"
-      - "qwen-max-0919"
-    default_model: "qwen-max-latest"
+      - "qwen3-max-latest"
+      - "qwen-plus-latest"
+    default_model: "qwen-plus-latest"
+    capabilities:
+      reasoning: false
 
   deepseek:
     api_key_env: "DEEPSEEK_API_KEY"
     base_url: "https://api.deepseek.com/v1"
     type: "openai_compatible"
     models:
-      - "deepseek-reasoner"
-      - "deepseek-chat"
+      - "deepseek-reasoner"      # Reasoning model
+      - "deepseek-chat"          # Non-reasoning model
     default_model: "deepseek-reasoner"
+    capabilities:
+      reasoning: true
+
+# Model classification for automatic prompt selection
+model_classification:
+  reasoning_models:
+    - "deepseek-reasoner"
+  non_reasoning_models:
+    - "qwen3-max-latest"
+    - "qwen-plus-latest"
+    - "deepseek-chat"
 
 # Global provider settings
 provider_settings:
-  timeout: 120.0
+  timeout: 180.0
   max_retries: 3
   retry_delay: 1.0
   request_timeout: 30.0
   connection_pool_size: 10
+
+# Reasoning model specific settings
+reasoning_settings:
+  timeout: 300.0              # Extended for reasoning time
+  max_retries: 2              # Fewer retries (expensive)
+  request_timeout: 60.0       # Longer individual requests
+
+# Pricing information (RMB per 1M tokens)
+pricing:
+  tongyi:
+    qwen3-max-latest:
+      input: 0.006      # ¥6.0 per 1M input tokens
+      output: 0.024     # ¥24.0 per 1M output tokens
+    qwen-plus-latest:
+      input: 0.0008      # ¥0.8 per 1M input tokens
+      output: 0.002     # ¥2.0 per 1M output tokens
+  deepseek:
+    deepseek-reasoner:
+      input: 0.002      # ¥2.0 per 1M input tokens
+      output: 0.003     # ¥3.0 per 1M output tokens
+    deepseek-chat:
+      input: 0.002      # ¥2.0 per 1M input tokens
+      output: 0.003     # ¥3.0 per 1M output tokens

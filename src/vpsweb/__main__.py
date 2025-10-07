@@ -23,7 +23,7 @@ from .utils.config_loader import load_config, validate_config_files
 from .utils.storage import StorageHandler
 from .core.workflow import TranslationWorkflow
 from .models.translation import TranslationInput
-from .models.config import LogLevel
+from .models.config import LogLevel, WorkflowMode
 
 
 class CLIError(Exception):
@@ -143,7 +143,9 @@ def initialize_system(config_path: Optional[str], verbose: bool) -> tuple:
 async def execute_translation_workflow(
     workflow: TranslationWorkflow,
     input_data: TranslationInput,
-    storage_handler: StorageHandler
+    storage_handler: StorageHandler,
+    workflow_mode: str = None,
+    include_mode_tag: bool = False
 ) -> tuple:
     """
     Execute the translation workflow and save results.
@@ -152,21 +154,37 @@ async def execute_translation_workflow(
         workflow: Initialized workflow instance
         input_data: Translation input data
         storage_handler: Storage handler for saving results
+        workflow_mode: Workflow mode used for translation
+        include_mode_tag: Whether to include workflow mode in filename
 
     Returns:
-        Tuple of (translation_output, file_path)
+        Tuple of (translation_output, saved_files)
 
     Raises:
         WorkflowError: If workflow execution fails
     """
     try:
         # Execute workflow
-        click.echo("🚀 Starting translation workflow...")
+        click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
+
+        # Display original poem
+        click.echo(f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):")
+        click.echo("-" * 30)
+        # Show poem with proper formatting, limiting length for display
+        poem = input_data.original_poem
+        if len(poem) > 200:
+            poem = poem[:200] + "..."
+        click.echo(poem)
+        click.echo("-" * 30)
+        click.echo()  # Add spacing
+
         translation_output = await workflow.execute(input_data, show_progress=True)
 
         # Save results (both JSON and markdown)
         click.echo("💾 Saving translation results...")
-        saved_files = storage_handler.save_translation_with_markdown(translation_output)
+        saved_files = storage_handler.save_translation_with_markdown(
+            translation_output, workflow_mode, include_mode_tag
+        )
 
         return translation_output, saved_files
 
@@ -188,16 +206,41 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
 
     # Basic info
     click.echo(f"📋 Workflow ID: {translation_output.workflow_id}")
+    click.echo(f"🔄 Workflow Mode: {translation_output.workflow_mode}")
     click.echo(f"📁 Output file: {saved_files['json']}")
     click.echo(f"📄 Markdown (final): {saved_files['markdown_final']}")
     click.echo(f"📋 Markdown (log): {saved_files['markdown_log']}")
-    click.echo(f"⏱️  Total time: {translation_output.duration_seconds:.2f}s")
-    click.echo(f"🧮 Total tokens: {translation_output.total_tokens}")
 
-    # Editor suggestions count
+    # Step-by-step details
+    click.echo("\n📊 Step-by-Step Details:")
+
+    # Format duration and cost for display
+    def format_duration(duration):
+        if duration is None:
+            return "N/A"
+        return f"{duration:.2f}s"
+
+    def format_cost(cost):
+        if cost is None:
+            return "N/A"
+        return f"¥{cost:.6f}"
+
+    click.echo(f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.initial_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.initial_translation, 'cost', None))}")
+    click.echo(f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.editor_review, 'duration', None))} | 💰 {format_cost(getattr(translation_output.editor_review, 'cost', None))}")
+    click.echo(f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.revised_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.revised_translation, 'cost', None))}")
+
+    # Total summary
+    click.echo(f"\n📈 Overall: 🧮 {translation_output.total_tokens} total tokens | ⏱️  {translation_output.duration_seconds:.2f}s total time | 💰 {format_cost(translation_output.total_cost)} total cost")
+
+    # Editor suggestions count (improved counting)
     editor_suggestions = translation_output.editor_review.editor_suggestions
-    suggestions_count = len([line for line in editor_suggestions.split('\n') if line.strip().startswith(('1.', '2.', '3.', '4.', '5.'))])
-    click.echo(f"📋 Editor suggestions: {suggestions_count}")
+    if editor_suggestions:
+        # Count lines that start with numbers (1., 2., 3., etc.)
+        suggestions_count = len([line for line in editor_suggestions.split('\n')
+                               if line.strip() and line.strip()[0].isdigit()])
+        click.echo(f"📋 Editor suggestions: {suggestions_count}")
+    else:
+        click.echo(f"📋 Editor suggestions: 0")
 
     click.echo("\n✅ Translation saved successfully!")
 
@@ -232,7 +275,7 @@ def validate_input_only(input_data: TranslationInput, config_path: Optional[str]
 
 
 @click.group()
-@click.version_option(version="0.1.2", prog_name="vpsweb")
+@click.version_option(version="0.2.0", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -248,18 +291,26 @@ def cli():
               help='Source language')
 @click.option('--target', '-t', required=True, type=click.Choice(['English', 'Chinese', 'Polish']),
               help='Target language')
+@click.option('--workflow-mode', '-w', type=click.Choice(['reasoning', 'non_reasoning', 'hybrid']),
+              default='hybrid', help='Workflow mode: reasoning, non_reasoning, or hybrid (default: hybrid)')
 @click.option('--config', '-c', type=click.Path(exists=True), help='Custom config directory')
 @click.option('--output', '-o', type=click.Path(), help='Output directory')
 @click.option('--verbose', '-v', is_flag=True, help='Verbose logging')
 @click.option('--dry-run', is_flag=True, help='Validate without execution')
-def translate(input, source, target, config, output, verbose, dry_run):
+def translate(input, source, target, workflow_mode, config, output, verbose, dry_run):
     """Translate a poem using the T-E-T workflow
 
     Examples:
 
     \b
-    # Translate from file
+    # Translate from file (default hybrid mode)
     vpsweb translate -i poem.txt -s English -t Chinese
+
+    # Translate with reasoning mode (highest quality)
+    vpsweb translate -i poem.txt -s English -t Chinese -w reasoning
+
+    # Translate with non-reasoning mode (faster, cost-effective)
+    vpsweb translate -i poem.txt -s English -t Chinese -w non_reasoning
 
     # Translate from stdin
     echo "The fog comes on little cat feet." | vpsweb translate -s English -t Chinese
@@ -287,6 +338,9 @@ def translate(input, source, target, config, output, verbose, dry_run):
         # Initialize system
         complete_config, workflow_config = initialize_system(config, verbose)
 
+        # Convert workflow mode string to enum
+        workflow_mode_enum = WorkflowMode(workflow_mode)
+
         # Setup storage
         output_dir = output or complete_config.main.storage.output_dir
         storage_handler = StorageHandler(output_dir)
@@ -296,16 +350,21 @@ def translate(input, source, target, config, output, verbose, dry_run):
             validate_input_only(input_data, config)
             return
 
-        # Create and execute workflow
-        workflow = TranslationWorkflow(workflow_config, complete_config.providers)
+        # Create and execute workflow with specified mode
+        workflow = TranslationWorkflow(workflow_config, complete_config.providers, workflow_mode_enum)
+
+        # Get storage settings
+        include_mode_tag = complete_config.main.storage.workflow_mode_tag
 
         # Execute async workflow
-        translation_output, file_path = asyncio.run(
-            execute_translation_workflow(workflow, input_data, storage_handler)
+        translation_output, saved_files = asyncio.run(
+            execute_translation_workflow(
+                workflow, input_data, storage_handler, workflow_mode, include_mode_tag
+            )
         )
 
         # Display summary
-        display_summary(translation_output, file_path)
+        display_summary(translation_output, saved_files)
 
     except InputError as e:
         click.echo(f"❌ Input error: {e}", err=True)

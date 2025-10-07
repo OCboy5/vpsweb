@@ -79,13 +79,32 @@ class ProgressTracker:
         """Format a single step line for display."""
         step = self.steps[step_name]
         icon = self._get_status_icon(step.status)
-        return f"  Step {self.step_order.index(step_name) + 1}: {step.display_name}... {icon} {step.status.value.replace('_', ' ').title()}"
+        base_line = f"  Step {self.step_order.index(step_name) + 1}: {step.display_name}... {icon} {step.status.value.replace('_', ' ').title()}"
 
-    def start_step(self, step_name: str) -> None:
+        # Add model info for in-progress steps
+        if step.status == StepStatus.IN_PROGRESS and step.result and 'model_info' in step.result:
+            model_info = step.result['model_info']
+            provider = model_info.get('provider', 'Unknown')
+            model = model_info.get('model', 'Unknown')
+            temp = model_info.get('temperature', 'Unknown')
+            # Determine if reasoning model
+            is_reasoning = model.lower() in ['deepseek-reasoner', 'o1', 'o1-mini', 'o3-mini']
+            model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
+
+            # Add model info on next line with indentation
+            model_line = f"      🤖 Provider: {provider.title()} | 🧠 Model: {model} | 🌡️ Temp: {temp} | ⚡ {model_type}"
+            return base_line + "\n" + model_line
+
+        return base_line
+
+    def start_step(self, step_name: str, model_info: Optional[Dict[str, Any]] = None) -> None:
         """Mark a step as in progress."""
         if step_name in self.steps:
             self.steps[step_name].status = StepStatus.IN_PROGRESS
             self.steps[step_name].start_time = time.time()
+            # Store model info for this step
+            if model_info:
+                self.steps[step_name].result = {'model_info': model_info}
             self._update_display()
 
     def complete_step(self, step_name: str, result: Dict[str, Any]) -> None:
@@ -111,8 +130,31 @@ class ProgressTracker:
         print("\n🎭 Poetry Translation Progress")
         print("=" * 50)
 
+        # Find current step (in progress or failed)
+        current_step = None
+        completed_steps = []
+        upcoming_steps = []
+
         for step_name in self.step_order:
-            print(self._format_step_line(step_name))
+            step = self.steps[step_name]
+            if step.status == StepStatus.IN_PROGRESS or step.status == StepStatus.FAILED:
+                current_step = step_name
+            elif step.status == StepStatus.COMPLETED:
+                completed_steps.append(step_name)
+            else:  # PENDING
+                upcoming_steps.append(step_name)
+
+        # Show all steps in order
+        for step_name in self.step_order:
+            if step_name in completed_steps:
+                # Show completed steps
+                print(self._format_step_line(step_name))
+            elif step_name == current_step:
+                # Show current step with model info
+                print(self._format_step_line(step_name))
+            elif step_name in upcoming_steps:
+                # Show upcoming steps
+                print(self._format_step_line(step_name))
 
         print()  # Add spacing
 
@@ -140,28 +182,80 @@ class ProgressTracker:
                     print(f"  {key.replace('_', ' ').title()}: {value}")
 
         print("-" * 30)
-        print()
+
+    def _display_model_info(self, result: Dict[str, Any]) -> None:
+        """Display model configuration information."""
+        if 'model_info' in result:
+            model_info = result['model_info']
+            provider = model_info.get('provider', 'Unknown')
+            model = model_info.get('model', 'Unknown')
+            temp = model_info.get('temperature', 'Unknown')
+
+            # Determine if reasoning model
+            is_reasoning = model.lower() in ['deepseek-reasoner', 'o1', 'o1-mini', 'o3-mini']
+            model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
+
+            print(f"  🤖 Model Provider: {provider.title()}")
+            print(f"  🧠 Model Name: {model}")
+            print(f"  🌡️  Temperature: {temp}")
+            print(f"  ⚡ Type: {model_type}")
 
     def _display_initial_translation(self, result: Dict[str, Any]) -> None:
         """Display initial translation results."""
-        print(f"  Original Poem: {result.get('original_poem', 'N/A')}")
-        print(f"  Initial Translation: {result.get('initial_translation', 'N/A')}")
-        print(f"  Translation Notes: {result.get('initial_translation_notes', 'N/A')}")
-        if result.get('tokens_used'):
-            print(f"  Tokens Used: {result['tokens_used']}")
+        self._display_model_info(result)
+        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+        if result.get('duration'):
+            print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
+        if result.get('cost'):
+            print(f"  💰 Cost: ¥{result['cost']:.6f}")
+        # Show a preview of the translation (first 100 chars)
+        translation = result.get('initial_translation', 'N/A')
+        if translation != 'N/A' and len(translation) > 100:
+            translation = translation[:100] + "..."
+        print(f"  📝 Translation Preview: {translation}")
 
     def _display_editor_review(self, result: Dict[str, Any]) -> None:
         """Display editor review results."""
-        print(f"  Editor Suggestions: {result.get('editor_suggestions', 'N/A')}")
-        if result.get('tokens_used'):
-            print(f"  Tokens Used: {result['tokens_used']}")
+        self._display_model_info(result)
+        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+        if result.get('duration'):
+            print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
+        if result.get('cost'):
+            print(f"  💰 Cost: ¥{result['cost']:.6f}")
+
+        # Count editor suggestions more accurately
+        suggestions = result.get('editor_suggestions', '')
+        if suggestions:
+            # Count lines that start with numbers (1., 2., 3., etc.)
+            suggestion_count = len([line for line in suggestions.split('\n')
+                                   if line.strip() and line.strip()[0].isdigit()])
+            print(f"  📋 Editor Suggestions: {suggestion_count}")
+
+            # Show first 2-3 suggestions as preview
+            suggestion_lines = [line for line in suggestions.split('\n')
+                              if line.strip() and line.strip()[0].isdigit()]
+            if suggestion_lines:
+                print(f"  💬 Sample Suggestions:")
+                for i, line in enumerate(suggestion_lines[:3]):  # Show first 3
+                    print(f"     {line.strip()}")
+                if len(suggestion_lines) > 3:
+                    print(f"     ... and {len(suggestion_lines) - 3} more")
+        else:
+            print(f"  📋 Editor Suggestions: 0")
 
     def _display_translator_revision(self, result: Dict[str, Any]) -> None:
         """Display translator revision results."""
-        print(f"  Revised Translation: {result.get('revised_translation', 'N/A')}")
-        print(f"  Revision Notes: {result.get('revised_translation_notes', 'N/A')}")
-        if result.get('tokens_used'):
-            print(f"  Tokens Used: {result['tokens_used']}")
+        self._display_model_info(result)
+        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+        if result.get('duration'):
+            print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
+        if result.get('cost'):
+            print(f"  💰 Cost: ¥{result['cost']:.6f}")
+        # Show a preview of the revised translation (first 100 chars)
+        revision = result.get('revised_translation', 'N/A')
+        if revision != 'N/A' and len(revision) > 100:
+            revision = revision[:100] + "..."
+        print(f"  📝 Revision Preview: {revision}")
 
     def get_summary(self) -> Dict[str, Any]:
         """Get overall progress summary."""

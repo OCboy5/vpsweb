@@ -17,7 +17,8 @@ from ..models.config import (
     MainConfig,
     ProvidersConfig,
     CompleteConfig,
-    ModelProviderConfig
+    ModelProviderConfig,
+    WorkflowMode
 )
 
 logger = logging.getLogger(__name__)
@@ -297,13 +298,23 @@ def validate_config_files(config_dir: Optional[Union[str, Path]] = None) -> bool
     try:
         config = load_config(config_dir)
 
-        # Additional validation
-        for step_name, step_config in config.main.workflow.steps.items():
-            provider_name = step_config.provider
-            if provider_name not in config.providers.providers:
-                raise ConfigLoadError(
-                    f"Step '{step_name}' references unknown provider '{provider_name}'"
-                )
+        # Additional validation - check all workflow modes
+        workflow_modes = [WorkflowMode.REASONING, WorkflowMode.NON_REASONING, WorkflowMode.HYBRID]
+
+        for mode in workflow_modes:
+            try:
+                steps = config.main.workflow.get_workflow_steps(mode)
+                for step_name, step_config in steps.items():
+                    provider_name = step_config.provider
+                    if provider_name not in config.providers.providers:
+                        raise ConfigLoadError(
+                            f"Step '{step_name}' in {mode.value} mode references unknown provider '{provider_name}'"
+                        )
+            except ValueError as e:
+                # Skip modes that aren't configured
+                if f"Workflow mode '{mode.value}' is not configured" in str(e):
+                    continue
+                raise
 
         logger.info("Configuration validation passed")
         return True

@@ -66,12 +66,14 @@ class StorageHandler:
             logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
             raise StorageError(f"Could not create output directory '{self.output_dir}': {e}")
 
-    def save_translation(self, output: TranslationOutput) -> Path:
+    def save_translation(self, output: TranslationOutput, workflow_mode: str = None, include_mode_tag: bool = False) -> Path:
         """
         Save a translation output to a timestamped JSON file.
 
         Args:
             output: TranslationOutput instance to save
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
 
         Returns:
             Path to the saved file
@@ -84,8 +86,11 @@ class StorageHandler:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             short_uuid = str(uuid.uuid4())[:8]
 
-            # Create descriptive filename
-            filename = f"translation_{timestamp}_{short_uuid}.json"
+            # Create descriptive filename with optional workflow mode tag
+            if include_mode_tag and workflow_mode:
+                filename = f"translation_{workflow_mode}_{timestamp}_{short_uuid}.json"
+            else:
+                filename = f"translation_{timestamp}_{short_uuid}.json"
             file_path = self.output_dir / filename
 
             # Convert to dictionary for JSON serialization
@@ -248,12 +253,14 @@ class StorageHandler:
             logger.error(f"Failed to delete translation file {file_path}: {e}")
             raise StorageError(f"Failed to delete translation file: {e}")
 
-    def save_translation_with_markdown(self, output: TranslationOutput) -> Dict[str, Path]:
+    def save_translation_with_markdown(self, output: TranslationOutput, workflow_mode: str = None, include_mode_tag: bool = False) -> Dict[str, Path]:
         """
         Save a translation output to both JSON and markdown files.
 
         Args:
             output: TranslationOutput instance to save
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
 
         Returns:
             Dictionary with paths to saved files:
@@ -268,7 +275,7 @@ class StorageHandler:
         """
         try:
             # Save JSON file (existing functionality)
-            json_path = self.save_translation(output)
+            json_path = self.save_translation(output, workflow_mode, include_mode_tag)
 
             # Save markdown files (new functionality)
             markdown_paths = self.markdown_exporter.export_both(output)
