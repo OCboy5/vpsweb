@@ -17,6 +17,7 @@ from ..models.config import LoggingConfig
 
 class LoggerSetupError(Exception):
     """Raised when logging setup fails."""
+
     pass
 
 
@@ -73,7 +74,7 @@ def setup_logging(config: LoggingConfig) -> None:
                 filename=log_file_path,
                 maxBytes=config.max_file_size,
                 backupCount=config.backup_count,
-                encoding='utf-8'
+                encoding="utf-8",
             )
             file_handler.setLevel(config.level.value)
             file_handler.setFormatter(formatter)
@@ -97,7 +98,7 @@ def setup_logging(config: LoggingConfig) -> None:
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            stream=sys.stdout
+            stream=sys.stdout,
         )
         fallback_logger = logging.getLogger(__name__)
         fallback_logger.error(f"Failed to setup logging: {e}")
@@ -120,7 +121,6 @@ def _configure_application_loggers(level: str) -> None:
         "vpsweb.services": level,
         "vpsweb.models": level,
         "vpsweb.utils": level,
-
         # External libraries - reduce noise
         "httpx": "WARNING",
         "urllib3": "WARNING",
@@ -174,7 +174,7 @@ def set_log_level(level: str) -> None:
         raise LoggerSetupError("Logging not initialized. Call setup_logging() first.")
 
     # Validate level
-    valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     if level not in valid_levels:
         raise ValueError(f"Invalid log level: {level}. Must be one of {valid_levels}")
 
@@ -207,7 +207,8 @@ def get_log_file_info() -> Optional[dict]:
 
     root_logger = logging.getLogger()
     file_handlers = [
-        handler for handler in root_logger.handlers
+        handler
+        for handler in root_logger.handlers
         if isinstance(handler, logging.handlers.RotatingFileHandler)
     ]
 
@@ -218,15 +219,17 @@ def get_log_file_info() -> Optional[dict]:
     log_file = Path(handler.baseFilename)
 
     return {
-        'file_path': str(log_file.absolute()),
-        'file_size': log_file.stat().st_size if log_file.exists() else 0,
-        'max_size': handler.maxBytes,
-        'backup_count': handler.backupCount,
-        'encoding': handler.encoding
+        "file_path": str(log_file.absolute()),
+        "file_size": log_file.stat().st_size if log_file.exists() else 0,
+        "max_size": handler.maxBytes,
+        "backup_count": handler.backupCount,
+        "encoding": handler.encoding,
     }
 
 
-def log_workflow_start(workflow_id: str, source_lang: str, target_lang: str, poem_length: int) -> None:
+def log_workflow_start(
+    workflow_id: str, source_lang: str, target_lang: str, poem_length: int
+) -> None:
     """
     Log the start of a translation workflow.
 
@@ -243,7 +246,9 @@ def log_workflow_start(workflow_id: str, source_lang: str, target_lang: str, poe
     )
 
 
-def log_workflow_step(workflow_id: str, step_name: str, tokens_used: int, duration: float) -> None:
+def log_workflow_step(
+    workflow_id: str, step_name: str, tokens_used: int, duration: float
+) -> None:
     """
     Log the completion of a workflow step.
 
@@ -260,7 +265,9 @@ def log_workflow_step(workflow_id: str, step_name: str, tokens_used: int, durati
     )
 
 
-def log_workflow_completion(workflow_id: str, total_tokens: int, total_duration: float) -> None:
+def log_workflow_completion(
+    workflow_id: str, total_tokens: int, total_duration: float
+) -> None:
     """
     Log the successful completion of a translation workflow.
 
@@ -276,7 +283,9 @@ def log_workflow_completion(workflow_id: str, total_tokens: int, total_duration:
     )
 
 
-def log_api_call(provider: str, model: str, prompt_length: int, response_length: int) -> None:
+def log_api_call(
+    provider: str, model: str, prompt_length: int, response_length: int
+) -> None:
     """
     Log an API call to an LLM provider.
 
@@ -293,7 +302,9 @@ def log_api_call(provider: str, model: str, prompt_length: int, response_length:
     )
 
 
-def log_error_with_context(error: Exception, context: str = "", workflow_id: str = "") -> None:
+def log_error_with_context(
+    error: Exception, context: str = "", workflow_id: str = ""
+) -> None:
     """
     Log an error with additional context information.
 

@@ -33,7 +33,7 @@ class MarkdownExporter:
         target_lang: str,
         timestamp: str,
         workflow_id: str,
-        is_log: bool = False
+        is_log: bool = False,
     ) -> str:
         """
         Generate filename using Option A naming scheme.
@@ -75,7 +75,7 @@ class MarkdownExporter:
             target_lang=translation_output.input.target_lang,
             timestamp=timestamp,
             workflow_id=translation_output.workflow_id,
-            is_log=False
+            is_log=False,
         )
 
         file_path = self.markdown_dir / filename
@@ -84,7 +84,7 @@ class MarkdownExporter:
         content = self._format_final_translation_markdown(translation_output)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
         return str(file_path)
@@ -106,7 +106,7 @@ class MarkdownExporter:
             target_lang=translation_output.input.target_lang,
             timestamp=timestamp,
             workflow_id=translation_output.workflow_id,
-            is_log=True
+            is_log=True,
         )
 
         file_path = self.markdown_dir / filename
@@ -115,7 +115,7 @@ class MarkdownExporter:
         content = self._format_full_log_markdown(translation_output)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
         return str(file_path)
@@ -133,12 +133,11 @@ class MarkdownExporter:
         final_translation_path = self.export_final_translation(translation_output)
         full_log_path = self.export_full_log(translation_output)
 
-        return {
-            'final_translation': final_translation_path,
-            'full_log': full_log_path
-        }
+        return {"final_translation": final_translation_path, "full_log": full_log_path}
 
-    def _format_final_translation_markdown(self, translation_output: TranslationOutput) -> str:
+    def _format_final_translation_markdown(
+        self, translation_output: TranslationOutput
+    ) -> str:
         """
         Format final translation as markdown.
 
@@ -151,7 +150,9 @@ class MarkdownExporter:
         content = []
 
         # Header
-        content.append(f"# Poetry Translation: {translation_output.input.source_lang} → {translation_output.input.target_lang}")
+        content.append(
+            f"# Poetry Translation: {translation_output.input.source_lang} → {translation_output.input.target_lang}"
+        )
         content.append("")
 
         # Separator
@@ -198,9 +199,13 @@ class MarkdownExporter:
         # Summary
         content.append("## 📊 Summary")
         content.append("")
-        content.append(f"- **Total Duration:** {translation_output.duration_seconds:.2f} seconds")
+        content.append(
+            f"- **Total Duration:** {translation_output.duration_seconds:.2f} seconds"
+        )
         content.append(f"- **Total Tokens:** {translation_output.total_tokens}")
-        content.append(f"- **Editor Suggestions:** {len(translation_output.editor_review.editor_suggestions)} characters")
+        content.append(
+            f"- **Editor Suggestions:** {len(translation_output.editor_review.editor_suggestions)} characters"
+        )
         content.append("")
 
         # Separator
@@ -210,9 +215,15 @@ class MarkdownExporter:
         # Step 1: Initial Translation
         content.append("## 🔄 Step 1: Initial Translation")
         content.append("")
-        content.append(f"**Model:** {translation_output.initial_translation.model_info}")
-        content.append(f"**Tokens Used:** {translation_output.initial_translation.tokens_used}")
-        content.append(f"**Timestamp:** {translation_output.initial_translation.timestamp}")
+        content.append(
+            f"**Model:** {translation_output.initial_translation.model_info}"
+        )
+        content.append(
+            f"**Tokens Used:** {translation_output.initial_translation.tokens_used}"
+        )
+        content.append(
+            f"**Timestamp:** {translation_output.initial_translation.timestamp}"
+        )
         content.append("")
 
         content.append("### 📖 Original Poem")
@@ -240,7 +251,9 @@ class MarkdownExporter:
         content.append("## 👁️ Step 2: Editor Review")
         content.append("")
         content.append(f"**Model:** {translation_output.editor_review.model_info}")
-        content.append(f"**Tokens Used:** {translation_output.editor_review.tokens_used}")
+        content.append(
+            f"**Tokens Used:** {translation_output.editor_review.tokens_used}"
+        )
         content.append(f"**Timestamp:** {translation_output.editor_review.timestamp}")
         content.append("")
 
@@ -254,9 +267,15 @@ class MarkdownExporter:
         content.append("")
         content.append("## ✍️ Step 3: Final Revision")
         content.append("")
-        content.append(f"**Model:** {translation_output.revised_translation.model_info}")
-        content.append(f"**Tokens Used:** {translation_output.revised_translation.tokens_used}")
-        content.append(f"**Timestamp:** {translation_output.revised_translation.timestamp}")
+        content.append(
+            f"**Model:** {translation_output.revised_translation.model_info}"
+        )
+        content.append(
+            f"**Tokens Used:** {translation_output.revised_translation.tokens_used}"
+        )
+        content.append(
+            f"**Timestamp:** {translation_output.revised_translation.timestamp}"
+        )
         content.append("")
 
         content.append("### 🎭 Final Translation")

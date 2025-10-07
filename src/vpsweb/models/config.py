@@ -12,11 +12,13 @@ from enum import Enum
 
 class ProviderType(str, Enum):
     """Supported LLM provider types."""
+
     OPENAI_COMPATIBLE = "openai_compatible"
 
 
 class LogLevel(str, Enum):
     """Supported logging levels."""
+
     DEBUG = "DEBUG"
     INFO = "INFO"
     WARNING = "WARNING"
@@ -26,55 +28,47 @@ class LogLevel(str, Enum):
 
 class ModelCapabilities(BaseModel):
     """Model capabilities classification."""
-    reasoning: bool = Field(
-        False,
-        description="Whether this is a reasoning model"
-    )
+
+    reasoning: bool = Field(False, description="Whether this is a reasoning model")
 
 
 class ModelProviderConfig(BaseModel):
     """Configuration for an LLM provider."""
 
     api_key_env: str = Field(
-        ...,
-        description="Environment variable name containing the API key"
+        ..., description="Environment variable name containing the API key"
     )
-    base_url: str = Field(
-        ...,
-        description="Base URL for the provider's API"
-    )
+    base_url: str = Field(..., description="Base URL for the provider's API")
     type: ProviderType = Field(
-        ...,
-        description="Type of provider (e.g., openai_compatible)"
+        ..., description="Type of provider (e.g., openai_compatible)"
     )
     models: List[str] = Field(
-        ...,
-        description="List of available models from this provider"
+        ..., description="List of available models from this provider"
     )
     default_model: Optional[str] = Field(
-        None,
-        description="Default model to use when not specified"
+        None, description="Default model to use when not specified"
     )
     capabilities: Optional[ModelCapabilities] = Field(
-        default_factory=ModelCapabilities,
-        description="Model capabilities"
+        default_factory=ModelCapabilities, description="Model capabilities"
     )
 
-    @validator('default_model')
+    @validator("default_model")
     def validate_default_model(cls, v, values):
         """Validate that default_model is in the models list."""
-        if v and 'models' in values:
-            if v not in values['models']:
+        if v and "models" in values:
+            if v not in values["models"]:
                 raise ValueError(f"default_model '{v}' must be in models list")
         return v
 
     class Config:
         """Pydantic configuration."""
+
         use_enum_values = True
 
 
 class WorkflowMode(str, Enum):
     """Supported workflow modes."""
+
     REASONING = "reasoning"
     NON_REASONING = "non_reasoning"
     HYBRID = "hybrid"
@@ -84,102 +78,71 @@ class StepConfig(BaseModel):
     """Configuration for a workflow step."""
 
     provider: str = Field(
-        ...,
-        description="Provider name (must match a provider in models.yaml)"
+        ..., description="Provider name (must match a provider in models.yaml)"
     )
-    model: str = Field(
-        ...,
-        description="Model name to use for this step"
-    )
+    model: str = Field(..., description="Model name to use for this step")
     temperature: float = Field(
-        0.7,
-        ge=0.0,
-        le=2.0,
-        description="Temperature for generation (0.0-2.0)"
+        0.7, ge=0.0, le=2.0, description="Temperature for generation (0.0-2.0)"
     )
-    max_tokens: int = Field(
-        4096,
-        ge=1,
-        description="Maximum tokens to generate"
-    )
-    prompt_template: str = Field(
-        ...,
-        description="Path to prompt template file"
-    )
-    timeout: Optional[float] = Field(
-        120.0,
-        description="Request timeout in seconds"
-    )
+    max_tokens: int = Field(4096, ge=1, description="Maximum tokens to generate")
+    prompt_template: str = Field(..., description="Path to prompt template file")
+    timeout: Optional[float] = Field(120.0, description="Request timeout in seconds")
     retry_attempts: Optional[int] = Field(
-        3,
-        description="Number of retry attempts for failed requests"
+        3, description="Number of retry attempts for failed requests"
     )
     required_fields: Optional[List[str]] = Field(
-        None,
-        description="Required fields in the step output for validation"
+        None, description="Required fields in the step output for validation"
     )
-    stop: Optional[List[str]] = Field(
-        None,
-        description="Stop sequences for generation"
-    )
+    stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
 
-    @validator('provider')
+    @validator("provider")
     def validate_provider(cls, v):
         """Validate provider name format."""
         if not v or not v.strip():
             raise ValueError("Provider name cannot be empty")
         return v.strip()
 
-    @validator('prompt_template')
+    @validator("prompt_template")
     def validate_prompt_template(cls, v):
         """Validate prompt template path."""
         if not v or not v.strip():
             raise ValueError("Prompt template path cannot be empty")
         # Remove .yaml/.yml extension if present for consistency
         v = v.strip()
-        if v.endswith('.yaml') or v.endswith('.yml'):
-            v = v[:-5] if v.endswith('.yaml') else v[:-4]
+        if v.endswith(".yaml") or v.endswith(".yml"):
+            v = v[:-5] if v.endswith(".yaml") else v[:-4]
         return v
 
 
 class WorkflowConfig(BaseModel):
     """Configuration for the translation workflow."""
 
-    name: str = Field(
-        ...,
-        description="Workflow name"
-    )
-    version: str = Field(
-        ...,
-        description="Workflow version"
-    )
+    name: str = Field(..., description="Workflow name")
+    version: str = Field(..., description="Workflow version")
     reasoning_workflow: Optional[Dict[str, StepConfig]] = Field(
-        None,
-        description="Configuration for reasoning mode workflow steps"
+        None, description="Configuration for reasoning mode workflow steps"
     )
     non_reasoning_workflow: Optional[Dict[str, StepConfig]] = Field(
-        None,
-        description="Configuration for non-reasoning mode workflow steps"
+        None, description="Configuration for non-reasoning mode workflow steps"
     )
     hybrid_workflow: Optional[Dict[str, StepConfig]] = Field(
-        None,
-        description="Configuration for hybrid mode workflow steps"
+        None, description="Configuration for hybrid mode workflow steps"
     )
 
-    @validator('name')
+    @validator("name")
     def validate_name(cls, v):
         """Validate workflow name."""
         if not v or not v.strip():
             raise ValueError("Workflow name cannot be empty")
         return v.strip()
 
-    @validator('version')
+    @validator("version")
     def validate_version(cls, v):
         """Validate version format."""
         if not v or not v.strip():
             raise ValueError("Version cannot be empty")
         # Basic semantic versioning validation
-        parts = v.split('.')
+        parts = v.split(".")
         if len(parts) != 3:
             raise ValueError("Version must follow semantic versioning (x.y.z)")
         for part in parts:
@@ -187,10 +150,14 @@ class WorkflowConfig(BaseModel):
                 raise ValueError("Version parts must be numeric")
         return v.strip()
 
-    @validator('hybrid_workflow')
+    @validator("hybrid_workflow")
     def validate_workflows(cls, v, values):
         """Validate that at least one workflow mode is configured."""
-        if not v and not values.get('reasoning_workflow') and not values.get('non_reasoning_workflow'):
+        if (
+            not v
+            and not values.get("reasoning_workflow")
+            and not values.get("non_reasoning_workflow")
+        ):
             raise ValueError("At least one workflow mode must be configured")
         return v
 
@@ -209,28 +176,19 @@ class WorkflowConfig(BaseModel):
 class StorageConfig(BaseModel):
     """Configuration for data storage."""
 
-    output_dir: str = Field(
-        "outputs",
-        description="Directory for output files"
-    )
+    output_dir: str = Field("outputs", description="Directory for output files")
     format: Literal["json", "yaml"] = Field(
-        "json",
-        description="Output format (json or yaml)"
+        "json", description="Output format (json or yaml)"
     )
     include_timestamp: bool = Field(
-        True,
-        description="Whether to include timestamp in output filenames"
+        True, description="Whether to include timestamp in output filenames"
     )
-    pretty_print: bool = Field(
-        True,
-        description="Whether to pretty-print JSON output"
-    )
+    pretty_print: bool = Field(True, description="Whether to pretty-print JSON output")
     workflow_mode_tag: bool = Field(
-        False,
-        description="Whether to include workflow mode in output filenames"
+        False, description="Whether to include workflow mode in output filenames"
     )
 
-    @validator('output_dir')
+    @validator("output_dir")
     def validate_output_dir(cls, v):
         """Validate output directory."""
         if not v or not v.strip():
@@ -241,50 +199,31 @@ class StorageConfig(BaseModel):
 class LoggingConfig(BaseModel):
     """Configuration for logging."""
 
-    level: LogLevel = Field(
-        LogLevel.INFO,
-        description="Logging level"
-    )
+    level: LogLevel = Field(LogLevel.INFO, description="Logging level")
     format: str = Field(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        description="Log message format"
+        description="Log message format",
     )
     file: Optional[str] = Field(
-        "vpsweb.log",
-        description="Log file path (None for console only)"
+        "vpsweb.log", description="Log file path (None for console only)"
     )
     max_file_size: int = Field(
-        10485760,  # 10MB
-        description="Maximum log file size in bytes"
+        10485760, description="Maximum log file size in bytes"  # 10MB
     )
-    backup_count: int = Field(
-        5,
-        description="Number of backup log files to keep"
-    )
+    backup_count: int = Field(5, description="Number of backup log files to keep")
     log_reasoning_tokens: bool = Field(
-        False,
-        description="Whether to track reasoning model token usage separately"
+        False, description="Whether to track reasoning model token usage separately"
     )
 
 
 class MonitoringConfig(BaseModel):
     """Configuration for performance monitoring."""
 
-    track_latency: bool = Field(
-        True,
-        description="Whether to track request latency"
-    )
-    track_token_usage: bool = Field(
-        True,
-        description="Whether to track token usage"
-    )
-    track_cost: bool = Field(
-        False,
-        description="Whether to estimate API costs"
-    )
+    track_latency: bool = Field(True, description="Whether to track request latency")
+    track_token_usage: bool = Field(True, description="Whether to track token usage")
+    track_cost: bool = Field(False, description="Whether to estimate API costs")
     compare_workflows: bool = Field(
-        False,
-        description="Whether to enable A/B workflow comparison"
+        False, description="Whether to enable A/B workflow comparison"
     )
 
 
@@ -292,24 +231,17 @@ class MainConfig(BaseModel):
     """Main configuration combining all components."""
 
     workflow_mode: WorkflowMode = Field(
-        WorkflowMode.HYBRID,
-        description="Default workflow mode to use"
+        WorkflowMode.HYBRID, description="Default workflow mode to use"
     )
-    workflow: WorkflowConfig = Field(
-        ...,
-        description="Workflow configuration"
-    )
+    workflow: WorkflowConfig = Field(..., description="Workflow configuration")
     storage: StorageConfig = Field(
-        default_factory=StorageConfig,
-        description="Storage configuration"
+        default_factory=StorageConfig, description="Storage configuration"
     )
     logging: LoggingConfig = Field(
-        default_factory=LoggingConfig,
-        description="Logging configuration"
+        default_factory=LoggingConfig, description="Logging configuration"
     )
     monitoring: MonitoringConfig = Field(
-        default_factory=MonitoringConfig,
-        description="Monitoring configuration"
+        default_factory=MonitoringConfig, description="Monitoring configuration"
     )
 
 
@@ -317,39 +249,37 @@ class ProvidersConfig(BaseModel):
     """Configuration for LLM providers."""
 
     providers: Dict[str, ModelProviderConfig] = Field(
-        ...,
-        description="Provider configurations keyed by provider name"
+        ..., description="Provider configurations keyed by provider name"
     )
     provider_settings: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Global provider settings"
+        default_factory=dict, description="Global provider settings"
     )
     model_classification: Optional[Dict[str, List[str]]] = Field(
-        None,
-        description="Model classification for automatic prompt selection"
+        None, description="Model classification for automatic prompt selection"
     )
     reasoning_settings: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Reasoning model specific settings"
+        None, description="Reasoning model specific settings"
     )
     pricing: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Pricing information for cost calculation"
+        None, description="Pricing information for cost calculation"
     )
 
-    @validator('providers')
+    @validator("providers")
     def validate_providers(cls, v):
         """Validate that at least one provider is configured."""
         if not v:
             raise ValueError("At least one provider must be configured")
 
         # Validate that required providers are present if referenced
-        required_providers = ['tongyi', 'deepseek']  # From PSD_CC.md
+        required_providers = ["tongyi", "deepseek"]  # From PSD_CC.md
         for provider in required_providers:
             if provider not in v:
                 # This is a warning, not an error, for flexibility
                 import warnings
-                warnings.warn(f"Recommended provider '{provider}' not found in configuration")
+
+                warnings.warn(
+                    f"Recommended provider '{provider}' not found in configuration"
+                )
 
         return v
 
@@ -358,7 +288,7 @@ class ProvidersConfig(BaseModel):
         if not self.model_classification:
             return False
 
-        reasoning_models = self.model_classification.get('reasoning_models', [])
+        reasoning_models = self.model_classification.get("reasoning_models", [])
         return model_name in reasoning_models
 
 
@@ -382,4 +312,5 @@ class CompleteConfig(BaseModel):
 
     class Config:
         """Pydantic configuration."""
+
         use_enum_values = True

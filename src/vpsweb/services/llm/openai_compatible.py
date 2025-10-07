@@ -13,8 +13,14 @@ import json
 from datetime import datetime
 
 from .base import (
-    BaseLLMProvider, LLMResponse, LLMProviderError, AuthenticationError,
-    RateLimitError, TimeoutError, ContentFilterError, ConfigurationError
+    BaseLLMProvider,
+    LLMResponse,
+    LLMProviderError,
+    AuthenticationError,
+    RateLimitError,
+    TimeoutError,
+    ContentFilterError,
+    ConfigurationError,
 )
 
 logger = logging.getLogger(__name__)
@@ -38,17 +44,17 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             **kwargs: Additional configuration options
         """
         super().__init__(base_url, api_key, **kwargs)
-        self.timeout = kwargs.get('timeout', 120.0)
-        self.max_retries = kwargs.get('max_retries', 3)
-        self.retry_delay = kwargs.get('retry_delay', 1.0)
-        self.connection_pool_size = kwargs.get('connection_pool_size', 10)
+        self.timeout = kwargs.get("timeout", 120.0)
+        self.max_retries = kwargs.get("max_retries", 3)
+        self.retry_delay = kwargs.get("retry_delay", 1.0)
+        self.connection_pool_size = kwargs.get("connection_pool_size", 10)
 
         # Validate API key on initialization
         if not self.api_key:
             raise AuthenticationError(
                 f"API key not found for {self.get_provider_name()}. "
                 f"Please set the appropriate environment variable (e.g., TONGYI_API_KEY, DEEPSEEK_API_KEY).",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
         logger.info(f"Initialized OpenAICompatibleProvider for {base_url}")
@@ -64,7 +70,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         presence_penalty: float = 0.0,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> LLMResponse:
         """
         Generate a completion using the OpenAI-compatible API.
@@ -101,7 +107,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             raise NotImplementedError("Streaming is not currently supported")
 
         # Log request
-        self.log_request(messages, model, temperature=temperature, max_tokens=max_tokens)
+        self.log_request(
+            messages, model, temperature=temperature, max_tokens=max_tokens
+        )
 
         # Prepare request payload
         payload = self._prepare_request_payload(
@@ -113,7 +121,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
             stop=stop,
-            **kwargs
+            **kwargs,
         )
 
         # Prepare headers
@@ -121,8 +129,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
         # Make request with retry logic
         response_data = await self._make_request_with_retry(
-            payload=payload,
-            headers=headers
+            payload=payload, headers=headers
         )
 
         # Parse response
@@ -143,7 +150,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         frequency_penalty: float,
         presence_penalty: float,
         stop: Optional[List[str]],
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Prepare the request payload for the API call.
@@ -191,13 +198,11 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "VoxPoeticaStudio/1.0.0"
+            "User-Agent": "VoxPoeticaStudio/1.0.0",
         }
 
     async def _make_request_with_retry(
-        self,
-        payload: Dict[str, Any],
-        headers: Dict[str, str]
+        self, payload: Dict[str, Any], headers: Dict[str, str]
     ) -> Dict[str, Any]:
         """
         Make HTTP request with retry logic.
@@ -220,10 +225,12 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                 async with httpx.AsyncClient(
                     timeout=httpx.Timeout(self.timeout),
                     limits=httpx.Limits(max_connections=self.connection_pool_size),
-                    http2=True
+                    http2=True,
                 ) as client:
 
-                    logger.info(f"Making POST request to {self.base_url}/chat/completions")
+                    logger.info(
+                        f"Making POST request to {self.base_url}/chat/completions"
+                    )
 
                     # Explicitly disable streaming and add read timeout
                     modified_payload = payload.copy()
@@ -232,57 +239,78 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                     response = await client.post(
                         f"{self.base_url}/chat/completions",
                         json=modified_payload,
-                        headers=headers
+                        headers=headers,
                     )
-                    logger.info(f"HTTP request completed, status: {response.status_code}, content length: {len(response.content)}")
+                    logger.info(
+                        f"HTTP request completed, status: {response.status_code}, content length: {len(response.content)}"
+                    )
 
                     # Handle HTTP errors
                     if response.status_code != 200:
                         await self._handle_http_error(response)
 
                     # DEBUG: Log response details
-                    logger.info(f"=== {self.get_provider_name().upper()} API RESPONSE DEBUG ===")
+                    logger.info(
+                        f"=== {self.get_provider_name().upper()} API RESPONSE DEBUG ==="
+                    )
                     logger.info(f"Status Code: {response.status_code}")
                     logger.info(f"Response Length: {len(response.content)} bytes")
-                    logger.info(f"Response Content (first 500 chars): {response.content[:500]}")
+                    logger.info(
+                        f"Response Content (first 500 chars): {response.content[:500]}"
+                    )
                     logger.info(f"=== END API RESPONSE DEBUG ===")
 
                     # Parse successful response with timeout
                     try:
                         import json
+
                         logger.info(f"Starting JSON parsing...")
 
                         # Use asyncio.wait_for to add timeout to JSON parsing
                         response_data = await asyncio.wait_for(
                             asyncio.to_thread(response.json),
-                            timeout=10.0  # 10 second timeout for JSON parsing
+                            timeout=10.0,  # 10 second timeout for JSON parsing
                         )
-                        logger.info(f"JSON parsing successful, keys: {list(response_data.keys())}")
+                        logger.info(
+                            f"JSON parsing successful, keys: {list(response_data.keys())}"
+                        )
                         return response_data
                     except asyncio.TimeoutError:
                         logger.error(f"JSON parsing timed out after 10 seconds")
-                        logger.error(f"Response content length: {len(response.content)} bytes")
+                        logger.error(
+                            f"Response content length: {len(response.content)} bytes"
+                        )
                         # Try to see what we got
-                        content_preview = response.content[:500] if response.content else "No content"
+                        content_preview = (
+                            response.content[:500] if response.content else "No content"
+                        )
                         logger.error(f"Response content preview: {content_preview}")
-                        raise LLMProviderError(f"JSON parsing timed out for {self.get_provider_name()}")
+                        raise LLMProviderError(
+                            f"JSON parsing timed out for {self.get_provider_name()}"
+                        )
                     except json.JSONDecodeError as e:
                         logger.error(f"JSON parsing failed: {e}")
                         logger.error(f"Response content: {response.content}")
-                        raise LLMProviderError(f"Invalid JSON response from {self.get_provider_name()}: {e}")
+                        raise LLMProviderError(
+                            f"Invalid JSON response from {self.get_provider_name()}: {e}"
+                        )
                     except Exception as e:
                         logger.error(f"Error parsing response: {e}")
-                        raise LLMProviderError(f"Error parsing response from {self.get_provider_name()}: {e}")
+                        raise LLMProviderError(
+                            f"Error parsing response from {self.get_provider_name()}: {e}"
+                        )
 
             except (ConnectError, TimeoutException) as e:
                 if attempt < self.max_retries:
-                    wait_time = self.retry_delay * (2 ** attempt)  # Exponential backoff
-                    logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
+                    wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
+                    logger.warning(
+                        f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
+                    )
                     await asyncio.sleep(wait_time)
                 else:
                     raise TimeoutError(
                         f"Request to {self.get_provider_name()} timed out after {self.max_retries} retries: {e}",
-                        provider=self.get_provider_name()
+                        provider=self.get_provider_name(),
                     )
 
             except HTTPStatusError as e:
@@ -290,19 +318,21 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
             except Exception as e:
                 if attempt < self.max_retries:
-                    wait_time = self.retry_delay * (2 ** attempt)
-                    logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
+                    wait_time = self.retry_delay * (2**attempt)
+                    logger.warning(
+                        f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
+                    )
                     await asyncio.sleep(wait_time)
                 else:
                     raise LLMProviderError(
                         f"Request to {self.get_provider_name()} failed after {self.max_retries} retries: {e}",
-                        provider=self.get_provider_name()
+                        provider=self.get_provider_name(),
                     )
 
         # This should never be reached, but just in case
         raise LLMProviderError(
             f"Request to {self.get_provider_name()} failed after all retries",
-            provider=self.get_provider_name()
+            provider=self.get_provider_name(),
         )
 
     async def _handle_http_error(self, response: httpx.Response) -> None:
@@ -319,40 +349,40 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         error_content = await response.aread()
 
         try:
-            error_data = json.loads(error_content.decode('utf-8'))
-            error_message = error_data.get('error', {}).get('message', str(error_data))
+            error_data = json.loads(error_content.decode("utf-8"))
+            error_message = error_data.get("error", {}).get("message", str(error_data))
         except (json.JSONDecodeError, UnicodeDecodeError):
-            error_message = error_content.decode('utf-8', errors='ignore')[:500]
+            error_message = error_content.decode("utf-8", errors="ignore")[:500]
 
         if status_code == 401:
             raise AuthenticationError(
                 f"Authentication failed for {self.get_provider_name()}: {error_message}",
                 provider=self.get_provider_name(),
-                status_code=status_code
+                status_code=status_code,
             )
         elif status_code == 429:
             raise RateLimitError(
                 f"Rate limit exceeded for {self.get_provider_name()}: {error_message}",
                 provider=self.get_provider_name(),
-                status_code=status_code
+                status_code=status_code,
             )
         elif status_code == 408 or status_code >= 500:
             raise TimeoutError(
                 f"Server error from {self.get_provider_name()}: {error_message}",
                 provider=self.get_provider_name(),
-                status_code=status_code
+                status_code=status_code,
             )
         elif status_code == 400 and "content_filter" in error_message.lower():
             raise ContentFilterError(
                 f"Content filtered by {self.get_provider_name()}: {error_message}",
                 provider=self.get_provider_name(),
-                status_code=status_code
+                status_code=status_code,
             )
         else:
             raise LLMProviderError(
                 f"HTTP {status_code} error from {self.get_provider_name()}: {error_message}",
                 provider=self.get_provider_name(),
-                status_code=status_code
+                status_code=status_code,
             )
 
     def _parse_response(self, response_data: Dict[str, Any], model: str) -> LLMResponse:
@@ -371,37 +401,37 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         """
         try:
             # Extract choices
-            choices = response_data.get('choices', [])
+            choices = response_data.get("choices", [])
             if not choices:
                 raise LLMProviderError(
                     f"No choices in response from {self.get_provider_name()}",
-                    provider=self.get_provider_name()
+                    provider=self.get_provider_name(),
                 )
 
             choice = choices[0]
-            message = choice.get('message', {})
-            content = message.get('content', '')
-            finish_reason = choice.get('finish_reason')
+            message = choice.get("message", {})
+            content = message.get("content", "")
+            finish_reason = choice.get("finish_reason")
 
             if not content:
                 raise LLMProviderError(
                     f"No content in response from {self.get_provider_name()}",
-                    provider=self.get_provider_name()
+                    provider=self.get_provider_name(),
                 )
 
             # Extract usage information
-            usage = response_data.get('usage', {})
-            prompt_tokens = usage.get('prompt_tokens', 0)
-            completion_tokens = usage.get('completion_tokens', 0)
-            total_tokens = usage.get('total_tokens', prompt_tokens + completion_tokens)
+            usage = response_data.get("usage", {})
+            prompt_tokens = usage.get("prompt_tokens", 0)
+            completion_tokens = usage.get("completion_tokens", 0)
+            total_tokens = usage.get("total_tokens", prompt_tokens + completion_tokens)
 
             # Extract additional metadata
             metadata = {
-                'raw_response': response_data,
-                'created': response_data.get('created'),
-                'id': response_data.get('id'),
-                'object': response_data.get('object'),
-                'system_fingerprint': response_data.get('system_fingerprint')
+                "raw_response": response_data,
+                "created": response_data.get("created"),
+                "id": response_data.get("id"),
+                "object": response_data.get("object"),
+                "system_fingerprint": response_data.get("system_fingerprint"),
             }
 
             return LLMResponse(
@@ -411,13 +441,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                 completion_tokens=completion_tokens,
                 model_name=model,
                 finish_reason=finish_reason,
-                metadata=metadata
+                metadata=metadata,
             )
 
         except (KeyError, IndexError, TypeError) as e:
             raise LLMProviderError(
                 f"Failed to parse response from {self.get_provider_name()}: {e}",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
     def validate_config(self, config) -> bool:
@@ -434,40 +464,40 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             ConfigurationError: If configuration is invalid
         """
         # Handle both dict and Pydantic model
-        if hasattr(config, 'dict'):
+        if hasattr(config, "dict"):
             config_dict = config.dict()
         else:
             config_dict = config
 
-        required_keys = ['api_key_env', 'base_url', 'type']
+        required_keys = ["api_key_env", "base_url", "type"]
         missing_keys = [key for key in required_keys if key not in config_dict]
 
         if missing_keys:
             raise ConfigurationError(
                 f"Missing required configuration keys: {missing_keys}",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
-        if config.get('type') != 'openai_compatible':
+        if config.get("type") != "openai_compatible":
             raise ConfigurationError(
                 f"Invalid provider type: {config.get('type')}. Expected: openai_compatible",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
         # Validate base URL
-        base_url = config.get('base_url', '')
-        if not base_url.startswith(('http://', 'https://')):
+        base_url = config.get("base_url", "")
+        if not base_url.startswith(("http://", "https://")):
             raise ConfigurationError(
                 f"Invalid base URL: {base_url}. Must start with http:// or https://",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
         # Validate models list
-        models = config.get('models', [])
+        models = config.get("models", [])
         if not models:
             raise ConfigurationError(
                 "No models specified in configuration",
-                provider=self.get_provider_name()
+                provider=self.get_provider_name(),
             )
 
         logger.info(f"Configuration validated for {self.get_provider_name()}")
@@ -483,9 +513,14 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         # This would typically come from configuration, but for now return common models
         # that are supported by OpenAI-compatible APIs
         return [
-            "qwen-max-latest", "qwen-max-0919", "qwen-turbo",
-            "deepseek-reasoner", "deepseek-chat",
-            "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"
+            "qwen-max-latest",
+            "qwen-max-0919",
+            "qwen-turbo",
+            "deepseek-reasoner",
+            "deepseek-chat",
+            "gpt-4",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo",
         ]
 
     def get_provider_name(self) -> str:

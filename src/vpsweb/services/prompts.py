@@ -10,7 +10,13 @@ import re
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional, Set
-from jinja2 import Environment, FileSystemLoader, Template, TemplateError, UndefinedError
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    Template,
+    TemplateError,
+    UndefinedError,
+)
 import logging
 from functools import lru_cache
 
@@ -19,16 +25,19 @@ logger = logging.getLogger(__name__)
 
 class PromptServiceError(Exception):
     """Base exception for prompt service errors."""
+
     pass
 
 
 class TemplateLoadError(PromptServiceError):
     """Raised when template loading fails."""
+
     pass
 
 
 class TemplateVariableError(PromptServiceError):
     """Raised when template variables are invalid or missing."""
+
     pass
 
 
@@ -61,30 +70,35 @@ class PromptService:
             raise TemplateLoadError(f"Prompts directory not found: {self.prompts_dir}")
 
         if not self.prompts_dir.is_dir():
-            raise TemplateLoadError(f"Prompts path is not a directory: {self.prompts_dir}")
+            raise TemplateLoadError(
+                f"Prompts path is not a directory: {self.prompts_dir}"
+            )
 
         # Initialize Jinja2 environment
         from jinja2 import StrictUndefined
+
         self.jinja_env = Environment(
             loader=FileSystemLoader(str(self.templates_dir)),
             undefined=StrictUndefined,  # Raise errors for undefined variables
             trim_blocks=True,
             lstrip_blocks=True,
-            keep_trailing_newline=True
+            keep_trailing_newline=True,
         )
 
         # Add custom filters if needed
         self._setup_custom_filters()
 
-        logger.info(f"Initialized PromptService with prompts directory: {self.prompts_dir}")
+        logger.info(
+            f"Initialized PromptService with prompts directory: {self.prompts_dir}"
+        )
 
     def _setup_custom_filters(self) -> None:
         """Setup custom Jinja2 filters."""
         # Add strip filter to remove extra whitespace
-        self.jinja_env.filters['strip'] = lambda x: x.strip() if x else x
+        self.jinja_env.filters["strip"] = lambda x: x.strip() if x else x
 
         # Add word count filter
-        self.jinja_env.filters['wordcount'] = lambda x: len(x.split()) if x else 0
+        self.jinja_env.filters["wordcount"] = lambda x: len(x.split()) if x else 0
 
     @lru_cache(maxsize=32)
     def _load_template_file(self, template_name: str) -> Dict[str, Any]:
@@ -111,11 +125,13 @@ class PromptService:
             )
 
         try:
-            with open(template_file, 'r', encoding='utf-8') as f:
+            with open(template_file, "r", encoding="utf-8") as f:
                 template_data = yaml.safe_load(f)
 
             if template_data is None:
-                raise TemplateLoadError(f"Template file '{template_name}.yaml' is empty")
+                raise TemplateLoadError(
+                    f"Template file '{template_name}.yaml' is empty"
+                )
 
             logger.debug(f"Loaded template: {template_name}")
             return template_data
@@ -166,19 +182,21 @@ class PromptService:
         """
         # Simple regex to find Jinja2 variables {{ variable_name }}
         # This handles nested variables and filters
-        variable_pattern = r'\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\s*(?:\|[\w\(\)\s,\.]*)?\s*\}\}'
+        variable_pattern = r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\s*(?:\|[\w\(\)\s,\.]*)?\s*\}\}"
         matches = re.findall(variable_pattern, template_str)
 
         # Extract base variable names (before any dots for attribute access)
         variables = set()
         for match in matches:
             # Handle nested attributes like {{ original_poem.title }}
-            base_var = match.split('.')[0]
+            base_var = match.split(".")[0]
             variables.add(base_var)
 
         return variables
 
-    def _validate_template_variables(self, template_data: Dict[str, Any], variables: Dict[str, Any]) -> None:
+    def _validate_template_variables(
+        self, template_data: Dict[str, Any], variables: Dict[str, Any]
+    ) -> None:
         """
         Validate that all required template variables are provided.
 
@@ -192,13 +210,13 @@ class PromptService:
         required_vars = set()
 
         # Extract variables from system prompt
-        if 'system' in template_data:
-            system_vars = self._extract_jinja_variables(template_data['system'])
+        if "system" in template_data:
+            system_vars = self._extract_jinja_variables(template_data["system"])
             required_vars.update(system_vars)
 
         # Extract variables from user prompt
-        if 'user' in template_data:
-            user_vars = self._extract_jinja_variables(template_data['user'])
+        if "user" in template_data:
+            user_vars = self._extract_jinja_variables(template_data["user"])
             required_vars.update(user_vars)
 
         # Check if all required variables are provided
@@ -211,9 +229,7 @@ class PromptService:
             )
 
     def render_prompt(
-        self,
-        template_name: str,
-        variables: Dict[str, Any]
+        self, template_name: str, variables: Dict[str, Any]
     ) -> Tuple[str, str]:
         """
         Render a prompt template with the given variables.
@@ -230,7 +246,9 @@ class PromptService:
             TemplateVariableError: If required variables are missing
             TemplateError: If template rendering fails
         """
-        logger.debug(f"Rendering template: {template_name} with variables: {list(variables.keys())}")
+        logger.debug(
+            f"Rendering template: {template_name} with variables: {list(variables.keys())}"
+        )
 
         # Load template data
         template_data = self.get_template(template_name)
@@ -240,9 +258,9 @@ class PromptService:
 
         # Render system prompt if present
         system_prompt = ""
-        if 'system' in template_data:
+        if "system" in template_data:
             try:
-                system_template = self.jinja_env.from_string(template_data['system'])
+                system_template = self.jinja_env.from_string(template_data["system"])
                 system_prompt = system_template.render(**variables)
                 logger.debug(f"Rendered system prompt ({len(system_prompt)} chars)")
             except (TemplateError, UndefinedError) as e:
@@ -250,9 +268,9 @@ class PromptService:
 
         # Render user prompt if present
         user_prompt = ""
-        if 'user' in template_data:
+        if "user" in template_data:
             try:
-                user_template = self.jinja_env.from_string(template_data['user'])
+                user_template = self.jinja_env.from_string(template_data["user"])
                 user_prompt = user_template.render(**variables)
                 logger.debug(f"Rendered user prompt ({len(user_prompt)} chars)")
             except (TemplateError, UndefinedError) as e:
@@ -265,7 +283,7 @@ class PromptService:
         self,
         template_name: str,
         variables: Dict[str, Any],
-        default_values: Optional[Dict[str, Any]] = None
+        default_values: Optional[Dict[str, Any]] = None,
     ) -> Tuple[str, str]:
         """
         Render a prompt template with fallback to default values for missing variables.
@@ -292,29 +310,32 @@ class PromptService:
             return self.render_prompt(template_name, variables)
         except TemplateVariableError as e:
             # If validation fails with defaults, try without strict validation
-            logger.warning(f"Template validation failed with defaults, attempting safe render: {e}")
+            logger.warning(
+                f"Template validation failed with defaults, attempting safe render: {e}"
+            )
 
             # Load template and render with available variables
             template_data = self.get_template(template_name)
 
             # Create a more permissive Jinja2 environment
             from jinja2 import ChainableUndefined
+
             permissive_env = Environment(
                 loader=FileSystemLoader(str(self.templates_dir)),
                 undefined=ChainableUndefined,  # Don't raise errors for undefined vars
                 trim_blocks=True,
                 lstrip_blocks=True,
-                keep_trailing_newline=True
+                keep_trailing_newline=True,
             )
 
             system_prompt = ""
-            if 'system' in template_data:
-                system_template = permissive_env.from_string(template_data['system'])
+            if "system" in template_data:
+                system_template = permissive_env.from_string(template_data["system"])
                 system_prompt = system_template.render(**variables)
 
             user_prompt = ""
-            if 'user' in template_data:
-                user_template = permissive_env.from_string(template_data['user'])
+            if "user" in template_data:
+                user_template = permissive_env.from_string(template_data["user"])
                 user_prompt = user_template.render(**variables)
 
             return system_prompt, user_prompt
@@ -340,12 +361,12 @@ class PromptService:
             template_data = self.get_template(template_name)
 
             # Try to parse system prompt if present
-            if 'system' in template_data:
-                self.jinja_env.from_string(template_data['system'])
+            if "system" in template_data:
+                self.jinja_env.from_string(template_data["system"])
 
             # Try to parse user prompt if present
-            if 'user' in template_data:
-                self.jinja_env.from_string(template_data['user'])
+            if "user" in template_data:
+                self.jinja_env.from_string(template_data["user"])
 
             logger.debug(f"Template validation passed: {template_name}")
             return True

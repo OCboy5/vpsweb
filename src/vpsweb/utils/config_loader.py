@@ -18,7 +18,7 @@ from ..models.config import (
     ProvidersConfig,
     CompleteConfig,
     ModelProviderConfig,
-    WorkflowMode
+    WorkflowMode,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 class ConfigLoadError(Exception):
     """Custom exception for configuration loading errors."""
+
     pass
 
 
@@ -48,20 +49,22 @@ def substitute_env_vars(value: str) -> str:
         return value
 
     # Pattern to match ${VAR_NAME} or ${VAR_NAME:-default_value}
-    pattern = r'\$\{([^}]+)\}'
+    pattern = r"\$\{([^}]+)\}"
 
     def replace_var(match):
         var_expr = match.group(1)
 
         # Check for default value syntax
-        if ':-' in var_expr:
-            var_name, default_value = var_expr.split(':-', 1)
+        if ":-" in var_expr:
+            var_name, default_value = var_expr.split(":-", 1)
             var_name = var_name.strip()
             default_value = default_value.strip()
 
             env_value = os.getenv(var_name)
             if env_value is None:
-                logger.info(f"Environment variable '{var_name}' not set, using default value")
+                logger.info(
+                    f"Environment variable '{var_name}' not set, using default value"
+                )
                 return default_value
             return env_value
         else:
@@ -80,7 +83,9 @@ def substitute_env_vars(value: str) -> str:
         result = re.sub(pattern, replace_var, value)
         return result
     except Exception as e:
-        raise ConfigLoadError(f"Error substituting environment variables in '{value}': {e}")
+        raise ConfigLoadError(
+            f"Error substituting environment variables in '{value}': {e}"
+        )
 
 
 def substitute_env_vars_in_data(data: Any) -> Any:
@@ -125,7 +130,7 @@ def load_yaml_file(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise ConfigLoadError(f"Configuration path is not a file: {file_path}")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             yaml_data = yaml.safe_load(f)
 
         if yaml_data is None:
@@ -170,7 +175,7 @@ def load_main_config(config_path: Union[str, Path]) -> MainConfig:
     except ValidationError as e:
         error_details = []
         for error in e.errors():
-            loc = " -> ".join(str(x) for x in error['loc'])
+            loc = " -> ".join(str(x) for x in error["loc"])
             error_details.append(f"  {loc}: {error['msg']}")
 
         raise ConfigLoadError(
@@ -207,11 +212,12 @@ def load_providers_config(config_path: Union[str, Path]) -> ProvidersConfig:
     except ValidationError as e:
         error_details = []
         for error in e.errors():
-            loc = " -> ".join(str(x) for x in error['loc'])
+            loc = " -> ".join(str(x) for x in error["loc"])
             error_details.append(f"  {loc}: {error['msg']}")
 
         raise ConfigLoadError(
-            f"Invalid providers configuration in {config_path}:\n" + "\n".join(error_details)
+            f"Invalid providers configuration in {config_path}:\n"
+            + "\n".join(error_details)
         )
     except Exception as e:
         raise ConfigLoadError(f"Error loading providers configuration: {e}")
@@ -268,15 +274,14 @@ def load_config(config_dir: Optional[Union[str, Path]] = None) -> CompleteConfig
     # Load providers configuration
     providers_config_path = config_dir / "models.yaml"
     if not providers_config_path.exists():
-        raise ConfigLoadError(f"Providers configuration file not found: {providers_config_path}")
+        raise ConfigLoadError(
+            f"Providers configuration file not found: {providers_config_path}"
+        )
 
     providers_config = load_providers_config(providers_config_path)
 
     # Combine into complete configuration
-    complete_config = CompleteConfig(
-        main=main_config,
-        providers=providers_config
-    )
+    complete_config = CompleteConfig(main=main_config, providers=providers_config)
 
     logger.info("Complete configuration loaded successfully")
     return complete_config
@@ -299,7 +304,11 @@ def validate_config_files(config_dir: Optional[Union[str, Path]] = None) -> bool
         config = load_config(config_dir)
 
         # Additional validation - check all workflow modes
-        workflow_modes = [WorkflowMode.REASONING, WorkflowMode.NON_REASONING, WorkflowMode.HYBRID]
+        workflow_modes = [
+            WorkflowMode.REASONING,
+            WorkflowMode.NON_REASONING,
+            WorkflowMode.HYBRID,
+        ]
 
         for mode in workflow_modes:
             try:

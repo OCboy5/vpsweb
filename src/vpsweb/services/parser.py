@@ -17,16 +17,19 @@ logger = logging.getLogger(__name__)
 
 class ParserError(Exception):
     """Base exception for parser errors."""
+
     pass
 
 
 class XMLParsingError(ParserError):
     """Raised when XML parsing fails."""
+
     pass
 
 
 class ValidationError(ParserError):
     """Raised when output validation fails."""
+
     pass
 
 
@@ -59,14 +62,16 @@ class OutputParser:
             XMLParsingError: If parsing fails or XML is malformed
         """
         if not xml_string or not isinstance(xml_string, str):
-            raise XMLParsingError(f"Invalid XML input: expected non-empty string, got {type(xml_string)}")
+            raise XMLParsingError(
+                f"Invalid XML input: expected non-empty string, got {type(xml_string)}"
+            )
 
         try:
             # Remove whitespace between tags (exact logic from vpts.yml)
-            xml_string = re.sub(r'\s+(<|>)', r'\1', xml_string.strip())
+            xml_string = re.sub(r"\s+(<|>)", r"\1", xml_string.strip())
 
             # Find all tags and their contents (exact pattern from vpts.yml)
-            pattern = r'<(\w+)>(.*?)</\1>'
+            pattern = r"<(\w+)>(.*?)</\1>"
             matches = re.findall(pattern, xml_string, re.DOTALL)
 
             if not matches:
@@ -76,12 +81,18 @@ class OutputParser:
             result = {}
             for tag, content in matches:
                 # Recursively parse nested tags if present (exact logic from vpts.yml)
-                if re.search(r'<\w+>', content):
-                    result[tag] = OutputParser.parse_xml(content)  # Recursive call for nested tags
+                if re.search(r"<\w+>", content):
+                    result[tag] = OutputParser.parse_xml(
+                        content
+                    )  # Recursive call for nested tags
                 else:
-                    result[tag] = content  # Preserve internal whitespace, don't strip content
+                    result[tag] = (
+                        content  # Preserve internal whitespace, don't strip content
+                    )
 
-            logger.debug(f"Successfully parsed XML with {len(result)} tags: {list(result.keys())}")
+            logger.debug(
+                f"Successfully parsed XML with {len(result)} tags: {list(result.keys())}"
+            )
             return result
 
         except re.error as e:
@@ -120,13 +131,19 @@ class OutputParser:
                 missing_tags.append(tag)
 
         if missing_tags:
-            logger.warning(f"Missing expected tags: {missing_tags}. Available tags: {list(parsed_data.keys())}")
+            logger.warning(
+                f"Missing expected tags: {missing_tags}. Available tags: {list(parsed_data.keys())}"
+            )
 
-        logger.debug(f"Extracted {len(result)} of {len(tags)} requested tags: {list(result.keys())}")
+        logger.debug(
+            f"Extracted {len(result)} of {len(tags)} requested tags: {list(result.keys())}"
+        )
         return result
 
     @staticmethod
-    def validate_output(parsed_data: Dict[str, Any], required_fields: List[str]) -> bool:
+    def validate_output(
+        parsed_data: Dict[str, Any], required_fields: List[str]
+    ) -> bool:
         """
         Validate that parsed output contains all required fields.
 
@@ -144,7 +161,9 @@ class OutputParser:
             return True
 
         if not isinstance(parsed_data, dict):
-            raise ValidationError(f"Expected dict for validation, got {type(parsed_data)}")
+            raise ValidationError(
+                f"Expected dict for validation, got {type(parsed_data)}"
+            )
 
         missing_fields = []
         empty_fields = []
@@ -152,8 +171,9 @@ class OutputParser:
         for field in required_fields:
             if field not in parsed_data:
                 missing_fields.append(field)
-            elif (isinstance(parsed_data[field], str) and not parsed_data[field].strip()) or \
-                 (parsed_data[field] is None):
+            elif (
+                isinstance(parsed_data[field], str) and not parsed_data[field].strip()
+            ) or (parsed_data[field] is None):
                 empty_fields.append(field)
 
         if missing_fields or empty_fields:
@@ -190,11 +210,15 @@ class OutputParser:
             parsed_data = OutputParser.parse_xml(xml_string)
 
             # Extract specific fields (matching vpts.yml logic)
-            initial_translation = str(parsed_data.get('initial_translation', ''))
-            initial_translation_notes = str(parsed_data.get('initial_translation_notes', ''))
+            initial_translation = str(parsed_data.get("initial_translation", ""))
+            initial_translation_notes = str(
+                parsed_data.get("initial_translation_notes", "")
+            )
 
             if not initial_translation:
-                raise XMLParsingError("Missing required 'initial_translation' tag in XML")
+                raise XMLParsingError(
+                    "Missing required 'initial_translation' tag in XML"
+                )
 
             result = {
                 "initial_translation": initial_translation,
@@ -205,7 +229,9 @@ class OutputParser:
             return result
 
         except KeyError as e:
-            raise XMLParsingError(f"Missing expected tag in initial translation XML: {e}")
+            raise XMLParsingError(
+                f"Missing expected tag in initial translation XML: {e}"
+            )
         except Exception as e:
             raise XMLParsingError(f"Error parsing initial translation XML: {e}")
 
@@ -227,11 +253,15 @@ class OutputParser:
             parsed_data = OutputParser.parse_xml(xml_string)
 
             # Extract specific fields
-            revised_translation = str(parsed_data.get('revised_translation', ''))
-            revised_translation_notes = str(parsed_data.get('revised_translation_notes', ''))
+            revised_translation = str(parsed_data.get("revised_translation", ""))
+            revised_translation_notes = str(
+                parsed_data.get("revised_translation_notes", "")
+            )
 
             if not revised_translation:
-                raise XMLParsingError("Missing required 'revised_translation' tag in XML")
+                raise XMLParsingError(
+                    "Missing required 'revised_translation' tag in XML"
+                )
 
             result = {
                 "revised_translation": revised_translation,
@@ -242,7 +272,9 @@ class OutputParser:
             return result
 
         except KeyError as e:
-            raise XMLParsingError(f"Missing expected tag in revised translation XML: {e}")
+            raise XMLParsingError(
+                f"Missing expected tag in revised translation XML: {e}"
+            )
         except Exception as e:
             raise XMLParsingError(f"Error parsing revised translation XML: {e}")
 
@@ -291,19 +323,19 @@ class OutputParser:
                     if isinstance(value, dict):
                         structure[full_key] = {
                             "type": "nested",
-                            "children": analyze_structure(value, full_key)
+                            "children": analyze_structure(value, full_key),
                         }
                     else:
                         structure[full_key] = {
                             "type": "string",
-                            "length": len(str(value))
+                            "length": len(str(value)),
                         }
                 return structure
 
             return {
                 "root_tags": list(parsed_data.keys()),
                 "structure": analyze_structure(parsed_data),
-                "total_tags": len(parsed_data)
+                "total_tags": len(parsed_data),
             }
 
         except XMLParsingError:
@@ -324,11 +356,11 @@ class OutputParser:
             return ""
 
         # Escape XML special characters
-        content = content.replace('&', '&amp;')
-        content = content.replace('<', '&lt;')
-        content = content.replace('>', '&gt;')
-        content = content.replace('"', '&quot;')
-        content = content.replace("'", '&apos;')
+        content = content.replace("&", "&amp;")
+        content = content.replace("<", "&lt;")
+        content = content.replace(">", "&gt;")
+        content = content.replace('"', "&quot;")
+        content = content.replace("'", "&apos;")
 
         return content.strip()
 
@@ -348,7 +380,9 @@ def parse_revised_translation(xml_string: str) -> Dict[str, str]:
     return OutputParser.parse_revised_translation_xml(xml_string)
 
 
-def extract_translation_data(xml_string: str, translation_type: str = "initial") -> Dict[str, str]:
+def extract_translation_data(
+    xml_string: str, translation_type: str = "initial"
+) -> Dict[str, str]:
     """
     Extract translation data based on type.
 

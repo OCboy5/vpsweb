@@ -16,42 +16,29 @@ logger = logging.getLogger(__name__)
 
 class ProviderType(str, Enum):
     """Supported LLM provider types."""
+
     OPENAI_COMPATIBLE = "openai_compatible"
 
 
 class LLMResponse(BaseModel):
     """Standardized response format from LLM providers."""
 
-    content: str = Field(
-        ...,
-        description="The generated text content"
-    )
+    content: str = Field(..., description="The generated text content")
     tokens_used: int = Field(
-        ...,
-        ge=0,
-        description="Total number of tokens used in the request"
+        ..., ge=0, description="Total number of tokens used in the request"
     )
-    prompt_tokens: int = Field(
-        ...,
-        ge=0,
-        description="Number of tokens in the prompt"
-    )
+    prompt_tokens: int = Field(..., ge=0, description="Number of tokens in the prompt")
     completion_tokens: int = Field(
-        ...,
-        ge=0,
-        description="Number of tokens in the completion"
+        ..., ge=0, description="Number of tokens in the completion"
     )
     model_name: str = Field(
-        ...,
-        description="Name of the model that generated the response"
+        ..., description="Name of the model that generated the response"
     )
     finish_reason: Optional[str] = Field(
-        None,
-        description="Reason why generation finished (e.g., 'stop', 'length')"
+        None, description="Reason why generation finished (e.g., 'stop', 'length')"
     )
     metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Additional metadata from the provider"
+        default_factory=dict, description="Additional metadata from the provider"
     )
 
 
@@ -73,7 +60,7 @@ class BaseLLMProvider(ABC):
             api_key: API key for authentication
             **kwargs: Additional provider-specific configuration
         """
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.config = kwargs
         logger.info(f"Initialized {self.__class__.__name__} with base URL: {base_url}")
@@ -90,7 +77,7 @@ class BaseLLMProvider(ABC):
         presence_penalty: float = 0.0,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> LLMResponse:
         """
         Generate a completion from the LLM.
@@ -160,13 +147,13 @@ class BaseLLMProvider(ABC):
             if not isinstance(message, dict):
                 raise ValueError(f"Message {i} must be a dictionary")
 
-            if 'role' not in message or 'content' not in message:
+            if "role" not in message or "content" not in message:
                 raise ValueError(f"Message {i} must have 'role' and 'content' keys")
 
-            if message['role'] not in ['system', 'user', 'assistant']:
+            if message["role"] not in ["system", "user", "assistant"]:
                 raise ValueError(f"Message {i} has invalid role: {message['role']}")
 
-            if not message['content'] or not isinstance(message['content'], str):
+            if not message["content"] or not isinstance(message["content"], str):
                 raise ValueError(f"Message {i} must have non-empty string content")
 
     def validate_generation_params(
@@ -175,7 +162,7 @@ class BaseLLMProvider(ABC):
         max_tokens: int,
         top_p: float,
         frequency_penalty: float,
-        presence_penalty: float
+        presence_penalty: float,
     ) -> None:
         """
         Validate generation parameters.
@@ -191,7 +178,9 @@ class BaseLLMProvider(ABC):
             ValueError: If any parameter is invalid
         """
         if not (0.0 <= temperature <= 2.0):
-            raise ValueError(f"Temperature must be between 0.0 and 2.0, got {temperature}")
+            raise ValueError(
+                f"Temperature must be between 0.0 and 2.0, got {temperature}"
+            )
 
         if max_tokens <= 0:
             raise ValueError(f"max_tokens must be positive, got {max_tokens}")
@@ -200,10 +189,14 @@ class BaseLLMProvider(ABC):
             raise ValueError(f"top_p must be between 0.0 and 1.0, got {top_p}")
 
         if not (-2.0 <= frequency_penalty <= 2.0):
-            raise ValueError(f"frequency_penalty must be between -2.0 and 2.0, got {frequency_penalty}")
+            raise ValueError(
+                f"frequency_penalty must be between -2.0 and 2.0, got {frequency_penalty}"
+            )
 
         if not (-2.0 <= presence_penalty <= 2.0):
-            raise ValueError(f"presence_penalty must be between -2.0 and 2.0, got {presence_penalty}")
+            raise ValueError(
+                f"presence_penalty must be between -2.0 and 2.0, got {presence_penalty}"
+            )
 
     def log_request(self, messages: List[Dict[str, str]], model: str, **params) -> None:
         """
@@ -216,7 +209,9 @@ class BaseLLMProvider(ABC):
         """
         logger.debug(f"Request to {self.__class__.__name__} - Model: {model}")
         logger.debug(f"Messages count: {len(messages)}")
-        logger.debug(f"First message role: {messages[0]['role'] if messages else 'None'}")
+        logger.debug(
+            f"First message role: {messages[0]['role'] if messages else 'None'}"
+        )
         logger.debug(f"Parameters: {params}")
 
     def log_response(self, response: LLMResponse) -> None:
@@ -252,24 +247,29 @@ class LLMProviderError(Exception):
 
 class AuthenticationError(LLMProviderError):
     """Raised when authentication fails."""
+
     pass
 
 
 class RateLimitError(LLMProviderError):
     """Raised when rate limit is exceeded."""
+
     pass
 
 
 class ConfigurationError(LLMProviderError):
     """Raised when configuration is invalid."""
+
     pass
 
 
 class TimeoutError(LLMProviderError):
     """Raised when request times out."""
+
     pass
 
 
 class ContentFilterError(LLMProviderError):
     """Raised when content is filtered by the provider."""
+
     pass

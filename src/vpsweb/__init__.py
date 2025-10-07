@@ -30,7 +30,7 @@ Example Usage:
     result = await workflow.execute(input_data)
 """
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 __author__ = "Vox Poetica Studio"
 __description__ = "Professional AI-powered poetry translation system"
 
@@ -44,14 +44,9 @@ from .models.translation import (
     InitialTranslation,
     EditorReview,
     RevisedTranslation,
-    TranslationOutput
+    TranslationOutput,
 )
-from .models.config import (
-    WorkflowConfig,
-    StepConfig,
-    CompleteConfig,
-    LoggingConfig
-)
+from .models.config import WorkflowConfig, StepConfig, CompleteConfig, LoggingConfig
 
 # Services
 from .services.llm.factory import LLMFactory
@@ -70,7 +65,6 @@ __all__ = [
     # Core components
     "TranslationWorkflow",
     "StepExecutor",
-
     # Data models
     "TranslationInput",
     "InitialTranslation",
@@ -81,18 +75,15 @@ __all__ = [
     "StepConfig",
     "CompleteConfig",
     "LoggingConfig",
-
     # Services
     "LLMFactory",
     "PromptService",
     "OutputParser",
-
     # Utilities
     "setup_logging",
     "get_logger",
     "load_config",
     "StorageHandler",
-
     # CLI
-    "cli"
+    "cli",
 ]

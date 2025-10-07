@@ -34,7 +34,9 @@ class LLMFactory:
         """
         self.providers_config = providers_config
         self._provider_cache: Dict[str, BaseLLMProvider] = {}
-        logger.info(f"Initialized LLMFactory with {len(providers_config.providers)} providers")
+        logger.info(
+            f"Initialized LLMFactory with {len(providers_config.providers)} providers"
+        )
 
     def get_provider(self, provider_name: str) -> BaseLLMProvider:
         """
@@ -59,7 +61,7 @@ class LLMFactory:
             raise ConfigurationError(
                 f"Provider '{provider_name}' not found in configuration. "
                 f"Available providers: {available_providers}",
-                provider=provider_name
+                provider=provider_name,
             )
 
         provider_config = self.providers_config.providers[provider_name]
@@ -89,11 +91,13 @@ class LLMFactory:
             raise ConfigurationError(
                 f"Provider '{provider_name}' not found in configuration. "
                 f"Available providers: {available_providers}",
-                provider=provider_name
+                provider=provider_name,
             )
         return self.providers_config.providers[provider_name]
 
-    def _create_provider(self, provider_name: str, config: ModelProviderConfig) -> BaseLLMProvider:
+    def _create_provider(
+        self, provider_name: str, config: ModelProviderConfig
+    ) -> BaseLLMProvider:
         """
         Create a provider instance from configuration.
 
@@ -114,10 +118,11 @@ class LLMFactory:
         api_key = os.getenv(config.api_key_env)
         if not api_key:
             from .base import AuthenticationError
+
             raise AuthenticationError(
                 f"API key not found for provider '{provider_name}'. "
                 f"Please set the environment variable: {config.api_key_env}",
-                provider=provider_name
+                provider=provider_name,
             )
 
         # Get global provider settings
@@ -129,13 +134,13 @@ class LLMFactory:
                 provider_name=provider_name,
                 base_url=config.base_url,
                 api_key=api_key,
-                global_settings=global_settings
+                global_settings=global_settings,
             )
         else:
             raise ConfigurationError(
                 f"Unsupported provider type: {config.type}. "
                 f"Supported types: {[t.value for t in ProviderType]}",
-                provider=provider_name
+                provider=provider_name,
             )
 
     def _create_openai_compatible_provider(
@@ -143,7 +148,7 @@ class LLMFactory:
         provider_name: str,
         base_url: str,
         api_key: str,
-        global_settings: Dict[str, Any]
+        global_settings: Dict[str, Any],
     ) -> OpenAICompatibleProvider:
         """
         Create an OpenAI-compatible provider instance.
@@ -158,17 +163,15 @@ class LLMFactory:
             OpenAICompatibleProvider instance
         """
         provider_settings = {
-            'timeout': global_settings.get('timeout', 120.0),
-            'max_retries': global_settings.get('max_retries', 3),
-            'retry_delay': global_settings.get('retry_delay', 1.0),
-            'request_timeout': global_settings.get('request_timeout', 30.0),
-            'connection_pool_size': global_settings.get('connection_pool_size', 10),
+            "timeout": global_settings.get("timeout", 120.0),
+            "max_retries": global_settings.get("max_retries", 3),
+            "retry_delay": global_settings.get("retry_delay", 1.0),
+            "request_timeout": global_settings.get("request_timeout", 30.0),
+            "connection_pool_size": global_settings.get("connection_pool_size", 10),
         }
 
         return OpenAICompatibleProvider(
-            base_url=base_url,
-            api_key=api_key,
-            **provider_settings
+            base_url=base_url, api_key=api_key, **provider_settings
         )
 
     def get_supported_models(self, provider_name: str) -> list[str]:
@@ -187,7 +190,7 @@ class LLMFactory:
         if provider_name not in self.providers_config.providers:
             raise ConfigurationError(
                 f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name
+                provider=provider_name,
             )
 
         provider_config = self.providers_config.providers[provider_name]
@@ -209,7 +212,7 @@ class LLMFactory:
         if provider_name not in self.providers_config.providers:
             raise ConfigurationError(
                 f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name
+                provider=provider_name,
             )
 
         provider_config = self.providers_config.providers[provider_name]
@@ -231,7 +234,7 @@ class LLMFactory:
         if provider_name not in self.providers_config.providers:
             raise ConfigurationError(
                 f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name
+                provider=provider_name,
             )
 
         provider_config = self.providers_config.providers[provider_name]
@@ -277,7 +280,7 @@ class LLMFactory:
         return self.get_provider(provider_name)
 
     @classmethod
-    def from_config_file(cls, config_path: str) -> 'LLMFactory':
+    def from_config_file(cls, config_path: str) -> "LLMFactory":
         """
         Create an LLM factory from a configuration file.
 

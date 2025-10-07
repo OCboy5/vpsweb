@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class StepStatus(Enum):
     """Step status enumeration."""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -24,6 +25,7 @@ class StepStatus(Enum):
 @dataclass
 class StepProgress:
     """Progress information for a single step."""
+
     name: str
     status: StepStatus
     display_name: str
@@ -54,7 +56,7 @@ class ProgressTracker:
             step: StepProgress(
                 name=step,
                 status=StepStatus.PENDING,
-                display_name=self._format_display_name(step)
+                display_name=self._format_display_name(step),
             )
             for step in steps
         }
@@ -71,7 +73,7 @@ class ProgressTracker:
             StepStatus.PENDING: "⏸️",
             StepStatus.IN_PROGRESS: "⏳",
             StepStatus.COMPLETED: "✅",
-            StepStatus.FAILED: "❌"
+            StepStatus.FAILED: "❌",
         }
         return icons.get(status, "❓")
 
@@ -82,13 +84,22 @@ class ProgressTracker:
         base_line = f"  Step {self.step_order.index(step_name) + 1}: {step.display_name}... {icon} {step.status.value.replace('_', ' ').title()}"
 
         # Add model info for in-progress steps
-        if step.status == StepStatus.IN_PROGRESS and step.result and 'model_info' in step.result:
-            model_info = step.result['model_info']
-            provider = model_info.get('provider', 'Unknown')
-            model = model_info.get('model', 'Unknown')
-            temp = model_info.get('temperature', 'Unknown')
+        if (
+            step.status == StepStatus.IN_PROGRESS
+            and step.result
+            and "model_info" in step.result
+        ):
+            model_info = step.result["model_info"]
+            provider = model_info.get("provider", "Unknown")
+            model = model_info.get("model", "Unknown")
+            temp = model_info.get("temperature", "Unknown")
             # Determine if reasoning model
-            is_reasoning = model.lower() in ['deepseek-reasoner', 'o1', 'o1-mini', 'o3-mini']
+            is_reasoning = model.lower() in [
+                "deepseek-reasoner",
+                "o1",
+                "o1-mini",
+                "o3-mini",
+            ]
             model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
 
             # Add model info on next line with indentation
@@ -97,14 +108,16 @@ class ProgressTracker:
 
         return base_line
 
-    def start_step(self, step_name: str, model_info: Optional[Dict[str, Any]] = None) -> None:
+    def start_step(
+        self, step_name: str, model_info: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Mark a step as in progress."""
         if step_name in self.steps:
             self.steps[step_name].status = StepStatus.IN_PROGRESS
             self.steps[step_name].start_time = time.time()
             # Store model info for this step
             if model_info:
-                self.steps[step_name].result = {'model_info': model_info}
+                self.steps[step_name].result = {"model_info": model_info}
             self._update_display()
 
     def complete_step(self, step_name: str, result: Dict[str, Any]) -> None:
@@ -137,7 +150,10 @@ class ProgressTracker:
 
         for step_name in self.step_order:
             step = self.steps[step_name]
-            if step.status == StepStatus.IN_PROGRESS or step.status == StepStatus.FAILED:
+            if (
+                step.status == StepStatus.IN_PROGRESS
+                or step.status == StepStatus.FAILED
+            ):
                 current_step = step_name
             elif step.status == StepStatus.COMPLETED:
                 completed_steps.append(step_name)
@@ -185,14 +201,19 @@ class ProgressTracker:
 
     def _display_model_info(self, result: Dict[str, Any]) -> None:
         """Display model configuration information."""
-        if 'model_info' in result:
-            model_info = result['model_info']
-            provider = model_info.get('provider', 'Unknown')
-            model = model_info.get('model', 'Unknown')
-            temp = model_info.get('temperature', 'Unknown')
+        if "model_info" in result:
+            model_info = result["model_info"]
+            provider = model_info.get("provider", "Unknown")
+            model = model_info.get("model", "Unknown")
+            temp = model_info.get("temperature", "Unknown")
 
             # Determine if reasoning model
-            is_reasoning = model.lower() in ['deepseek-reasoner', 'o1', 'o1-mini', 'o3-mini']
+            is_reasoning = model.lower() in [
+                "deepseek-reasoner",
+                "o1",
+                "o1-mini",
+                "o3-mini",
+            ]
             model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
 
             print(f"  🤖 Model Provider: {provider.title()}")
@@ -204,13 +225,13 @@ class ProgressTracker:
         """Display initial translation results."""
         self._display_model_info(result)
         print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
-        if result.get('duration'):
+        if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get('cost'):
+        if result.get("cost"):
             print(f"  💰 Cost: ¥{result['cost']:.6f}")
         # Show a preview of the translation (first 100 chars)
-        translation = result.get('initial_translation', 'N/A')
-        if translation != 'N/A' and len(translation) > 100:
+        translation = result.get("initial_translation", "N/A")
+        if translation != "N/A" and len(translation) > 100:
             translation = translation[:100] + "..."
         print(f"  📝 Translation Preview: {translation}")
 
@@ -218,22 +239,30 @@ class ProgressTracker:
         """Display editor review results."""
         self._display_model_info(result)
         print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
-        if result.get('duration'):
+        if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get('cost'):
+        if result.get("cost"):
             print(f"  💰 Cost: ¥{result['cost']:.6f}")
 
         # Count editor suggestions more accurately
-        suggestions = result.get('editor_suggestions', '')
+        suggestions = result.get("editor_suggestions", "")
         if suggestions:
             # Count lines that start with numbers (1., 2., 3., etc.)
-            suggestion_count = len([line for line in suggestions.split('\n')
-                                   if line.strip() and line.strip()[0].isdigit()])
+            suggestion_count = len(
+                [
+                    line
+                    for line in suggestions.split("\n")
+                    if line.strip() and line.strip()[0].isdigit()
+                ]
+            )
             print(f"  📋 Editor Suggestions: {suggestion_count}")
 
             # Show first 2-3 suggestions as preview
-            suggestion_lines = [line for line in suggestions.split('\n')
-                              if line.strip() and line.strip()[0].isdigit()]
+            suggestion_lines = [
+                line
+                for line in suggestions.split("\n")
+                if line.strip() and line.strip()[0].isdigit()
+            ]
             if suggestion_lines:
                 print(f"  💬 Sample Suggestions:")
                 for i, line in enumerate(suggestion_lines[:3]):  # Show first 3
@@ -247,27 +276,31 @@ class ProgressTracker:
         """Display translator revision results."""
         self._display_model_info(result)
         print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
-        if result.get('duration'):
+        if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get('cost'):
+        if result.get("cost"):
             print(f"  💰 Cost: ¥{result['cost']:.6f}")
         # Show a preview of the revised translation (first 100 chars)
-        revision = result.get('revised_translation', 'N/A')
-        if revision != 'N/A' and len(revision) > 100:
+        revision = result.get("revised_translation", "N/A")
+        if revision != "N/A" and len(revision) > 100:
             revision = revision[:100] + "..."
         print(f"  📝 Revision Preview: {revision}")
 
     def get_summary(self) -> Dict[str, Any]:
         """Get overall progress summary."""
-        completed_steps = [s for s in self.steps.values() if s.status == StepStatus.COMPLETED]
+        completed_steps = [
+            s for s in self.steps.values() if s.status == StepStatus.COMPLETED
+        ]
         total_duration = sum(s.duration for s in completed_steps)
-        total_tokens = sum(s.result.get('tokens_used', 0) for s in completed_steps if s.result)
+        total_tokens = sum(
+            s.result.get("tokens_used", 0) for s in completed_steps if s.result
+        )
 
         return {
-            'total_steps': len(self.step_order),
-            'completed_steps': len(completed_steps),
-            'total_duration': total_duration,
-            'total_tokens': total_tokens
+            "total_steps": len(self.step_order),
+            "completed_steps": len(completed_steps),
+            "total_duration": total_duration,
+            "total_tokens": total_tokens,
         }
 
 

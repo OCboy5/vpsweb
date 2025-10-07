@@ -17,7 +17,7 @@ from src.vpsweb.models.translation import (
     TranslationOutput,
     Language,
     extract_initial_translation_from_xml,
-    extract_revised_translation_from_xml
+    extract_revised_translation_from_xml,
 )
 from src.vpsweb.models.config import (
     WorkflowConfig,
@@ -26,7 +26,7 @@ from src.vpsweb.models.config import (
     LoggingConfig,
     MainConfig,
     ProviderConfig,
-    ProvidersConfig
+    ProvidersConfig,
 )
 
 
@@ -38,7 +38,7 @@ class TestTranslationInput:
         input_data = TranslationInput(
             original_poem="The fog comes on little cat feet.",
             source_lang=Language.ENGLISH,
-            target_lang=Language.CHINESE
+            target_lang=Language.CHINESE,
         )
 
         assert input_data.original_poem == "The fog comes on little cat feet."
@@ -48,17 +48,13 @@ class TestTranslationInput:
 
     def test_create_with_metadata(self):
         """Test creating TranslationInput with metadata."""
-        metadata = {
-            "author": "Carl Sandburg",
-            "title": "Fog",
-            "year": 1916
-        }
+        metadata = {"author": "Carl Sandburg", "title": "Fog", "year": 1916}
 
         input_data = TranslationInput(
             original_poem="The fog comes on little cat feet.",
             source_lang=Language.ENGLISH,
             target_lang=Language.CHINESE,
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert input_data.metadata == metadata
@@ -69,7 +65,7 @@ class TestTranslationInput:
             TranslationInput(
                 original_poem="",
                 source_lang=Language.ENGLISH,
-                target_lang=Language.CHINESE
+                target_lang=Language.CHINESE,
             )
 
         assert "original_poem" in str(exc_info.value)
@@ -82,7 +78,7 @@ class TestTranslationInput:
             TranslationInput(
                 original_poem=long_poem,
                 source_lang=Language.ENGLISH,
-                target_lang=Language.CHINESE
+                target_lang=Language.CHINESE,
             )
 
         assert "original_poem" in str(exc_info.value)
@@ -93,7 +89,7 @@ class TestTranslationInput:
             TranslationInput(
                 original_poem="Test poem",
                 source_lang=Language.ENGLISH,
-                target_lang=Language.ENGLISH
+                target_lang=Language.ENGLISH,
             )
 
         assert "Source and target languages must be different" in str(exc_info.value)
@@ -104,17 +100,19 @@ class TestTranslationInput:
             TranslationInput(
                 original_poem="Test poem",
                 source_lang=Language.ENGLISH,
-                target_lang=Language.POLISH  # Polish not allowed as target
+                target_lang=Language.POLISH,  # Polish not allowed as target
             )
 
-        assert "Target language must be either English or Chinese" in str(exc_info.value)
+        assert "Target language must be either English or Chinese" in str(
+            exc_info.value
+        )
 
     def test_to_dict_method(self):
         """Test conversion to dictionary."""
         input_data = TranslationInput(
             original_poem="Test poem",
             source_lang=Language.ENGLISH,
-            target_lang=Language.CHINESE
+            target_lang=Language.CHINESE,
         )
 
         result = input_data.to_dict()
@@ -128,7 +126,7 @@ class TestTranslationInput:
         data = {
             "original_poem": "Test poem",
             "source_lang": "English",
-            "target_lang": "Chinese"
+            "target_lang": "Chinese",
         }
 
         input_data = TranslationInput.from_dict(data)
@@ -147,7 +145,7 @@ class TestInitialTranslation:
             initial_translation="雾来了，踏着猫的细步。",
             initial_translation_notes="This translation captures the gentle imagery.",
             model_info={"provider": "tongyi", "model": "qwen-max"},
-            tokens_used=250
+            tokens_used=250,
         )
 
         assert translation.initial_translation == "雾来了，踏着猫的细步。"
@@ -163,7 +161,7 @@ class TestInitialTranslation:
                 initial_translation="",  # Empty required field
                 initial_translation_notes="Notes",
                 model_info={"provider": "test"},
-                tokens_used=100
+                tokens_used=100,
             )
 
     def test_validation_negative_tokens(self):
@@ -173,7 +171,7 @@ class TestInitialTranslation:
                 initial_translation="Translation",
                 initial_translation_notes="Notes",
                 model_info={"provider": "test"},
-                tokens_used=-10  # Negative tokens
+                tokens_used=-10,  # Negative tokens
             )
 
         assert "tokens_used" in str(exc_info.value)
@@ -184,7 +182,7 @@ class TestInitialTranslation:
             initial_translation="Test translation",
             initial_translation_notes="Test notes",
             model_info={"provider": "test"},
-            tokens_used=100
+            tokens_used=100,
         )
 
         result = translation.to_dict()
@@ -203,7 +201,7 @@ class TestInitialTranslation:
             "initial_translation_notes": "Test notes",
             "model_info": {"provider": "test"},
             "tokens_used": 100,
-            "timestamp": "2024-01-01T12:00:00"
+            "timestamp": "2024-01-01T12:00:00",
         }
 
         translation = InitialTranslation.from_dict(data)
@@ -221,7 +219,7 @@ class TestEditorReview:
         review = EditorReview(
             text="1. Improve rhythm\n2. Use more poetic language",
             model_info={"provider": "deepseek", "model": "deepseek-chat"},
-            tokens_used=150
+            tokens_used=150,
         )
 
         assert "Improve rhythm" in review.text
@@ -234,7 +232,7 @@ class TestEditorReview:
         review = EditorReview(
             text="1. Improve rhythm\n2. Use more poetic language\n3. Add cultural context",
             model_info={"provider": "test"},
-            tokens_used=100
+            tokens_used=100,
         )
 
         suggestions = review.get_suggestions_list()
@@ -249,7 +247,7 @@ class TestEditorReview:
         review = EditorReview(
             text="1. Improve rhythm\n2. Use poetic language\nOverall assessment: Good translation needs refinement",
             model_info={"provider": "test"},
-            tokens_used=100
+            tokens_used=100,
         )
 
         assessment = review.get_overall_assessment()
@@ -261,7 +259,7 @@ class TestEditorReview:
         review = EditorReview(
             text="1. Improve rhythm\n2. Use poetic language",
             model_info={"provider": "test"},
-            tokens_used=100
+            tokens_used=100,
         )
 
         result = review.to_dict()
@@ -280,7 +278,7 @@ class TestEditorReview:
             "tokens_used": 100,
             "timestamp": "2024-01-01T12:00:00",
             "suggestions": ["Test suggestion"],  # Should be ignored
-            "overall_assessment": "Test assessment"  # Should be ignored
+            "overall_assessment": "Test assessment",  # Should be ignored
         }
 
         review = EditorReview.from_dict(data)
@@ -288,8 +286,8 @@ class TestEditorReview:
         assert review.text == "1. Improve rhythm\n2. Use poetic language"
         assert review.tokens_used == 100
         # Computed fields should not be stored in the model
-        assert not hasattr(review, 'suggestions')
-        assert not hasattr(review, 'overall_assessment')
+        assert not hasattr(review, "suggestions")
+        assert not hasattr(review, "overall_assessment")
 
 
 class TestRevisedTranslation:
@@ -301,7 +299,7 @@ class TestRevisedTranslation:
             revised_translation="雾来了，踏着猫儿轻盈的脚步。",
             revised_translation_notes="Improved rhythm and poetic language based on editor suggestions.",
             model_info={"provider": "tongyi", "model": "qwen-max"},
-            tokens_used=300
+            tokens_used=300,
         )
 
         assert translation.revised_translation == "雾来了，踏着猫儿轻盈的脚步。"
@@ -315,7 +313,7 @@ class TestRevisedTranslation:
             revised_translation="Test translation",
             revised_translation_notes="Test notes",
             model_info={"provider": "test"},
-            tokens_used=200
+            tokens_used=200,
         )
 
         result = translation.to_dict()
@@ -387,7 +385,9 @@ class TestTranslationOutput:
 
         assert loaded_output.workflow_id == sample_translation_output.workflow_id
         assert loaded_output.total_tokens == sample_translation_output.total_tokens
-        assert loaded_output.duration_seconds == sample_translation_output.duration_seconds
+        assert (
+            loaded_output.duration_seconds == sample_translation_output.duration_seconds
+        )
 
 
 class TestConfigModels:
@@ -400,7 +400,7 @@ class TestConfigModels:
             provider="tongyi",
             model="qwen-max",
             temperature=0.7,
-            max_tokens=1000
+            max_tokens=1000,
         )
 
         assert step.name == "initial_translation"
@@ -420,9 +420,9 @@ class TestConfigModels:
                     provider="tongyi",
                     model="qwen-max",
                     temperature=0.7,
-                    max_tokens=1000
+                    max_tokens=1000,
                 )
-            ]
+            ],
         )
 
         assert workflow.name == "test_workflow"
@@ -437,7 +437,7 @@ class TestConfigModels:
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             file="logs/test.log",
             max_file_size=10485760,
-            backup_count=5
+            backup_count=5,
         )
 
         assert logging_config.level == "INFO"
@@ -448,8 +448,7 @@ class TestConfigModels:
     def test_provider_config_creation(self):
         """Test creating ProviderConfig."""
         provider = ProviderConfig(
-            api_key="test_key",
-            base_url="https://api.example.com"
+            api_key="test_key", base_url="https://api.example.com"
         )
 
         assert provider.api_key == "test_key"
@@ -477,9 +476,13 @@ class TestHelperFunctions:
         assert "initial_translation_notes" in result
         assert result["initial_translation"] == "雾来了，踏着猫的细步。"
 
-    def test_extract_revised_translation_from_xml(self, mock_llm_response_revised_translation):
+    def test_extract_revised_translation_from_xml(
+        self, mock_llm_response_revised_translation
+    ):
         """Test revised translation XML extraction helper function."""
-        result = extract_revised_translation_from_xml(mock_llm_response_revised_translation)
+        result = extract_revised_translation_from_xml(
+            mock_llm_response_revised_translation
+        )
 
         assert "revised_translation" in result
         assert "revised_translation_notes" in result
@@ -508,7 +511,7 @@ class TestModelSerialization:
             original_poem="Test poem",
             source_lang=Language.ENGLISH,
             target_lang=Language.CHINESE,
-            metadata={"author": "Test Author"}
+            metadata={"author": "Test Author"},
         )
 
         # Convert to dict
@@ -529,7 +532,7 @@ class TestModelSerialization:
         input_data = TranslationInput(
             original_poem="Test poem",
             source_lang=Language.ENGLISH,
-            target_lang=Language.CHINESE
+            target_lang=Language.CHINESE,
         )
 
         # Should serialize without errors

@@ -16,7 +16,7 @@ from src.vpsweb.models.translation import (
     InitialTranslation,
     EditorReview,
     RevisedTranslation,
-    TranslationOutput
+    TranslationOutput,
 )
 from src.vpsweb.models.config import (
     WorkflowConfig,
@@ -24,8 +24,8 @@ from src.vpsweb.models.config import (
     CompleteConfig,
     LoggingConfig,
     MainConfig,
-    ProviderConfig,
-    ProvidersConfig
+    ModelProviderConfig,
+    ProvidersConfig,
 )
 
 
@@ -35,7 +35,7 @@ def sample_translation_input():
     return TranslationInput(
         original_poem="The fog comes on little cat feet.",
         source_lang="English",
-        target_lang="Chinese"
+        target_lang="Chinese",
     )
 
 
@@ -127,47 +127,44 @@ def sample_config():
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.7,
-                        max_tokens=1000
+                        max_tokens=1000,
                     ),
                     StepConfig(
                         name="editor_review",
                         provider="deepseek",
                         model="deepseek-chat",
                         temperature=0.5,
-                        max_tokens=800
+                        max_tokens=800,
                     ),
                     StepConfig(
                         name="translator_revision",
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.6,
-                        max_tokens=1000
-                    )
-                ]
+                        max_tokens=1000,
+                    ),
+                ],
             ),
-            storage=MainConfig.StorageConfig(
-                output_dir="./output"
-            ),
+            storage=MainConfig.StorageConfig(output_dir="./output"),
             logging=LoggingConfig(
                 level="INFO",
                 format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                 file="logs/vpsweb.log",
                 max_file_size=10485760,
-                backup_count=5
-            )
+                backup_count=5,
+            ),
         ),
         providers=ProvidersConfig(
             providers={
                 "tongyi": ProviderConfig(
                     api_key="test_key",
-                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                 ),
                 "deepseek": ProviderConfig(
-                    api_key="test_key",
-                    base_url="https://api.deepseek.com"
-                )
+                    api_key="test_key", base_url="https://api.deepseek.com"
+                ),
             }
-        )
+        ),
     )
 
 
@@ -183,23 +180,23 @@ def sample_workflow_config():
                 provider="tongyi",
                 model="qwen-max",
                 temperature=0.7,
-                max_tokens=1000
+                max_tokens=1000,
             ),
             StepConfig(
                 name="editor_review",
                 provider="deepseek",
                 model="deepseek-chat",
                 temperature=0.5,
-                max_tokens=800
+                max_tokens=800,
             ),
             StepConfig(
                 name="translator_revision",
                 provider="tongyi",
                 model="qwen-max",
                 temperature=0.6,
-                max_tokens=1000
-            )
-        ]
+                max_tokens=1000,
+            ),
+        ],
     )
 
 
@@ -213,24 +210,25 @@ def sample_translation_output():
         target_lang="Chinese",
         initial_translation=InitialTranslation(
             initial_translation="雾来了，踏着猫的细步。",
-            explanation="Literal translation capturing the imagery"
+            explanation="Literal translation capturing the imagery",
         ),
         editor_review=EditorReview(
             text="1. Consider using more poetic language\n2. Improve rhythm",
-            summary="Good literal translation but needs refinement"
+            summary="Good literal translation but needs refinement",
         ),
         revised_translation=RevisedTranslation(
             revised_translation="雾来了，踏着猫儿轻盈的脚步。",
-            explanation="Added poetic language and improved rhythm"
+            explanation="Added poetic language and improved rhythm",
         ),
         duration_seconds=15.5,
-        total_tokens=1250
+        total_tokens=1250,
     )
 
 
 @pytest.fixture
 def mock_async_function():
     """Fixture providing a mock async function for testing."""
+
     async def mock_async_func(*args, **kwargs):
         return {"result": "mock_response"}
 
@@ -240,14 +238,17 @@ def mock_async_function():
 @pytest.fixture
 def mock_llm_factory():
     """Fixture providing a mock LLM factory for testing."""
+
     class MockLLM:
         async def generate(self, prompt: str, **kwargs):
             return {
-                "choices": [{
-                    "message": {
-                        "content": "<translation><initial_translation>Mock translation</initial_translation></translation>"
+                "choices": [
+                    {
+                        "message": {
+                            "content": "<translation><initial_translation>Mock translation</initial_translation></translation>"
+                        }
                     }
-                }]
+                ]
             }
 
     class MockLLMFactory:
@@ -262,6 +263,7 @@ def mock_llm_factory():
 def event_loop():
     """Create an instance of the default event loop for each test case."""
     import asyncio
+
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
@@ -272,12 +274,14 @@ def event_loop():
 def mock_llm_response_initial_translation():
     """Mock LLM response for initial translation step."""
     return {
-        "choices": [{
-            "message": {
-                "content": """<initial_translation>雾来了，踏着猫的细步。</initial_translation>
+        "choices": [
+            {
+                "message": {
+                    "content": """<initial_translation>雾来了，踏着猫的细步。</initial_translation>
 <initial_translation_notes>This translation captures the gentle imagery of the fog moving quietly like a cat. The phrase "little cat feet" is translated to convey the delicate, stealthy movement in Chinese poetic context.</initial_translation_notes>"""
+                }
             }
-        }]
+        ]
     }
 
 
@@ -285,15 +289,17 @@ def mock_llm_response_initial_translation():
 def mock_llm_response_editor_review():
     """Mock LLM response for editor review step."""
     return {
-        "choices": [{
-            "message": {
-                "content": """1. Consider using more poetic language for "little cat feet" - perhaps "猫儿轻盈的脚步"
+        "choices": [
+            {
+                "message": {
+                    "content": """1. Consider using more poetic language for "little cat feet" - perhaps "猫儿轻盈的脚步"
 2. The rhythm could be improved in the second line
 3. Add more cultural context for Chinese readers
 
 Overall assessment: Good literal translation but needs poetic refinement to capture the original's musical quality."""
+                }
             }
-        }]
+        ]
     }
 
 
@@ -301,12 +307,14 @@ Overall assessment: Good literal translation but needs poetic refinement to capt
 def mock_llm_response_revised_translation():
     """Mock LLM response for translator revision step."""
     return {
-        "choices": [{
-            "message": {
-                "content": """<revised_translation>雾来了，踏着猫儿轻盈的脚步。</revised_translation>
+        "choices": [
+            {
+                "message": {
+                    "content": """<revised_translation>雾来了，踏着猫儿轻盈的脚步。</revised_translation>
 <revised_translation_notes>Based on the editor's suggestions, I refined the translation to use more poetic language. Changed "猫的细步" to "猫儿轻盈的脚步" to better capture the gentle, graceful movement. The revised version maintains the original meaning while enhancing the poetic quality and rhythm.</revised_translation_notes>"""
+                }
             }
-        }]
+        ]
     }
 
 
@@ -332,11 +340,11 @@ def mock_llm_factory_integration(mocker):
         responses = [
             mock_llm_response_initial_translation(),
             mock_llm_response_editor_review(),
-            mock_llm_response_revised_translation()
+            mock_llm_response_revised_translation(),
         ]
         return MockLLM(responses)
 
-    mocker.patch.object(LLMFactory, 'create_llm', mock_create_llm)
+    mocker.patch.object(LLMFactory, "create_llm", mock_create_llm)
     return LLMFactory()
 
 
@@ -352,6 +360,7 @@ def sample_poem_file(temp_output_dir):
 def cli_runner():
     """Provide Click CLI runner for testing."""
     from click.testing import CliRunner
+
     return CliRunner()
 
 
@@ -367,21 +376,21 @@ def integration_workflow_config():
                 provider="tongyi",
                 model="qwen-max",
                 temperature=0.7,
-                max_tokens=1000
+                max_tokens=1000,
             ),
             StepConfig(
                 name="editor_review",
                 provider="deepseek",
                 model="deepseek-chat",
                 temperature=0.5,
-                max_tokens=800
+                max_tokens=800,
             ),
             StepConfig(
                 name="translator_revision",
                 provider="tongyi",
                 model="qwen-max",
                 temperature=0.6,
-                max_tokens=1000
-            )
-        ]
+                max_tokens=1000,
+            ),
+        ],
     )

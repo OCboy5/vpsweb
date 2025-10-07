@@ -13,6 +13,7 @@ from typing import Optional, Dict
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not available, continue without it
@@ -28,21 +29,25 @@ from .models.config import LogLevel, WorkflowMode
 
 class CLIError(Exception):
     """Base exception for CLI errors."""
+
     pass
 
 
 class ConfigError(CLIError):
     """Raised when configuration loading fails."""
+
     pass
 
 
 class InputError(CLIError):
     """Raised when input handling fails."""
+
     pass
 
 
 class WorkflowError(CLIError):
     """Raised when workflow execution fails."""
+
     pass
 
 
@@ -69,7 +74,7 @@ def read_poem_from_input(input_path: Optional[str]) -> str:
             if not file_path.exists():
                 raise InputError(f"Input file not found: {input_path}")
 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 poem_text = f.read().strip()
 
             if not poem_text:
@@ -89,7 +94,7 @@ def read_poem_from_input(input_path: Optional[str]) -> str:
             except EOFError:
                 pass
 
-            poem_text = '\n'.join(poem_lines).strip()
+            poem_text = "\n".join(poem_lines).strip()
 
             if not poem_text:
                 raise InputError("No poem text provided via stdin")
@@ -131,8 +136,12 @@ def initialize_system(config_path: Optional[str], verbose: bool) -> tuple:
 
         setup_logging(log_config)
 
-        click.echo(f"   Workflow: {complete_config.main.workflow.name} v{complete_config.main.workflow.version}")
-        click.echo(f"   Providers: {', '.join(complete_config.providers.providers.keys())}")
+        click.echo(
+            f"   Workflow: {complete_config.main.workflow.name} v{complete_config.main.workflow.version}"
+        )
+        click.echo(
+            f"   Providers: {', '.join(complete_config.providers.providers.keys())}"
+        )
 
         return complete_config, complete_config.main.workflow
 
@@ -145,7 +154,7 @@ async def execute_translation_workflow(
     input_data: TranslationInput,
     storage_handler: StorageHandler,
     workflow_mode: str = None,
-    include_mode_tag: bool = False
+    include_mode_tag: bool = False,
 ) -> tuple:
     """
     Execute the translation workflow and save results.
@@ -168,7 +177,9 @@ async def execute_translation_workflow(
         click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
 
         # Display original poem
-        click.echo(f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):")
+        click.echo(
+            f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):"
+        )
         click.echo("-" * 30)
         # Show poem with proper formatting, limiting length for display
         poem = input_data.original_poem
@@ -225,19 +236,32 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
             return "N/A"
         return f"¥{cost:.6f}"
 
-    click.echo(f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.initial_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.initial_translation, 'cost', None))}")
-    click.echo(f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.editor_review, 'duration', None))} | 💰 {format_cost(getattr(translation_output.editor_review, 'cost', None))}")
-    click.echo(f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.revised_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.revised_translation, 'cost', None))}")
+    click.echo(
+        f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.initial_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.initial_translation, 'cost', None))}"
+    )
+    click.echo(
+        f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.editor_review, 'duration', None))} | 💰 {format_cost(getattr(translation_output.editor_review, 'cost', None))}"
+    )
+    click.echo(
+        f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.revised_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.revised_translation, 'cost', None))}"
+    )
 
     # Total summary
-    click.echo(f"\n📈 Overall: 🧮 {translation_output.total_tokens} total tokens | ⏱️  {translation_output.duration_seconds:.2f}s total time | 💰 {format_cost(translation_output.total_cost)} total cost")
+    click.echo(
+        f"\n📈 Overall: 🧮 {translation_output.total_tokens} total tokens | ⏱️  {translation_output.duration_seconds:.2f}s total time | 💰 {format_cost(translation_output.total_cost)} total cost"
+    )
 
     # Editor suggestions count (improved counting)
     editor_suggestions = translation_output.editor_review.editor_suggestions
     if editor_suggestions:
         # Count lines that start with numbers (1., 2., 3., etc.)
-        suggestions_count = len([line for line in editor_suggestions.split('\n')
-                               if line.strip() and line.strip()[0].isdigit()])
+        suggestions_count = len(
+            [
+                line
+                for line in editor_suggestions.split("\n")
+                if line.strip() and line.strip()[0].isdigit()
+            ]
+        )
         click.echo(f"📋 Editor suggestions: {suggestions_count}")
     else:
         click.echo(f"📋 Editor suggestions: 0")
@@ -245,7 +269,9 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
     click.echo("\n✅ Translation saved successfully!")
 
 
-def validate_input_only(input_data: TranslationInput, config_path: Optional[str]) -> None:
+def validate_input_only(
+    input_data: TranslationInput, config_path: Optional[str]
+) -> None:
     """
     Validate input and configuration without executing workflow.
 
@@ -286,17 +312,34 @@ def cli():
 
 
 @cli.command()
-@click.option('--input', '-i', type=click.Path(exists=True), help='Input poem file')
-@click.option('--source', '-s', required=True, type=click.Choice(['English', 'Chinese', 'Polish']),
-              help='Source language')
-@click.option('--target', '-t', required=True, type=click.Choice(['English', 'Chinese', 'Polish']),
-              help='Target language')
-@click.option('--workflow-mode', '-w', type=click.Choice(['reasoning', 'non_reasoning', 'hybrid']),
-              default='hybrid', help='Workflow mode: reasoning, non_reasoning, or hybrid (default: hybrid)')
-@click.option('--config', '-c', type=click.Path(exists=True), help='Custom config directory')
-@click.option('--output', '-o', type=click.Path(), help='Output directory')
-@click.option('--verbose', '-v', is_flag=True, help='Verbose logging')
-@click.option('--dry-run', is_flag=True, help='Validate without execution')
+@click.option("--input", "-i", type=click.Path(exists=True), help="Input poem file")
+@click.option(
+    "--source",
+    "-s",
+    required=True,
+    type=click.Choice(["English", "Chinese", "Polish"]),
+    help="Source language",
+)
+@click.option(
+    "--target",
+    "-t",
+    required=True,
+    type=click.Choice(["English", "Chinese", "Polish"]),
+    help="Target language",
+)
+@click.option(
+    "--workflow-mode",
+    "-w",
+    type=click.Choice(["reasoning", "non_reasoning", "hybrid"]),
+    default="hybrid",
+    help="Workflow mode: reasoning, non_reasoning, or hybrid (default: hybrid)",
+)
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Custom config directory"
+)
+@click.option("--output", "-o", type=click.Path(), help="Output directory")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
+@click.option("--dry-run", is_flag=True, help="Validate without execution")
 def translate(input, source, target, workflow_mode, config, output, verbose, dry_run):
     """Translate a poem using the T-E-T workflow
 
@@ -330,9 +373,7 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
 
         # Create translation input
         input_data = TranslationInput(
-            original_poem=poem_text,
-            source_lang=source,
-            target_lang=target
+            original_poem=poem_text, source_lang=source, target_lang=target
         )
 
         # Initialize system
@@ -351,7 +392,9 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
             return
 
         # Create and execute workflow with specified mode
-        workflow = TranslationWorkflow(workflow_config, complete_config.providers, workflow_mode_enum)
+        workflow = TranslationWorkflow(
+            workflow_config, complete_config.providers, workflow_mode_enum
+        )
 
         # Get storage settings
         include_mode_tag = complete_config.main.storage.workflow_mode_tag
@@ -382,9 +425,10 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
         click.echo(f"❌ Unexpected error: {e}", err=True)
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
