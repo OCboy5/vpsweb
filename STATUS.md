@@ -1,14 +1,22 @@
-# Vox Poetica Studio Web - Checkpoint 1 Status
+# Vox Poetica Studio Web - v0.2.0 Status
 
-**Date**: 2025-01-05
-**Version**: 0.1.0 (Checkpoint 1 - Workflow Operational)
-**Status**: ✅ **PRODUCTION READY**
+**Date**: 2025-10-07
+**Version**: 0.2.0 (Enhanced Workflow System)
+**Status**: ✅ **PRODUCTION READY WITH ADVANCED FEATURES**
 
 ## 🎯 Executive Summary
 
-Vox Poetica Studio Web (vpsweb) has successfully achieved Checkpoint 1 with a fully operational 3-step poetry translation workflow. The system is production-ready and capable of performing complete Translator→Editor→Translator workflows with high-quality output, comprehensive error handling, and detailed monitoring.
+Vox Poetica Studio Web (vpsweb) has evolved from Checkpoint 1 to v0.2.0 with a revolutionary enhanced workflow system featuring three intelligent workflow modes (reasoning, non_reasoning, and hybrid). The system now provides advanced model classification, real-time cost tracking with RMB pricing, and comprehensive progress display with model information. This major upgrade establishes the system as a sophisticated, professional-grade poetry translation platform with intelligent workflow management.
 
 ## ✅ Completed Features
+
+### 🤖 Enhanced Workflow System (v0.2.0)
+- **Three Intelligent Workflow Modes**: reasoning, non_reasoning, and hybrid with automatic model selection
+- **Advanced Model Classification**: Automatic prompt template selection based on reasoning capabilities
+- **Real-time Cost Tracking**: Precise RMB pricing calculation using actual API token data
+- **Enhanced Progress Display**: Step-by-step model information (provider, model, temperature, reasoning type)
+- **6 New Prompt Templates**: Separate reasoning and non-reasoning templates for each workflow step
+- **Improved Token Tracking**: Uses actual prompt_tokens and completion_tokens from API responses
 
 ### Core Workflow
 - **3-Step Translation Pipeline**: Fully implemented and tested

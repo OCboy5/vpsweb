@@ -176,6 +176,96 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Translation preview section eliminated
 - ✅ Clean, focused output confirmed
 
+## [0.2.0] - 2025-10-07 (Major Release - Enhanced Workflow System)
+
+### 🚀 Major Features
+- **Three Intelligent Workflow Modes**: reasoning, non_reasoning, and hybrid modes with automatic model selection
+- **Advanced Model Classification**: Automatic prompt template selection based on reasoning capabilities
+- **Enhanced Progress Display**: Real-time model information (provider, model, temperature, reasoning type)
+- **Accurate Cost Tracking**: Real-time RMB pricing calculation using actual API token data
+- **Improved Token Tracking**: Uses actual prompt_tokens and completion_tokens from API responses
+- **6 New Prompt Templates**: Separate reasoning and non-reasoning templates for each workflow step
+
+### 🆕 New Workflow Modes
+- **🔮 Reasoning Mode**: Uses reasoning models (deepseek-reasoner) for all steps - highest quality, best for complex analysis
+  - Initial translation: deepseek-reasoner (temp: 0.2)
+  - Editor review: deepseek-reasoner (temp: 0.1)
+  - Translator revision: deepseek-reasoner (temp: 0.15)
+- **⚡ Non-Reasoning Mode**: Uses standard models (qwen-plus-latest) for all steps - faster, cost-effective
+  - Initial translation: qwen-plus-latest (temp: 0.7)
+  - Editor review: qwen-plus-latest (temp: 0.3)
+  - Translator revision: qwen-plus-latest (temp: 0.2)
+- **🎯 Hybrid Mode** (Recommended): Optimal combination - reasoning for editor review, non-reasoning for translation steps
+  - Initial translation: qwen-plus-latest (temp: 0.7)
+  - Editor review: deepseek-reasoner (temp: 0.1)
+  - Translator revision: qwen-plus-latest (temp: 0.2)
+
+### 🔧 Technical Improvements
+- **Cost Calculation**: Fixed to use actual token splits instead of estimates (70/30% → real prompt_tokens/completion_tokens)
+- **Translation Models**: Added prompt_tokens and completion_tokens fields for precise cost tracking
+- **User Experience**: Better poem placement and cleaner progress displays
+- **Configuration**: Cleaned up pricing structure and fixed YAML indentation issues
+- **Performance**: Optimized workflow execution and token utilization
+
+### 📊 Quality Demonstrations
+- **Hybrid Mode**: 9673 tokens, 243.82s, ¥0.000020 - Optimal balance of quality and efficiency
+- **Reasoning Mode**: 14046 tokens, 438.25s, ¥0.000039 - Higher depth for complex analysis
+- **Cost Accuracy**: Now shows precise costs with 6 decimal places instead of truncated zeros
+- **Real-time Display**: Shows model provider, name, temperature, and reasoning type for each step
+
+### 🛠️ Configuration Changes
+- **Enhanced models.yaml**:
+  - Updated model name: qwen-max-latest → qwen3-max-latest
+  - Fixed pricing structure with proper YAML indentation
+  - Added RMB pricing: qwen3-max-latest (¥6/¥24), qwen-plus-latest (¥0.8/¥2), deepseek models (¥2/¥3)
+- **New Prompt Templates**: Created 6 specialized prompt templates:
+  - `initial_translation_reasoning.yaml` / `initial_translation_nonreasoning.yaml`
+  - `editor_review_reasoning.yaml` / `editor_review_nonreasoning.yaml`
+  - `translator_revision_reasoning.yaml` / `translator_revision_nonreasoning.yaml`
+- **Updated default.yaml**: Configured three workflow modes with optimal model/temperature settings
+
+### 🎯 User Experience Enhancements
+- **Original Poem Display**: Now shown once after workflow start message instead of repeated in progress
+- **Enhanced Progress**: Step-by-step model information with reasoning/standard type indicators
+- **Precise Cost Display**: 6 decimal places showing actual costs (¥0.000002 vs ¥0.0000)
+- **Time Tracking**: Shows time spent for each individual step with duration field
+- **Cleaner Display**: Removed translation notes length warnings for development
+
+### 🔍 CLI Enhancements
+- **New workflow-mode option**: `-w reasoning|non_reasoning|hybrid`
+- **Enhanced progress display**: Shows provider, model, temperature, and reasoning type
+- **Detailed summary**: Step-by-step breakdown with tokens, time, and cost for each step
+- **Better error handling**: Improved validation and user-friendly error messages
+
+### 🐛 Bug Fixes
+- **Total Cost Calculation**: Fixed undefined variable bug in workflow return statement
+- **Translation Notes Warning**: Removed disruptive warnings about note length during development
+- **YAML Pricing Structure**: Fixed indentation causing cost calculation failures
+- **Import Errors**: Fixed ProviderConfig → ModelProviderConfig import in test files
+- **Code Formatting**: Applied Black formatting to 22 files for CI/CD compliance
+
+### 📈 Performance Improvements
+- **Token Accuracy**: Now uses actual API token data instead of estimates
+- **Cost Precision**: 6 decimal place precision for accurate cost tracking
+- **Display Performance**: Optimized progress display to show relevant information efficiently
+- **Model Selection**: Intelligent model selection based on reasoning capabilities
+
+### 🧪 Quality Assurance
+- **CI/CD Compliance**: All Black formatting issues resolved, GitHub Actions passing
+- **Version Consistency**: Updated all version files (pyproject.toml, __init__.py, __main__.py) to v0.2.0
+- **Import Validation**: Fixed all import errors and validated module structure
+- **Code Quality**: Applied Black formatting to ensure consistent code style
+
+### 📚 Documentation Updates
+- **VERSION_WORKFLOW.md**: Added v0.2.0 release lessons learned and pre-release validation checklist
+- **README.md**: Updated with new workflow modes, enhanced features, and current examples
+- **Enhanced Examples**: Added workflow mode usage examples and new API documentation
+
+### 🎉 Key Insights
+- **Hybrid Workflow Superior**: Testing shows hybrid mode produces superior poetry translations with balanced emotional resonance
+- **Reasoning vs Non-Reasoning**: Reasoning models excel for technical/philosophical content, non-reasoning better for creative/poetic content
+- **Cost Accuracy**: Real-time token tracking enables precise cost calculations across all workflow steps
+
 ## [Unreleased]
 
 ### Added

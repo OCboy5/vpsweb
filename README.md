@@ -1,38 +1,51 @@
 # Vox Poetica Studio Web (vpsweb)
 
-> Professional AI-powered poetry translation using a collaborative Translator→Editor→Translator workflow
+> Professional AI-powered poetry translation using intelligent workflow modes and collaborative Translator→Editor→Translator process
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-0.2.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
 **VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
 
-## 🎯 Current Status: **CHECKPOINT 1 - WORKFLOW OPERATIONAL**
+## 🎯 Current Status: **v0.2.0 - ENHANCED WORKFLOW SYSTEM**
 
-✅ **Fully Functional 3-Step Workflow**: Translator → Editor → Translator
-✅ **XML Parsing**: Structured data extraction working for all steps
-✅ **Multi-Provider Support**: Tongyi + DeepSeek integration complete
+✅ **Three Intelligent Workflow Modes**: Reasoning, Non-Reasoning, and Hybrid
+✅ **Advanced Model Classification**: Automatic prompt selection based on model capabilities
+✅ **Real-time Cost Tracking**: Accurate RMB pricing with actual API token data
+✅ **Enhanced Progress Display**: Step-by-step model information and timing
 ✅ **Production Ready**: Comprehensive logging, error handling, and token tracking
 ✅ **CLI Interface**: Complete command-line functionality with detailed output
 ✅ **Python API**: Full programmatic access for integration
 
 ## ✨ Features
 
-- **🧩 Modular Architecture**: Clean separation of workflow, LLM services, and data models
+### 🤖 **Intelligent Workflow Modes** (v0.2.0)
+- **🔮 Reasoning Mode**: Uses reasoning models (deepseek-reasoner) for all steps - highest quality, best for complex analysis
+- **⚡ Non-Reasoning Mode**: Uses standard models (qwen-plus-latest) for all steps - faster, cost-effective
+- **🎯 Hybrid Mode**: Optimal combination - reasoning for editor review, non-reasoning for translation steps (recommended)
+
+### 🏗️ **Core Translation System**
 - **🔄 Three-Step Workflow**: Translator → Editor → Translator for high-quality translations
   - **Step 1**: Initial translation with detailed translator notes
   - **Step 2**: Professional editorial review with structured suggestions
   - **Step 3**: Translator revision incorporating editorial feedback
-- **🔧 Multi-Provider Support**: Compatible with Tongyi, DeepSeek, and other OpenAI-compatible APIs
+- **🧩 Modular Architecture**: Clean separation of workflow, LLM services, and data models
 - **📝 Structured XML Output**: Comprehensive metadata and XML parsing following exact vpts.yml specifications
+
+### 🔧 **Advanced Capabilities**
+- **🤖 Model Classification**: Automatic prompt selection based on reasoning capabilities
+- **📊 Real-time Progress Display**: Step-by-step model information (provider, model, temperature, reasoning type)
+- **💰 Accurate Cost Tracking**: Real-time RMB pricing using actual API token data (prompt_tokens/completion_tokens)
+- **📈 Advanced Token Tracking**: Per-step token usage with detailed timing information
+- **🔧 Multi-Provider Support**: Compatible with Tongyi, DeepSeek, and other OpenAI-compatible APIs
 - **💻 Dual Interface**: Both CLI and Python API for flexible integration
 - **⚙️ Configurable**: YAML-based configuration for easy customization
 - **📊 Comprehensive Logging**: Structured logging with rotation and workflow tracking
 - **🚀 Production Ready**: Error handling, retry logic, timeout management, and detailed progress reporting
-- **📈 Token Tracking**: Per-step token usage monitoring and cost tracking
 
 ## 🚀 Quick Start
 
@@ -68,18 +81,25 @@ vpsweb translate --input poem.txt --source English --target Chinese --verbose
 # Translate using short flags
 vpsweb translate -i poem.txt -s English -t Chinese -v
 
-# Example with a provided poem
-vpsweb translate --input examples/poems/short_english.txt --source English --target Chinese --verbose
+# Choose workflow mode (hybrid recommended for poetry)
+vpsweb translate -i poem.txt -s English -t Chinese -w hybrid --verbose
 
-# Output will show detailed progress:
+# Example with workflow modes:
+vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w hybrid --verbose
+vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w reasoning --verbose
+vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w non_reasoning --verbose
+
+# Output will show detailed progress with model information:
 # 🎭 Vox Poetica Studio Web - Professional Poetry Translation
 # ⚙️ Loading configuration...
-# 🚀 Starting translation workflow...
-# Step 1: Initial translation ✅ (1422 tokens)
-# Step 2: Editor review ✅ (2553 tokens)
-# Step 3: Translator revision ✅ (1325 tokens)
-# 📊 Total tokens used: 5300
-# 💾 Results saved to: outputs/translation_YYYYMMDD_HHMMSS.json
+# 🚀 Starting translation workflow (hybrid mode)...
+# 📄 Original Poem (English → Chinese):
+# 🎭 Poetry Translation Progress
+#   Step 1: Initial Translation... ✅ Completed (1352 tokens | 15.61s | ¥0.000002)
+#   Step 2: Editor Review... ✅ Completed (5115 tokens | 178.22s | ¥0.000015)
+#   Step 3: Translator Revision... ✅ Completed (3206 tokens | 49.99s | ¥0.000004)
+# 📈 Overall: 9673 total tokens | 243.82s total time | ¥0.000020 total cost
+# 💾 Results saved to: outputs/translation_hybrid_YYYYMMDD_HHMMSS.json
 ```
 
 **Note**: Ensure PYTHONPATH is set globally in your shell configuration (e.g., `export PYTHONPATH="/path/to/vpsweb/src:$PYTHONPATH"` in ~/.zshrc).
@@ -89,13 +109,18 @@ vpsweb translate --input examples/poems/short_english.txt --source English --tar
 ```python
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.translation import TranslationInput
+from vpsweb.models.config import WorkflowMode
 from vpsweb.utils.config_loader import load_config
 
 # Load configuration
 config = load_config()
 
-# Create workflow with providers config
-workflow = TranslationWorkflow(config.main.workflow, config.providers)
+# Create workflow with providers config and mode
+workflow = TranslationWorkflow(
+    config.main.workflow,
+    config.providers,
+    workflow_mode=WorkflowMode.HYBRID  # Options: REASONING, NON_REASONING, HYBRID
+)
 
 # Prepare input
 input_data = TranslationInput(
@@ -107,11 +132,19 @@ input_data = TranslationInput(
 # Execute workflow
 result = await workflow.execute(input_data)
 
-# Access results
+# Access results with enhanced information
+print(f"Workflow Mode: {result.workflow_mode}")
 print(f"Initial: {result.initial_translation.initial_translation}")
 print(f"Revised: {result.revised_translation.revised_translation}")
 print(f"Editor suggestions: {result.editor_review.editor_suggestions}")
-print(f"Total tokens: {result.total_tokens_used}")
+print(f"Total tokens: {result.total_tokens}")
+print(f"Total duration: {result.duration_seconds:.2f}s")
+print(f"Total cost: ¥{result.total_cost:.6f}")
+
+# Access detailed step information
+print(f"Step 1 cost: ¥{result.initial_translation.cost:.6f}")
+print(f"Step 2 cost: ¥{result.editor_review.cost:.6f}")
+print(f"Step 3 cost: ¥{result.revised_translation.cost:.6f}")
 ```
 
 ## 📋 Requirements
