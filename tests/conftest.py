@@ -156,12 +156,19 @@ def sample_config():
         ),
         providers=ProvidersConfig(
             providers={
-                "tongyi": ProviderConfig(
-                    api_key="test_key",
+                "tongyi": ModelProviderConfig(
+                    api_key_env="TONGYI_API_KEY",
                     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+                    type="openai_compatible",
+                    models=["qwen-max", "qwen-plus"],
+                    default_model="qwen-max",
                 ),
-                "deepseek": ProviderConfig(
-                    api_key="test_key", base_url="https://api.deepseek.com"
+                "deepseek": ModelProviderConfig(
+                    api_key_env="DEEPSEEK_API_KEY",
+                    base_url="https://api.deepseek.com",
+                    type="openai_compatible",
+                    models=["deepseek-reasoner", "deepseek-chat"],
+                    default_model="deepseek-reasoner",
                 ),
             }
         ),

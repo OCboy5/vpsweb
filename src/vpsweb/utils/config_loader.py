@@ -20,6 +20,12 @@ from ..models.config import (
     ModelProviderConfig,
     WorkflowMode,
 )
+from ..models.wechat import (
+    WeChatConfig,
+    ArticleGenerationConfig,
+    WeChatArticleMetadata,
+    ArticleGenerationResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +229,84 @@ def load_providers_config(config_path: Union[str, Path]) -> ProvidersConfig:
         raise ConfigLoadError(f"Error loading providers configuration: {e}")
 
 
+def load_wechat_config(config_path: Union[str, Path]) -> WeChatConfig:
+    """
+    Load and validate the WeChat configuration file.
+
+    Args:
+        config_path: Path to the WeChat configuration file
+
+    Returns:
+        Validated WeChatConfig instance
+
+    Raises:
+        ConfigLoadError: If configuration is invalid
+    """
+    logger.info(f"Loading WeChat configuration from: {config_path}")
+
+    try:
+        config_data = load_yaml_file(config_path)
+
+        # Validate with Pydantic
+        wechat_config = WeChatConfig(**config_data)
+
+        logger.info("WeChat configuration loaded and validated successfully")
+        return wechat_config
+
+    except ValidationError as e:
+        error_details = []
+        for error in e.errors():
+            loc = " -> ".join(str(x) for x in error["loc"])
+            error_details.append(f"  {loc}: {error['msg']}")
+
+        raise ConfigLoadError(
+            f"Invalid WeChat configuration in {config_path}:\n"
+            + "\n".join(error_details)
+        )
+    except Exception as e:
+        raise ConfigLoadError(f"Error loading WeChat configuration: {e}")
+
+
+def load_article_generation_config(
+    config_data: Dict[str, Any]
+) -> ArticleGenerationConfig:
+    """
+    Load and validate article generation configuration.
+
+    Args:
+        config_data: Dictionary containing article generation settings
+
+    Returns:
+        Validated ArticleGenerationConfig instance
+
+    Raises:
+        ConfigLoadError: If configuration is invalid
+    """
+    try:
+        # Extract article generation config if present
+        article_gen_data = config_data.get("article_generation", {})
+
+        # Validate with Pydantic
+        article_gen_config = ArticleGenerationConfig(**article_gen_data)
+
+        logger.info(
+            "Article generation configuration loaded and validated successfully"
+        )
+        return article_gen_config
+
+    except ValidationError as e:
+        error_details = []
+        for error in e.errors():
+            loc = " -> ".join(str(x) for x in error["loc"])
+            error_details.append(f"  {loc}: {error['msg']}")
+
+        raise ConfigLoadError(
+            f"Invalid article generation configuration:\n" + "\n".join(error_details)
+        )
+    except Exception as e:
+        raise ConfigLoadError(f"Error loading article generation configuration: {e}")
+
+
 def load_config(config_dir: Optional[Union[str, Path]] = None) -> CompleteConfig:
     """
     Load and validate the complete configuration from a directory.
@@ -330,4 +414,233 @@ def validate_config_files(config_dir: Optional[Union[str, Path]] = None) -> bool
 
     except Exception as e:
         logger.error(f"Configuration validation failed: {e}")
+        raise
+
+
+def load_wechat_config(config_dir: Optional[Union[str, Path]] = None) -> WeChatConfig:
+    """
+    Load and validate the WeChat configuration file.
+
+    Args:
+        config_dir: Directory containing the WeChat configuration file
+
+    Returns:
+        Validated WeChatConfig instance
+
+    Raises:
+        ConfigLoadError: If configuration is invalid
+    """
+    if config_dir is None:
+        # Use same logic as load_config to find config directory
+        possible_paths = [
+            Path("config"),
+            Path(__file__).parent.parent.parent.parent / "config",
+        ]
+
+        for path in possible_paths:
+            if path.exists() and path.is_dir():
+                config_dir = path
+                break
+
+        if config_dir is None:
+            raise ConfigLoadError(
+                "Could not find configuration directory for WeChat config. "
+                "Please specify config_dir or ensure config/ exists in the project root."
+            )
+
+    config_dir = Path(config_dir)
+    wechat_config_path = config_dir / "wechat.yaml"
+
+    if not wechat_config_path.exists():
+        raise ConfigLoadError(
+            f"WeChat configuration file not found: {wechat_config_path}"
+        )
+
+    logger.info(f"Loading WeChat configuration from: {wechat_config_path}")
+
+    try:
+        config_data = load_yaml_file(wechat_config_path)
+
+        # Validate with Pydantic
+        wechat_config = WeChatConfig(**config_data)
+
+        logger.info("WeChat configuration loaded and validated successfully")
+        return wechat_config
+
+    except ValidationError as e:
+        error_details = []
+        for error in e.errors():
+            loc = " -> ".join(str(x) for x in error["loc"])
+            error_details.append(f"  {loc}: {error['msg']}")
+
+        raise ConfigLoadError(
+            f"Invalid WeChat configuration in {wechat_config_path}:\n"
+            + "\n".join(error_details)
+        )
+    except Exception as e:
+        raise ConfigLoadError(f"Error loading WeChat configuration: {e}")
+
+
+def load_article_generation_config(
+    wechat_config_path: Optional[Union[str, Path]] = None
+) -> ArticleGenerationConfig:
+    """
+    Load and validate article generation configuration from WeChat config.
+
+    Args:
+        wechat_config_path: Path to WeChat configuration file
+
+    Returns:
+        Validated ArticleGenerationConfig instance
+
+    Raises:
+        ConfigLoadError: If configuration is invalid
+    """
+    if wechat_config_path is None:
+        # Find WeChat config file
+        possible_paths = [
+            Path("config/wechat.yaml"),
+            Path(__file__).parent.parent.parent.parent / "config/wechat.yaml",
+        ]
+
+        for path in possible_paths:
+            if path.exists():
+                wechat_config_path = path
+                break
+
+        if wechat_config_path is None:
+            raise ConfigLoadError("Could not find wechat.yaml configuration file")
+
+    wechat_config_path = Path(wechat_config_path)
+
+    try:
+        config_data = load_yaml_file(wechat_config_path)
+
+        # Extract article generation config if present
+        article_gen_data = config_data.get("article_generation", {})
+        content_data = config_data.get("content", {})
+
+        # Combine configurations
+        combined_data = {**article_gen_data, **content_data}
+
+        # Override with specific content settings
+        if "copyright_text" in content_data:
+            combined_data["copyright_text"] = content_data["copyright_text"]
+
+        # Validate with Pydantic
+        article_gen_config = ArticleGenerationConfig(**combined_data)
+
+        logger.info(
+            "Article generation configuration loaded and validated successfully"
+        )
+        return article_gen_config
+
+    except ValidationError as e:
+        error_details = []
+        for error in e.errors():
+            loc = " -> ".join(str(x) for x in error["loc"])
+            error_details.append(f"  {loc}: {error['msg']}")
+
+        raise ConfigLoadError(
+            f"Invalid article generation configuration:\n" + "\n".join(error_details)
+        )
+    except Exception as e:
+        raise ConfigLoadError(f"Error loading article generation configuration: {e}")
+
+
+def load_wechat_complete_config(
+    config_dir: Optional[Union[str, Path]] = None
+) -> Dict[str, Any]:
+    """
+    Load complete WeChat-related configuration including API, article generation, and content settings.
+
+    Args:
+        config_dir: Directory containing configuration files
+
+    Returns:
+        Dictionary containing all WeChat-related configurations
+
+    Raises:
+        ConfigLoadError: If configuration cannot be loaded or validated
+    """
+    try:
+        # Load WeChat API configuration
+        wechat_config = load_wechat_config(config_dir)
+
+        # Load article generation configuration
+        article_gen_config = load_article_generation_config(
+            Path(config_dir) / "wechat.yaml" if config_dir else None
+        )
+
+        # Load the full config to extract additional WeChat settings
+        if config_dir:
+            config_path = Path(config_dir) / "wechat.yaml"
+        else:
+            config_path = Path("config/wechat.yaml")
+
+        full_config_data = load_yaml_file(config_path)
+
+        # Combine all configurations
+        complete_config = {
+            "wechat": wechat_config,
+            "article_generation": article_gen_config,
+            "llm": full_config_data.get("llm", {}),
+            "output": full_config_data.get("output", {}),
+            "content": full_config_data.get("content", {}),
+            "publishing": full_config_data.get("publishing", {}),
+            "development": full_config_data.get("development", {}),
+        }
+
+        logger.info("Complete WeChat configuration loaded successfully")
+        return complete_config
+
+    except Exception as e:
+        raise ConfigLoadError(f"Error loading complete WeChat configuration: {e}")
+
+
+def validate_wechat_setup(config_dir: Optional[Union[str, Path]] = None) -> bool:
+    """
+    Validate WeChat configuration and setup without loading the complete system.
+
+    Args:
+        config_dir: Directory containing configuration files
+
+    Returns:
+        True if configuration is valid, False otherwise
+
+    Raises:
+        ConfigLoadError: If validation fails
+    """
+    try:
+        logger.info("Validating WeChat configuration...")
+
+        # Load and validate WeChat configuration
+        wechat_config = load_wechat_config(config_dir)
+
+        # Validate essential fields
+        if not wechat_config.appid or wechat_config.appid == "YOUR_WECHAT_APPID":
+            raise ConfigLoadError("WeChat AppID is not configured")
+
+        if not wechat_config.secret or wechat_config.secret == "YOUR_WECHAT_SECRET":
+            raise ConfigLoadError("WeChat Secret is not configured")
+
+        # Validate article generation configuration
+        article_gen_config = load_article_generation_config()
+
+        # Check if essential directories can be created
+        output_dir = Path(wechat_config.token_cache_path).parent
+        if not output_dir.exists():
+            try:
+                output_dir.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created cache directory: {output_dir}")
+            except Exception as e:
+                raise ConfigLoadError(
+                    f"Cannot create cache directory {output_dir}: {e}"
+                )
+
+        logger.info("WeChat configuration validation passed")
+        return True
+
+    except Exception as e:
+        logger.error(f"WeChat configuration validation failed: {e}")
         raise

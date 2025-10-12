@@ -1,0 +1,114 @@
+# WeChat Official Account Configuration
+# This file contains configuration for WeChat article publishing functionality
+
+# WeChat API Credentials (REQUIRED)
+# Get these from your WeChat Official Account backend: https://mp.weixin.qq.com/
+appid: "${WECHAT_APPID}"
+secret: "${WECHAT_SECRET}"
+
+# API Configuration
+base_url: "https://api.weixin.qq.com"
+
+# Token Management
+token_cache_path: "outputs/.cache/wechat_token.json"
+
+# Request Timeouts (seconds)
+timeouts:
+  connect: 5.0
+  read: 20.0
+
+# Retry Configuration
+retry:
+  attempts: 3
+  backoff: "exponential"
+  base_delay: 0.5
+
+# Article Generation Settings
+article_generation:
+  include_translation_notes: true
+  max_notes_items: 6
+  copyright_text: "本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作。未经授权，不得转载。若需引用，请注明出处。"
+  article_template: "default"
+
+# Publishing Settings
+publishing:
+  # Save to draft folder by default (safer for manual review)
+  save_as_draft: true
+  # Enable comments on published articles
+  enable_comments: true
+  # Allow only fans to comment
+  fans_only_comments: false
+  # Auto-publish from draft (disable for manual control)
+  auto_publish: false
+
+# LLM Configuration for Translation Notes
+llm:
+  # Primary provider for translation notes synthesis
+  primary_provider: "deepseek"
+  primary_model: "deepseek-reasoner"
+
+  # Fallback provider if primary fails
+  fallback_provider: "tongyi"
+  fallback_model: "qwen-plus"
+
+  # Temperature settings
+  temperature:
+    reasoning: 0.1
+    non_reasoning: 0.3
+
+  # Token limits
+  max_tokens:
+    reasoning: 2000
+    non_reasoning: 1500
+
+  # Request timeouts
+  timeout:
+    reasoning: 60
+    non_reasoning: 45
+
+# Output Settings
+output:
+  # Default output directory for WeChat articles
+  default_directory: "outputs/wechat/articles"
+
+  # File naming patterns
+  filename_patterns:
+    html: "article.html"
+    metadata: "metadata.json"
+    markdown: "article.md"
+    publish_result: "publish_result.json"
+
+# Content Settings
+content:
+  # Default author name
+  default_author: "施知韵VoxPoetica"
+
+  # Title format
+  title_format: "【知韵译诗】{poem_title}（{poet_name}）"
+
+  # Digest settings
+  digest:
+    min_length: 80
+    max_length: 120
+    auto_generate: true
+
+  # Translation notes settings
+  translation_notes:
+    min_items: 3
+    max_items: 6
+    min_item_length: 10
+    max_item_length: 40
+
+# Development Settings
+development:
+  # Enable debug logging
+  debug: false
+
+  # Dry run mode (no actual API calls)
+  dry_run: false
+
+  # Verbose output
+  verbose: false
+
+  # Mock API responses for testing
+  mock_api: false

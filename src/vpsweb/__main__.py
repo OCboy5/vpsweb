@@ -9,6 +9,7 @@ import asyncio
 import click
 from pathlib import Path
 from typing import Optional, Dict
+from datetime import datetime
 
 # Load environment variables from .env file
 try:
@@ -20,8 +21,15 @@ except ImportError:
     pass
 
 from .utils.logger import setup_logging, get_logger
-from .utils.config_loader import load_config, validate_config_files
+from .utils.config_loader import (
+    load_config,
+    validate_config_files,
+    load_wechat_config,
+    validate_wechat_setup,
+)
 from .utils.storage import StorageHandler
+from .utils.article_generator import ArticleGenerator
+from .utils.translation_notes_synthesizer import TranslationNotesSynthesizer
 from .core.workflow import TranslationWorkflow
 from .models.translation import TranslationInput
 from .models.config import LogLevel, WorkflowMode
@@ -47,6 +55,12 @@ class InputError(CLIError):
 
 class WorkflowError(CLIError):
     """Raised when workflow execution fails."""
+
+    pass
+
+
+class WeChatError(CLIError):
+    """Raised when WeChat operations fail."""
 
     pass
 
@@ -301,7 +315,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.2.1", prog_name="vpsweb")
+@click.version_option(version="0.2.2", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -428,6 +442,368 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
 
             traceback.print_exc()
         sys.exit(1)
+
+
+@cli.command()
+@click.option(
+    "--input-json",
+    "-j",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to translation JSON file",
+)
+@click.option(
+    "--output-dir",
+    "-o",
+    type=click.Path(path_type=Path),
+    help="Output directory for generated article",
+)
+@click.option(
+    "--author", type=str, help="Article author name (default: 施知韵VoxPoetica)"
+)
+@click.option("--digest", type=str, help="Custom digest (80-120 characters)")
+@click.option(
+    "--dry-run", is_flag=True, help="Generate article without external API calls"
+)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
+    """Generate a WeChat article from translation JSON output.
+
+    Creates a WeChat-compatible HTML article with translation notes,
+    following the author-approved format and structure.
+
+    Examples:
+
+    \b
+    # Generate article from translation JSON
+    vpsweb generate-article -j outputs/json/陶渊明_歸園田居_chinese-english_hybrid_20251012_190558_63be1c5a.json
+
+    \b
+    # Generate with custom output directory
+    vpsweb generate-article -j translation.json -o my_articles/
+
+    \b
+    # Generate with custom author
+    vpsweb generate-article -j translation.json --author "My Name"
+
+    \b
+    # Dry run to validate without external calls
+    vpsweb generate-article -j translation.json --dry-run
+    """
+    try:
+        # Setup logging
+        if verbose:
+            setup_logging(LogLevel.DEBUG)
+        else:
+            setup_logging(LogLevel.INFO)
+
+        logger = get_logger(__name__)
+        click.echo("🚀 Generating WeChat article from translation JSON...")
+
+        # Validate input file
+        if not input_json.exists():
+            raise InputError(f"Translation JSON file not found: {input_json}")
+
+        if not input_json.suffix == ".json":
+            raise InputError(f"Input file must be a JSON file: {input_json}")
+
+        # Load WeChat configuration
+        try:
+            wechat_config = load_wechat_config()
+            click.echo("✅ WeChat configuration loaded successfully")
+        except Exception as e:
+            raise ConfigError(f"Failed to load WeChat configuration: {e}")
+
+        # Load complete configuration for LLM providers
+        complete_config = load_config()
+
+        # Initialize article generator
+        from .utils.config_loader import load_article_generation_config
+
+        article_gen_config = load_article_generation_config()
+        article_generator = ArticleGenerator(
+            article_gen_config, providers_config=complete_config.providers
+        )
+
+        # Generate article
+        click.echo(f"📝 Processing translation file: {input_json.name}")
+
+        result = article_generator.generate_from_translation(
+            translation_json_path=str(input_json),
+            output_dir=str(output_dir) if output_dir else None,
+            author=author,
+            digest=digest,
+        )
+
+        # Display results
+        click.echo("\n✅ Article generated successfully!")
+        click.echo(f"📁 Output directory: {result.output_directory}")
+        click.echo(f"📄 Article HTML: {result.html_path}")
+        click.echo(f"📋 Metadata: {result.metadata_path}")
+
+        if result.markdown_path:
+            click.echo(f"📝 Markdown: {result.markdown_path}")
+
+        click.echo(f"🏷️  Article slug: {result.slug}")
+        click.echo(f"📰 Article title: {result.article.title}")
+        click.echo(f"📝 Digest: {result.article.digest}")
+
+        # Next steps suggestion
+        click.echo("\n🎯 Next steps:")
+        click.echo(f"   Publish with: vpsweb publish-article -a {result.metadata_path}")
+
+    except InputError as e:
+        click.echo(f"❌ Input error: {e}", err=True)
+        sys.exit(1)
+    except ConfigError as e:
+        click.echo(f"❌ Configuration error: {e}", err=True)
+        sys.exit(1)
+    except WeChatError as e:
+        click.echo(f"❌ WeChat operation error: {e}", err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error: {e}", err=True)
+        if verbose:
+            import traceback
+
+            traceback.print_exc()
+        sys.exit(1)
+
+
+@cli.command()
+@click.option(
+    "--article",
+    "-a",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to article metadata file (metadata.json)",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to WeChat configuration file",
+)
+@click.option(
+    "--dry-run", is_flag=True, help="Preview API call without sending to WeChat"
+)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+def publish_article(article, config, dry_run, verbose):
+    """Publish generated article to WeChat Official Account drafts.
+
+    Uploads the generated article to WeChat Drafts (草稿) folder
+    for manual review and publishing.
+
+    Examples:
+
+    \b
+    # Publish article to WeChat drafts
+    vpsweb publish-article -a outputs/wechat_articles/slug/metadata.json
+
+    \b
+    # Dry run to preview API call
+    vpsweb publish-article -a metadata.json --dry-run
+
+    \b
+    # Use custom WeChat configuration
+    vpsweb publish-article -a metadata.json -c custom_wechat.yaml
+    """
+    try:
+        # For dry run, we don't need async
+        if dry_run:
+            # Setup logging
+            if verbose:
+                setup_logging(LogLevel.DEBUG)
+            else:
+                setup_logging(LogLevel.INFO)
+
+            logger = get_logger(__name__)
+            click.echo("🚀 Publishing article to WeChat Official Account...")
+
+            # Validate article metadata file
+            if not article.exists():
+                raise InputError(f"Article metadata file not found: {article}")
+
+            if article.name != "metadata.json":
+                click.echo("⚠️  Warning: Expected metadata.json file")
+
+            # Load article metadata
+            import json
+
+            with open(article, "r", encoding="utf-8") as f:
+                article_metadata = json.load(f)
+
+            # Load article HTML
+            html_path = article.parent / "article.html"
+            if not html_path.exists():
+                raise InputError(f"Article HTML file not found: {html_path}")
+
+            with open(html_path, "r", encoding="utf-8") as f:
+                html_content = f.read()
+
+            # Create WeChat article
+            from .models.wechat import WeChatArticle
+
+            wechat_article = WeChatArticle(
+                title=article_metadata.get("title", ""),
+                content=html_content,
+                digest=article_metadata.get("digest", ""),
+                author=article_metadata.get("author", "施知韵VoxPoetica"),
+                poem_title=article_metadata.get("poem_title", ""),
+                poet_name=article_metadata.get("poet_name", ""),
+                source_lang=article_metadata.get("source_lang", ""),
+                target_lang=article_metadata.get("target_lang", ""),
+                translation_workflow_id=article_metadata.get("workflow_id", ""),
+                translation_json_path=article_metadata.get("source_json_path", ""),
+            )
+
+            click.echo("\n🔍 DRY RUN MODE - Previewing API call:")
+            click.echo("📤 API Endpoint: POST /cgi-bin/draft/add")
+            click.echo("📋 Request payload:")
+
+            api_payload = {"articles": [wechat_article.to_wechat_api_dict()]}
+
+            import json
+
+            click.echo(json.dumps(api_payload, indent=2, ensure_ascii=False))
+            click.echo("\n✅ Dry run completed - No API calls made")
+            return
+
+        # For actual publishing, run async function
+        asyncio.run(_publish_article_async(article, config, verbose))
+
+    except InputError as e:
+        click.echo(f"❌ Input error: {e}", err=True)
+        sys.exit(1)
+    except ConfigError as e:
+        click.echo(f"❌ Configuration error: {e}", err=True)
+        sys.exit(1)
+    except WeChatError as e:
+        click.echo(f"❌ WeChat operation error: {e}", err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error: {e}", err=True)
+        if verbose:
+            import traceback
+
+            traceback.print_exc()
+        sys.exit(1)
+
+
+async def _publish_article_async(article, config, verbose):
+    """Async implementation for publishing article to WeChat."""
+    try:
+        # Setup logging
+        if verbose:
+            setup_logging(LogLevel.DEBUG)
+        else:
+            setup_logging(LogLevel.INFO)
+
+        logger = get_logger(__name__)
+        click.echo("🚀 Publishing article to WeChat Official Account...")
+
+        # Validate article metadata file
+        if not article.exists():
+            raise InputError(f"Article metadata file not found: {article}")
+
+        if article.name != "metadata.json":
+            click.echo("⚠️  Warning: Expected metadata.json file")
+
+        # Load WeChat configuration
+        try:
+            if config:
+                wechat_config = load_wechat_config(config.parent)
+            else:
+                wechat_config = load_wechat_config()
+
+            # Validate configuration
+            validate_wechat_setup()
+            click.echo("✅ WeChat configuration validated successfully")
+
+        except Exception as e:
+            raise ConfigError(f"Failed to load WeChat configuration: {e}")
+
+        # Load article metadata
+        import json
+
+        with open(article, "r", encoding="utf-8") as f:
+            article_metadata = json.load(f)
+
+        # Load article HTML
+        html_path = article.parent / "article.html"
+        if not html_path.exists():
+            raise InputError(f"Article HTML file not found: {html_path}")
+
+        with open(html_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+
+        # Create WeChat article
+        from .models.wechat import WeChatArticle
+
+        wechat_article = WeChatArticle(
+            title=article_metadata.get("title", ""),
+            content=html_content,
+            digest=article_metadata.get("digest", ""),
+            author=article_metadata.get("author", "施知韵VoxPoetica"),
+            poem_title=article_metadata.get("poem_title", ""),
+            poet_name=article_metadata.get("poet_name", ""),
+            source_lang=article_metadata.get("source_lang", ""),
+            target_lang=article_metadata.get("target_lang", ""),
+            translation_workflow_id=article_metadata.get("workflow_id", ""),
+            translation_json_path=article_metadata.get("source_json_path", ""),
+        )
+
+        # Initialize WeChat client
+        from .services.wechat import WeChatClient
+
+        wechat_client = WeChatClient(wechat_config)
+
+        # Test connection
+        click.echo("🔗 Testing WeChat API connection...")
+        if not await wechat_client.test_connection():
+            raise WeChatError("WeChat API connection test failed")
+
+        # Create draft
+        click.echo("📤 Creating draft in WeChat Official Account...")
+        draft_response = await wechat_client.create_draft(wechat_article)
+
+        if draft_response.media_id:
+            click.echo(f"✅ Article published to drafts successfully!")
+            click.echo(f"📋 Draft ID: {draft_response.media_id}")
+            click.echo(
+                "📝 Review and publish manually in WeChat Official Account backend"
+            )
+
+            # Save publish result
+            publish_result = {
+                "success": True,
+                "draft_id": draft_response.media_id,
+                "article_path": str(article),
+                "metadata_path": str(article),
+                "published_at": (
+                    draft_response.created_at.isoformat()
+                    if draft_response.created_at
+                    else None
+                ),
+                "created_at": datetime.now().isoformat(),
+            }
+
+            publish_result_path = article.parent / "publish_result.json"
+            with open(publish_result_path, "w", encoding="utf-8") as f:
+                json.dump(publish_result, f, indent=2, ensure_ascii=False)
+
+            click.echo(f"💾 Publish result saved: {publish_result_path}")
+        else:
+            raise WeChatError("Failed to get draft ID from WeChat API")
+
+    except InputError as e:
+        raise  # Re-raise to be caught by outer function
+    except ConfigError as e:
+        raise  # Re-raise to be caught by outer function
+    except WeChatError as e:
+        raise  # Re-raise to be caught by outer function
+    except Exception as e:
+        raise  # Re-raise to be caught by outer function
 
 
 if __name__ == "__main__":

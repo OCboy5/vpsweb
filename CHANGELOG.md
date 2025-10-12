@@ -5,6 +5,71 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-10-13 (WeChat Integration Release)
+
+### 🎉 Major Features
+- **Complete WeChat Official Account Integration**: Full end-to-end system for generating WeChat articles from translation outputs
+- **LLM-Powered Translation Notes Synthesis**: AI-generated Chinese translation notes for WeChat audience using deepseek-reasoner
+- **Two New CLI Commands**:
+  - `vpsweb generate-article`: Generate WeChat articles from translation JSON
+  - `vpsweb publish-article`: Publish articles to WeChat drafts
+
+### Added
+- **WeChat Article Generation System** (`src/vpsweb/utils/article_generator.py`):
+  - Author-approved HTML template with proper WeChat styling
+  - Chinese slug generation using original characters (not pinyin)
+  - Metadata extraction from translation JSON
+  - Automatic digest generation
+
+- **Translation Notes Synthesis** (`src/vpsweb/utils/translation_notes_synthesizer.py`):
+  - LLM-based synthesis using existing VPSWeb infrastructure
+  - Chinese prompts optimized for WeChat audience
+  - XML parsing for structured output
+  - Robust error handling with fallback parsing
+
+- **WeChat Data Models** (`src/vpsweb/models/wechat.py`):
+  - Complete Pydantic models for WeChat articles and metadata
+  - Support for Chinese characters in slugs
+  - Configuration models for WeChat API integration
+
+- **WeChat XML Parser** (`src/vpsweb/utils/xml_parser.py`):
+  - Specialized parser for WeChat-specific XML responses
+  - Support for translation notes digest and bullet points
+  - Error handling for malformed XML
+
+- **Configuration Enhancements**:
+  - WeChat configuration with environment variable support
+  - Chinese prompt templates for reasoning and non-reasoning models
+  - Article generation settings and templates
+
+### 🏗️ Infrastructure
+- **Directory Structure Update**: Changed from `outputs/wechat/articles/` to `outputs/wechat_articles/`
+- **Chinese Slug Generation**: Uses Chinese characters directly when source language is Chinese
+- **Logging Improvements**: Enhanced logging system supporting direct LogLevel usage
+- **CLI Integration**: Seamless integration with existing VPSWeb CLI infrastructure
+
+### 🔧 Technical Implementation
+- **Existing Infrastructure Reuse**: Leverages `LLMFactory`, `PromptService`, and existing workflow patterns
+- **Async Execution**: Follows same async patterns as existing translation workflow
+- **Configuration Consistency**: Uses `CompleteConfig.providers` for LLM configuration
+- **Error Handling**: Comprehensive error handling with graceful fallbacks
+
+### 📝 Generated Content Features
+- **Professional Translation Notes**: 80-120 character Chinese digest with 3-6 bullet points
+- **Reader-Friendly Content**: Accessible language for WeChat audience, not academic
+- **Cultural Context**: Explains translation choices and cultural elements
+- **HTML Formatting**: WeChat-compatible HTML with proper styling
+
+### 🛠️ Configuration Files
+- **`config/wechat.yaml`**: WeChat API configuration with environment variables
+- **`config/prompts/wechat_article_notes_reasoning.yaml`**: Chinese prompts for reasoning models
+- **`config/prompts/wechat_article_notes_nonreasoning.yaml`**: Simplified prompts for standard models
+- **`.env.example`**: Updated with WeChat environment variables
+
+### 📚 Documentation
+- **Updated CLI Help**: Comprehensive help text and examples for new commands
+- **Project Documentation**: Updated with WeChat integration capabilities
+
 ## [0.2.1] - 2025-10-12 (Output Structure Enhancement)
 
 ### Added

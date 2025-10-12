@@ -25,7 +25,7 @@ from src.vpsweb.models.config import (
     CompleteConfig,
     LoggingConfig,
     MainConfig,
-    ProviderConfig,
+    ModelProviderConfig,
     ProvidersConfig,
 )
 
@@ -446,13 +446,20 @@ class TestConfigModels:
         assert logging_config.backup_count == 5
 
     def test_provider_config_creation(self):
-        """Test creating ProviderConfig."""
-        provider = ProviderConfig(
-            api_key="test_key", base_url="https://api.example.com"
+        """Test creating ModelProviderConfig."""
+        provider = ModelProviderConfig(
+            api_key_env="TEST_API_KEY",
+            base_url="https://api.example.com",
+            type="openai_compatible",
+            models=["gpt-3.5-turbo", "gpt-4"],
+            default_model="gpt-3.5-turbo",
         )
 
-        assert provider.api_key == "test_key"
+        assert provider.api_key_env == "TEST_API_KEY"
         assert provider.base_url == "https://api.example.com"
+        assert provider.type == "openai_compatible"
+        assert provider.models == ["gpt-3.5-turbo", "gpt-4"]
+        assert provider.default_model == "gpt-3.5-turbo"
 
     def test_complete_config_creation(self, sample_config):
         """Test creating CompleteConfig."""

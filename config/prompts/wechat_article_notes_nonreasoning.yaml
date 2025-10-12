@@ -1,0 +1,30 @@
+# WeChat Article Notes Generation Prompt (Non-Reasoning)
+# Purpose: Generate reader-friendly translation notes for WeChat articles using efficient non-reasoning models
+
+system: |
+  你正在为微信公众号创作诗歌翻译札记，目标读者是对诗歌翻译感兴趣的中文读者。
+  你的目标是将复杂的翻译决策用通俗易懂的中文解释清楚。
+
+user: |
+  基于以下诗歌翻译工作流记录，生成3-6条简洁的翻译札记要点：
+
+  最终译注: {{ revised_translation_notes }}
+  编辑建议: {{ editor_suggestions }}
+  初译说明: {{ initial_translation_notes }}
+
+  要求：
+  - 生成3-6条要点，每条18-40个中文字符
+  - 重点突出有趣的翻译选择和文化见解
+  - 生成摘要：80-120个中文字符
+  - 使用清晰易懂的中文
+  - 目标读者：诗歌爱好者
+  - 语言生动有趣，适合微信公众号阅读
+
+  输出格式：
+  <wechat_translation_notes>
+  digest: [中文摘要]
+  notes:
+  • [札记要点1]
+  • [札记要点2]
+  • [札记要点3]
+  </wechat_translation_notes>

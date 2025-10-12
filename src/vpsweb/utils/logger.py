@@ -25,7 +25,7 @@ class LoggerSetupError(Exception):
 _logging_initialized = False
 
 
-def setup_logging(config: LoggingConfig) -> None:
+def setup_logging(config) -> None:
     """
     Initialize logging configuration for the entire application.
 
@@ -33,7 +33,7 @@ def setup_logging(config: LoggingConfig) -> None:
     the logging system according to the provided configuration.
 
     Args:
-        config: Logging configuration from config/default.yaml
+        config: Logging configuration from config/default.yaml or LogLevel enum
 
     Raises:
         LoggerSetupError: If logging setup fails
@@ -50,21 +50,37 @@ def setup_logging(config: LoggingConfig) -> None:
         for handler in root_logger.handlers[:]:
             root_logger.removeHandler(handler)
 
+        # Handle both LoggingConfig object and LogLevel enum
+        if hasattr(config, "level"):
+            # It's a LoggingConfig object
+            level = config.level.value
+            log_format = config.format
+            max_file_size = config.max_file_size
+            backup_count = config.backup_count
+            log_file = config.file
+        else:
+            # It's a LogLevel enum
+            level = config.value if hasattr(config, "value") else config
+            log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            max_file_size = 10485760  # 10MB default
+            backup_count = 5
+            log_file = "logs/vpsweb.log"
+
         # Set the root logger level
-        root_logger.setLevel(config.level.value)
+        root_logger.setLevel(level)
 
         # Create formatter
-        formatter = logging.Formatter(config.format)
+        formatter = logging.Formatter(log_format)
 
         # Console handler (always enabled)
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(config.level.value)
+        console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
 
         # File handler (if file path is specified)
-        if config.file:
-            log_file_path = Path(config.file)
+        if log_file:
+            log_file_path = Path(log_file)
 
             # Create log directory if it doesn't exist
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -72,26 +88,26 @@ def setup_logging(config: LoggingConfig) -> None:
             # Create rotating file handler with size-based rotation
             file_handler = logging.handlers.RotatingFileHandler(
                 filename=log_file_path,
-                maxBytes=config.max_file_size,
-                backupCount=config.backup_count,
+                maxBytes=max_file_size,
+                backupCount=backup_count,
                 encoding="utf-8",
             )
-            file_handler.setLevel(config.level.value)
+            file_handler.setLevel(level)
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
 
         # Configure specific loggers for our application
-        _configure_application_loggers(config.level.value)
+        _configure_application_loggers(level)
 
         _logging_initialized = True
 
         # Log successful initialization
         logger = get_logger(__name__)
         logger.info("Logging system initialized successfully")
-        logger.debug(f"Log level: {config.level.value}")
-        logger.debug(f"Log file: {config.file}")
-        logger.debug(f"Max file size: {config.max_file_size} bytes")
-        logger.debug(f"Backup count: {config.backup_count}")
+        logger.debug(f"Log level: {level}")
+        logger.debug(f"Log file: {log_file}")
+        logger.debug(f"Max file size: {max_file_size} bytes")
+        logger.debug(f"Backup count: {backup_count}")
 
     except Exception as e:
         # Fallback to basic console logging if setup fails
