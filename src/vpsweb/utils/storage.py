@@ -14,6 +14,12 @@ import uuid
 
 from ..models.translation import TranslationOutput
 from .markdown_export import MarkdownExporter
+from .filename_utils import (
+    extract_poet_and_title,
+    generate_translation_filename,
+    generate_legacy_filename,
+    sanitize_filename_component,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +62,16 @@ class StorageHandler:
             StorageError: If the output directory cannot be created
         """
         self.output_dir = Path(output_dir)
+        self.json_dir = self.output_dir / "json"
 
         try:
-            # Create output directory if it doesn't exist
+            # Create output directories if they don't exist
             self.output_dir.mkdir(parents=True, exist_ok=True)
+            self.json_dir.mkdir(parents=True, exist_ok=True)
             logger.info(
                 f"Storage handler initialized with output directory: {self.output_dir.absolute()}"
             )
+            logger.info(f"JSON files will be stored in: {self.json_dir.absolute()}")
 
             # Initialize markdown exporter
             self.markdown_exporter = MarkdownExporter(output_dir)
@@ -94,16 +103,28 @@ class StorageHandler:
             SaveError: If saving fails due to file I/O or serialization issues
         """
         try:
-            # Generate timestamped filename
+            # Generate timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            short_uuid = str(uuid.uuid4())[:8]
 
-            # Create descriptive filename with optional workflow mode tag
-            if include_mode_tag and workflow_mode:
-                filename = f"translation_{workflow_mode}_{timestamp}_{short_uuid}.json"
-            else:
-                filename = f"translation_{timestamp}_{short_uuid}.json"
-            file_path = self.output_dir / filename
+            # Extract poet and title information
+            poet, title = extract_poet_and_title(
+                output.input.original_poem, output.input.metadata
+            )
+
+            # Generate new descriptive filename
+            filename = generate_translation_filename(
+                poet=poet,
+                title=title,
+                source_lang=output.input.source_lang,
+                target_lang=output.input.target_lang,
+                timestamp=timestamp,
+                workflow_id=output.workflow_id,
+                workflow_mode=workflow_mode,
+                file_format="json",
+                is_log=False,
+            )
+
+            file_path = self.json_dir / filename
 
             # Convert to dictionary for JSON serialization
             output_dict = output.to_dict()
@@ -116,6 +137,7 @@ class StorageHandler:
             logger.debug(
                 f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}"
             )
+            logger.info(f"Generated filename with poet '{poet}' and title '{title}'")
 
             return file_path
 
@@ -182,7 +204,7 @@ class StorageHandler:
 
     def list_translations(self) -> List[Path]:
         """
-        List all translation files in the output directory.
+        List all translation files in the JSON subdirectory.
 
         Returns:
             List of Path objects for all translation JSON files
@@ -191,20 +213,21 @@ class StorageHandler:
             StorageError: If directory listing fails
         """
         try:
-            # Find all JSON files in output directory
-            translation_files = list(self.output_dir.glob("translation_*.json"))
+            # Find all JSON files in json subdirectory
+            # Support both new naming (poet-led) and legacy naming (translation_-prefixed)
+            translation_files = list(self.json_dir.glob("*.json"))
 
             # Sort by modification time (newest first)
             translation_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
             logger.debug(
-                f"Found {len(translation_files)} translation files in {self.output_dir}"
+                f"Found {len(translation_files)} translation files in {self.json_dir}"
             )
 
             return translation_files
 
         except Exception as e:
-            logger.error(f"Failed to list translation files in {self.output_dir}: {e}")
+            logger.error(f"Failed to list translation files in {self.json_dir}: {e}")
             raise StorageError(f"Failed to list translation files: {e}")
 
     def get_translation_by_id(self, workflow_id: str) -> Optional[TranslationOutput]:

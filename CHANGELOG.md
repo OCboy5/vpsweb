@@ -5,6 +5,40 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-10-12 (Output Structure Enhancement)
+
+### Added
+- **Enhanced Output Directory Structure**: Organized outputs into separate subdirectories:
+  - `outputs/json/` for all JSON translation files
+  - `outputs/markdown/` for all markdown translation files
+- **Poet-First Naming Scheme**: Revolutionary filename format that leads with poet names:
+  - Format: `{poet}_{title}_{source_target}_{mode}_{date}_{hash}.{format}`
+  - Examples: `陶渊明_歸園田居_chinese_english_hybrid_20251012_184234_81e865f8.json`
+- **Intelligent Metadata Extraction**: Automatic poet and title detection from poem text patterns
+- **Cross-Platform Filename Sanitization**: Handles special characters and spaces safely
+- **Filename Utilities Module**: Comprehensive filename generation and sanitization system
+
+### Changed
+- **Filename Format**: Complete overhaul of output file naming:
+  - Removed `translation_` prefix for cleaner, poet-first naming
+  - Spaces in poet names and titles converted to underscores
+  - Language separator changed from `-` to `_` for consistency
+  - Log files now use `log` suffix instead of prefix
+- **Storage Handler**: Updated to support new directory structure and naming scheme
+- **Markdown Exporter**: Enhanced with poet-first filename generation
+- **Documentation**: Updated CLAUDE.md with new output organization details
+
+### Fixed
+- **Directory Organization**: Eliminated file clutter by separating JSON and markdown outputs
+- **Filename Consistency**: All output files now follow the same naming conventions
+- **Metadata Handling**: Improved extraction and sanitization of poet/title information
+
+### Improved
+- **Searchability**: Files are now easily identifiable by poet name at the beginning
+- **Organization**: Clean separation of file types in dedicated subdirectories
+- **Cross-Platform Compatibility**: Safe filename generation for all operating systems
+- **Academic Use**: Citation-friendly naming suitable for research and reference
+
 ## [0.1.1] - 2025-01-XX (Checkpoint 2)
 
 ### Added

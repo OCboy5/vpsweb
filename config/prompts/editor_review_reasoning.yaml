@@ -34,7 +34,7 @@ user: |
   - Reader experience (emotional/imagistic impact)
   - Alternative interpretations (especially for difficult lines)
 
-  Provide 8–15 prioritized, numbered suggestions. For each:
+  Provide a list of 8-15 prioritized, numbered suggestions. For each:
   1) Identify the line/section.
   2) Explain the issue.
   3) Recommend a change.
@@ -50,5 +50,5 @@ user: |
   2. ...
   ...
 
-  Conclude with a brief overall assessment (2–3 sentences).
+  Conclude with a brief overall assessment (2-3 sentences).
   </editor_suggestions>

@@ -20,13 +20,4 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
-config/models.yaml
-config/default.yaml
-config/prompts/initial_translation.yaml
-config/prompts/editor_review.yaml
-config/prompts/translator_revision.yaml
-docs/PSD_Collection/reasoning_gemini.md
-docs/PSD_Collection/reasoning_gpt5.md
-docs/PSD_Collection/reasoning-deepseek.md
-docs/PSD_Collection/reasoning-gpt5high.md
-docs/PSD_Collection/reasoning-sonnet.md
+outputs/translation_hybrid_20251012_102732_daf417f6.json

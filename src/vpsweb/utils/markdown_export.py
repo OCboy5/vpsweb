@@ -11,6 +11,11 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from ..models.translation import TranslationOutput
+from .filename_utils import (
+    extract_poet_and_title,
+    generate_translation_filename,
+    sanitize_filename_component,
+)
 
 
 class MarkdownExporter:
@@ -29,34 +34,38 @@ class MarkdownExporter:
 
     def generate_filename(
         self,
-        source_lang: str,
-        target_lang: str,
+        translation_output: TranslationOutput,
         timestamp: str,
-        workflow_id: str,
         is_log: bool = False,
     ) -> str:
         """
-        Generate filename using Option A naming scheme.
+        Generate filename using enhanced naming scheme with poet and title.
 
         Args:
-            source_lang: Source language
-            target_lang: Target language
+            translation_output: Complete translation output
             timestamp: Timestamp string
-            workflow_id: Workflow ID (hash)
             is_log: Whether this is a log file
 
         Returns:
             Generated filename
         """
-        # Extract last 8 characters of workflow_id for shorter filename
-        hash_suffix = workflow_id[-8:] if len(workflow_id) > 8 else workflow_id
+        # Extract poet and title information
+        poet, title = extract_poet_and_title(
+            translation_output.input.original_poem, translation_output.input.metadata
+        )
 
-        # Format: translation_{source}_{target}_{timestamp}_{hash}.md
-        # or: translation_log_{source}_{target}_{timestamp}_{hash}.md
-        if is_log:
-            return f"translation_log_{source_lang.lower()}_{target_lang.lower()}_{timestamp}_{hash_suffix}.md"
-        else:
-            return f"translation_{source_lang.lower()}_{target_lang.lower()}_{timestamp}_{hash_suffix}.md"
+        # Generate new descriptive filename
+        return generate_translation_filename(
+            poet=poet,
+            title=title,
+            source_lang=translation_output.input.source_lang,
+            target_lang=translation_output.input.target_lang,
+            timestamp=timestamp,
+            workflow_id=translation_output.workflow_id,
+            workflow_mode=None,  # Not needed for markdown files
+            file_format="md",
+            is_log=is_log,
+        )
 
     def export_final_translation(self, translation_output: TranslationOutput) -> str:
         """
@@ -68,13 +77,11 @@ class MarkdownExporter:
         Returns:
             Path to created markdown file
         """
-        # Generate filename
+        # Generate timestamp and filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = self.generate_filename(
-            source_lang=translation_output.input.source_lang,
-            target_lang=translation_output.input.target_lang,
+            translation_output=translation_output,
             timestamp=timestamp,
-            workflow_id=translation_output.workflow_id,
             is_log=False,
         )
 
@@ -99,13 +106,11 @@ class MarkdownExporter:
         Returns:
             Path to created markdown file
         """
-        # Generate filename
+        # Generate timestamp and filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = self.generate_filename(
-            source_lang=translation_output.input.source_lang,
-            target_lang=translation_output.input.target_lang,
+            translation_output=translation_output,
             timestamp=timestamp,
-            workflow_id=translation_output.workflow_id,
             is_log=True,
         )
 
