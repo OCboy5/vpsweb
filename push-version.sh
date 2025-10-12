@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Push version to GitHub as official release (v2.0 - with lessons learned)
+# Push version to GitHub as official release (v3.0 - v0.2.1 improvements)
 # Usage: ./push-version.sh <version> [release_notes]
 # Example: ./push-version.sh 0.1.0 "Initial release with basic functionality"
 

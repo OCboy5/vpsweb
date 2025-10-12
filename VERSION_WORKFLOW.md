@@ -16,6 +16,12 @@
 
 ## Recommended Workflow
 
+### Pre-Release Checklist
+1. **Version Consistency Check**: Verify version numbers across all files
+2. **Commit Changes**: Ensure all changes are committed to main branch
+3. **Create Local Backup**: Save current state locally before release
+4. **Push to GitHub**: Create official release with comprehensive notes
+
 ### Before Major Changes
 ```bash
 # Save current state locally before making changes
@@ -24,11 +30,17 @@
 
 ### After Completing Features
 ```bash
-# Commit your changes
+# 1. Check version consistency
+grep -r "0\.2\.0" src/ pyproject.toml  # Should find 3 files
+
+# 2. Commit your changes
 git add .
 git commit -m "Add new features for v0.2.0"
 
-# Push as official release
+# 3. Create local backup (safety net)
+./save-version.sh 0.2.0
+
+# 4. Push as official release
 ./push-version.sh 0.2.0 "Added user authentication and dashboard"
 ```
 
@@ -40,6 +52,42 @@ git tag -l "*local*"
 # Restore specific version
 git checkout v0.1.0-local-2025-10-05
 ```
+
+### GitHub Actions Failure Recovery
+If the automatic GitHub release creation fails (403 errors):
+
+1. **Verify Current Status**:
+   ```bash
+   # Check if release exists on GitHub
+   gh release view vX.Y.Z 2>/dev/null && echo "Release exists" || echo "Release missing"
+
+   # Check if tag exists remotely
+   git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"
+
+   # Check CI/CD status on GitHub
+   # Visit: https://github.com/OCboy5/vpsweb/actions
+   ```
+
+2. **Manual Release Creation**:
+   ```bash
+   # Create release manually using GitHub CLI
+   gh release create vX.Y.Z --title "Release X.Y.Z" --notes "Your release notes here"
+
+   # Or visit GitHub web interface:
+   # https://github.com/OCboy5/vpsweb/releases/new
+   ```
+
+3. **Verify Release Success**:
+   ```bash
+   # Verify release exists
+   gh release view vX.Y.Z
+
+   # Check tag is pushed
+   git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"
+
+   # Visit release page:
+   # https://github.com/OCboy5/vpsweb/releases/tag/vX.Y.Z
+   ```
 
 ## Version Naming Convention
 - **Local tags**: `v{version}-local-{date}` (e.g., `v0.1.1-local-2025-10-05`)
