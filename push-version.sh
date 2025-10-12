@@ -55,26 +55,39 @@ if ! gh auth status &> /dev/null; then
     exit 1
 fi
 
-# 5. Verify tag doesn't already exist remotely
+# 5. Check if tag already exists remotely
 if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
-    echo "❌ Error: Tag $TAG already exists on GitHub."
-    echo "   Choose a different version or delete the existing tag first."
-    exit 1
+    echo "ℹ️  Tag $TAG already exists on GitHub."
+    echo "   This is normal if you're re-pushing an existing release."
+    echo "   The script will continue and update the release if needed."
+
+    # Check if release exists
+    if gh release view "$TAG" >/dev/null 2>&1; then
+        echo "ℹ️  Release $TAG already exists on GitHub."
+        echo "   Skipping release creation."
+        echo "   📋 Existing release: https://github.com/OCboy5/vpsweb/releases/tag/$TAG"
+        exit 0
+    fi
 fi
 
 echo "✅ Pre-flight checks passed."
 
-# Create annotated tag
+# Create annotated tag (handle case where tag already exists locally)
 echo "🏷️  Creating annotated tag..."
-if [ -n "$RELEASE_NOTES" ]; then
-    git tag -a "$TAG" -m "Release v$VERSION" -m "$RELEASE_NOTES"
+if git rev-parse "$TAG" >/dev/null 2>&1; then
+    echo "ℹ️  Tag $TAG already exists locally, skipping tag creation"
 else
-    git tag -a "$TAG" -m "Release v$VERSION"
-fi
+    if [ -n "$RELEASE_NOTES" ]; then
+        git tag -a "$TAG" -m "Release v$VERSION" -m "$RELEASE_NOTES"
+    else
+        git tag -a "$TAG" -m "Release v$VERSION"
+    fi
 
-if [ $? -ne 0 ]; then
-    echo "❌ Error: Failed to create tag $TAG"
-    exit 1
+    if [ $? -ne 0 ]; then
+        echo "❌ Error: Failed to create tag $TAG"
+        exit 1
+    fi
+    echo "✅ Tag $TAG created successfully"
 fi
 
 # Push current commits first (to ensure tag has a target)
@@ -96,13 +109,26 @@ fi
 # Create GitHub release using CLI (more reliable than GitHub Actions)
 echo "🎉 Creating GitHub release..."
 if [ -n "$RELEASE_NOTES" ]; then
-    RELEASE_URL=$(gh release create "$TAG" --title "Release $VERSION" --notes "$RELEASE_NOTES")
+    RELEASE_URL=$(gh release create "$TAG" --title "Release $VERSION" --notes "$RELEASE_NOTES" 2>/dev/null)
 else
-    RELEASE_URL=$(gh release create "$TAG" --title "Release $VERSION" --notes "Release $VERSION")
+    RELEASE_URL=$(gh release create "$TAG" --title "Release $VERSION" --notes "Release $VERSION" 2>/dev/null)
 fi
 
 if [ $? -ne 0 ]; then
-    echo "❌ Error: Failed to create GitHub release"
+    echo "❌ Error: Failed to create GitHub release automatically"
+    echo "🔧 Possible causes:"
+    echo "   - Insufficient GitHub permissions"
+    echo "   - Release already exists"
+    echo "   - Network connectivity issues"
+    echo ""
+    echo "👍 Manual creation instructions:"
+    echo "   1. Visit: https://github.com/OCboy5/vpsweb/releases/new"
+    echo "   2. Tag: $TAG"
+    echo "   3. Title: Release $VERSION"
+    echo "   4. Copy/paste release notes if provided"
+    echo ""
+    echo "   Or use GitHub CLI:"
+    echo "   gh release create $TAG --title 'Release $VERSION' --notes 'Your release notes here'"
     exit 1
 fi
 
