@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="author" content="施知韵VoxPoeticaStudio">
+    <meta name="description" content="{{ poem_title }} - {{ poet_name }} | 知韵译诗 - 诗歌翻译与解读">
+    <title>【知韵译诗】{{ poem_title }}（{{ poet_name }}）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            color: #222;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .article-header {
+            font-size: 22px;
+            margin: 12px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .author-info {
+            font-size: 14px;
+            color: #666;
+            display: block;
+            margin-bottom: 16px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+        .section-title {
+            font-size: 18px;
+            margin: 16px 0 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        .poem-text {
+            font-family: 'Times New Roman', 'SimSong', '宋体', serif;
+            margin: 8px 0;
+            white-space: pre-wrap;
+            line-height: 1.9;
+            font-size: 16px;
+        }
+        .translation-text {
+            font-family: 'Times New Roman', Georgia, serif;
+            margin: 8px 0;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .notes-section {
+            margin: 8px 0;
+            color: #555;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .notes-section p {
+            margin: 0 0 12px 0;
+        }
+        .notes-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .notes-section li {
+            margin-bottom: 8px;
+        }
+        .copyright {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .article-header {
+                font-size: 20px;
+            }
+            .poem-text, .translation-text {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="article-header">【知韵译诗】{{ poem_title }}（{{ poet_name }}）</h1>
+        <div class="author-info">作者：施知韵VoxPoeticaStudio</div>
+        <hr>
+
+        <h2 class="section-title">原诗</h2>
+        <div class="poem-text">
+{{ source_title }}
+作者：{{ source_poet }}
+
+{{ poem_text }}</div>
+
+        <h2 class="section-title">译文</h2>
+        <div class="translation-text">
+{{ target_title }}
+{{ target_poet }}
+
+{{ translation_text }}</div>
+
+        <h2 class="section-title">译注</h2>
+        <div class="notes-section">
+            {{ translation_notes_section | safe }}
+        </div>
+
+        <hr>
+        <div class="copyright">
+            {{ copyright_text }}
+        </div>
+    </div>
+</body>
+</html>

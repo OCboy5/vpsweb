@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
-**Current Status**: v0.2.1 - Enhanced output structure with poet-first naming and intelligent metadata extraction.
+**Current Status**: v0.2.3 - Enhanced Metrics & Display Release
 
 ## Core Development Principles
 
 ### 1. Strategy-Todo-Code Process
 
-For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this three-step process:
+For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this three-step process with explicit approval required between phases:
 
 #### **STRATEGY Phase** - Analysis and Planning
 - Analyze the current codebase structure and existing implementation
@@ -20,20 +20,25 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - Evaluate multiple approaches and their trade-offs
 - Review existing configuration and documentation
 - Consider impact on version management, testing, and deployment
+- **CRITICAL**: Present complete strategy for user approval before proceeding
 
 #### **TODO Phase** - Structured Task Planning
+- **REQUIREMENT**: Must get explicit consensus on strategy before creating TODO list
 - Create a comprehensive, ordered task list using the TodoWrite tool
 - Break complex changes into small, testable increments
 - Include validation tasks (testing, formatting, documentation updates)
 - Mark one task as `in_progress` at any time
 - Update task status immediately upon completion
+- **CRITICAL**: Present TODO list for user approval before proceeding to CODE phase
 
 #### **CODE Phase** - Implementation and Validation
+- **REQUIREMENT**: Must get explicit consensus on TODO list before starting implementation
 - Execute tasks sequentially according to the TODO list
 - Test each increment before proceeding
 - Follow existing code patterns and conventions
 - Update relevant documentation
 - Ensure CI/CD compliance (Black formatting, tests passing)
+- **CRITICAL**: Update task status and get confirmation on major milestones
 
 ### 2. Decision Classification
 
@@ -86,6 +91,8 @@ The system implements a **3-step Translator→Editor→Translator** workflow:
 ### Configuration System
 - `config/default.yaml`: Main workflow configuration
 - `config/models.yaml`: Provider configurations
+- `config/wechat.yaml`: WeChat Official Account integration settings
+- `config/html_templates/wechat_articles/`: WeChat article HTML templates
 - Support for **reasoning**, **non-reasoning**, and **hybrid** workflow modes
 - Model-specific parameters and prompt templates
 
@@ -139,6 +146,9 @@ vpsweb translate -i poem.txt -s English -t Chinese -w non_reasoning --verbose
 # Dry run (validation only)
 vpsweb translate -i poem.txt -s English -t Chinese --dry-run
 
+# WeChat article generation
+vpsweb generate-article -j translation_output.json
+
 # Python API usage
 python -c "
 from vpsweb.core.workflow import TranslationWorkflow
@@ -157,10 +167,10 @@ print(result.revised_translation.revised_translation)
 ### Version Management
 ```bash
 # Create local backup before changes
-./save-version.sh 0.2.1
+./save-version.sh 0.2.2
 
 # Push official release to GitHub
-./push-version.sh 0.2.1 "Added new features and bug fixes"
+./push-version.sh 0.2.2 "Added new features and bug fixes"
 
 # List local backup versions
 git tag -l "*local*"
@@ -231,6 +241,73 @@ grep -r "0\.2\.0" src/ pyproject.toml
 3. Update `factory.py` to include new provider
 4. Add configuration in `models.yaml`
 5. Test integration with existing workflow
+
+## WeChat Official Account Integration
+
+### Overview
+VPSWeb includes comprehensive WeChat Official Account integration for automatic article publishing:
+- **Article Generation**: Automatically formats translations as WeChat articles
+- **Translation Notes Synthesis**: AI-powered synthesis of translation commentary
+- **Draft Management**: Save as drafts for manual review or auto-publish
+- **Media Management**: Handle images and formatting for WeChat platform
+
+### Configuration Setup
+```yaml
+# config/wechat.yaml
+appid: "${WECHAT_APPID}"
+secret: "${WECHAT_SECRET}"
+article_generation:
+  include_translation_notes: true
+  max_notes_items: 6
+  copyright_text: "本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作"
+publishing:
+  save_as_draft: true  # Safe default
+  auto_publish: false  # Manual control
+```
+
+### Environment Variables
+```bash
+# Required for WeChat integration
+WECHAT_APPID="your-wechat-appid"
+WECHAT_SECRET="your-wechat-secret"
+```
+
+### WeChat Usage
+```bash
+# Generate WeChat article from translation
+vpsweb generate-article -j translation_output.json
+
+# Generate with custom options
+vpsweb generate-article -j translation.json -o my_articles/ --author "My Name"
+
+# Publish to WeChat (if configured)
+vpsweb publish-article -a article_metadata.json
+```
+
+### WeChat Article Templates
+VPSWeb uses a flexible template system for WeChat articles:
+
+- **HTML Templates**: `config/html_templates/wechat_articles/` - Control article layout and styling
+- **Prompt Templates**: `config/prompts/wechat_article_notes_*.yaml` - Control LLM behavior for translation notes
+- **Template Variables**: Uses Jinja2 templating with variables like `{{ poem_title }}`, `{{ poet_name }}`, etc.
+- **Custom Templates**: Create new templates and update `config/wechat.yaml` to use them
+
+#### Creating Custom Templates
+
+**HTML Templates (Article Layout):**
+1. Copy `config/html_templates/wechat_articles/default.html` to a new file
+2. Modify the HTML structure and CSS styling as needed
+3. Use supported template variables (see template file for examples)
+4. Update `config/wechat.yaml`: `article_template: "your_template_name"`
+
+**Prompt Templates (Translation Notes):**
+1. Create a new prompt template in `config/prompts/` (e.g., `wechat_article_notes_custom.yaml`)
+2. Customize the prompt for different LLM behaviors or output styles
+3. Update `config/wechat.yaml`: `prompt_template: "wechat_article_notes_custom"`
+
+#### Available Prompt Templates
+- `wechat_article_notes_reasoning` - For reasoning models, detailed analysis
+- `wechat_article_notes_nonreasoning` - For standard models, concise output
 
 ## Workflow Mode Management
 

@@ -315,7 +315,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.2.2", prog_name="vpsweb")
+@click.version_option(version="0.2.3", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -463,10 +463,19 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
 )
 @click.option("--digest", type=str, help="Custom digest (80-120 characters)")
 @click.option(
+    "--model-type",
+    "-m",
+    type=click.Choice(["reasoning", "non_reasoning"]),
+    default=None,
+    help="Model type for translation notes: reasoning (slower, detailed) or non_reasoning (faster, efficient)",
+)
+@click.option(
     "--dry-run", is_flag=True, help="Generate article without external API calls"
 )
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
-def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
+def generate_article(
+    input_json, output_dir, author, digest, model_type, dry_run, verbose
+):
     """Generate a WeChat article from translation JSON output.
 
     Creates a WeChat-compatible HTML article with translation notes,
@@ -485,6 +494,14 @@ def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
     \b
     # Generate with custom author
     vpsweb generate-article -j translation.json --author "My Name"
+
+    \b
+    # Generate with non-reasoning model (faster)
+    vpsweb generate-article -j translation.json -m non_reasoning
+
+    \b
+    # Generate with reasoning model (detailed)
+    vpsweb generate-article -j translation.json -m reasoning
 
     \b
     # Dry run to validate without external calls
@@ -510,6 +527,11 @@ def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
         # Load WeChat configuration
         try:
             wechat_config = load_wechat_config()
+            # Also load raw YAML data for LLM configuration display
+            from .utils.config_loader import load_yaml_file
+
+            wechat_yaml_path = Path("config/wechat.yaml")
+            wechat_raw_config = load_yaml_file(wechat_yaml_path)
             click.echo("✅ WeChat configuration loaded successfully")
         except Exception as e:
             raise ConfigError(f"Failed to load WeChat configuration: {e}")
@@ -521,9 +543,60 @@ def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
         from .utils.config_loader import load_article_generation_config
 
         article_gen_config = load_article_generation_config()
+
+        # Override model_type if specified via CLI
+        if model_type:
+            article_gen_config.model_type = model_type
+            # Also update the prompt template to match the model type
+            if model_type == "reasoning":
+                article_gen_config.prompt_template = "wechat_article_notes_reasoning"
+            else:  # non_reasoning
+                article_gen_config.prompt_template = "wechat_article_notes_nonreasoning"
+            click.echo(f"   🎯 Using Model Type: {model_type} (CLI override)")
+        else:
+            click.echo(
+                f"   🎯 Using Model Type: {article_gen_config.model_type} (from config)"
+            )
+
         article_generator = ArticleGenerator(
             article_gen_config, providers_config=complete_config.providers
         )
+
+        # Display important configuration items
+        click.echo("\n📋 Article Generation Configuration:")
+        click.echo(f"   📄 HTML Template: {article_gen_config.article_template}")
+        click.echo(f"   🤖 LLM Prompt Template: {article_gen_config.prompt_template}")
+        click.echo(
+            f"   📝 Include Translation Notes: {article_gen_config.include_translation_notes}"
+        )
+
+        # Display LLM provider information for translation notes synthesis
+        if article_gen_config.include_translation_notes:
+            if (
+                hasattr(article_generator, "llm_factory")
+                and article_generator.llm_factory
+            ):
+                # LLM is configured and available - use hardcoded WeChat config for now
+                model_type = article_gen_config.model_type
+
+                # Use WeChat LLM configuration based on model_type
+                if model_type == "reasoning":
+                    llm_provider = "deepseek"
+                    llm_model = "deepseek-reasoner"
+                else:  # non_reasoning
+                    llm_provider = "tongyi"
+                    llm_model = "qwen-plus-latest"
+
+                click.echo(f"   🧠 LLM Provider (Notes): {llm_provider}")
+                click.echo(f"   🎯 LLM Model (Notes): {llm_model}")
+            else:
+                click.echo(
+                    f"   ⚠️  LLM Not Available: Translation notes synthesis disabled"
+                )
+        else:
+            click.echo(f"   ⚠️  Translation Notes: DISABLED in configuration")
+
+        click.echo("")  # Add spacing before next section
 
         # Generate article
         click.echo(f"📝 Processing translation file: {input_json.name}")
@@ -533,6 +606,7 @@ def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
             output_dir=str(output_dir) if output_dir else None,
             author=author,
             digest=digest,
+            dry_run=dry_run,
         )
 
         # Display results
@@ -546,7 +620,40 @@ def generate_article(input_json, output_dir, author, digest, dry_run, verbose):
 
         click.echo(f"🏷️  Article slug: {result.slug}")
         click.echo(f"📰 Article title: {result.article.title}")
-        click.echo(f"📝 Digest: {result.article.digest}")
+
+        # Show digest info
+        digest_content = result.article.digest
+        click.echo(f"📝 Digest: {digest_content}")
+
+        # Display LLM metrics if available
+        if result.llm_metrics and article_gen_config.include_translation_notes:
+            metrics = result.llm_metrics
+
+            # Format duration and cost for display
+            def format_duration(duration):
+                if duration is None:
+                    return "N/A"
+                if duration < 60:
+                    return f"{duration:.2f}s"
+                else:
+                    minutes = int(duration // 60)
+                    seconds = duration % 60
+                    return f"{minutes}m {seconds:.1f}s"
+
+            def format_cost(cost):
+                if cost is None:
+                    return "N/A"
+                return f"¥{cost:.6f}"
+
+            click.echo("\n📊 LLM Translation Notes Metrics:")
+            click.echo(f"   🧮 Tokens Used: {metrics.get('tokens_used', 'N/A')}")
+            click.echo(f"      ⬇️ Prompt: {metrics.get('prompt_tokens', 'N/A')}")
+            click.echo(f"      ⬆️ Completion: {metrics.get('completion_tokens', 'N/A')}")
+            click.echo(f"   ⏱️  Time Spent: {format_duration(metrics.get('duration'))}")
+            click.echo(f"   💰 Cost: {format_cost(metrics.get('cost'))}")
+            click.echo(
+                f"   🤖 Model: {metrics.get('provider', 'N/A')}/{metrics.get('model', 'N/A')} ({metrics.get('model_type', 'N/A')})"
+            )
 
         # Next steps suggestion
         click.echo("\n🎯 Next steps:")

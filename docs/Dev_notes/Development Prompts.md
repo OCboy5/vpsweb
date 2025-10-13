@@ -49,11 +49,10 @@ My to do list: v0.1.2
     The format of the article should be professional, easy to read, and with elegant design. It should also include appropriate copyright disclaimer at the end of the article.  
    b) vpsweb publish-article
    Publish the generated article by vpsweb generate-article to my personal 微信公众号 account's Draft folder(草稿), which I can review and publish manually later. I plan to publish 1 articale per day. 
-3. I would like to have the capability to assign a cover image stared locally for the Wechat article 
-4. We should create the "translation notes" for the Wechat article in the vpsweb generate-article workflow.
-5. Please refer to the sample JSON output file above as you design your strategy. Please think about if we should add more metadata in the vpsweb translate workflow.
-6. If you are not familiar with 微信公众号 and its development best practices，please do your research first.
-7. Please think very hard to create your proposal. The proposal should be a further expansion on what we have done in the vpsweb project.    
+3. We should create the "translation notes" for the Wechat article in the vpsweb generate-article workflow.
+4. Please refer to the sample JSON output file above as you design your strategy. Please think about if we should add more metadata in the vpsweb translate workflow.
+5. If you are not familiar with 微信公众号 and its development best practices，please do your research first.
+6. Please think very hard to create your proposal. The proposal should be a further expansion on what we have done in the vpsweb project.    
 
 #6 poem translation repository
 1. Can you access https://github.com/OCboy5/vpsweb ? It can now work as an AI-driven poetry translation production system.

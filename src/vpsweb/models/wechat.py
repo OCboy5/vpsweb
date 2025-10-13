@@ -32,19 +32,22 @@ class TranslationNotes(BaseModel):
     )
     notes: List[str] = Field(
         ...,
-        min_items=3,
-        max_items=6,
-        description="3-6 bullet points of translation insights",
+        min_items=1,  # At least one note is required
+        description="Translation insights bullet points (number and length determined by LLM based on content)",
     )
 
     @validator("notes")
-    def validate_notes_length(cls, v):
-        """Validate each note is within reasonable length."""
+    def validate_notes_content(cls, v):
+        """Validate notes have reasonable content."""
+        if not v:
+            raise ValueError("At least one translation note is required")
+
+        # Only check for extremely short/long notes - let LLM decide appropriate length
         for i, note in enumerate(v):
-            if len(note) < 10:
-                raise ValueError(f"Note {i+1} is too short (minimum 10 characters)")
-            if len(note) > 40:
-                raise ValueError(f"Note {i+1} is too long (maximum 40 characters)")
+            if len(note.strip()) < 5:
+                raise ValueError(f"Note {i+1} is too short (minimum 5 characters)")
+            if len(note) > 500:
+                raise ValueError(f"Note {i+1} is too long (maximum 500 characters)")
         return v
 
     def to_html(self) -> str:
@@ -166,8 +169,10 @@ class WeChatArticle(BaseModel):
     @validator("content")
     def validate_wechat_html(cls, v):
         """Validate content uses WeChat-compatible HTML."""
-        # Basic validation for common WeChat restrictions
-        forbidden_tags = ["<script", "<style", "<iframe", "<object", "<embed"]
+        # Updated validation for enhanced template - allow necessary tags for proper display
+        # Remove style tag from forbidden list since our template uses it for proper styling
+        # Keep only truly dangerous tags that WeChat doesn't allow
+        forbidden_tags = ["<script", "<iframe", "<object", "<embed"]
         for tag in forbidden_tags:
             if tag.lower() in v.lower():
                 raise ValueError(f"Content contains forbidden HTML tag: {tag}")
@@ -328,6 +333,11 @@ class ArticleGenerationResult(BaseModel):
         None, description="Error message if generation failed"
     )
 
+    # LLM metrics (for translation notes synthesis)
+    llm_metrics: Optional[Dict[str, Any]] = Field(
+        None, description="LLM call metrics (tokens, duration, cost)"
+    )
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         data = {
@@ -393,6 +403,26 @@ class PublishingResult(BaseModel):
         return data
 
 
+class WeChatLLMConfig(BaseModel):
+    """Configuration for LLM model types and settings."""
+
+    provider: str = Field(..., description="LLM provider name")
+    model: str = Field(..., description="LLM model name")
+    prompt_template: str = Field(..., description="Prompt template name")
+    temperature: float = Field(default=0.1, description="Temperature for generation")
+    max_tokens: int = Field(default=8192, description="Maximum tokens for generation")
+    timeout: int = Field(default=180, description="Request timeout in seconds")
+
+
+class WeChatLLMModelsConfig(BaseModel):
+    """Configuration for different LLM model types."""
+
+    reasoning: WeChatLLMConfig = Field(..., description="Reasoning model configuration")
+    non_reasoning: WeChatLLMConfig = Field(
+        ..., description="Non-reasoning model configuration"
+    )
+
+
 class ArticleGenerationConfig(BaseModel):
     """Configuration for article generation from translation data."""
 
@@ -409,6 +439,16 @@ class ArticleGenerationConfig(BaseModel):
     article_template: str = Field(
         default="default", description="Article template to use"
     )
+    prompt_template: str = Field(
+        default="wechat_article_notes_reasoning",
+        description="LLM prompt template for translation notes synthesis (legacy, use llm.model_type instead)",
+    )
+
+    # LLM configuration
+    model_type: str = Field(
+        default="reasoning",
+        description="Model type for translation notes: 'reasoning' or 'non_reasoning'",
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -417,4 +457,5 @@ class ArticleGenerationConfig(BaseModel):
             "max_notes_items": self.max_notes_items,
             "copyright_text": self.copyright_text,
             "article_template": self.article_template,
+            "prompt_template": self.prompt_template,
         }

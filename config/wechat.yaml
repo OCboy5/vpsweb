@@ -27,8 +27,12 @@ retry:
 article_generation:
   include_translation_notes: true
   max_notes_items: 6
-  copyright_text: "本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作。未经授权，不得转载。若需引用，请注明出处。"
-  article_template: "default"
+  copyright_text: "本译文与导读由施知韵(VoxPoeticaStudio)原创制作。未经授权，不得转载。若需引用，请注明出处。"
+  article_template: "default"  # References config/html_templates/wechat_articles/default.html
+
+  # LLM configuration for translation notes synthesis
+  # Note: LLM model configuration is now in config/models.yaml under wechat_translation_notes
+  model_type: "non_reasoning"  # Model type: reasoning or non_reasoning
 
 # Publishing Settings
 publishing:
@@ -41,35 +45,10 @@ publishing:
   # Auto-publish from draft (disable for manual control)
   auto_publish: false
 
-# LLM Configuration for Translation Notes
-llm:
-  # Primary provider for translation notes synthesis
-  primary_provider: "deepseek"
-  primary_model: "deepseek-reasoner"
-
-  # Fallback provider if primary fails
-  fallback_provider: "tongyi"
-  fallback_model: "qwen-plus"
-
-  # Temperature settings
-  temperature:
-    reasoning: 0.1
-    non_reasoning: 0.3
-
-  # Token limits
-  max_tokens:
-    reasoning: 2000
-    non_reasoning: 1500
-
-  # Request timeouts
-  timeout:
-    reasoning: 60
-    non_reasoning: 45
-
 # Output Settings
 output:
   # Default output directory for WeChat articles
-  default_directory: "outputs/wechat/articles"
+  default_directory: "outputs/wechat_articles"
 
   # File naming patterns
   filename_patterns:
@@ -81,7 +60,7 @@ output:
 # Content Settings
 content:
   # Default author name
-  default_author: "施知韵VoxPoetica"
+  default_author: "施知韵_VoxPoeticaStudio"
 
   # Title format
   title_format: "【知韵译诗】{poem_title}（{poet_name}）"
@@ -91,13 +70,6 @@ content:
     min_length: 80
     max_length: 120
     auto_generate: true
-
-  # Translation notes settings
-  translation_notes:
-    min_items: 3
-    max_items: 6
-    min_item_length: 10
-    max_item_length: 40
 
 # Development Settings
 development:

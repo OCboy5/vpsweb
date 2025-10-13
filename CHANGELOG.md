@@ -5,6 +5,40 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2025-10-13 (Enhanced Metrics & Display Release)
+
+### 🎉 Major Enhancements
+- **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown for all translation steps
+- **Fixed Cost Calculation**: Corrected pricing calculation from per 1M to per 1K tokens across both WeChat and translation workflows
+- **LLM-Generated Digest Integration**: Resolved critical issue where high-quality LLM-generated digests weren't being used in article metadata and CLI display
+- **Configuration Architecture Cleanup**: Improved configuration organization by moving WeChat LLM settings to models.yaml
+
+### ✨ Key Features
+- **Advanced Token Display**: Translation workflow now shows detailed token breakdown like WeChat workflow:
+  ```
+  🧮 Tokens Used: 1594
+     ⬇️ Prompt: 883
+     ⬆️ Completion: 711
+  ```
+- **Accurate Cost Tracking**: Fixed pricing calculation using correct RMB per 1K token rates
+- **High-Quality Digests**: LLM-generated translation notes digests now properly used in CLI and metadata
+- **Enhanced Metrics Display**: Comprehensive metrics display for both translation and WeChat workflows
+
+### 🔧 Technical Improvements
+- **Cost Calculation Fix**: Updated both `workflow.py` and `article_generator.py` to use per 1K token pricing
+- **Workflow Progress Enhancement**: Added prompt/completion token data to all three translation step results
+- **Configuration Cleanup**: Moved WeChat LLM model configurations from wechat.yaml to models.yaml
+- **Digest Pipeline Fix**: Resolved caching and metrics extraction issues in translation notes synthesis
+- **Clean Debug Output**: Removed debug print statements while maintaining comprehensive logging
+
+### 📊 Display Improvements
+- **Translation Workflow Steps**: All three steps now show detailed token breakdown:
+  - Step 1: Initial Translation
+  - Step 2: Editor Review
+  - Step 3: Translator Revision
+- **Consistent Interface**: Both translation and WeChat workflows now have the same high-quality display format
+- **Enhanced CLI Output**: Better organization and readability of metrics and progress information
+
 ## [0.2.2] - 2025-10-13 (WeChat Integration Release)
 
 ### 🎉 Major Features
@@ -69,6 +103,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📚 Documentation
 - **Updated CLI Help**: Comprehensive help text and examples for new commands
 - **Project Documentation**: Updated with WeChat integration capabilities
+
+### 🔧 Critical Fixes & Enhancements
+- **Fixed Cost Calculation**: Corrected pricing calculation from per 1M to per 1K tokens across both WeChat and translation workflows
+- **Enhanced Token Display**: Added detailed prompt/completion token breakdown for all workflow steps:
+  - Translation workflow now shows: `🧮 Tokens Used: 1594` with `⬇️ Prompt: 883` and `⬆️ Completion: 711`
+  - WeChat article generation already had this feature
+  - Applied to all three translation steps: Initial Translation, Editor Review, Translator Revision
+- **Configuration Cleanup**: Moved WeChat LLM model configurations from wechat.yaml to models.yaml for better organization
+- **LLM-Generated Digest Fix**: Resolved issue where high-quality LLM-generated digests weren't being used in article metadata and CLI display
+- **Metrics Display Enhancement**: Fixed missing metrics display in CLI output and improved cost accuracy
 
 ## [0.2.1] - 2025-10-12 (Output Structure Enhancement)
 

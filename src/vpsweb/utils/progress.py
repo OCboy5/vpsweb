@@ -224,7 +224,17 @@ class ProgressTracker:
     def _display_initial_translation(self, result: Dict[str, Any]) -> None:
         """Display initial translation results."""
         self._display_model_info(result)
-        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+
+        # Display token breakdown like WeChat workflow
+        tokens_used = result.get("tokens_used", "N/A")
+        prompt_tokens = result.get("prompt_tokens", "N/A")
+        completion_tokens = result.get("completion_tokens", "N/A")
+
+        print(f"  🧮 Tokens Used: {tokens_used}")
+        if prompt_tokens != "N/A" and completion_tokens != "N/A":
+            print(f"      ⬇️ Prompt: {prompt_tokens}")
+            print(f"      ⬆️ Completion: {completion_tokens}")
+
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
         if result.get("cost"):
@@ -238,7 +248,17 @@ class ProgressTracker:
     def _display_editor_review(self, result: Dict[str, Any]) -> None:
         """Display editor review results."""
         self._display_model_info(result)
-        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+
+        # Display token breakdown like WeChat workflow
+        tokens_used = result.get("tokens_used", "N/A")
+        prompt_tokens = result.get("prompt_tokens", "N/A")
+        completion_tokens = result.get("completion_tokens", "N/A")
+
+        print(f"  🧮 Tokens Used: {tokens_used}")
+        if prompt_tokens != "N/A" and completion_tokens != "N/A":
+            print(f"      ⬇️ Prompt: {prompt_tokens}")
+            print(f"      ⬆️ Completion: {completion_tokens}")
+
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
         if result.get("cost"):
@@ -275,7 +295,17 @@ class ProgressTracker:
     def _display_translator_revision(self, result: Dict[str, Any]) -> None:
         """Display translator revision results."""
         self._display_model_info(result)
-        print(f"  📄 Tokens Used: {result.get('tokens_used', 'N/A')}")
+
+        # Display token breakdown like WeChat workflow
+        tokens_used = result.get("tokens_used", "N/A")
+        prompt_tokens = result.get("prompt_tokens", "N/A")
+        completion_tokens = result.get("completion_tokens", "N/A")
+
+        print(f"  🧮 Tokens Used: {tokens_used}")
+        if prompt_tokens != "N/A" and completion_tokens != "N/A":
+            print(f"      ⬇️ Prompt: {prompt_tokens}")
+            print(f"      ⬆️ Completion: {completion_tokens}")
+
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
         if result.get("cost"):

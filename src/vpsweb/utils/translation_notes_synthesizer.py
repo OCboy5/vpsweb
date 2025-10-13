@@ -87,11 +87,18 @@ class TranslationNotesSynthesizer:
             # Determine prompt file based on workflow mode
             prompt_file = self._get_prompt_file(workflow_mode)
 
-            # Load prompt
-            prompt_template = self.prompt_service.load_prompt(prompt_file)
-
-            # Format prompt with translation data
-            formatted_prompt = self._format_prompt(prompt_template, notes_sources)
+            # Format prompt with translation data using the service
+            try:
+                _, formatted_prompt = self.prompt_service.render_prompt(
+                    template_name=prompt_file, variables=notes_sources
+                )
+            except Exception as e:
+                # Fallback to manual formatting if render fails
+                logger.warning(f"Template rendering failed, using fallback: {e}")
+                prompt_template = self.prompt_service.get_template(prompt_file)
+                formatted_prompt = self._format_prompt_fallback(
+                    prompt_template, notes_sources
+                )
 
             # Generate notes using LLM
             response = await self._generate_with_llm(formatted_prompt, workflow_mode)
@@ -117,6 +124,8 @@ class TranslationNotesSynthesizer:
         congregated = translation_data.get("congregated_output", {})
 
         sources = {
+            "original_poem": "",
+            "revised_translation": "",
             "revised_translation_notes": congregated.get(
                 "revised_translation_notes", ""
             ),
@@ -126,9 +135,16 @@ class TranslationNotesSynthesizer:
             ),
         }
 
+        # Extract original poem from input data
+        input_data = translation_data.get("input", {})
+        sources["original_poem"] = input_data.get("original_poem", "")
+
+        # Extract revised translation from revised translation data
+        revised = translation_data.get("revised_translation", {})
+        sources["revised_translation"] = revised.get("revised_translation", "")
+
         # Fallback to top-level fields if congregated_output is not available
         if not sources["revised_translation_notes"]:
-            revised = translation_data.get("revised_translation", {})
             sources["revised_translation_notes"] = revised.get(
                 "revised_translation_notes", ""
             )
@@ -152,21 +168,16 @@ class TranslationNotesSynthesizer:
         else:
             return "wechat_article_notes_nonreasoning.yaml"
 
-    def _format_prompt(
+    def _format_prompt_fallback(
         self, prompt_template: Dict[str, str], sources: Dict[str, str]
     ) -> str:
-        """Format prompt template with translation notes sources."""
+        """Fallback method to format prompt template using Python string formatting."""
         try:
-            # Extract system and user prompts
-            system_prompt = prompt_template.get("system", "")
+            # Extract user prompt
             user_prompt = prompt_template.get("user", "")
 
-            # Format user prompt with sources
-            formatted_user_prompt = user_prompt.format(
-                revised_translation_notes=sources["revised_translation_notes"],
-                editor_suggestions=sources["editor_suggestions"],
-                initial_translation_notes=sources["initial_translation_notes"],
-            )
+            # Format user prompt with sources using Python string formatting
+            formatted_user_prompt = user_prompt.format(**sources)
 
             return formatted_user_prompt
 
@@ -318,8 +329,8 @@ class TranslationNotesSynthesizer:
                     # Use fallback to generate notes
                     notes_sources = self._extract_notes_sources(translation_data)
                     prompt_file = self._get_prompt_file(workflow_mode)
-                    prompt_template = self.prompt_service.load_prompt(prompt_file)
-                    formatted_prompt = self._format_prompt(
+                    prompt_template = self.prompt_service.get_template(prompt_file)
+                    formatted_prompt = self._format_prompt_fallback(
                         prompt_template, notes_sources
                     )
 

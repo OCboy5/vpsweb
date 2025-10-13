@@ -1,5 +1,30 @@
 # Version Management Workflow
 
+#### Release Process
+1. **Update all relevant documents (README.md, CHANGELOG.md, etc.) accordingly**
+2. Commit all changes
+3. Create local backup: `./save-version.sh X.Y.Z`
+4. Push to GitHub: `./push-version.sh X.Y.Z "Release notes"`
+5. If GitHub Actions fails, manually create release: `gh release create vX.Y.Z --title "..." --notes "..."`
+6. Verify CI/CD passes on GitHub
+7. **NEW**: Verify release appears on GitHub: https://github.com/OCboy5/vpsweb/releases
+
+## Best Practices (Updated)
+1. Always save locally before major changes
+2. Only push stable versions to GitHub
+3. Use semantic versioning (major.minor.patch)
+4. Include meaningful release notes for GitHub releases
+5. Keep your working directory clean before pushing releases
+6. Update all relevant documents (README.md, CHANGELOG.md, CLAUDE.md, STATUS.md, DEVELOPMENT.md, etc.) before any release
+7. Verify version consistency across ALL files before release
+8. Run Black formatting checks before pushing to GitHub
+9. Test imports and functionality locally before release
+10. Monitor GitHub Actions after release for CI/CD compliance
+11. **NEW (v0.2.1)**: Check GitHub CLI authentication before release
+12. **NEW (v0.2.1)**: Be prepared to create releases manually if GitHub Actions fails
+13. **NEW (v0.2.1)**: Verify release appears on GitHub after pushing
+14. **NEW (v0.2.1)**: `push-version.sh` now handles existing tags gracefully
+
 ## Scripts Overview
 
 ### 1. Local Backup: `save-version.sh`
@@ -192,27 +217,3 @@ python -m black --check src/ tests/
    gh auth status  # Verify GitHub CLI is authenticated
    ```
 
-#### Release Process
-1. **Update all relevant documents (README.md, CHANGELOG.md, etc.) accordingly**
-2. Commit all changes
-3. Create local backup: `./save-version.sh X.Y.Z`
-4. Push to GitHub: `./push-version.sh X.Y.Z "Release notes"`
-5. If GitHub Actions fails, manually create release: `gh release create vX.Y.Z --title "..." --notes "..."`
-6. Verify CI/CD passes on GitHub
-7. **NEW**: Verify release appears on GitHub: https://github.com/OCboy5/vpsweb/releases
-
-## Best Practices (Updated)
-1. Always save locally before major changes
-2. Only push stable versions to GitHub
-3. Use semantic versioning (major.minor.patch)
-4. Include meaningful release notes for GitHub releases
-5. Keep your working directory clean before pushing releases
-6. Update all relevant documents (README.md, CHANGELOG.md, etc.) before any release
-7. Verify version consistency across ALL files before release
-8. Run Black formatting checks before pushing to GitHub
-9. Test imports and functionality locally before release
-10. Monitor GitHub Actions after release for CI/CD compliance
-11. **NEW (v0.2.1)**: Check GitHub CLI authentication before release
-12. **NEW (v0.2.1)**: Be prepared to create releases manually if GitHub Actions fails
-13. **NEW (v0.2.1)**: Verify release appears on GitHub after pushing
-14. **NEW (v0.2.1)**: `push-version.sh` now handles existing tags gracefully

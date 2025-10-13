@@ -163,6 +163,12 @@ class TranslationWorkflow:
                         "initial_translation": initial_translation.initial_translation,
                         "initial_translation_notes": initial_translation.initial_translation_notes,
                         "tokens_used": initial_translation.tokens_used,
+                        "prompt_tokens": getattr(
+                            initial_translation, "prompt_tokens", None
+                        ),
+                        "completion_tokens": getattr(
+                            initial_translation, "completion_tokens", None
+                        ),
                         "duration": getattr(initial_translation, "duration", None),
                         "cost": getattr(initial_translation, "cost", None),
                         "workflow_mode": self.workflow_mode.value,
@@ -218,6 +224,10 @@ class TranslationWorkflow:
                     {
                         "editor_suggestions": editor_review.editor_suggestions,
                         "tokens_used": editor_review.tokens_used,
+                        "prompt_tokens": getattr(editor_review, "prompt_tokens", None),
+                        "completion_tokens": getattr(
+                            editor_review, "completion_tokens", None
+                        ),
                         "duration": getattr(editor_review, "duration", None),
                         "cost": getattr(editor_review, "cost", None),
                         "workflow_mode": self.workflow_mode.value,
@@ -268,6 +278,12 @@ class TranslationWorkflow:
                         "revised_translation": revised_translation.revised_translation,
                         "revised_translation_notes": revised_translation.revised_translation_notes,
                         "tokens_used": revised_translation.tokens_used,
+                        "prompt_tokens": getattr(
+                            revised_translation, "prompt_tokens", None
+                        ),
+                        "completion_tokens": getattr(
+                            revised_translation, "completion_tokens", None
+                        ),
                         "duration": getattr(revised_translation, "duration", None),
                         "cost": getattr(revised_translation, "cost", None),
                         "workflow_mode": self.workflow_mode.value,
@@ -586,10 +602,9 @@ class TranslationWorkflow:
                 # Get pricing for this provider and model
                 if provider in pricing and model in pricing[provider]:
                     model_pricing = pricing[provider][model]
-                    input_cost = (input_tokens / 1000000) * model_pricing.get(
-                        "input", 0
-                    )
-                    output_cost = (output_tokens / 1000000) * model_pricing.get(
+                    # Pricing is RMB per 1K tokens
+                    input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
+                    output_cost = (output_tokens / 1000) * model_pricing.get(
                         "output", 0
                     )
                     return input_cost + output_cost

@@ -2,13 +2,13 @@
 
 This guide provides detailed information for developers working on Vox Poetica Studio Web (vpsweb).
 
-## 🎯 Current Status: v0.2.0 Enhanced Workflow System
+## 🎯 Current Status: v0.2.3 Enhanced Metrics & Display
 
-**Version**: 0.2.0 (Enhanced Workflow System)
-**Status**: ✅ **PRODUCTION READY WITH ADVANCED FEATURES**
-**Last Updated**: 2025-10-07
+**Version**: 0.2.3 (Enhanced Metrics & Display Release)
+**Status**: ✅ **PRODUCTION READY WITH ENHANCED METRICS & DISPLAY**
+**Last Updated**: 2025-10-13
 
-The system has evolved to include three intelligent workflow modes (reasoning, non_reasoning, hybrid), advanced model classification, real-time RMB cost tracking, and comprehensive progress display with model information. This establishes the system as a sophisticated, professional-grade poetry translation platform with intelligent workflow management.
+The system has evolved through multiple iterations to v0.2.3, achieving enhanced metrics and display capabilities. This landmark release features enhanced translation workflow display with detailed prompt/completion token breakdown, corrected cost calculation using accurate per 1K token pricing, and successful integration of high-quality LLM-generated digests. The system now provides consistent, professional-grade display formats across both translation and WeChat workflows, establishing itself as a sophisticated, production-ready poetry translation platform with comprehensive metrics tracking and WeChat Official Account integration.
 
 ## 🏗️ Architecture Overview
 

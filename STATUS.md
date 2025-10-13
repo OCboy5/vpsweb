@@ -1,14 +1,29 @@
-# Vox Poetica Studio Web - v0.2.0 Status
+# Vox Poetica Studio Web - v0.2.3 Status
 
-**Date**: 2025-10-07
-**Version**: 0.2.0 (Enhanced Workflow System)
-**Status**: ✅ **PRODUCTION READY WITH ADVANCED FEATURES**
+**Date**: 2025-10-13
+**Version**: 0.2.3 (Enhanced Metrics & Display Release)
+**Status**: ✅ **PRODUCTION READY WITH ENHANCED METRICS & DISPLAY**
 
 ## 🎯 Executive Summary
 
-Vox Poetica Studio Web (vpsweb) has evolved from Checkpoint 1 to v0.2.0 with a revolutionary enhanced workflow system featuring three intelligent workflow modes (reasoning, non_reasoning, and hybrid). The system now provides advanced model classification, real-time cost tracking with RMB pricing, and comprehensive progress display with model information. This major upgrade establishes the system as a sophisticated, professional-grade poetry translation platform with intelligent workflow management.
+Vox Poetica Studio Web (vpsweb) has evolved through multiple iterations to v0.2.3, achieving **ENHANCED METRICS & DISPLAY** capabilities. This landmark release features enhanced translation workflow display with detailed prompt/completion token breakdown, corrected cost calculation using accurate per 1K token pricing, and successful integration of high-quality LLM-generated digests. The system now provides consistent, professional-grade display formats across both translation and WeChat workflows, establishing itself as a sophisticated, production-ready poetry translation platform with comprehensive metrics tracking and WeChat Official Account integration.
 
 ## ✅ Completed Features
+
+### 📊 Enhanced Metrics & Display (v0.2.3)
+- **Advanced Token Display**: Translation workflow now shows detailed prompt/completion token breakdown like WeChat workflow
+- **Fixed Cost Calculation**: Corrected pricing calculation from per 1M to per 1K tokens across both workflows
+- **LLM-Generated Digest Integration**: High-quality AI digests now properly used in CLI and metadata
+- **Configuration Architecture Cleanup**: Improved configuration organization by moving WeChat LLM settings to models.yaml
+- **Enhanced Progress Display**: Consistent, professional-grade display formats across all workflows
+- **Clean Debug Output**: Removed debug print statements while maintaining comprehensive logging
+
+### 📱 WeChat Official Account Integration (v0.2.2)
+- **Complete Article Generation System**: Generate WeChat articles directly from translation JSON outputs
+- **AI-Powered Translation Notes**: LLM-synthesized Chinese translation notes for WeChat audience
+- **Professional HTML Templates**: Author-approved styling compatible with WeChat platform
+- **Direct Publishing**: Integrated publishing to WeChat drafts and articles
+- **Advanced Metrics Display**: Detailed token breakdown and cost tracking for WeChat content
 
 ### 🤖 Enhanced Workflow System (v0.2.0)
 - **Three Intelligent Workflow Modes**: reasoning, non_reasoning, and hybrid with automatic model selection

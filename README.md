@@ -5,14 +5,21 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.2.1-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.1)
+[![Version](https://img.shields.io/badge/Version-0.2.3-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.3)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
 **VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
 
-## 🎯 Current Status: **v0.2.1 - OUTPUT STRUCTURE ENHANCEMENT**
+## 🎯 Current Status: **v0.2.3 - ENHANCED METRICS & DISPLAY RELEASE**
 
+✅ **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown for all translation steps
+✅ **Fixed Cost Calculation**: Corrected pricing calculation from per 1M to per 1K tokens across both workflows
+✅ **LLM-Generated Digest Integration**: High-quality AI digests now properly used in CLI and metadata
+✅ **Complete WeChat Official Account Integration**: Full end-to-end system for generating WeChat articles from translation outputs
+✅ **LLM-Powered Translation Notes Synthesis**: AI-generated Chinese translation notes for WeChat audience
+✅ **Advanced Token Display**: Detailed prompt/completion token breakdown for all workflow steps
+✅ **Accurate Cost Tracking**: Fixed pricing calculation using correct RMB per 1K token rates
 ✅ **Enhanced Output Structure**: Organized JSON and markdown files in separate subdirectories
 ✅ **Poet-First Naming**: Revolutionary filename format leading with poet names
 ✅ **Intelligent Metadata Extraction**: Automatic poet and title detection from poem text
@@ -49,6 +56,14 @@
 - **⚙️ Configurable**: YAML-based configuration for easy customization
 - **📊 Comprehensive Logging**: Structured logging with rotation and workflow tracking
 - **🚀 Production Ready**: Error handling, retry logic, timeout management, and detailed progress reporting
+
+### 📱 **WeChat Official Account Integration** (v0.2.2)
+- **🔄 Complete Article Generation**: Generate WeChat articles directly from translation JSON outputs
+- **🤖 AI-Powered Translation Notes**: LLM-synthesized Chinese translation notes for WeChat audience
+- **🎨 Professional HTML Templates**: Author-approved styling compatible with WeChat platform
+- **📊 Advanced Metrics Display**: Detailed token breakdown and cost tracking for WeChat content generation
+- **⚙️ Flexible Configuration**: Support for reasoning and non-reasoning models for translation notes
+- **🔗 Direct Publishing**: Integrated publishing to WeChat drafts and articles
 
 ## 🚀 Quick Start
 
@@ -148,6 +163,59 @@ print(f"Total cost: ¥{result.total_cost:.6f}")
 print(f"Step 1 cost: ¥{result.initial_translation.cost:.6f}")
 print(f"Step 2 cost: ¥{result.editor_review.cost:.6f}")
 print(f"Step 3 cost: ¥{result.revised_translation.cost:.6f}")
+```
+
+#### WeChat Article Generation
+
+```bash
+# Generate WeChat article from translation JSON
+vpsweb generate-article -j outputs/json/陶渊明_歸園田居_chinese_english_hybrid_20251012_184234_81e865f8.json
+
+# Generate with model type override
+vpsweb generate-article -j translation.json -m reasoning --verbose
+
+# Generate with custom output directory
+vpsweb generate-article -j translation.json -o my_articles/
+
+# Output will show detailed progress with metrics:
+# 🚀 Generating WeChat article from translation JSON...
+# ✅ Article generated successfully!
+# 📊 LLM Translation Notes Metrics:
+#    🧮 Tokens Used: 4427
+#       ⬇️ Prompt: 3919
+#       ⬆️ Completion: 508
+#    ⏱️  Time Spent: 23.58s
+#    💰 Cost: ¥0.004151
+#    🤖 Model: tongyi/qwen-plus-latest (non_reasoning)
+
+# Publish to WeChat (if configured)
+vpsweb publish-article -a outputs/wechat_articles/陶渊明-歸園田居-20251013/metadata.json
+```
+
+```python
+from vpsweb.utils.article_generator import ArticleGenerator
+from vpsweb.utils.config_loader import load_article_generation_config, load_config
+
+# Load configurations
+complete_config = load_config()
+article_gen_config = load_article_generation_config()
+
+# Create article generator
+article_generator = ArticleGenerator(
+    article_gen_config,
+    providers_config=complete_config.providers
+)
+
+# Generate WeChat article
+result = article_generator.generate_article(
+    translation_json_path="outputs/json/translation.json",
+    dry_run=False
+)
+
+print(f"Article generated: {result.article_path}")
+print(f"Metadata: {result.metadata_path}")
+print(f"Digest: {result.metadata.digest}")
+print(f"Cost: ¥{result.metadata.cost:.6f}")
 ```
 
 ## 📋 Requirements
