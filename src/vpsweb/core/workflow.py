@@ -64,6 +64,7 @@ class TranslationWorkflow:
         config: WorkflowConfig,
         providers_config,
         workflow_mode: WorkflowMode = WorkflowMode.HYBRID,
+        system_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize the translation workflow.
@@ -72,9 +73,11 @@ class TranslationWorkflow:
             config: Workflow configuration with step configurations
             providers_config: Provider configurations for LLM factory
             workflow_mode: Workflow mode to use (reasoning, non_reasoning, hybrid)
+            system_config: System configuration with preview lengths and other settings
         """
         self.config = config
         self.workflow_mode = workflow_mode
+        self.system_config = system_config or {}
 
         # Initialize services
         self.llm_factory = LLMFactory(providers_config)
@@ -124,7 +127,15 @@ class TranslationWorkflow:
             log_entries.append(
                 f"=== STEP 1: INITIAL TRANSLATION ({self.workflow_mode.value.upper()} MODE) ==="
             )
-            log_entries.append(f"Input: {input_data.original_poem[:100]}...")
+            # Get input preview length from config
+            input_preview_length = (
+                self.system_config.get("system", {})
+                .get("preview_lengths", {})
+                .get("input_preview", 100)
+            )
+            log_entries.append(
+                f"Input: {input_data.original_poem[:input_preview_length]}..."
+            )
 
             if progress_tracker:
                 step_config = self.workflow_steps["initial_translation"]
@@ -151,8 +162,14 @@ class TranslationWorkflow:
             log_entries.append(
                 f"Initial translation completed: {initial_translation.tokens_used} tokens"
             )
+            # Get response preview length from config
+            response_preview_length = (
+                self.system_config.get("system", {})
+                .get("preview_lengths", {})
+                .get("response_preview", 100)
+            )
             log_entries.append(
-                f"Translation: {initial_translation.initial_translation[:100]}..."
+                f"Translation: {initial_translation.initial_translation[:response_preview_length]}..."
             )
 
             if progress_tracker:
@@ -214,8 +231,14 @@ class TranslationWorkflow:
             log_entries.append(
                 f"Review length: {len(editor_review.editor_suggestions)} characters"
             )
+            # Get editor preview length from config
+            editor_preview_length = (
+                self.system_config.get("system", {})
+                .get("preview_lengths", {})
+                .get("editor_preview", 200)
+            )
             log_entries.append(
-                f"Review preview: {editor_review.editor_suggestions[:200]}..."
+                f"Review preview: {editor_review.editor_suggestions[:editor_preview_length]}..."
             )
 
             if progress_tracker:

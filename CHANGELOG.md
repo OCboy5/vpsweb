@@ -5,6 +5,62 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2025-10-13 (Code Cleanup & Configuration Optimization Release)
+
+### 🧹 Major Code Cleanup
+- **Removed Dead Code**: Eliminated unused `suggestions` array from EditorReview JSON structure
+- **Removed Dead Code**: Eliminated unused `overall_assessment` field from EditorReview JSON structure
+- **Simplified JSON Output**: Cleaner translation output with only essential fields (4 fields instead of 6)
+- **Updated All Tests**: Fixed field name inconsistencies and verified functionality
+
+### ⚙️ Configuration Optimization
+- **Moved 20+ Hard-coded Parameters to Configuration**: Enhanced system configurability and maintainability
+- **System-Wide Settings Section**: Added comprehensive configuration for timeouts, token limits, and file paths
+- **Translation Notes Parameters**: Made LLM parameters configurable for reasoning vs non-reasoning modes
+- **WeChat API Error Codes**: Moved error codes to configuration for better maintainability
+
+### 🔧 Technical Improvements
+- **Token Management**: Configurable token refresh buffer and default expiry times
+- **File Path Management**: Configurable output directories and cache locations
+- **Preview Lengths**: Configurable text preview lengths for UI and logging
+- **LLM Parameters**: Made temperature, max_tokens, and timeout settings configurable
+- **API Error Handling**: Configurable WeChat API error codes for better resilience
+
+### 📦 JSON Structure Optimization
+**Before**: EditorReview had 6 fields including unused computed fields
+```json
+{
+  "editor_suggestions": "...",
+  "timestamp": "...",
+  "model_info": {...},
+  "tokens_used": 150,
+  "suggestions": [],        // ❌ Removed - dead code
+  "overall_assessment": ""   // ❌ Removed - dead code
+}
+```
+
+**After**: EditorReview has 4 essential fields only
+```json
+{
+  "editor_suggestions": "...",
+  "timestamp": "...",
+  "model_info": {...},
+  "tokens_used": 150
+}
+```
+
+### 📈 Performance Benefits
+- **Smaller JSON Files**: Reduced file sizes by removing unused fields
+- **Faster Processing**: Eliminated unnecessary array creation and parsing
+- **Cleaner Memory Footprint**: Removed dead code paths and unused computations
+- **Better Maintainability**: Configuration-driven system instead of hard-coded values
+
+### ✅ Quality Assurance
+- **All Tests Updated**: Fixed test assertions for new field structure
+- **Backward Compatibility**: No breaking changes to public APIs
+- **Functionality Preserved**: All core features work exactly as before
+- **Enhanced Test Coverage**: Better validation of JSON structure and field access
+
 ## [0.2.3] - 2025-10-13 (Enhanced Metrics & Display Release)
 
 ### 🎉 Major Enhancements

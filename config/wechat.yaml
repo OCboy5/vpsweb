@@ -26,9 +26,9 @@ retry:
 # Article Generation Settings
 article_generation:
   include_translation_notes: true
-  max_notes_items: 6
   copyright_text: "本译文与导读由施知韵(VoxPoeticaStudio)原创制作。未经授权，不得转载。若需引用，请注明出处。"
-  article_template: "default"  # References config/html_templates/wechat_articles/default.html
+  #article_template: "default"  # References config/html_templates/wechat_articles/default.html
+  article_template: "codebuddy"  # References config/html_templates/wechat_articles/codebuddy.html
 
   # LLM configuration for translation notes synthesis
   # Note: LLM model configuration is now in config/models.yaml under wechat_translation_notes
@@ -54,7 +54,6 @@ output:
   filename_patterns:
     html: "article.html"
     metadata: "metadata.json"
-    markdown: "article.md"
     publish_result: "publish_result.json"
 
 # Content Settings
@@ -67,9 +66,14 @@ content:
 
   # Digest settings
   digest:
-    min_length: 80
+    min_length: 100
     max_length: 120
     auto_generate: true
+
+# WeChat API Error Codes
+api_error_codes:
+  invalid_access_token: 40001
+  rate_limit_exceeded: 45009
 
 # Development Settings
 development:

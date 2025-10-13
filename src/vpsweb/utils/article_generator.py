@@ -49,6 +49,7 @@ class ArticleGenerator:
         config: ArticleGenerationConfig,
         providers_config: Optional[Dict[str, Any]] = None,
         wechat_llm_config: Optional[Dict[str, Any]] = None,
+        system_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize article generator with configuration.
@@ -57,9 +58,11 @@ class ArticleGenerator:
             config: Article generation configuration
             providers_config: Provider configurations for LLM factory (from CompleteConfig.providers)
             wechat_llm_config: WeChat LLM configuration for translation notes (from CompleteConfig.models.wechat_translation_notes)
+            system_config: System configuration with default values and paths
         """
         self.config = config
         self.wechat_llm_config = wechat_llm_config
+        self.system_config = system_config or {}
 
         # Initialize HTML template system
         self._init_template_system()
@@ -143,7 +146,11 @@ class ArticleGenerator:
 
             # Determine output directory and slug
             if output_dir is None:
-                output_dir = f"outputs/wechat_articles/{metadata.slug}"
+                # Get default wechat articles directory from config
+                wechat_articles_dir = self.system_config.get("storage", {}).get(
+                    "wechat_articles_dir", "outputs/wechat_articles"
+                )
+                output_dir = f"{wechat_articles_dir}/{metadata.slug}"
             else:
                 output_dir = Path(output_dir) / metadata.slug
 
@@ -231,7 +238,6 @@ class ArticleGenerator:
             # Save files
             html_path = output_dir / "article.html"
             metadata_path = output_dir / "metadata.json"
-            markdown_path = output_dir / "article.md"
 
             # Save HTML
             with open(html_path, "w", encoding="utf-8") as f:
@@ -255,19 +261,11 @@ class ArticleGenerator:
             with open(metadata_path, "w", encoding="utf-8") as f:
                 json.dump(metadata_dict, f, ensure_ascii=False, indent=2)
 
-            # Generate and save markdown preview
-            markdown_content = self._generate_markdown_content(
-                translation_data, metadata
-            )
-            with open(markdown_path, "w", encoding="utf-8") as f:
-                f.write(markdown_content)
-
             # Create result
             result = ArticleGenerationResult(
                 article=article,
                 html_path=str(html_path),
                 metadata_path=str(metadata_path),
-                markdown_path=str(markdown_path),
                 slug=metadata.slug,
                 output_directory=str(output_dir),
                 status=WeChatArticleStatus.GENERATED,
@@ -621,48 +619,11 @@ class ArticleGenerator:
 
         except Exception as e:
             logger.warning(f"Error generating digest: {e}")
-            return "诗歌翻译作品，展现中英文学之美，传递文化精髓。"
-
-    def _generate_markdown_content(
-        self, translation_data: Dict[str, Any], metadata: WeChatArticleMetadata
-    ) -> str:
-        """Generate markdown preview of the article."""
-        congregated = translation_data.get("congregated_output", {})
-        original_poem = congregated.get("original_poem", "")
-        final_translation = congregated.get("revised_translation", "")
-
-        poem_text = self._extract_poem_text(original_poem)
-        translation_text = self._extract_translation_text(final_translation)
-
-        markdown_content = f"""# 【知韵译诗】{metadata.poem_title}（{metadata.poet_name}）
-
-*作者：施知韵VoxPoeticaStudio*
-
----
-
-## 原诗
-
-```
-{poem_text}
-```
-
-## 英译
-
-```
-{translation_text}
-```
-
-## 译注
-
-<!-- Translation notes will be generated here by LLM -->
-翻译笔记将通过LLM生成并插入此处...
-
----
-
-*{self.config.copyright_text}*
-"""
-
-        return markdown_content
+            # Get default digest from system config
+            default_digest = self.system_config.get("system", {}).get(
+                "default_digest", "诗歌翻译作品，展现中英文学之美，传递文化精髓。"
+            )
+            return default_digest
 
     def _generate_translation_notes_section(
         self, translation_data: Dict[str, Any], metadata: WeChatArticleMetadata

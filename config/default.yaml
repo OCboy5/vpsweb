@@ -112,6 +112,10 @@ storage:
   pretty_print: true
   workflow_mode_tag: true  # Include workflow mode in output filename
 
+  # Default output directories
+  wechat_articles_dir: "outputs/wechat_articles"
+  cache_dir: "outputs/.cache"
+
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -126,3 +130,29 @@ monitoring:
   track_token_usage: true
   track_cost: true  # Estimate API costs
   compare_workflows: true  # Enable A/B comparison
+
+# System-wide settings
+system:
+  # Token management
+  token_refresh_buffer: 300  # seconds (5 minutes) - refresh token before expiry
+  default_token_expiry: 7200  # seconds (2 hours) - default WeChat token expiry
+
+  # Preview lengths for logs and UI
+  preview_lengths:
+    input_preview: 100  # characters
+    response_preview: 200  # characters
+    editor_preview: 200  # characters
+
+  # Default messages
+  default_digest: "诗歌翻译作品，展现中英文学之美，传递文化精髓。"
+
+  # Translation notes synthesis parameters
+  translation_notes:
+    reasoning:
+      temperature: 0.1
+      max_tokens: 2000
+      timeout: 60  # seconds
+    non_reasoning:
+      temperature: 0.3
+      max_tokens: 1500
+      timeout: 45  # seconds

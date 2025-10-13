@@ -1,5 +1,3 @@
-VERSION_WORKFLOW.md:
-<code>
 # Version Management Workflow
 
 #### Release Process
@@ -219,9 +217,3 @@ python -m black --check src/ tests/
    gh auth status  # Verify GitHub CLI is authenticated
    ```
 
-
-</code>
-
-
-
-I use this release workflow doc in claude code, but it grows to too complex. can you help to streamline the release process based on the current one plus best practices and lessons learned? I would like the release workflow to be complete, straight-forward, compliant to Github standard and eaisy for claude code to follow. The output file should be in markdown format.

@@ -258,7 +258,6 @@ appid: "${WECHAT_APPID}"
 secret: "${WECHAT_SECRET}"
 article_generation:
   include_translation_notes: true
-  max_notes_items: 6
   copyright_text: "本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作"
 publishing:
   save_as_draft: true  # Safe default

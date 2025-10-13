@@ -181,8 +181,6 @@ class EditorReview(BaseModel):
             "timestamp": self.timestamp.isoformat(),
             "model_info": self.model_info,
             "tokens_used": self.tokens_used,
-            "suggestions": self.get_suggestions_list(),
-            "overall_assessment": self.get_overall_assessment(),
         }
         return data
 
@@ -191,9 +189,6 @@ class EditorReview(BaseModel):
         """Create from dictionary, parsing ISO timestamp."""
         if "timestamp" in data and isinstance(data["timestamp"], str):
             data["timestamp"] = datetime.fromisoformat(data["timestamp"])
-        # Remove computed fields if present
-        data.pop("suggestions", None)
-        data.pop("overall_assessment", None)
         return cls(**data)
 
 

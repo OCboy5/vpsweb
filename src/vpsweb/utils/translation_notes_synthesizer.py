@@ -34,14 +34,20 @@ class TranslationNotesSynthesizer:
     translation notes for WeChat articles.
     """
 
-    def __init__(self, provider_config: Dict[str, Any]):
+    def __init__(
+        self,
+        provider_config: Dict[str, Any],
+        system_config: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize translation notes synthesizer.
 
         Args:
             provider_config: LLM provider configuration
+            system_config: System configuration with translation notes parameters
         """
         self.provider_config = provider_config
+        self.system_config = system_config or {}
         self.prompt_service = PromptService()
         self._llm_provider: Optional[BaseLLMProvider] = None
 
@@ -191,15 +197,21 @@ class TranslationNotesSynthesizer:
     async def _generate_with_llm(self, prompt: str, workflow_mode: str) -> str:
         """Generate translation notes using LLM."""
         try:
-            # Configure parameters based on workflow mode
+            # Get parameters from system config or use defaults
+            translation_notes_config = self.system_config.get("system", {}).get(
+                "translation_notes", {}
+            )
+
             if workflow_mode in ["reasoning", "hybrid"]:
-                temperature = 0.1
-                max_tokens = 2000
-                timeout = 60
+                config = translation_notes_config.get("reasoning", {})
+                temperature = config.get("temperature", 0.1)
+                max_tokens = config.get("max_tokens", 2000)
+                timeout = config.get("timeout", 60)
             else:
-                temperature = 0.3
-                max_tokens = 1500
-                timeout = 45
+                config = translation_notes_config.get("non_reasoning", {})
+                temperature = config.get("temperature", 0.3)
+                max_tokens = config.get("max_tokens", 1500)
+                timeout = config.get("timeout", 45)
 
             # Generate response
             messages = [{"role": "user", "content": prompt}]

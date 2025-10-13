@@ -34,14 +34,18 @@ class TokenManager:
     refresh for WeChat Official Account API authentication.
     """
 
-    def __init__(self, config: WeChatConfig):
+    def __init__(
+        self, config: WeChatConfig, system_config: Optional[Dict[str, Any]] = None
+    ):
         """
         Initialize token manager with configuration.
 
         Args:
             config: WeChat configuration containing credentials and settings
+            system_config: System configuration with token timing settings
         """
         self.config = config
+        self.system_config = system_config or {}
         self.token_cache_path = Path(config.token_cache_path)
         self._token_cache: Dict[str, Any] = {}
         self._lock = asyncio.Lock()
@@ -64,9 +68,12 @@ class TokenManager:
             return False
 
         expires_at = cache_data.get("expires_at", 0)
-        # Add 5-minute buffer to ensure we refresh before expiration
+        # Add buffer from config to ensure we refresh before expiration
+        token_refresh_buffer = self.system_config.get("system", {}).get(
+            "token_refresh_buffer", 300
+        )
         current_time = time.time()
-        return expires_at > (current_time + 300)
+        return expires_at > (current_time + token_refresh_buffer)
 
     def _load_token_from_cache(self) -> Optional[Dict[str, Any]]:
         """
@@ -182,7 +189,11 @@ class TokenManager:
             token_data = await self._request_new_token()
 
             access_token = token_data["access_token"]
-            expires_in = token_data.get("expires_in", 7200)  # Default 2 hours
+            # Get default token expiry from system config
+            default_token_expiry = self.system_config.get("system", {}).get(
+                "default_token_expiry", 7200
+            )
+            expires_in = token_data.get("expires_in", default_token_expiry)
 
             # Save to cache
             self._save_token_to_cache(access_token, expires_in)

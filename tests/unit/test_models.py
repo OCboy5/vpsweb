@@ -217,12 +217,12 @@ class TestEditorReview:
     def test_create_valid_editor_review(self):
         """Test creating a valid EditorReview."""
         review = EditorReview(
-            text="1. Improve rhythm\n2. Use more poetic language",
+            editor_suggestions="1. Improve rhythm\n2. Use more poetic language",
             model_info={"provider": "deepseek", "model": "deepseek-chat"},
             tokens_used=150,
         )
 
-        assert "Improve rhythm" in review.text
+        assert "Improve rhythm" in review.editor_suggestions
         assert review.model_info["provider"] == "deepseek"
         assert review.tokens_used == 150
         assert isinstance(review.timestamp, datetime)
@@ -230,7 +230,7 @@ class TestEditorReview:
     def test_get_suggestions_list(self):
         """Test extracting numbered suggestions from editor text."""
         review = EditorReview(
-            text="1. Improve rhythm\n2. Use more poetic language\n3. Add cultural context",
+            editor_suggestions="1. Improve rhythm\n2. Use more poetic language\n3. Add cultural context",
             model_info={"provider": "test"},
             tokens_used=100,
         )
@@ -245,7 +245,7 @@ class TestEditorReview:
     def test_get_overall_assessment(self):
         """Test extracting overall assessment from editor text."""
         review = EditorReview(
-            text="1. Improve rhythm\n2. Use poetic language\nOverall assessment: Good translation needs refinement",
+            editor_suggestions="1. Improve rhythm\n2. Use poetic language\nOverall assessment: Good translation needs refinement",
             model_info={"provider": "test"},
             tokens_used=100,
         )
@@ -257,37 +257,34 @@ class TestEditorReview:
     def test_to_dict_method(self):
         """Test conversion to dictionary with computed fields."""
         review = EditorReview(
-            text="1. Improve rhythm\n2. Use poetic language",
+            editor_suggestions="1. Improve rhythm\n2. Use poetic language",
             model_info={"provider": "test"},
             tokens_used=100,
         )
 
         result = review.to_dict()
 
-        assert result["text"] == "1. Improve rhythm\n2. Use poetic language"
+        assert result["editor_suggestions"] == "1. Improve rhythm\n2. Use poetic language"
         assert result["tokens_used"] == 100
-        assert "suggestions" in result
-        assert "overall_assessment" in result
-        assert len(result["suggestions"]) == 2
+        # suggestions array and overall_assessment are no longer generated
+        assert "suggestions" not in result
+        assert "overall_assessment" not in result
 
     def test_from_dict_method(self):
         """Test creation from dictionary with computed fields."""
         data = {
-            "text": "1. Improve rhythm\n2. Use poetic language",
+            "editor_suggestions": "1. Improve rhythm\n2. Use poetic language",
             "model_info": {"provider": "test"},
             "tokens_used": 100,
             "timestamp": "2024-01-01T12:00:00",
-            "suggestions": ["Test suggestion"],  # Should be ignored
-            "overall_assessment": "Test assessment",  # Should be ignored
         }
 
         review = EditorReview.from_dict(data)
 
-        assert review.text == "1. Improve rhythm\n2. Use poetic language"
+        assert review.editor_suggestions == "1. Improve rhythm\n2. Use poetic language"
         assert review.tokens_used == 100
         # Computed fields should not be stored in the model
         assert not hasattr(review, "suggestions")
-        assert not hasattr(review, "overall_assessment")
 
 
 class TestRevisedTranslation:

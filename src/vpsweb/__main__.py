@@ -315,7 +315,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.2.3", prog_name="vpsweb")
+@click.version_option(version="0.2.4", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -614,9 +614,6 @@ def generate_article(
         click.echo(f"📁 Output directory: {result.output_directory}")
         click.echo(f"📄 Article HTML: {result.html_path}")
         click.echo(f"📋 Metadata: {result.metadata_path}")
-
-        if result.markdown_path:
-            click.echo(f"📝 Markdown: {result.markdown_path}")
 
         click.echo(f"🏷️  Article slug: {result.slug}")
         click.echo(f"📰 Article title: {result.article.title}")

@@ -314,9 +314,6 @@ class ArticleGenerationResult(BaseModel):
     # File paths
     html_path: str = Field(..., description="Path to generated HTML file")
     metadata_path: str = Field(..., description="Path to generated metadata file")
-    markdown_path: Optional[str] = Field(
-        None, description="Path to generated markdown file"
-    )
 
     # Generation metadata
     slug: str = Field(..., description="Article slug")
@@ -344,7 +341,6 @@ class ArticleGenerationResult(BaseModel):
             "article": self.article.to_dict(),
             "html_path": self.html_path,
             "metadata_path": self.metadata_path,
-            "markdown_path": self.markdown_path,
             "slug": self.slug,
             "output_directory": self.output_directory,
             "created_at": self.created_at.isoformat(),
@@ -429,9 +425,6 @@ class ArticleGenerationConfig(BaseModel):
     include_translation_notes: bool = Field(
         default=True, description="Whether to include translation notes section"
     )
-    max_notes_items: int = Field(
-        default=6, description="Maximum number of bullet points in translation notes"
-    )
     copyright_text: str = Field(
         default="本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作。未经授权，不得转载。若需引用，请注明出处。",
         description="Copyright disclaimer text in Chinese",
@@ -454,7 +447,6 @@ class ArticleGenerationConfig(BaseModel):
         """Convert to dictionary."""
         return {
             "include_translation_notes": self.include_translation_notes,
-            "max_notes_items": self.max_notes_items,
             "copyright_text": self.copyright_text,
             "article_template": self.article_template,
             "prompt_template": self.prompt_template,

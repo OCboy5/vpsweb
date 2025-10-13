@@ -49,15 +49,17 @@ class WeChatClient:
     draft management, and publishing with proper error handling and retries.
     """
 
-    def __init__(self, config: WeChatConfig):
+    def __init__(self, config: WeChatConfig, system_config: Optional[Dict[str, Any]] = None):
         """
         Initialize WeChat client with configuration.
 
         Args:
             config: WeChat configuration
+            system_config: System configuration with API error codes and other settings
         """
         self.config = config
-        self.token_manager = TokenManager(config)
+        self.system_config = system_config or {}
+        self.token_manager = TokenManager(config, system_config)
         self.base_url = config.base_url
 
     async def _make_request(
@@ -122,7 +124,8 @@ class WeChatClient:
                     # Check for API errors
                     if not api_response.is_success:
                         # Handle token expiration
-                        if api_response.errcode == 40001:  # Invalid access token
+                        invalid_access_token_code = self.system_config.get("api_error_codes", {}).get("invalid_access_token", 40001)
+                        if api_response.errcode == invalid_access_token_code:  # Invalid access token
                             logger.info("Access token expired, refreshing...")
                             await self.token_manager.refresh_token()
                             access_token = await self.token_manager.get_access_token()
@@ -130,7 +133,8 @@ class WeChatClient:
                             continue  # Retry with fresh token
 
                         # Handle rate limiting
-                        elif api_response.errcode == 45009:  # Rate limit exceeded
+                        rate_limit_exceeded_code = self.system_config.get("api_error_codes", {}).get("rate_limit_exceeded", 45009)
+                        if api_response.errcode == rate_limit_exceeded_code:  # Rate limit exceeded
                             wait_time = min(2**attempt, 10)  # Exponential backoff
                             logger.warning(
                                 f"Rate limit exceeded, waiting {wait_time}s..."
