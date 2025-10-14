@@ -15,7 +15,7 @@
                 <p style="margin: 0 0 15px 0; text-indent: 0; font-weight: bold;">作者：{{ source_poet }}</p>
                 {% for line in poem_text.split('\n') %}
                     {% if line.strip() %}
-                        <p style="margin: 0;">{{ line }}</p>
+                        <p style="margin: 0 0 8px 0;">{{ line }}</p>
                     {% endif %}
                 {% endfor %}
             </div>
@@ -33,7 +33,7 @@
                 {% endif %}
                 {% for line in translation_text.split('\n') %}
                     {% if line.strip() %}
-                        <p style="margin: 0;">{{ line }}</p>
+                        <p style="margin: 0 0 8px 0;">{{ line }}</p>
                     {% endif %}
                 {% endfor %}
             </div>
