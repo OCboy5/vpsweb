@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
-**Current Status**: v0.2.3 - Enhanced Metrics & Display Release
+**Current Status**: v0.2.5 - WeChat Article Publishing Optimization Release
 
 ## Core Development Principles
 
@@ -412,6 +412,83 @@ response = await provider.generate(
 - Web UI architecture ready for implementation
 - API design for UI integration
 - Progress tracking and display
+
+## Release Management Workflow
+
+### 🚨 CRITICAL: Release Process Requirements
+
+When creating a new version release (vX.Y.Z), Claude Code **MUST** follow the strict workflow defined in `VERSION_WORKFLOW.md`. This is non-negotiable for maintaining release quality and consistency.
+
+### 📋 Mandatory Release Checklist
+
+For any version release, Claude must complete ALL of these steps in order:
+
+#### **Phase 1: Preparation (Before Making Changes)**
+1. **Create Local Backup** (MANDATORY - First Step!)
+   ```bash
+   ./save-version.sh X.Y.Z
+   ```
+
+2. **Version Bump** (Update 3 files exactly)
+   - `pyproject.toml`: `version = "X.Y.Z"`
+   - `src/vpsweb/__init__.py`: `__version__ = "X.Y.Z"`
+   - `src/vpsweb/__main__.py`: `@click.version_option(version="X.Y.Z")`
+
+3. **Update Documentation** (MANDATORY)
+   - `CHANGELOG.md`: Add release notes section
+   - `README.md`: Update version badge and status section
+   - `STATUS.md`: Update version, executive summary, and features
+   - Update other docs if needed
+
+4. **Code Quality Check**
+   - Format: `python -m black src/ tests/`
+   - Check: `python -m black --check src/ tests/`
+   - Tests: `pytest -q` (if possible)
+
+#### **Phase 2: Commit & Release**
+5. **Commit Changes**
+   ```bash
+   git add .
+   git commit -m "Release vX.Y.Z - [Release Name]
+
+   [Detailed release notes]
+
+   🚀 Generated with Claude Code (https://claude.ai/claude-code)
+
+   Co-Authored-By: Claude <noreply@anthropic.com>"
+   git push origin main
+   ```
+
+6. **Create GitHub Release**
+   ```bash
+   ./push-version.sh X.Y.Z "Brief release notes"
+   ```
+
+#### **Phase 3: Verification**
+7. **Verify Release**
+   - Check GitHub release exists: `gh release view vX.Y.Z`
+   - Verify tag on remote: `git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"`
+   - Check GitHub Actions CI status
+
+### ⚠️ Common Mistakes to Avoid
+- **NEVER** skip local backup creation
+- **NEVER** forget to update all 3 version files
+- **NEVER** skip CHANGELOG.md updates
+- **NEVER** skip README.md and STATUS.md updates
+- **NEVER** commit without proper formatting check
+- **ALWAYS** verify release exists after creation
+
+### 📚 Reference Documents
+- **Primary**: `VERSION_WORKFLOW.md` - Complete release workflow
+- **Printable Checklist**: Section 9 of VERSION_WORKFLOW.md
+- **Quick Reference**: Section 8 of VERSION_WORKFLOW.md
+
+### 🔍 Quality Assurance
+Before announcing any release, ensure:
+- All checklist items are completed
+- GitHub release page shows correct content
+- CI/CD pipeline completed successfully
+- Documentation reflects new version accurately
 
 ## Emergency Procedures
 

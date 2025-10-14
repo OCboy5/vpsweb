@@ -23,33 +23,56 @@ Scripts available in repo:
 
 ## 1) Pre‑Release Checklist (must pass)
 
-- Version bump done and consistent across all files:
+- **Step 1.1**: Create local backup (HIGHLY RECOMMENDED before any changes)
+  ```bash
+  ./save-version.sh X.Y.Z
+  ```
+
+- **Step 1.2**: Version bump done and consistent across all files:
   - pyproject.toml → version = "X.Y.Z"
   - src/vpsweb/__init__.py → __version__ = "X.Y.Z"
   - src/vpsweb/__main__.py → version_option(version="X.Y.Z")
   - Quick check:
     - grep -R 'X\.Y\.Z' src/ pyproject.toml
-- Docs updated (as applicable):
-  - README.md, CHANGELOG.md, CLAUDE.md, STATUS.md, DEVELOPMENT.md, etc.
-- Code formatting passes:
+
+- **Step 1.3**: Update CHANGELOG.md with release notes (MANDATORY)
+  - Add new section: `## [X.Y.Z] - YYYY-MM-DD (Release Name)`
+  - Include highlights, features, fixes
+  - Use consistent format with previous releases
+
+- **Step 1.4**: Update documentation files (MANDATORY):
+  - README.md: Update version badge and current status section
+  - STATUS.md: Update version number, executive summary, and completed features
+  - CLAUDE.md: Update version references if present
+  - DEVELOPMENT.md: Update version-specific development notes if applicable
+
+- **Step 1.5**: Code formatting passes:
   - python -m black --check src/ tests/
-- Tests pass locally:
+  - If formatting fails: python -m black src/ tests/
+
+- **Step 1.6**: Tests pass locally (if possible):
   - pytest -q
-- Commit all changes to main:
+  - Note: Some test failures may be acceptable for non-breaking changes
+
+- **Step 1.7**: Commit all changes to main:
   - git add .
-  - git commit -m "Release vX.Y.Z"
+  - git commit -m "Release vX.Y.Z - [Release Name]
+
+  [Detailed release notes]
+
+  🚀 Generated with Claude Code (https://claude.ai/claude-code)
+
+  Co-Authored-By: Claude <noreply@anthropic.com>"
   - git push origin main
 
 ---
 
 ## 2) Standard Release Flow (recommended path)
 
-1) Optional local backup (safety net)
-```bash
-./save-version.sh X.Y.Z
-```
+⚠️ **IMPORTANT**: Local backup should be created in Step 1.1 (before making changes)
+- If you missed Step 1.1, create backup now: `./save-version.sh X.Y.Z`
 
-2) Create the official GitHub release (tag + release)
+1) Create the official GitHub release (tag + release)
 ```bash
 ./push-version.sh X.Y.Z "Brief release notes: highlights, features, fixes"
 ```
@@ -166,26 +189,68 @@ git status
 python -m black --check src/ tests/
 pytest -q
 
-# 1) Bump version + update docs, then:
-git add .
-git commit -m "Release vX.Y.Z"
-git push origin main
-
-# 2) Optional local backup
+# 1) 🚨 MANDATORY RELEASE CHECKLIST
+# 1.1) Local backup (BEFORE making changes!)
 ./save-version.sh X.Y.Z
 
-# 3) Official release
-./push-version.sh X.Y.Z "Notes: key features/fixes"
+# 1.2) Version bump in 3 files
+# Edit: pyproject.toml, src/vpsweb/__init__.py, src/vpsweb/__main__.py
 
-# 4) Verify
+# 1.3) Update CHANGELOG.md (MANDATORY)
+# Add new section with release notes
+
+# 1.4) Update documentation (MANDATORY)
+# Edit: README.md (version + status), STATUS.md (version + features)
+
+# 1.5) Format code if needed
+python -m black src/ tests/
+
+# 1.6) Commit and push
+git add .
+git commit -m "Release vX.Y.Z - [Release Name]
+
+[Release notes]
+
+🚀 Generated with Claude Code (https://claude.ai/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+git push origin main
+
+# 2) Official release
+./push-version.sh X.Y.Z "Brief release notes: highlights, features, fixes"
+
+# 3) Verify
 gh release view vX.Y.Z
 git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"
 # Open Actions and Releases pages to confirm
 ```
 
+## 9) Release Checklist (Print this for reference)
+
+```
+□ 1.1 Create local backup: ./save-version.sh X.Y.Z
+□ 1.2 Update version in pyproject.toml
+□ 1.3 Update version in src/vpsweb/__init__.py
+□ 1.4 Update version in src/vpsweb/__main__.py
+□ 1.5 Verify version consistency: grep -R 'X.Y.Z' src/ pyproject.toml
+□ 1.6 Update CHANGELOG.md with release notes
+□ 1.7 Update README.md (version badge + status section)
+□ 1.8 Update STATUS.md (version + executive summary + features)
+□ 1.9 Update other docs if needed (CLAUDE.md, DEVELOPMENT.md)
+□ 1.10 Check code formatting: python -m black --check src/ tests/
+□ 1.11 Fix formatting if needed: python -m black src/ tests/
+□ 1.12 Run tests if possible: pytest -q
+□ 1.13 Commit all changes to main
+□ 1.14 Push to main branch
+□ 2.1 Create GitHub release: ./push-version.sh X.Y.Z "release notes"
+□ 3.1 Verify release exists: gh release view vX.Y.Z
+□ 3.2 Verify tag exists on remote
+□ 3.3 Open GitHub Actions page to check CI
+```
+
 ---
 
-## 9) Notes and Best Practices
+## 10) Notes and Best Practices
 
 - Keep releases atomic: ensure main is up to date and green before tagging.
 - Prefer ./push-version.sh as the single source of truth for releases; use ./save-version.sh as a safety net before major changes.
