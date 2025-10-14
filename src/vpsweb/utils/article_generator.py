@@ -200,11 +200,11 @@ class ArticleGenerator:
                     <p><strong>主题赏析：</strong>这首诗描绘了诗人回归自然田园后，探访荒废故居时的所见所感。通过对昔日居民遗迹的观察，表达了人生无常、世事变迁的主题。</p>
 
                     <p><strong>翻译难点：</strong></p>
-                    <ul style="padding-left: 25px !important; margin: 10px 0 !important;">
-                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</li>
-                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</li>
-                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</li>
-                    </ul>
+                    <div style="padding-left: 10px;">
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.6;">•&nbsp;&nbsp;<em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</p>
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.6;">•&nbsp;&nbsp;<em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</p>
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.6;">•&nbsp;&nbsp;<em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</p>
+                    </div>
 
                     <p><strong>文化内涵：</strong>诗中体现了中国传统文人"物是人非"的感慨，以及对生命轮回、归于虚无的哲学思考。翻译时需保持这种深沉的文化底蕴。</p>
                 </div>
@@ -860,16 +860,14 @@ class ArticleGenerator:
                     html_parts.append(f"<p><strong>摘要：</strong>{clean_digest}</p>")
 
                 if notes:
-                    html_parts.append(
-                        '<ul style="padding-left: 25px !important; margin: 10px 0 !important;">'
-                    )
+                    html_parts.append('<div style="padding-left: 10px;">')
                     for note in notes:
                         # Unescape HTML entities in notes
                         clean_note = html.unescape(note)
                         html_parts.append(
-                            f'<li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;">{clean_note}</li>'
+                            f'<p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.6;">•&nbsp;&nbsp;{clean_note}</p>'
                         )
-                    html_parts.append("</ul>")
+                    html_parts.append("</div>")
 
                 return (
                     "\n".join(html_parts)
@@ -918,16 +916,14 @@ class ArticleGenerator:
                         )
 
                     if notes:
-                        html_parts.append(
-                            '<ul style="padding-left: 25px !important; margin: 10px 0 !important;">'
-                        )
+                        html_parts.append('<div style="padding-left: 10px;">')
                         for note in notes:
                             # Unescape HTML entities in notes
                             clean_note = html.unescape(note)
                             html_parts.append(
-                                f'<li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;">{clean_note}</li>'
+                                f'<p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.6;">•&nbsp;&nbsp;{clean_note}</p>'
                             )
-                        html_parts.append("</ul>")
+                        html_parts.append("</div>")
 
                     if html_parts:
                         # Ensure digest meets length requirements (80-115 characters with safety buffer)
