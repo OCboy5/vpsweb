@@ -5,29 +5,32 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.2.3-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.3)
+[![Version](https://img.shields.io/badge/Version-0.2.5-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.5)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
 **VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
 
-## 🎯 Current Status: **v0.2.3 - ENHANCED METRICS & DISPLAY RELEASE**
+## 🎯 Current Status: **v0.2.5 - WECHAT ARTICLE PUBLISHING OPTIMIZATION RELEASE**
 
-✅ **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown for all translation steps
-✅ **Fixed Cost Calculation**: Corrected pricing calculation from per 1M to per 1K tokens across both workflows
-✅ **LLM-Generated Digest Integration**: High-quality AI digests now properly used in CLI and metadata
-✅ **Complete WeChat Official Account Integration**: Full end-to-end system for generating WeChat articles from translation outputs
-✅ **LLM-Powered Translation Notes Synthesis**: AI-generated Chinese translation notes for WeChat audience
-✅ **Advanced Token Display**: Detailed prompt/completion token breakdown for all workflow steps
-✅ **Accurate Cost Tracking**: Fixed pricing calculation using correct RMB per 1K token rates
-✅ **Enhanced Output Structure**: Organized JSON and markdown files in separate subdirectories
-✅ **Poet-First Naming**: Revolutionary filename format leading with poet names
-✅ **Intelligent Metadata Extraction**: Automatic poet and title detection from poem text
-✅ **Three Intelligent Workflow Modes**: Reasoning, Non-Reasoning, and Hybrid
-✅ **Advanced Model Classification**: Automatic prompt selection based on model capabilities
-✅ **Real-time Cost Tracking**: Accurate RMB pricing with actual API token data
-✅ **Enhanced Progress Display**: Step-by-step model information and timing
-✅ **Production Ready**: Comprehensive logging, error handling, and token tracking
+🎉 **WeChat Article Publishing Revolution**: Complete WeChat editor compatibility with inline styles and defensive HTML design
+📱 **Bullet Points Fix**: Resolved WeChat editor duplication using !important declarations and inline styling
+🔧 **Template Optimization**: Completely rewrote HTML templates with WeChat-specific defenses
+🎨 **Style Tag Elimination**: Removed all CSS <style> tags, converted to inline styles for WeChat compatibility
+📐 **Precise Layout Control**: Added margin: 0 to all <p> tags for exact spacing control
+➡️ **Text Alignment Fix**: Removed text-indent for complete left alignment as preferred
+📁 **Directory-Based Publishing**: Enhanced WeChat publishing system with directory workflow
+🖼️ **Cover Image Support**: Automatic cover image upload and media_id handling
+📏 **Character Validation**: Fixed WeChat API length validation using character counting (not bytes)
+🔍 **Translation Data Extraction**: Fixed poet attribution mixing with translation content
+📊 **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown
+💰 **Accurate Cost Tracking**: Corrected pricing calculation per 1K tokens across workflows
+🧠 **LLM-Generated Digest Integration**: High-quality AI digests in CLI and metadata
+📱 **Complete WeChat Integration**: Full end-to-end WeChat article generation system
+🏷️ **Poet-First Naming**: Revolutionary filename format leading with poet names
+🔍 **Intelligent Metadata Extraction**: Automatic poet and title detection
+🎭 **Three Workflow Modes**: Reasoning, Non-Reasoning, and Hybrid
+🤖 **Advanced Model Classification**: Automatic prompt selection based on capabilities
 ✅ **CLI Interface**: Complete command-line functionality with detailed output
 ✅ **Python API**: Full programmatic access for integration
 

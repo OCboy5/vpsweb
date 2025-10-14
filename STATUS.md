@@ -1,14 +1,28 @@
-# Vox Poetica Studio Web - v0.2.3 Status
+# Vox Poetica Studio Web - v0.2.5 Status
 
-**Date**: 2025-10-13
-**Version**: 0.2.3 (Enhanced Metrics & Display Release)
-**Status**: ✅ **PRODUCTION READY WITH ENHANCED METRICS & DISPLAY**
+**Date**: 2025-10-14
+**Version**: 0.2.5 (WeChat Article Publishing Optimization Release)
+**Status**: ✅ **PRODUCTION READY WITH WECHAT OPTIMIZATION**
 
 ## 🎯 Executive Summary
 
-Vox Poetica Studio Web (vpsweb) has evolved through multiple iterations to v0.2.3, achieving **ENHANCED METRICS & DISPLAY** capabilities. This landmark release features enhanced translation workflow display with detailed prompt/completion token breakdown, corrected cost calculation using accurate per 1K token pricing, and successful integration of high-quality LLM-generated digests. The system now provides consistent, professional-grade display formats across both translation and WeChat workflows, establishing itself as a sophisticated, production-ready poetry translation platform with comprehensive metrics tracking and WeChat Official Account integration.
+Vox Poetica Studio Web (vpsweb) has evolved through multiple iterations to v0.2.5, achieving **WECHAT ARTICLE PUBLISHING OPTIMIZATION** capabilities. This revolutionary release transforms the system for complete WeChat editor compatibility through advanced HTML template optimization. The landmark achievement includes converting standard HTML to WeChat-compatible format using inline styles, resolving bullet points duplication issues, eliminating duplicate article titles, and implementing defensive HTML design that prevents WeChat editor interference. The system now provides perfect WeChat publishing with directory-based workflow, cover image support, and precise character-based validation, establishing itself as a sophisticated, WeChat-ready poetry translation platform with unprecedented editor compatibility.
 
 ## ✅ Completed Features
+
+### 📱 WeChat Article Publishing Optimization (v0.2.5)
+- **Complete WeChat Editor Compatibility**: Transformed standard HTML to WeChat-compatible format using inline styles
+- **Bullet Points Duplication Fix**: Resolved WeChat editor bullet points duplication using !important declarations and inline styling
+- **Title Duplication Elimination**: Fixed duplicate article title display in WeChat editor through HTML structure optimization
+- **Advanced Template System**: Completely rewrote codebuddy.html template with WeChat-specific defensive design
+- **Style Tag Elimination**: Removed all CSS <style> tags and converted to inline styles for WeChat compatibility
+- **Precise Layout Control**: Added margin: 0 to all <p> tags for exact spacing control in WeChat editor
+- **Text Alignment Optimization**: Removed text-indent from poem sections for complete left alignment
+- **Directory-Based Publishing**: Enhanced WeChat publishing system to support directory-based workflow
+- **Cover Image Integration**: Added automatic cover image upload and media_id handling for WeChat articles
+- **Character vs Byte Validation**: Fixed WeChat API length validation to use character counting per official documentation
+- **Translation Data Extraction Fix**: Resolved poet attribution mixing with translation content
+- **Code Formatting**: Applied Black code formatter across entire codebase for consistency
 
 ### 📊 Enhanced Metrics & Display (v0.2.3)
 - **Advanced Token Display**: Translation workflow now shows detailed prompt/completion token breakdown like WeChat workflow
