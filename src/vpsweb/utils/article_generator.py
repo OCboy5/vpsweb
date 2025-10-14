@@ -201,9 +201,9 @@ class ArticleGenerator:
 
                     <p><strong>翻译难点：</strong></p>
                     <div style="padding-left: 10px;">
-                        <p style="margin: 0 0 0px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</p>
-                        <p style="margin: 0 0 0px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</p>
-                        <p style="margin: 0 0 0px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</p>
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</p>
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</p>
+                        <p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;<em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</p>
                     </div>
 
                     <p><strong>文化内涵：</strong>诗中体现了中国传统文人"物是人非"的感慨，以及对生命轮回、归于虚无的哲学思考。翻译时需保持这种深沉的文化底蕴。</p>
@@ -865,7 +865,7 @@ class ArticleGenerator:
                         # Unescape HTML entities in notes
                         clean_note = html.unescape(note)
                         html_parts.append(
-                            f'<p style="margin: 0 0 0px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;{clean_note}</p>'
+                            f'<p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;{clean_note}</p>'
                         )
                     html_parts.append("</div>")
 
@@ -921,7 +921,7 @@ class ArticleGenerator:
                             # Unescape HTML entities in notes
                             clean_note = html.unescape(note)
                             html_parts.append(
-                                f'<p style="margin: 0 0 0px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;{clean_note}</p>'
+                                f'<p style="margin: 0 0 8px 0; color: #444444; font-size: 15px; line-height: 1.5;">•&nbsp;&nbsp;{clean_note}</p>'
                             )
                         html_parts.append("</div>")
 
