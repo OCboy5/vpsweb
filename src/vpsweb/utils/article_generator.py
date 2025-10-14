@@ -857,7 +857,9 @@ class ArticleGenerator:
                 if digest:
                     # Unescape HTML entities
                     clean_digest = html.unescape(digest)
-                    html_parts.append(f'<p style="margin: 0 0 0px 0;"><strong>摘要：</strong>{clean_digest}</p>')
+                    html_parts.append(
+                        f'<p style="margin: 0 0 0px 0;"><strong>摘要：</strong>{clean_digest}</p>'
+                    )
 
                 if notes:
                     html_parts.append('<div style="padding-left: 10px;">')

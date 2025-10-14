@@ -5,6 +5,49 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2025-10-14 (Final WeChat Display Optimization Release)
+
+### 🎨 Perfect WeChat Display Implementation
+- **Complete HTML Structure Match**: Template now generates HTML identical to proven best practice format
+- **Bullet Points Revolution**: Fixed WeChat editor duplication using `<p>` tags with manual bullets instead of `<ul>/<li>` elements
+- **Optimized Line Spacing**: Implemented precise spacing control - poems (1.0), translations (1.1), notes (1.5)
+- **Compact Layout Design**: Removed h2 title margins for space-efficient display
+- **Perfect HTML Generation**: Eliminated Jinja2 whitespace artifacts for clean, compact output
+
+### 🔧 Advanced Template Engineering
+- **Defensive HTML Design**: Implemented WeChat-specific CSS protections against editor overrides
+- **Inline Style Mastery**: Complete conversion from CSS sheets to inline styles for WeChat compatibility
+- **Structure Optimization**: Nested div layout for poems/translations, single-layer for notes (proven pattern)
+- **Jinja2 Precision Control**: Advanced whitespace management for exact HTML output matching
+- **Margin Control Strategy**: Zero margin policy with line-height spacing for precise control
+
+### 📱 WeChat Editor Compatibility
+- **Bullet Points Fix**: Eliminated duplicate display through HTML structure redesign
+- **Title Duplication Prevention**: Fixed duplicate article titles in WeChat editor
+- **Editor Override Defense**: CSS `!important` declarations and inline styling for bullet points
+- **Character vs Byte Validation**: Implemented WeChat API length validation per official documentation
+- **Template Consistency**: Both `codebuddy.html` and `default.html` optimized for WeChat
+
+### 🏗️ Template System Enhancements
+- **Golden Standard Reference**: Added `docs/Dev_notes/article.html` as the best practice reference document
+- **Production Template**: `codebuddy.html` now matches golden standard exactly
+- **Code Generation**: `article_generator.py` generates HTML identical to reference format
+- **Dry-run Consistency**: Testing mode produces same structure as production mode
+- **Bullet Point Generation**: Complete switch from `<ul>/<li>` to `<p>` + manual bullets
+
+### 🛠️ Development Workflow Improvements
+- **Enhanced VERSION_WORKFLOW.md**: Detailed checklist for bulletproof release process
+- **CLAUDE.md Integration**: Added mandatory release workflow reminders and best practices
+- **Local Backup Safety**: Version workflow ensures backup creation before any changes
+- **Documentation Updates**: README.md and STATUS.md reflect latest capabilities and optimizations
+- **Housekeeping**: Cleaned up 18 temporary test directories for clean project structure
+
+### 📊 Performance and Compatibility
+- **HTML Size Reduction**: Compact structure reduces file size while maintaining visual quality
+- **Rendering Speed**: Optimized CSS reduces WeChat editor processing time
+- **Cross-platform Consistency**: Uniform display across different WeChat clients
+- **Future-proof Design**: Defensive CSS prevents WeChat editor changes from breaking display
+
 ## [0.2.5] - 2025-10-14 (WeChat Article Publishing Optimization Release)
 
 ### 📱 WeChat Article Publishing Revolution
