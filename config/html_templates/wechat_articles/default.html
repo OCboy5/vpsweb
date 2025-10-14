@@ -2,127 +2,159 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="author" content="施知韵VoxPoeticaStudio">
-    <meta name="description" content="{{ poem_title }} - {{ poet_name }} | 知韵译诗 - 诗歌翻译与解读">
     <title>【知韵译诗】{{ poem_title }}（{{ poet_name }}）</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            line-height: 1.8;
-            color: #222;
+        /* 微信编辑器强制重置样式 */
+        body, div, p, h1, h2, h3 {
             margin: 0;
             padding: 0;
+            border: 0;
+            font-size: 100%;
+            vertical-align: baseline;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 15px;
+            padding: 0;
             background-color: #fff;
+            font-size: 16px; /* 微信基础字号 */
+            max-width: 600px; /* 微信推荐最大宽度 */
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .article-header {
-            font-size: 22px;
-            margin: 12px 0;
-            font-weight: bold;
-            color: #333;
-        }
-        .author-info {
-            font-size: 14px;
-            color: #666;
-            display: block;
-            margin-bottom: 16px;
-        }
-        hr {
-            border: none;
-            border-top: 1px solid #ddd;
-            margin: 20px 0;
-        }
-        .section-title {
-            font-size: 18px;
-            margin: 16px 0 8px;
-            color: #333;
-            font-weight: bold;
-        }
-        .poem-text {
-            font-family: 'Times New Roman', 'SimSong', '宋体', serif;
-            margin: 8px 0;
-            white-space: pre-wrap;
-            line-height: 1.9;
-            font-size: 16px;
-        }
-        .translation-text {
-            font-family: 'Times New Roman', Georgia, serif;
-            margin: 8px 0;
-            white-space: pre-wrap;
-            line-height: 1.8;
-            font-size: 16px;
-        }
-        .notes-section {
-            margin: 8px 0;
-            color: #555;
-            font-size: 15px;
-            line-height: 1.7;
-        }
-        .notes-section p {
-            margin: 0 0 12px 0;
-        }
-        .notes-section ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .notes-section li {
-            margin-bottom: 8px;
-        }
-        .copyright {
-            font-size: 12px;
-            color: #666;
-            display: block;
-            margin-top: 20px;
+
+        .article-title {
+            font-size: 24px; /* 提升标题权重 */
+            font-weight: 700;
             text-align: center;
+            margin: 20px 0;
+            color: #2c3e50;
+            line-height: 1.4;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            .article-header {
-                font-size: 20px;
-            }
-            .poem-text, .translation-text {
-                font-size: 15px;
-            }
+
+        .section-title {
+            font-size: 18px; /* 加强章节区分 */
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: #1a1a1a;
+            border-bottom: 2px solid #e8f4f8;
+            padding-bottom: 8px;
+        }
+
+        .poem-text {
+            font-family: 'KaiTi', 'STKaiti', serif; /* 优先使用楷体 */
+            font-size: 17px;
+            line-height: 2.2;
+            color: #2c3e50;
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #e74c3c;
+            background-color: #f8f9fa;
+            word-wrap: break-word;
+            overflow-wrap: anywhere; /* 微信特殊处理 */
+        }
+
+        .poem-text p {
+            margin: 12px 0;
+            text-indent: 2em;
+            white-space: pre-wrap; /* 关键属性 */
+        }
+
+        .poem-text .poem-header {
+            text-indent: 0;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .translation-text {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #34495e;
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background-color: #f8f9fa;
+            word-wrap: break-word;
+        }
+
+        .translation-text p {
+            margin: 10px 0;
+        }
+
+        .translation-text .translation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .notes-section {
+            margin: 20px 0;
+            line-height: 1.7;
+            font-size: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+
+        .notes-section p {
+            margin: 10px 0;
+        }
+
+        .notes-section ul {
+            list-style: disc !important;
+            padding-left: 25px !important;
+            margin: 10px 0 !important;
+        }
+
+        .notes-section li {
+            margin-bottom: 8px !important;
+            line-height: 1.6 !important;
+        }
+
+        .copyright {
+            text-align: center;
+            margin: 25px 0;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="article-header">【知韵译诗】{{ poem_title }}（{{ poet_name }}）</h1>
-        <div class="author-info">作者：施知韵VoxPoeticaStudio</div>
-        <hr>
+    <div class="article-title" style="font-size: 24px; font-weight: 700; text-align: center; margin: 20px 0; color: #2c3e50; line-height: 1.4; display: block !important; visibility: visible !important;">【知韵译诗】{{ poem_title }}（{{ poet_name }}）</div>
 
-        <h2 class="section-title">原诗</h2>
-        <div class="poem-text">
-{{ source_title }}
-作者：{{ source_poet }}
-
-{{ poem_text }}</div>
-
-        <h2 class="section-title">译文</h2>
-        <div class="translation-text">
-{{ target_title }}
-{{ target_poet }}
-
-{{ translation_text }}</div>
-
-        <h2 class="section-title">译注</h2>
-        <div class="notes-section">
-            {{ translation_notes_section | safe }}
-        </div>
-
-        <hr>
-        <div class="copyright">
-            {{ copyright_text }}
-        </div>
+    <div class="section-title">原诗</div>
+    <div class="poem-text">
+        <p class="poem-header">{{ source_title }}</p>
+        <p class="poem-header">作者：{{ source_poet }}</p>
+        {% for line in poem_text.split('\n') %}
+            {% if line.strip() %}
+                <p>{{ line }}</p>
+            {% endif %}
+        {% endfor %}
     </div>
+
+    <div class="section-title">译文</div>
+    <div class="translation-text">
+        <p class="translation-header">{{ target_title }}</p>
+        {% if target_poet %}
+            <p class="translation-header">{{ target_poet }}</p>
+        {% endif %}
+        {% for line in translation_text.split('\n') %}
+            {% if line.strip() %}
+                <p>{{ line }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="section-title">译注</div>
+    <div class="notes-section">{{ translation_notes_section | safe }}</div>
+
+    <div class="copyright">{{ copyright_text }}</div>
 </body>
 </html>

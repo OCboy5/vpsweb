@@ -89,7 +89,7 @@ class WeChatArticleMetadata(BaseModel):
         ...,
         description="URL-friendly slug: poetname-poemtitle-YYYYMMDD (supports Chinese characters)",
     )
-    author: str = Field(default="施知韵VoxPoetica", description="Article author name")
+    author: str = Field(default="知韵VoxPoetica", description="Article author name")
 
     # Timestamps
     created_at: datetime = Field(
@@ -113,24 +113,28 @@ class WeChatArticle(BaseModel):
 
     # Core article fields
     title: str = Field(
-        ..., max_length=64, description="Article title (max 64 bytes for WeChat API)"
+        ...,
+        max_length=60,
+        description="Article title (max 64 characters for WeChat API, using 60 for safety)",
     )
     content: str = Field(..., description="WeChat-compatible HTML content")
     digest: str = Field(
         ...,
-        min_length=80,
-        max_length=120,
-        description="Article summary (80-120 characters)",
+        max_length=115,
+        description="Article summary (max 120 characters for WeChat API, using 115 for safety)",
     )
-    author: str = Field(default="施知韵VoxPoetica", description="Article author name")
+    author: str = Field(default="知韵VoxPoetica", description="Article author name")
 
-    # Publishing settings (simplified, no cover images)
+    # Publishing settings (cover image support)
+    thumb_media_id: Optional[str] = Field(
+        default=None, description="Thumb media_id for cover image"
+    )
     show_cover_pic: bool = Field(
         default=False,
-        description="Whether to show cover picture (always False for now)",
+        description="Whether to show cover picture; requires thumb_media_id when True",
     )
     need_open_comment: bool = Field(
-        default=True, description="Whether to enable comments"
+        default=False, description="Whether to enable comments"
     )
     only_fans_can_comment: bool = Field(
         default=False, description="Whether only fans can comment"
@@ -161,9 +165,11 @@ class WeChatArticle(BaseModel):
         """Validate title follows expected format."""
         if not v.strip():
             raise ValueError("Title cannot be empty")
-        # Check byte length for WeChat API compatibility
-        if len(v.encode("utf-8")) > 64:
-            raise ValueError("Title exceeds 64 bytes limit for WeChat API")
+        # Check character length for WeChat API compatibility (with safety buffer)
+        if len(v) > 60:
+            raise ValueError(
+                "Title exceeds 60 character limit (64 allowed by WeChat API)"
+            )
         return v.strip()
 
     @validator("content")
@@ -178,18 +184,29 @@ class WeChatArticle(BaseModel):
                 raise ValueError(f"Content contains forbidden HTML tag: {tag}")
         return v
 
+    @validator("digest")
+    def validate_digest_length(cls, v):
+        """Validate digest length for WeChat API compatibility."""
+        if len(v) > 115:
+            raise ValueError(
+                "Digest must be at most 115 characters (120 allowed by WeChat API)"
+            )
+        return v
+
     def to_wechat_api_dict(self) -> Dict[str, Any]:
-        """Convert to WeChat API request format (simplified, no cover image)."""
-        return {
+        """Convert to WeChat API request format (draft/add)."""
+        payload = {
             "title": self.title,
             "author": self.author,
             "digest": self.digest,
             "content": self.content,
             "content_source_url": self.content_source_url,
-            "show_cover_pic": 1 if self.show_cover_pic else 0,
             "need_open_comment": 1 if self.need_open_comment else 0,
             "only_fans_can_comment": 1 if self.only_fans_can_comment else 0,
         }
+        if self.thumb_media_id:
+            payload["thumb_media_id"] = self.thumb_media_id
+        return payload
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
@@ -426,7 +443,7 @@ class ArticleGenerationConfig(BaseModel):
         default=True, description="Whether to include translation notes section"
     )
     copyright_text: str = Field(
-        default="本译文与导读由【知韵译诗】施知韵VoxPoetica原创制作。未经授权，不得转载。若需引用，请注明出处。",
+        default="本译文与导读由【知韵译诗】知韵VoxPoetica原创制作。未经授权，不得转载。若需引用，请注明出处。",
         description="Copyright disclaimer text in Chinese",
     )
     article_template: str = Field(

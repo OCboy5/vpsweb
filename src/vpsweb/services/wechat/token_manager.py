@@ -145,7 +145,25 @@ class TokenManager:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=self.config.timeouts) as client:
+            # Extract timeout configuration properly
+            timeout_config = getattr(self.config, "timeouts", {})
+            if isinstance(timeout_config, dict):
+                connect_timeout = timeout_config.get("connect", 5.0)
+                read_timeout = timeout_config.get("read", 20.0)
+                write_timeout = timeout_config.get("write", 20.0)
+                pool_timeout = timeout_config.get("pool", 5.0)
+                timeout = httpx.Timeout(
+                    connect=connect_timeout,
+                    read=read_timeout,
+                    write=write_timeout,
+                    pool=pool_timeout,
+                )
+            else:
+                timeout = httpx.Timeout(
+                    5.0, connect=5.0, read=20.0, write=20.0, pool=5.0
+                )  # Default fallback with all parameters
+
+            async with httpx.AsyncClient(timeout=timeout) as client:
                 response = await client.get(url, params=params)
                 response.raise_for_status()
 
@@ -162,9 +180,16 @@ class TokenManager:
                 return data
 
         except httpx.HTTPStatusError as e:
-            raise TokenManagerError(f"HTTP error requesting token: {e}")
+            status_code = e.response.status_code if e.response else "unknown"
+            raise TokenManagerError(
+                f"HTTP error requesting token (status {status_code}): {e}"
+            )
+        except httpx.ConnectError as e:
+            raise TokenManagerError(
+                f"Cannot connect to WeChat API server: {e}. Please check your internet connection and API endpoint configuration."
+            )
         except httpx.RequestError as e:
-            raise TokenManagerError(f"Request error requesting token: {e}")
+            raise TokenManagerError(f"Request error to WeChat API: {e}")
         except Exception as e:
             raise TokenManagerError(f"Unexpected error requesting token: {e}")
 

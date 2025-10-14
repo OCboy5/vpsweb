@@ -49,7 +49,9 @@ class WeChatClient:
     draft management, and publishing with proper error handling and retries.
     """
 
-    def __init__(self, config: WeChatConfig, system_config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, config: WeChatConfig, system_config: Optional[Dict[str, Any]] = None
+    ):
         """
         Initialize WeChat client with configuration.
 
@@ -61,6 +63,20 @@ class WeChatClient:
         self.system_config = system_config or {}
         self.token_manager = TokenManager(config, system_config)
         self.base_url = config.base_url
+
+        # Extract timeout values from config
+        if hasattr(config, "timeouts") and config.timeouts:
+            timeout_config = config.timeouts
+            self.connect_timeout = timeout_config.get("connect", 5.0)
+            self.read_timeout = timeout_config.get("read", 20.0)
+            self.write_timeout = timeout_config.get("write", 20.0)
+            self.pool_timeout = timeout_config.get("pool", 5.0)
+        else:
+            # Default timeouts
+            self.connect_timeout = 5.0
+            self.read_timeout = 20.0
+            self.write_timeout = 20.0
+            self.pool_timeout = 5.0
 
     async def _make_request(
         self,
@@ -99,19 +115,40 @@ class WeChatClient:
             params = {}
         params["access_token"] = access_token
 
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json; charset=utf-8"}
 
         for attempt in range(retries):
             try:
-                async with httpx.AsyncClient(timeout=self.config.timeouts) as client:
-                    response = await client.request(
-                        method=method,
-                        url=url,
-                        params=params,
-                        data=data,
-                        json=json_data,
-                        headers=headers if json_data else None,
+                async with httpx.AsyncClient(
+                    timeout=httpx.Timeout(
+                        connect=self.connect_timeout,
+                        read=self.read_timeout,
+                        write=self.write_timeout,
+                        pool=self.pool_timeout,
                     )
+                ) as client:
+                    # If json_data provided, serialize with ensure_ascii=False and send as UTF-8 bytes
+                    if json_data is not None:
+                        import json as _json
+
+                        body = _json.dumps(json_data, ensure_ascii=False).encode(
+                            "utf-8"
+                        )
+                        response = await client.request(
+                            method=method,
+                            url=url,
+                            params=params,
+                            content=body,
+                            headers=headers,
+                        )
+                    else:
+                        response = await client.request(
+                            method=method,
+                            url=url,
+                            params=params,
+                            data=data,
+                            headers=None,
+                        )
                     response.raise_for_status()
 
                     response_data = response.json()
@@ -124,8 +161,12 @@ class WeChatClient:
                     # Check for API errors
                     if not api_response.is_success:
                         # Handle token expiration
-                        invalid_access_token_code = self.system_config.get("api_error_codes", {}).get("invalid_access_token", 40001)
-                        if api_response.errcode == invalid_access_token_code:  # Invalid access token
+                        invalid_access_token_code = self.system_config.get(
+                            "api_error_codes", {}
+                        ).get("invalid_access_token", 40001)
+                        if (
+                            api_response.errcode == invalid_access_token_code
+                        ):  # Invalid access token
                             logger.info("Access token expired, refreshing...")
                             await self.token_manager.refresh_token()
                             access_token = await self.token_manager.get_access_token()
@@ -133,14 +174,34 @@ class WeChatClient:
                             continue  # Retry with fresh token
 
                         # Handle rate limiting
-                        rate_limit_exceeded_code = self.system_config.get("api_error_codes", {}).get("rate_limit_exceeded", 45009)
-                        if api_response.errcode == rate_limit_exceeded_code:  # Rate limit exceeded
+                        rate_limit_exceeded_code = self.system_config.get(
+                            "api_error_codes", {}
+                        ).get("rate_limit_exceeded", 45009)
+                        if (
+                            api_response.errcode == rate_limit_exceeded_code
+                        ):  # Rate limit exceeded
                             wait_time = min(2**attempt, 10)  # Exponential backoff
                             logger.warning(
                                 f"Rate limit exceeded, waiting {wait_time}s..."
                             )
                             await asyncio.sleep(wait_time)
                             continue
+
+                        # Handle invalid media_id error (usually related to show_cover_pic)
+                        invalid_media_id_code = self.system_config.get(
+                            "api_error_codes", {}
+                        ).get("invalid_media_id", 40007)
+                        if (
+                            api_response.errcode == invalid_media_id_code
+                        ):  # Invalid media_id
+                            error_msg = f"Invalid media_id error (code {api_response.errcode}): {api_response.errmsg}. "
+                            error_msg += "Ensure thumb_media_id is a valid permanent image material uploaded via add_material(type=image). "
+                            error_msg += "Do not use uploadimg URL as thumb_media_id."
+                            raise WeChatApiError(
+                                error_msg,
+                                errcode=api_response.errcode,
+                                errmsg=api_response.errmsg,
+                            )
 
                         # Other API errors
                         else:
@@ -155,15 +216,28 @@ class WeChatClient:
 
             except httpx.HTTPStatusError as e:
                 if attempt == retries - 1:  # Last attempt
-                    raise WeChatApiError(f"HTTP error: {e}")
+                    status_code = e.response.status_code if e.response else "unknown"
+                    raise WeChatApiError(
+                        f"HTTP error (status {status_code}): {e}. URL: {url}"
+                    )
 
                 wait_time = min(2**attempt, 5)
                 logger.warning(f"HTTP error, retrying in {wait_time}s: {e}")
                 await asyncio.sleep(wait_time)
 
+            except httpx.ConnectError as e:
+                if attempt == retries - 1:  # Last attempt
+                    raise WeChatApiError(
+                        f"Cannot connect to WeChat API server at {self.base_url}: {e}. Please check your internet connection and API endpoint configuration."
+                    )
+
+                wait_time = min(2**attempt, 5)
+                logger.warning(f"Connection error, retrying in {wait_time}s: {e}")
+                await asyncio.sleep(wait_time)
+
             except httpx.RequestError as e:
                 if attempt == retries - 1:  # Last attempt
-                    raise WeChatApiError(f"Request error: {e}")
+                    raise WeChatApiError(f"Request error to WeChat API at {url}: {e}")
 
                 wait_time = min(2**attempt, 5)
                 logger.warning(f"Request error, retrying in {wait_time}s: {e}")
@@ -386,6 +460,60 @@ class WeChatClient:
             logger.error(f"Error deleting draft: {e}")
             raise
 
+    async def upload_thumb_image(self, image_path: str) -> str:
+        """
+        Upload a cover/thumb image as permanent material to obtain media_id.
+
+        Args:
+            image_path: Path to image file
+
+        Returns:
+            media_id string
+
+        Raises:
+            WeChatApiError: If upload fails
+        """
+        logger.info(f"Uploading cover image (material): {image_path}")
+
+        try:
+            access_token = await self.token_manager.get_access_token()
+            url = f"{self.base_url}/cgi-bin/material/add_material?access_token={access_token}&type=image"
+
+            # Guess content type by extension (basic)
+            import mimetypes
+
+            mime_type, _ = mimetypes.guess_type(image_path)
+            if not mime_type:
+                mime_type = "application/octet-stream"
+
+            with open(image_path, "rb") as image_file:
+                files = {"media": (image_path.split("/")[-1], image_file, mime_type)}
+                async with httpx.AsyncClient(
+                    timeout=httpx.Timeout(
+                        connect=self.connect_timeout,
+                        read=self.read_timeout,
+                        write=self.write_timeout,
+                        pool=self.pool_timeout,
+                    )
+                ) as client:
+                    response = await client.post(url, files=files)
+                    response.raise_for_status()
+
+            response_data = response.json()
+
+            media_id = response_data.get("media_id")
+            if not media_id:
+                raise WeChatApiError(
+                    f"No media_id returned in add_material response: {response_data}"
+                )
+
+            logger.info(f"Cover image uploaded successfully, media_id: {media_id}")
+            return media_id
+
+        except Exception as e:
+            logger.error(f"Error uploading cover image: {e}")
+            raise WeChatApiError(f"Failed to upload cover image: {e}")
+
     async def upload_media_image(self, image_path: str) -> str:
         """
         Upload image to WeChat media API.
@@ -407,7 +535,14 @@ class WeChatClient:
                 access_token = await self.token_manager.get_access_token()
                 url = f"{self.base_url}/cgi-bin/media/uploadimg?access_token={access_token}"
 
-                async with httpx.AsyncClient(timeout=self.config.timeouts) as client:
+                async with httpx.AsyncClient(
+                    timeout=httpx.Timeout(
+                        connect=self.connect_timeout,
+                        read=self.read_timeout,
+                        write=self.write_timeout,
+                        pool=self.pool_timeout,
+                    )
+                ) as client:
                     response = await client.post(url, files=files)
                     response.raise_for_status()
 

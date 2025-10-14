@@ -5,6 +5,32 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2025-10-14 (WeChat Article Publishing Optimization Release)
+
+### 📱 WeChat Article Publishing Revolution
+- **Complete WeChat Compatibility**: Transformed standard HTML to WeChat editor-compatible format using inline styles
+- **Bullet Points Fix**: Resolved WeChat editor bullet points duplication using `!important` declarations and inline styling
+- **Title Duplication Fix**: Eliminated duplicate article title display in WeChat editor through HTML structure optimization
+- **Template Optimization**: Completely rewrote `codebuddy.html` template with WeChat-specific defenses against editor overrides
+
+### 🎨 Advanced HTML Template System
+- **Style Tag Elimination**: Removed all `<style>` tags and converted to inline styles for WeChat compatibility
+- **Precise Layout Control**: Added `margin: 0` to all `<p>` tags for exact spacing control
+- **Text Alignment Fix**: Removed `text-indent` from poem sections for complete left alignment as preferred
+- **WeChat Editor Defense**: Implemented "defensive" HTML design that prevents WeChat editor from interfering with formatting
+
+### 🔧 Configuration & Publishing Enhancements
+- **Directory-Based Publishing**: Enhanced WeChat publishing system to support directory-based workflow
+- **Cover Image Support**: Added automatic cover image upload and media_id handling for WeChat articles
+- **Character vs Byte Validation**: Fixed WeChat API length validation to use character counting (not byte counting) per official documentation
+- **Translation Data Extraction**: Fixed translation text extraction to prevent poet attribution mixing with translation content
+
+### 🛠️ Technical Improvements
+- **Code Formatting**: Applied Black code formatter across entire codebase for consistency
+- **Error Handling**: Enhanced WeChat API error handling with detailed debugging information
+- **Template System**: Improved Jinja2 template rendering with better variable support
+- **LLM Integration**: Optimized translation notes generation for WeChat article formatting
+
 ## [0.2.4] - 2025-10-13 (Code Cleanup & Configuration Optimization Release)
 
 ### 🧹 Major Code Cleanup

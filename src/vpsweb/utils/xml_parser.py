@@ -202,16 +202,17 @@ class WeChatXMLParser:
                 result["errors"].append("Missing digest element")
             else:
                 digest_text = digest_elem.text or ""
-                if len(digest_text.strip()) < 80:
+                digest_chars = len(digest_text.strip())
+                if digest_chars < 80:
                     result["warnings"].append(
                         "Digest too short (expected 80-120 characters)"
                     )
-                elif len(digest_text.strip()) > 120:
+                elif digest_chars > 120:
                     result["warnings"].append(
                         "Digest too long (expected 80-120 characters)"
                     )
 
-                result["structure"]["digest_length"] = len(digest_text.strip())
+                result["structure"]["digest_length"] = digest_chars
 
             # Check notes
             notes_elem = root.find("notes")

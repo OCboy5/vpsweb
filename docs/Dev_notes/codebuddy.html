@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="author" content="施知韵VoxPoeticaStudio">
+    <meta name="description" content="{{ poem_title }} - {{ poet_name }} | 知韵译诗 - 诗歌翻译与解读">
+    <title>【知韵译诗】{{ poem_title }}（{{ poet_name }}）</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 头部样式 */
+        .article-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #1a1a1a;
+            text-align: center;
+            line-height: 1.4;
+            letter-spacing: -0.2px;
+        }
+        
+        .author-info {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+            margin: 30px 0;
+            border: none;
+        }
+        
+        /* 章节标题 */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            color: #2c3e50;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f4f8;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: #3498db;
+        }
+        
+        /* 诗歌文本样式 */
+        .poem-text {
+            font-family: 'STKaiti', 'KaiTi', '楷体', 'SimKai', serif;
+            margin: 16px 0;
+            white-space: pre-wrap;
+            line-height: 2.4;
+            font-size: 17px;
+            color: #2c3e50;
+            text-align: justify;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #e74c3c;
+            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.05);
+        }
+        
+        .translation-text {
+            font-family: 'Georgia', 'Times New Roman', 'Times', serif;
+            margin: 16px 0;
+            white-space: pre-wrap;
+            line-height: 2.1;
+            font-size: 16px;
+            color: #34495e;
+            text-align: justify;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.05);
+        }
+        
+        .translation-text .poem-title,
+        .translation-text .poet-name {
+            font-style: normal;
+        }
+        
+        /* 译注样式 */
+        .notes-section {
+            margin: 16px 0;
+            color: #5a6c7d;
+            font-size: 15px;
+            line-height: 1.7;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .notes-section p {
+            margin: 0 0 16px 0;
+        }
+        
+        .notes-section ul {
+            margin: 0;
+            padding-left: 24px;
+        }
+        
+        .notes-section li {
+            margin-bottom: 16px;
+            position: relative;
+            padding: 12px;
+            background: #ffffff;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .notes-section li::before {
+            content: '';
+            display: none;
+        }
+        
+        .notes-section strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        /* 版权信息 */
+        .copyright {
+            font-size: 13px;
+            color: #95a5a6;
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+            line-height: 1.6;
+        }
+        
+        /* 装饰元素 */
+        .poem-decoration {
+            text-align: center;
+            margin: 25px 0;
+            color: #3498db;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 5px;
+        }
+        
+        .poem-title {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .poet-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+                margin: 10px;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            
+            .article-header {
+                font-size: 20px;
+            }
+            
+            .poem-text, .translation-text {
+                font-size: 16px;
+                padding: 15px;
+                line-height: 2.2;
+                text-shadow: none;
+            }
+            
+            .section-title {
+                font-size: 17px;
+                margin: 24px 0 12px 0;
+            }
+            
+            .notes-section {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .notes-section li {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px 12px;
+            }
+            
+            .article-header {
+                font-size: 18px;
+            }
+            
+            .poem-text, .translation-text {
+                font-size: 15px;
+                padding: 12px;
+                line-height: 1.9;
+            }
+            
+            .notes-section {
+                padding: 12px;
+            }
+        }
+        
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+        }
+        
+        /* 动画效果 */
+        .container {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="article-header">【知韵译诗】{{ poem_title }}（{{ poet_name }}）</h1>
+        <div class="author-info">译者：施知韵VoxPoeticaStudio</div>
+        
+        <hr class="divider">
+
+        <div class="poem-decoration">❦ ❦ ❦</div>
+        <h2 class="section-title">原诗</h2>
+        <div class="poem-text">
+<span class="poem-title">{{ source_title }}</span>
+作者：<span class="poet-name">{{ source_poet }}</span>
+
+{{ poem_text }}</div>
+
+        <div class="poem-decoration">❦ ❦ ❦</div>
+        <h2 class="section-title">译文</h2>
+        <div class="translation-text">
+<span class="poem-title">{{ target_title }}</span>
+<span class="poet-name">{{ target_poet }}</span>
+
+{{ translation_text }}</div>
+
+        <div class="poem-decoration">❦ ❦ ❦</div>
+        <h2 class="section-title">译注</h2>
+        <div class="notes-section">
+            {{ translation_notes_section | safe }}
+        </div>
+
+        <hr class="divider">
+        <div class="copyright">
+            {{ copyright_text }}
+        </div>
+    </div>
+</body>
+</html>

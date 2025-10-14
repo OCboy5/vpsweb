@@ -264,7 +264,9 @@ class TestEditorReview:
 
         result = review.to_dict()
 
-        assert result["editor_suggestions"] == "1. Improve rhythm\n2. Use poetic language"
+        assert (
+            result["editor_suggestions"] == "1. Improve rhythm\n2. Use poetic language"
+        )
         assert result["tokens_used"] == 100
         # suggestions array and overall_assessment are no longer generated
         assert "suggestions" not in result

@@ -193,17 +193,17 @@ class ArticleGenerator:
                 }
                 llm_digest = self.llm_metrics["digest"]
 
-                # Create mock translation notes for dry-run
+                # Create mock translation notes for dry-run with inline styling for bullet points
                 mock_translation_notes = """
                 <div class="translation-notes">
                     <h3>译注解析 (Dry Run Mode)</h3>
                     <p><strong>主题赏析：</strong>这首诗描绘了诗人回归自然田园后，探访荒废故居时的所见所感。通过对昔日居民遗迹的观察，表达了人生无常、世事变迁的主题。</p>
 
                     <p><strong>翻译难点：</strong></p>
-                    <ul>
-                        <li><em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</li>
-                        <li><em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</li>
-                        <li><em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</li>
+                    <ul style="padding-left: 25px !important; margin: 10px 0 !important;">
+                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>久去山澤遊</em> - "Long gone from hills and marshes"：处理时间跨度和空间转换</li>
+                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>浪莽林野娛</em> - "delight in roaming wilds of wood and field"：传达自然之乐</li>
+                        <li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;"><em>井竈有遺處</em> - "Well and stove leave traces"：意象的具体化处理</li>
                     </ul>
 
                     <p><strong>文化内涵：</strong>诗中体现了中国传统文人"物是人非"的感慨，以及对生命轮回、归于虚无的哲学思考。翻译时需保持这种深沉的文化底蕴。</p>
@@ -496,9 +496,8 @@ class ArticleGenerator:
             if target_lang in ["english", "en", "英文"]:
                 # Use extracted target language title and poet (for English format)
                 target_title = target_lang_title if target_lang_title else poem_title
-                target_poet = (
-                    target_lang_poet if target_lang_poet else f"By {poet_name}"
-                )
+                # Use extracted target_lang_poet directly if it exists, otherwise use original poet name
+                target_poet = target_lang_poet if target_lang_poet else poet_name
             else:
                 # For other target languages, use the extracted title and original poet name
                 target_title = target_lang_title if target_lang_title else poem_title
@@ -581,8 +580,17 @@ class ArticleGenerator:
                 continue
 
             # Extract target language poet name from "By " line (common in English translations)
-            if line.startswith("By "):
+            # But only if it's the second line after the title, not a translation line
+            if line.startswith("By ") and i == 1:
                 target_lang_poet = line
+                continue
+
+            # Skip translation lines that happen to start with "By " but are not poet attribution
+            if (
+                line.startswith("By ") and len(line.split()) > 3
+            ):  # Likely "By error I fell..." type of line
+                # This is a translation line, not poet attribution, so treat it as translation content
+                translation_lines.append(line)
                 continue
 
             # Skip empty lines
@@ -612,10 +620,12 @@ class ArticleGenerator:
             # Clean and limit length
             digest_text = re.sub(r"\s+", " ", digest_text)
 
-            if len(digest_text) > 110:
-                digest_text = digest_text[:107] + "..."
+            # Ensure digest fits within 115 characters (with safety buffer for 120 limit)
+            if len(digest_text) > 115:
+                # Truncate to fit within 115 characters
+                digest_text = digest_text[:112] + "..."
 
-            return digest_text[:120]  # Ensure max length
+            return digest_text
 
         except Exception as e:
             logger.warning(f"Error generating digest: {e}")
@@ -850,11 +860,15 @@ class ArticleGenerator:
                     html_parts.append(f"<p><strong>摘要：</strong>{clean_digest}</p>")
 
                 if notes:
-                    html_parts.append("<ul>")
+                    html_parts.append(
+                        '<ul style="padding-left: 25px !important; margin: 10px 0 !important;">'
+                    )
                     for note in notes:
                         # Unescape HTML entities in notes
                         clean_note = html.unescape(note)
-                        html_parts.append(f"<li>{clean_note}</li>")
+                        html_parts.append(
+                            f'<li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;">{clean_note}</li>'
+                        )
                     html_parts.append("</ul>")
 
                 return (
@@ -904,22 +918,26 @@ class ArticleGenerator:
                         )
 
                     if notes:
-                        html_parts.append("<ul>")
+                        html_parts.append(
+                            '<ul style="padding-left: 25px !important; margin: 10px 0 !important;">'
+                        )
                         for note in notes:
                             # Unescape HTML entities in notes
                             clean_note = html.unescape(note)
-                            html_parts.append(f"<li>{clean_note}</li>")
+                            html_parts.append(
+                                f'<li style="margin-bottom: 8px !important; line-height: 1.6 !important; color: #444444 !important; font-size: 15px !important;">{clean_note}</li>'
+                            )
                         html_parts.append("</ul>")
 
                     if html_parts:
-                        # Ensure digest meets length requirements (80-120 characters)
+                        # Ensure digest meets length requirements (80-115 characters with safety buffer)
                         if len(digest) < 80:
                             # Pad with a concise suffix
                             suffix = " 展现诗歌翻译的艺术与哲学深度。"
                             digest = digest + suffix
-                        elif len(digest) > 120:
-                            # Truncate to 120 characters
-                            digest = digest[:117] + "..."
+                        elif len(digest) > 115:
+                            # Truncate to fit within 115 characters (with safety buffer for 120 limit)
+                            digest = digest[:112] + "..."
 
                         # Store metrics for display in fallback path too
                         metrics = {

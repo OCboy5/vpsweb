@@ -26,7 +26,7 @@ retry:
 # Article Generation Settings
 article_generation:
   include_translation_notes: true
-  copyright_text: "本译文与导读由施知韵(VoxPoeticaStudio)原创制作。未经授权，不得转载。若需引用，请注明出处。"
+  copyright_text: "本译文与导读由知韵(VoxPoetica)原创制作。未经授权，不得转载。若需引用，请注明出处。"
   #article_template: "default"  # References config/html_templates/wechat_articles/default.html
   article_template: "codebuddy"  # References config/html_templates/wechat_articles/codebuddy.html
 
@@ -59,7 +59,7 @@ output:
 # Content Settings
 content:
   # Default author name
-  default_author: "施知韵_VoxPoeticaStudio"
+  default_author: "知韵VoxPoetica"
 
   # Title format
   title_format: "【知韵译诗】{poem_title}（{poet_name}）"
@@ -74,6 +74,7 @@ content:
 api_error_codes:
   invalid_access_token: 40001
   rate_limit_exceeded: 45009
+  invalid_media_id: 40007
 
 # Development Settings
 development:

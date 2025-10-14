@@ -6,11 +6,9 @@ including article generation, publishing, and API management.
 """
 
 from .client import WeChatClient
-from .article_generator import ArticleGenerator
 from .token_manager import TokenManager
 
 __all__ = [
     "WeChatClient",
-    "ArticleGenerator",
     "TokenManager",
 ]
