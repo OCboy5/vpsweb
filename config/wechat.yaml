@@ -26,7 +26,7 @@ retry:
 # Article Generation Settings
 article_generation:
   include_translation_notes: true
-  copyright_text: "本译文与导读由知韵(VoxPoetica)原创制作。未经授权，不得转载。若需引用，请注明出处。"
+  copyright_text: "本译文与译注完全由知韵(VoxPoetica)AI工具生成制作。未经授权，不得转载。若需引用，请注明出处。"
   #article_template: "default"  # References config/html_templates/wechat_articles/default.html
   article_template: "codebuddy"  # References config/html_templates/wechat_articles/codebuddy.html
 
