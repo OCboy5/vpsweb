@@ -13,11 +13,7 @@
             <div style="font-family: 'KaiTi', 'STKaiti', serif; font-size: 17px; line-height: 1.0; color: #2c3e50;">
                 <p style="margin: 0 0 10px 0; text-indent: 0; font-weight: bold;">{{ source_title }}</p>
                 <p style="margin: 0 0 15px 0; text-indent: 0; font-weight: bold;">作者：{{ source_poet }}</p>
-                {% for line in poem_text.split('\n') %}
-                    {% if line.strip() %}
-                        <p style="margin: 0 0 0px 0;">{{ line }}</p>
-                    {% endif %}
-                {% endfor %}
+                {% for line in poem_text.split('\n') -%}{% if line.strip() %}<p style="margin: 0 0 0px 0;">{{ line }}</p>{% endif -%}{% endfor %}
             </div>
         </div>
     </div>
@@ -31,11 +27,7 @@
                 {% if target_poet %}
                     <p style="margin: 0 0 15px 0; font-weight: bold;">{{ target_poet }}</p>
                 {% endif %}
-                {% for line in translation_text.split('\n') %}
-                    {% if line.strip() %}
-                        <p style="margin: 0 0 0px 0;">{{ line }}</p>
-                    {% endif %}
-                {% endfor %}
+                {% for line in translation_text.split('\n') -%}{% if line.strip() %}<p style="margin: 0 0 0px 0;">{{ line }}</p>{% endif -%}{% endfor %}
             </div>
         </div>
     </div>
@@ -43,7 +35,7 @@
     <!-- 译注 Section -->
     <div>
         <h2 style="font-size: 18px; font-weight: 600; margin: 25px 0 15px; color: #1a1a1a; border-bottom: 2px solid #e8f4f8; padding-bottom: 8px;">译注</h2>
-        <div style="margin: 20px 0; line-height: 1.7; font-size: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #e9ecef;">
+        <div style="margin: 20px 0; line-height: 1.6; font-size: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #e9ecef;">
             {{ translation_notes_section | safe }}
         </div>
     </div>
