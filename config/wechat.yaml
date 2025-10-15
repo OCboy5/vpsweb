@@ -26,9 +26,13 @@ retry:
 # Article Generation Settings
 article_generation:
   include_translation_notes: true
-  copyright_text: "本译文与译注完全由知韵(VoxPoetica)AI工具生成制作。未经授权，不得转载。若需引用，请注明出处。"
+  copyright_text: "【著作权声明】\n本译文与译注完全由知韵(VoxPoetica)AI工具生成制作，仅供学习交流使用。原作品版权归原作者所有，如有侵权请联系删除。翻译内容未经授权，不得转载、不得用于商业用途。若需引用，请注明出处。"
   #article_template: "default"  # References config/html_templates/wechat_articles/default.html
   article_template: "codebuddy"  # References config/html_templates/wechat_articles/codebuddy.html
+
+  # Cover image configuration
+  default_cover_image_path: "config/html_templates/cover_image_big.jpg"  # Default cover image path (relative to project root)
+  default_local_cover_image_name: "cover_image_big.jpg"  # Default local cover image filename in wechat_articles/slug directory
 
   # LLM configuration for translation notes synthesis
   # Note: LLM model configuration is now in config/models.yaml under wechat_translation_notes

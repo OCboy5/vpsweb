@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 import logging
 import asyncio
+import shutil
 
 from jinja2 import Environment, FileSystemLoader, Template
 
@@ -157,6 +158,9 @@ class ArticleGenerator:
             output_dir = Path(output_dir)
             output_dir.mkdir(parents=True, exist_ok=True)
 
+            # Handle cover image fallback logic
+            cover_image_path = self._handle_cover_image_fallback(output_dir)
+
             # Pre-generate translation notes to get the LLM digest
             llm_digest = None
             if self.config.include_translation_notes and not dry_run:
@@ -213,7 +217,10 @@ class ArticleGenerator:
 
             # Generate HTML content (pass cached translation notes to avoid duplicate LLM calls)
             html_content = self._generate_html_content(
-                translation_data, metadata, self._cached_translation_notes
+                translation_data,
+                metadata,
+                self._cached_translation_notes,
+                cover_image_path,
             )
 
             # Determine final digest (prioritize LLM-generated)
@@ -234,6 +241,11 @@ class ArticleGenerator:
                 translation_workflow_id=metadata.workflow_id,
                 translation_json_path=translation_json_path,
             )
+
+            # Store cover image information for WeChat API usage
+            if cover_image_path:
+                article.cover_image_path = str(Path(output_dir) / cover_image_path)
+                article.show_cover_pic = True  # Enable cover picture display
 
             # Save files
             html_path = output_dir / "article.html"
@@ -256,6 +268,7 @@ class ArticleGenerator:
                 "source_lang": metadata.source_lang,
                 "target_lang": metadata.target_lang,
                 "workflow_id": metadata.workflow_id,
+                "cover_image": cover_image_path,  # Add cover image information
             }
 
             with open(metadata_path, "w", encoding="utf-8") as f:
@@ -295,6 +308,54 @@ class ArticleGenerator:
             raise ArticleGeneratorError(
                 f"Error loading translation JSON {json_path}: {e}"
             )
+
+    def _handle_cover_image_fallback(self, output_dir: Path) -> Optional[str]:
+        """
+        Handle cover image fallback logic.
+
+        1. First check if local cover image exists in the output directory (using configured filename)
+        2. If not, use the default cover image from configured path
+        3. Copy the appropriate image to the output directory using the configured local filename
+
+        Args:
+            output_dir: Path to the output directory for the article
+
+        Returns:
+            Path to the cover image relative to the output directory, or None if no image available
+        """
+        try:
+            # Get local cover image filename from configuration
+            local_cover_filename = self.config.default_local_cover_image_name
+
+            # Local cover image path in the article directory
+            local_cover_path = output_dir / local_cover_filename
+
+            # Default cover image path from configuration
+            project_root = Path(__file__).parent.parent.parent.parent
+            default_cover_path = project_root / self.config.default_cover_image_path
+
+            target_cover_path = output_dir / local_cover_filename
+
+            if local_cover_path.exists():
+                # Local cover image exists, use it
+                logger.info(f"✅ Using local cover image: {local_cover_path}")
+                return local_cover_filename
+            elif default_cover_path.exists():
+                # Fallback to default cover image
+                logger.info(f"📸 Using default cover image: {default_cover_path}")
+                shutil.copy2(default_cover_path, target_cover_path)
+                logger.info(f"✅ Default cover image copied to: {target_cover_path}")
+                return local_cover_filename
+            else:
+                # No cover image available
+                logger.warning(
+                    f"⚠️ No cover image available (neither local nor default found at {default_cover_path})"
+                )
+                return None
+
+        except Exception as e:
+            logger.error(f"❌ Error handling cover image fallback: {e}")
+            return None
 
     def _extract_metadata(
         self, translation_data: Dict[str, Any], json_path: str
@@ -462,6 +523,7 @@ class ArticleGenerator:
         translation_data: Dict[str, Any],
         metadata: WeChatArticleMetadata,
         cached_translation_notes: Optional[str] = None,
+        cover_image_path: Optional[str] = None,
     ) -> str:
         """Generate WeChat-compatible HTML content."""
         try:

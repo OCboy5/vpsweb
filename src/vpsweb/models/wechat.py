@@ -133,6 +133,9 @@ class WeChatArticle(BaseModel):
         default=False,
         description="Whether to show cover picture; requires thumb_media_id when True",
     )
+    cover_image_path: Optional[str] = Field(
+        default=None, description="Local path to cover image for uploading to WeChat"
+    )
     need_open_comment: bool = Field(
         default=False, description="Whether to enable comments"
     )
@@ -449,6 +452,14 @@ class ArticleGenerationConfig(BaseModel):
     article_template: str = Field(
         default="default", description="Article template to use"
     )
+    default_cover_image_path: str = Field(
+        default="config/html_templates/cover_image_big.jpg",
+        description="Default cover image path (relative to project root)",
+    )
+    default_local_cover_image_name: str = Field(
+        default="cover_image_big.jpg",
+        description="Default local cover image filename in wechat_articles/slug directory",
+    )
     prompt_template: str = Field(
         default="wechat_article_notes_reasoning",
         description="LLM prompt template for translation notes synthesis (legacy, use llm.model_type instead)",
@@ -466,5 +477,7 @@ class ArticleGenerationConfig(BaseModel):
             "include_translation_notes": self.include_translation_notes,
             "copyright_text": self.copyright_text,
             "article_template": self.article_template,
+            "default_cover_image_path": self.default_cover_image_path,
+            "default_local_cover_image_name": self.default_local_cover_image_name,
             "prompt_template": self.prompt_template,
         }

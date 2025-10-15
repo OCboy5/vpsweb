@@ -663,7 +663,7 @@ def generate_article(
 
         # Next steps suggestion
         click.echo("\n🎯 Next steps:")
-        click.echo(f"   Publish with: vpsweb publish-article -a {result.metadata_path}")
+        click.echo(f"   Publish with: vpsweb publish-article -d {result.output_directory}")
 
     except InputError as e:
         click.echo(f"❌ Input error: {e}", err=True)
@@ -1040,6 +1040,17 @@ async def _publish_article_async(directory, config, verbose):
             translation_json_path=article_metadata.get("source_json_path", ""),
         )
 
+        # Add cover image information if available
+        cover_image_name = article_metadata.get("cover_image")
+        if cover_image_name:
+            cover_image_path = directory / cover_image_name
+            if cover_image_path.exists():
+                wechat_article.cover_image_path = str(cover_image_path)
+                wechat_article.show_cover_pic = True
+                click.echo(f"📸 Cover image found: {cover_image_name}")
+            else:
+                click.echo(f"⚠️ Cover image specified but not found: {cover_image_path}")
+
         # Initialize WeChat client
         from .services.wechat import WeChatClient
         from .models.wechat import WeChatConfig
@@ -1055,20 +1066,17 @@ async def _publish_article_async(directory, config, verbose):
             raise WeChatError("WeChat API connection test failed")
 
         # Handle cover image upload if present
-        cover_images = validation_result["files"].get("cover_images")
-        if cover_images and verbose:
-            click.echo(f"📸 Found {len(cover_images)} cover image(s)")
-
-        # Upload preferred cover image if available
         thumb_media_id = None
         show_cover_pic = False
 
-        if cover_images:
-            preferred_cover = validation_result["files"]["preferred_cover"]
+        # Priority 1: Use cover image from metadata (configured path)
+        if wechat_article.cover_image_path and wechat_article.show_cover_pic:
             try:
-                click.echo(f"📸 Uploading cover image: {preferred_cover.name}")
+                click.echo(
+                    f"📸 Uploading cover image from metadata: {Path(wechat_article.cover_image_path).name}"
+                )
                 thumb_media_id = await wechat_client.upload_thumb_image(
-                    str(preferred_cover)
+                    wechat_article.cover_image_path
                 )
                 show_cover_pic = True
                 click.echo(
@@ -1080,12 +1088,45 @@ async def _publish_article_async(directory, config, verbose):
                 wechat_article.show_cover_pic = show_cover_pic
 
             except Exception as e:
-                click.echo(f"⚠️  Warning: Failed to upload cover image: {e}")
-                click.echo("📝 Proceeding without cover image...")
-                if verbose:
-                    import traceback
+                click.echo(
+                    f"⚠️  Warning: Failed to upload cover image from metadata: {e}"
+                )
 
-                    traceback.print_exc()
+        # Priority 2: Fallback to file detection in directory (legacy method)
+        elif not wechat_article.cover_image_path:
+            cover_images = validation_result["files"].get("cover_images")
+            if cover_images and verbose:
+                click.echo(
+                    f"📸 Found {len(cover_images)} cover image(s) via file detection"
+                )
+
+            if cover_images:
+                preferred_cover = validation_result["files"]["preferred_cover"]
+                try:
+                    click.echo(
+                        f"📸 Uploading cover image via file detection: {preferred_cover.name}"
+                    )
+                    thumb_media_id = await wechat_client.upload_thumb_image(
+                        str(preferred_cover)
+                    )
+                    show_cover_pic = True
+                    click.echo(
+                        f"✅ Cover image uploaded successfully (Media ID: {thumb_media_id})"
+                    )
+
+                    # Update WeChat article with cover image info
+                    wechat_article.thumb_media_id = thumb_media_id
+                    wechat_article.show_cover_pic = show_cover_pic
+
+                except Exception as e:
+                    click.echo(f"⚠️  Warning: Failed to upload cover image: {e}")
+        else:
+            click.echo("📝 No cover image configured")
+            click.echo("📝 Proceeding without cover image...")
+            if verbose:
+                import traceback
+
+                traceback.print_exc()
 
         # Create draft
         click.echo("📤 Creating draft in WeChat Official Account...")

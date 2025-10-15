@@ -50,6 +50,8 @@ claude "Create the translation workflow page with real-time progress display as 
 
 
 【著作权声明】
+本译文与译注完全由知韵(VoxPoetica)AI工具生成制作,仅供学习交流使用。原作品版权归原作者所有，如有侵权请联系删除。翻译内容未经授权，不得转载,不得用于商业用途。若需引用，请注明出处。
+
 本翻译由AI工具vpsweb生成，仅供学习交流使用。
 原作品版权归原作者所有，如有侵权请联系删除。
 翻译内容未经授权，不得用于商业用途。

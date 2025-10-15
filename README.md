@@ -179,6 +179,11 @@ vpsweb generate-article -j translation.json -m reasoning --verbose
 # Generate with custom output directory
 vpsweb generate-article -j translation.json -o my_articles/
 
+# Cover Image Handling:
+# - If cover_image_big.jpg exists in the output directory, it will be used
+# - Otherwise, the default cover_image_big.jpg from config/html_templates/ will be copied
+# - Cover image is automatically included at the top of the WeChat article
+
 # Output will show detailed progress with metrics:
 # 🚀 Generating WeChat article from translation JSON...
 # ✅ Article generated successfully!
