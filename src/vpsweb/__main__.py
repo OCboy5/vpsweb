@@ -317,7 +317,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.2.6", prog_name="vpsweb")
+@click.version_option(version="0.2.7", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -663,7 +663,9 @@ def generate_article(
 
         # Next steps suggestion
         click.echo("\n🎯 Next steps:")
-        click.echo(f"   Publish with: vpsweb publish-article -d {result.output_directory}")
+        click.echo(
+            f"   Publish with: vpsweb publish-article -d {result.output_directory}"
+        )
 
     except InputError as e:
         click.echo(f"❌ Input error: {e}", err=True)

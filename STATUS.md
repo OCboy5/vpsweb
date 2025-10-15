@@ -1,14 +1,24 @@
-# Vox Poetica Studio Web - v0.2.6 Status
+# Vox Poetica Studio Web - v0.2.7 Status
 
-**Date**: 2025-10-14
-**Version**: 0.2.6 (Final WeChat Display Optimization Release)
-**Status**: ✅ **PRODUCTION READY WITH PERFECT WECHAT DISPLAY**
+**Date**: 2025-10-15
+**Version**: 0.2.7 (WeChat Copyright & CLI Enhancement Release)
+**Status**: ✅ **PRODUCTION READY WITH ENHANCED COPYRIGHT AND CLI UX**
 
 ## 🎯 Executive Summary
 
-Vox Poetica Studio Web (vpsweb) has evolved through multiple iterations to v0.2.6, achieving **FINAL WECHAT DISPLAY OPTIMIZATION** capabilities. This final release represents the culmination of intensive WeChat display engineering work, delivering a system that generates HTML identical to proven best practice formats. The landmark achievement includes perfect HTML structure matching, revolutionary bullet points handling using `<p>` tags instead of `<ul>/<li>` elements, optimized line spacing with precise control (poems: 1.0, translations: 1.1, notes: 1.5), compact layout design with zero h2 margins, and advanced Jinja2 template engineering for exact output generation. The system now provides bulletproof WeChat compatibility with defensive HTML design, complete inline styling conversion, and future-proof architecture that prevents WeChat editor changes from breaking display, establishing itself as the definitive solution for WeChat article publishing with unprecedented visual perfection.
+Vox Poetica Studio Web (vpsweb) has evolved to v0.2.7, achieving **WECHAT COPYRIGHT & CLI ENHANCEMENT** capabilities. This release focuses on enhancing legal protection and user experience through comprehensive copyright statements and improved CLI command accuracy. The key improvements include adding comprehensive legal text with 【著作权声明】 titles, changing copyright alignment from center to left for better visual consistency, fixing CLI publish command suggestions from incorrect `-a` flag to proper `-d` flag with directory paths, and updating WeChat HTML templates for consistent visual design. These enhancements provide better legal protection for content creators, eliminate user confusion in the publishing workflow, and maintain professional article appearance with consistent text alignment throughout WeChat articles.
 
 ## ✅ Completed Features
+
+### 🎨 WeChat Copyright & CLI Enhancement (v0.2.7)
+- **Enhanced Copyright Statements**: Comprehensive legal text including 【著作权声明】 with proper attribution and usage restrictions
+- **Copyright Alignment Fix**: Changed copyright statement from center-aligned to left-aligned for better visual consistency
+- **Fixed CLI Publish Commands**: Corrected CLI publish command suggestions from incorrect `-a` flag to proper `-d` flag with directory path
+- **WeChat Template Optimization**: Updated `codebuddy.html` template with `text-align: left` for copyright section
+- **Legal Protection**: Explicit commercial use restrictions and proper citation requirements
+- **Educational Use Clarification**: Clear statement that translations are for educational and交流 purposes only
+- **Visual Consistency**: Copyright statement now aligns with other article content for professional appearance
+- **User Experience Improvement**: Eliminated confusion between generation and publishing workflow
 
 ### 🎨 Final WeChat Display Optimization (v0.2.6)
 - **Perfect HTML Structure Match**: Template generates HTML identical to proven best practice reference document

@@ -5,6 +5,41 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2025-10-15 (WeChat Copyright & CLI Enhancement Release)
+
+### 🎨 WeChat Article UI Improvements
+- **Enhanced Copyright Statement**: Comprehensive legal text including 【著作权声明】 with proper attribution and usage restrictions
+- **Copyright Alignment Fix**: Changed copyright statement from center-aligned to left-aligned for better visual consistency
+- **Legal Protection**: Added explicit restrictions for commercial use and proper citation requirements
+- **Educational Use Only**: Clear statement that translations are for educational and交流 purposes only
+
+### 🔧 CLI Enhancement Fixes
+- **Fixed Publish Command Suggestion**: Corrected CLI publish command from incorrect `-a` flag to proper `-d` flag with directory path
+- **Command Line Help Update**: Users now get the correct `vpsweb publish-article -d directory/` command after article generation
+- **Improved User Experience**: Eliminated confusion with mismatched command parameters between generation and publishing workflow
+
+### 📱 WeChat Template Optimization
+- **HTML Template Alignment**: Updated `codebuddy.html` template with `text-align: left` for copyright section
+- **Consistent Visual Design**: Copyright statement now aligns with other article content for professional appearance
+- **WeChat Editor Compatibility**: Maintains compatibility while improving visual consistency
+
+### 🛠️ Technical Updates
+- **Configuration Enhancement**: Updated `config/wechat.yaml` with comprehensive multi-line copyright statement
+- **Template Consistency**: Both default and codebuddy templates maintain consistent alignment patterns
+- **Documentation Updates**: Enhanced documentation with proper copyright and usage guidelines
+
+### ✅ Quality Improvements
+- **Legal Compliance**: Enhanced copyright statements provide better legal protection and clarity
+- **User Guidance**: Clear instructions on proper citation and usage restrictions
+- **Visual Consistency**: Improved article layout with consistent text alignment
+- **Command Accuracy**: Fixed CLI command suggestions to prevent user confusion
+
+### 📋 Release Highlights
+- **Better Legal Protection**: Comprehensive copyright statements with clear usage terms
+- **Improved CLI UX**: Correct publish command suggestions eliminate user confusion
+- **Professional Layout**: Left-aligned copyright for consistent article appearance
+- **Educational Focus**: Clear statements about educational/交流 use purpose
+
 ## [0.2.6] - 2025-10-14 (Final WeChat Display Optimization Release)
 
 ### 🎨 Perfect WeChat Display Implementation

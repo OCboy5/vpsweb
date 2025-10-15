@@ -5,23 +5,23 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.2.6-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.6)
+[![Version](https://img.shields.io/badge/Version-0.2.7-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.7)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
 **VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
 
-## 🎯 Current Status: **v0.2.6 - FINAL WECHAT DISPLAY OPTIMIZATION RELEASE**
+## 🎯 Current Status: **v0.2.7 - WECHAT COPYRIGHT & CLI ENHANCEMENT RELEASE**
 
-🎨 **Perfect WeChat Display Implementation**: Template generates HTML identical to proven best practice format
-🔫 **Bullet Points Revolution**: Fixed WeChat duplication using `<p>` tags with manual bullets instead of `<ul>/<li>`
-📐 **Optimized Line Spacing**: Precise control - poems (1.0), translations (1.1), notes (1.5)
-📦 **Compact Layout Design**: Removed h2 title margins for space-efficient display
-🔧 **Defensive HTML Design**: WeChat-specific CSS protections against editor overrides
-📱 **Complete Inline Styles**: Full CSS-to-inline conversion for WeChat compatibility
-🏗️ **Template Engineering**: Advanced Jinja2 control for exact HTML output matching
-📊 **Golden Standard Reference**: Best practice document ensures perfect display consistency
-🛠️ **Enhanced Workflow**: Bulletproof release process with detailed checklists
+🎨 **Enhanced Copyright Statements**: Comprehensive legal text with 【著作权声明】 and usage restrictions
+⬅️ **Left-Aligned Copyright**: Improved visual consistency with left-aligned copyright layout
+🔧 **Fixed CLI Commands**: Corrected publish command suggestions from `-a` to `-d` flag
+📱 **WeChat Template Optimization**: Updated HTML templates for consistent visual design
+⚖️ **Legal Protection**: Explicit commercial use restrictions and citation requirements
+🎓 **Educational Focus**: Clear statements about educational and交流 use purpose
+🛠️ **Better CLI UX**: Eliminated confusion between generation and publishing workflow
+📋 **Professional Layout**: Consistent text alignment throughout WeChat articles
+🔍 **Enhanced Documentation**: Updated copyright guidelines and usage instructions
 📊 **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown
 💰 **Accurate Cost Tracking**: Corrected pricing calculation per 1K tokens across workflows
 🧠 **LLM-Generated Digest Integration**: High-quality AI digests in CLI and metadata
