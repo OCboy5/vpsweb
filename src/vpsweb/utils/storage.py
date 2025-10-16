@@ -10,15 +10,12 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Dict
 from datetime import datetime
-import uuid
 
 from ..models.translation import TranslationOutput
 from .markdown_export import MarkdownExporter
 from .filename_utils import (
     extract_poet_and_title,
     generate_translation_filename,
-    generate_legacy_filename,
-    sanitize_filename_component,
 )
 
 logger = logging.getLogger(__name__)

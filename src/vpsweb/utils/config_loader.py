@@ -17,14 +17,11 @@ from ..models.config import (
     MainConfig,
     ProvidersConfig,
     CompleteConfig,
-    ModelProviderConfig,
     WorkflowMode,
 )
 from ..models.wechat import (
     WeChatConfig,
     ArticleGenerationConfig,
-    WeChatArticleMetadata,
-    ArticleGenerationResult,
 )
 
 logger = logging.getLogger(__name__)

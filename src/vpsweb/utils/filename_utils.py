@@ -7,7 +7,6 @@ for translation outputs, including sanitization and metadata extraction.
 
 import re
 from typing import Optional, Dict, Any
-from pathlib import Path
 
 
 def sanitize_filename_component(component: str, max_length: int = 30) -> str:

@@ -12,8 +12,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from ..models.config import LoggingConfig
-
 
 class LoggerSetupError(Exception):
     """Raised when logging setup fails."""

@@ -31,7 +31,6 @@ from .utils.config_loader import (
 )
 from .utils.storage import StorageHandler
 from .utils.article_generator import ArticleGenerator
-from .utils.translation_notes_synthesizer import TranslationNotesSynthesizer
 from .core.workflow import TranslationWorkflow
 from .models.translation import TranslationInput
 from .models.config import LogLevel, WorkflowMode
@@ -542,7 +541,6 @@ def generate_article(
         complete_config = load_config()
 
         # Initialize article generator
-        from .utils.config_loader import load_article_generation_config
 
         # Get article generation config from complete config, fallback to raw YAML
         article_gen_config = wechat_config.get("article_generation")
