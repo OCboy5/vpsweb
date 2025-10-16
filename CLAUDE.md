@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
-**Current Status**: v0.2.5 - WeChat Article Publishing Optimization Release
+**Current Status**: v0.2.8 - Professional Translation Platform Release
 
 ## Core Development Principles
 
-### 1. Strategy-Todo-Code Process
+### 1. Strategy-Todo-Code-Review Process
 
-For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this three-step process with explicit approval required between phases:
+For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this four-step process with explicit approval required between phases:
 
 #### **STRATEGY Phase** - Analysis and Planning
 - Analyze the current codebase structure and existing implementation
@@ -40,6 +40,26 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - Ensure CI/CD compliance (Black formatting, tests passing)
 - **CRITICAL**: Update task status and get confirmation on major milestones
 
+#### **REVIEW Phase** - Analysis and Continuous Improvement (Progressive Implementation)
+- **REQUIREMENT**: Optional but recommended for significant non-trivial decisions; requires explicit decision to trigger
+- **Purpose**: Systematic reflection on Strategy-Todo-Code effectiveness and knowledge capture for future improvement
+- **Timing**: Conducted after completing implementation, when outcomes and process effectiveness can be evaluated
+- **Scope**: Analyze decision quality, process effectiveness, success factors, and lessons learned
+
+**Core Review Activities:**
+- **Process Effectiveness Analysis**: How well did each phase (Strategy/Todo/Code) work?
+- **Decision Quality Assessment**: Were strategic choices sound? What assumptions proved correct/incorrect?
+- **Success Factor Identification**: What enabled positive outcomes? What caused unexpected problems?
+- **Lessons Learned Extraction**: What would we do differently? What insights apply to future decisions?
+- **Knowledge Integration**: How should these insights change our approach to similar decisions?
+
+**Progressive Implementation Approach:**
+- **Phase 1 (Months 1-6)**: Lightweight reviews for major architectural decisions only
+- **Phase 2 (Months 6-12)**: Structured reviews for important feature implementations
+- **Phase 3 (12+ months)**: Comprehensive reviews for most non-trivial decisions
+
+**CRITICAL**: Reviews must create actionable insights that inform future Strategy-Todo-Code cycles
+
 ### 2. Decision Classification
 
 **Trivial Decisions** (Direct Implementation):
@@ -48,7 +68,7 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - Single-file refactorings that don't affect interfaces
 - Configuration value updates
 
-**Non-Trivial Decisions** (Strategy-Todo-Code Required):
+**Non-Trivial Decisions** (Strategy-Todo-Code-Review Required):
 - Adding new workflow steps or modes
 - Changing API interfaces or data models
 - Modifying the core workflow orchestration
@@ -56,6 +76,8 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - Changes affecting multiple configuration files
 - Architectural refactoring
 - New feature implementations
+
+**Note**: The REVIEW phase is optional but recommended for significant non-trivial decisions. See **[REVIEW_SYSTEM.md](REVIEW_SYSTEM.md)** for complete guidance on review processes, templates, and quality filters.
 
 ## Project Structure Knowledge
 
@@ -110,7 +132,7 @@ poetry install --with dev
 poetry shell
 
 # Set PYTHONPATH for src layout (required globally)
-export PYTHONPATH="/path/to/vpsweb/src:$PYTHONPATH"
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
 # Add this to your ~/.zshrc for permanent setup
 ```
 
@@ -131,6 +153,11 @@ python -m black --check src/ tests/            # Check formatting
 python -m flake8 src/ --max-line-length=88     # Lint code
 python -m mypy src/ --ignore-missing-imports   # Type checking
 python -m pytest tests/ -v                     # Run tests
+
+# Pre-commit validation (MANDATORY before releases)
+python -m black --check src/ tests/            # Must pass
+python -m pytest tests/                        # Must pass
+python -c "from src.vpsweb.models.config import ModelProviderConfig"  # Verify imports
 ```
 
 ### Running the Application
@@ -146,8 +173,6 @@ vpsweb translate -i poem.txt -s English -t Chinese -w non_reasoning --verbose
 # Dry run (validation only)
 vpsweb translate -i poem.txt -s English -t Chinese --dry-run
 
-# WeChat article generation
-vpsweb generate-article -j translation_output.json
 
 # Python API usage
 python -c "
@@ -167,10 +192,10 @@ print(result.revised_translation.revised_translation)
 ### Version Management
 ```bash
 # Create local backup before changes
-./save-version.sh 0.2.2
+./save-version.sh X.Y.Z
 
 # Push official release to GitHub
-./push-version.sh 0.2.2 "Added new features and bug fixes"
+./push-version.sh X.Y.Z "Release notes"
 
 # List local backup versions
 git tag -l "*local*"
@@ -206,27 +231,12 @@ git checkout v0.2.0-local-2025-10-05
   - Metadata extraction from poem text or provided metadata
   - Filename sanitization for cross-platform compatibility
 
-### 3. Version Management
-- Follow the workflow in `./VERSION_WORKFLOW.md` strictly
-- Create local backups before major changes: `./save-version.sh`
-- Push official releases with: `./push-version.sh`
-- Ensure version consistency across ALL files before release
+### 3. Version Management & Quality Assurance
+Version management and quality assurance procedures are detailed in:
+- **VERSION_WORKFLOW.md**: Complete release workflow and checklists
+- **Code Quality and Testing section**: Pre-commit validation requirements
 
-### 4. Quality Assurance
-Before any release or major commit:
-```bash
-# Check code formatting
-python -m black --check src/ tests/
-
-# Run tests
-python -m pytest tests/
-
-# Verify imports work
-python -c "from src.vpsweb.models.config import ModelProviderConfig"
-
-# Check version consistency
-grep -r "0\.2\.0" src/ pyproject.toml
-```
+All releases MUST follow VERSION_WORKFLOW.md strictly.
 
 ## LLM Provider Integration
 
@@ -415,80 +425,21 @@ response = await provider.generate(
 
 ## Release Management Workflow
 
-### 🚨 CRITICAL: Release Process Requirements
+🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
 
-When creating a new version release (vX.Y.Z), Claude Code **MUST** follow the strict workflow defined in `VERSION_WORKFLOW.md`. This is non-negotiable for maintaining release quality and consistency.
+### Quick Reference
+- **Primary Document**: `VERSION_WORKFLOW.md` - Complete release workflow
+- **Scripts**: `./save-version.sh` (backup) and `./push-version.sh` (release)
+- **Prerequisites**: GitHub CLI, clean working tree, code formatting
 
-### 📋 Mandatory Release Checklist
+### Essential Steps (Overview)
+1. Create backup: `./save-version.sh X.Y.Z`
+2. Update versions in 3 files + documentation
+3. Commit and push to main
+4. Create release: `./push-version.sh X.Y.Z "notes"`
+5. Verify release on GitHub
 
-For any version release, Claude must complete ALL of these steps in order:
-
-#### **Phase 1: Preparation (Before Making Changes)**
-1. **Create Local Backup** (MANDATORY - First Step!)
-   ```bash
-   ./save-version.sh X.Y.Z
-   ```
-
-2. **Version Bump** (Update 3 files exactly)
-   - `pyproject.toml`: `version = "X.Y.Z"`
-   - `src/vpsweb/__init__.py`: `__version__ = "X.Y.Z"`
-   - `src/vpsweb/__main__.py`: `@click.version_option(version="X.Y.Z")`
-
-3. **Update Documentation** (MANDATORY)
-   - `CHANGELOG.md`: Add release notes section
-   - `README.md`: Update version badge and status section
-   - `STATUS.md`: Update version, executive summary, and features
-   - Update other docs if needed
-
-4. **Code Quality Check**
-   - Format: `python -m black src/ tests/`
-   - Check: `python -m black --check src/ tests/`
-   - Tests: `pytest -q` (if possible)
-
-#### **Phase 2: Commit & Release**
-5. **Commit Changes**
-   ```bash
-   git add .
-   git commit -m "Release vX.Y.Z - [Release Name]
-
-   [Detailed release notes]
-
-   🚀 Generated with Claude Code (https://claude.ai/claude-code)
-
-   Co-Authored-By: Claude <noreply@anthropic.com>"
-   git push origin main
-   ```
-
-6. **Create GitHub Release**
-   ```bash
-   ./push-version.sh X.Y.Z "Brief release notes"
-   ```
-
-#### **Phase 3: Verification**
-7. **Verify Release**
-   - Check GitHub release exists: `gh release view vX.Y.Z`
-   - Verify tag on remote: `git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"`
-   - Check GitHub Actions CI status
-
-### ⚠️ Common Mistakes to Avoid
-- **NEVER** skip local backup creation
-- **NEVER** forget to update all 3 version files
-- **NEVER** skip CHANGELOG.md updates
-- **NEVER** skip README.md and STATUS.md updates
-- **NEVER** commit without proper formatting check
-- **ALWAYS** verify release exists after creation
-
-### 📚 Reference Documents
-- **Primary**: `VERSION_WORKFLOW.md` - Complete release workflow
-- **Printable Checklist**: Section 9 of VERSION_WORKFLOW.md
-- **Quick Reference**: Section 8 of VERSION_WORKFLOW.md
-
-### 🔍 Quality Assurance
-Before announcing any release, ensure:
-- All checklist items are completed
-- GitHub release page shows correct content
-- CI/CD pipeline completed successfully
-- Documentation reflects new version accurately
+**See VERSION_WORKFLOW.md for detailed checklist, verification steps, and rollback procedures.**
 
 ## Emergency Procedures
 
@@ -523,4 +474,4 @@ git checkout v0.1.0-local-2025-10-05
 
 ---
 
-**IMPORTANT**: This guide serves as the canonical reference for Claude Code development on VPSWeb. All development activities must adhere to these guidelines, especially the Strategy-Todo-Code process for non-trivial decisions.
+**IMPORTANT**: This guide serves as the canonical reference for Claude Code development on VPSWeb. All development activities must adhere to these guidelines, especially the Strategy-Todo-Code-Review process for non-trivial decisions.
