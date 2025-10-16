@@ -30,7 +30,7 @@ class TestCLIIntegration:
         result = cli_runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
         assert "vpsweb" in result.output
-        assert "0.1.0" in result.output
+        assert "0.2.8" in result.output
 
     @patch("src.vpsweb.__main__.TranslationWorkflow")
     @patch("src.vpsweb.__main__.load_config")

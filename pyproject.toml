@@ -34,12 +34,13 @@ python-dotenv = "^1.0.0"
 jinja2 = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
 pytest-asyncio = "^0.21.0"
+pytest-mock = "^3.12.0"
 black = "^23.0.0"
 flake8 = "^6.0.0"
-mypy = "^1.5.0"
+mypy = "^1.8.0"
 
 [tool.poetry.scripts]
 vpsweb = "vpsweb.__main__:cli"
@@ -63,5 +64,10 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=vpsweb --cov-report=term-missing --cov-report=html"
+addopts = "--cov=vpsweb --cov-report=term-missing --cov-fail-under=85"
 asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (run with -m 'not slow')",
+    "integration: marks tests as integration tests",
+    "weChat: marks tests that need WeChat credentials"
+]
