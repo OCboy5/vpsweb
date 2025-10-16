@@ -5,23 +5,27 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.2.7-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.7)
+[![Version](https://img.shields.io/badge/Version-0.2.8-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.2.8)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
 **VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
 
-## 🎯 Current Status: **v0.2.7 - WECHAT COPYRIGHT & CLI ENHANCEMENT RELEASE**
+## 🎯 Current Status: **v0.2.8 - CLAUDE.md ENHANCEMENT & RELEASE CHECKPOINT**
 
+📚 **Enhanced CLAUDE.md**: Comprehensive documentation improvements for future Claude Code instances
+⚡ **Quick Reference Section**: Added commonly used development commands for faster access
+🏗️ **Project Structure Clarification**: Highlighted key files and critical setup requirements
+🚨 **Critical Environment Setup**: Enhanced PYTHONPATH instructions with important warnings
+🧪 **Detailed Testing Commands**: More specific testing commands with coverage options
+🔧 **Release Process Enhancement**: Systematic release checkpoint following VERSION_WORKFLOW.md
+💾 **Local Backup Workflow**: Proper backup creation before version changes
+✅ **Quality Assurance**: Comprehensive validation of version consistency across all files
+📋 **Internal Improvements**: Clean working tree management and release readiness
 🎨 **Enhanced Copyright Statements**: Comprehensive legal text with 【著作权声明】 and usage restrictions
 ⬅️ **Left-Aligned Copyright**: Improved visual consistency with left-aligned copyright layout
 🔧 **Fixed CLI Commands**: Corrected publish command suggestions from `-a` to `-d` flag
 📱 **WeChat Template Optimization**: Updated HTML templates for consistent visual design
-⚖️ **Legal Protection**: Explicit commercial use restrictions and citation requirements
-🎓 **Educational Focus**: Clear statements about educational and交流 use purpose
-🛠️ **Better CLI UX**: Eliminated confusion between generation and publishing workflow
-📋 **Professional Layout**: Consistent text alignment throughout WeChat articles
-🔍 **Enhanced Documentation**: Updated copyright guidelines and usage instructions
 📊 **Enhanced Translation Workflow Display**: Added detailed prompt/completion token breakdown
 💰 **Accurate Cost Tracking**: Corrected pricing calculation per 1K tokens across workflows
 🧠 **LLM-Generated Digest Integration**: High-quality AI digests in CLI and metadata

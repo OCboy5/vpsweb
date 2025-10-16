@@ -5,6 +5,31 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.8] - 2025-10-16 (CLAUDE.md Enhancement & Release Checkpoint)
+
+### 📚 Documentation Improvements
+- **Enhanced CLAUDE.md**: Comprehensive updates to project guidance for future Claude Code instances
+- **Quick Reference Section**: Added commonly used development commands for faster access
+- **Project Structure Clarification**: Highlighted key files and critical setup requirements
+- **Environment Setup Emphasis**: Enhanced PYTHONPATH setup instructions with critical warnings
+- **Testing Command Details**: More specific testing commands with coverage options
+
+### 🔧 Release Process Enhancement
+- **Version Checkpoint**: Created systematic release checkpoint following VERSION_WORKFLOW.md
+- **Local Backup Workflow**: Implemented proper backup creation before version changes
+- **Quality Assurance**: Comprehensive validation of version consistency across all files
+- **Development Standards**: Maintained strict adherence to release management workflow
+
+### 🛠️ Technical Maintenance
+- **Version Consistency**: Updated all 3 version files (pyproject.toml, __init__.py, __main__.py) to 0.2.8
+- **Code Quality**: Ensured all changes follow project formatting and quality standards
+- **Process Validation**: Verified release workflow compliance with existing guidelines
+
+### 📋 Internal Improvements
+- **Clean Working Tree**: Proper management of uncommitted changes before release
+- **Backup Creation**: Local backup tag v0.2.8-local-2025-10-16 created successfully
+- **Release Readiness**: All preparation steps completed following established workflow
+
 ## [0.2.7] - 2025-10-15 (WeChat Copyright & CLI Enhancement Release)
 
 ### 🎨 WeChat Article UI Improvements
