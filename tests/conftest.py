@@ -128,6 +128,7 @@ def sample_config():
                         model="qwen-max",
                         temperature=0.7,
                         max_tokens=1000,
+                        prompt_template="test_template.yaml",
                     ),
                     StepConfig(
                         name="editor_review",
@@ -135,6 +136,7 @@ def sample_config():
                         model="deepseek-chat",
                         temperature=0.5,
                         max_tokens=800,
+                        prompt_template="test_template.yaml",
                     ),
                     StepConfig(
                         name="translator_revision",
@@ -142,6 +144,7 @@ def sample_config():
                         model="qwen-max",
                         temperature=0.6,
                         max_tokens=1000,
+                        prompt_template="test_template.yaml",
                     ),
                 ],
             ),

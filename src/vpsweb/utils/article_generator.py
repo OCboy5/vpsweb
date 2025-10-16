@@ -1056,4 +1056,3 @@ class ArticleGenerator:
 
         except Exception as e:
             logger.warning(f"Failed to calculate cost for {provider}/{model}: {e}")
-            return None

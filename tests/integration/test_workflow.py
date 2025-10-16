@@ -406,4 +406,3 @@ class TestWorkflowFunctionalEquivalence:
         # Verify model information
         assert result.initial_translation.model_info is not None
         assert result.editor_review.model_info is not None
-        assert result.revised_translation.model_info is not None

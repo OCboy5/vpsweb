@@ -534,4 +534,3 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
     def __repr__(self) -> str:
         """String representation of the provider."""
-        return f"OpenAICompatibleProvider(base_url='{self.base_url}', api_key='***')"  # nosec

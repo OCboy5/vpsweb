@@ -1175,4 +1175,3 @@ async def _publish_article_async(directory, config, verbose):
 
 
 if __name__ == "__main__":
-    cli()
