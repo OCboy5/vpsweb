@@ -26,6 +26,7 @@ from src.vpsweb.models.config import (
     MainConfig,
     ModelProviderConfig,
     ProvidersConfig,
+    StorageConfig,
 )
 
 
@@ -148,7 +149,7 @@ def sample_config():
                     ),
                 ],
             ),
-            storage=MainConfig.StorageConfig(output_dir="./output"),
+            storage=StorageConfig(output_dir="./output"),
             logging=LoggingConfig(
                 level="INFO",
                 format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
