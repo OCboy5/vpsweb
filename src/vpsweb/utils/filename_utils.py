@@ -206,3 +206,4 @@ def generate_legacy_filename(
                 f"translation_{workflow_mode}_{timestamp}_{hash_suffix}.{file_format}"
             )
         else:
+            return f"translation_{timestamp}_{hash_suffix}.{file_format}"
