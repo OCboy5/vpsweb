@@ -400,6 +400,7 @@ class TestConfigModels:
             model="qwen-max",
             temperature=0.7,
             max_tokens=1000,
+            prompt_template="test_template.yaml",
         )
 
         assert step.name == "initial_translation"

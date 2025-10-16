@@ -89,7 +89,7 @@ class TestTranslationWorkflowIntegration:
         mock_llm.generate.side_effect = Exception("API Error")
 
         # Mock the factory to return our failing LLM
-        mocker.patch.object(LLMFactory, "create_llm", return_value=mock_llm)
+        mocker.patch.object(LLMFactory, "get_provider", return_value=mock_llm)
 
         workflow = TranslationWorkflow(integration_workflow_config)
 
@@ -116,7 +116,7 @@ class TestTranslationWorkflowIntegration:
             ]
         }
 
-        mocker.patch.object(LLMFactory, "create_llm", return_value=mock_llm)
+        mocker.patch.object(LLMFactory, "get_provider", return_value=mock_llm)
 
         workflow = TranslationWorkflow(integration_workflow_config)
 

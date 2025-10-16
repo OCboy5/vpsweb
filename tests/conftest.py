@@ -347,7 +347,7 @@ def mock_llm_factory_integration(mocker):
             return response
 
     # Create mock that returns our mock LLM
-    original_create = LLMFactory.create_llm
+    original_create = LLMFactory.get_provider
 
     def mock_create_llm(self, provider: str, model: str, **kwargs):
         responses = [
@@ -357,7 +357,7 @@ def mock_llm_factory_integration(mocker):
         ]
         return MockLLM(responses)
 
-    mocker.patch.object(LLMFactory, "create_llm", mock_create_llm)
+    mocker.patch.object(LLMFactory, "get_provider", mock_create_llm)
     return LLMFactory()
 
 

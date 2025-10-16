@@ -348,7 +348,7 @@ class TestStepExecutor:
 
         # Execute editor review
         result = await step_executor.execute_editor_review(
-            initial_translation, sample_step_config
+            initial_translation, sample_translation_input, sample_step_config
         )
 
         # Verify results
@@ -392,7 +392,7 @@ class TestStepExecutor:
 
         # Execute translator revision
         result = await step_executor.execute_translator_revision(
-            editor_review, sample_step_config
+            editor_review, sample_translation_input, initial_translation, sample_step_config
         )
 
         # Verify results
