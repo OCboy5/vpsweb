@@ -20,4 +20,9 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
-VERSION_WORKFLOW.md
+docs/Strategy_Collections/drafts/strategy_repo_sonnet.md
+docs/Strategy_Collections/drafts/strategy_repo_kimi.md
+docs/Strategy_Collections/drafts/strategy_repo_gpt.md
+docs/Strategy_Collections/drafts/strategy_repo_gemini.md
+docs/Strategy_Collections/drafts/strategy_repo_doubao.md
+docs/Strategy_Collections/drafts/strategy_repo_deepseek.md

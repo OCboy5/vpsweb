@@ -111,8 +111,54 @@ class ArticleGenerator:
                 f"HTML template system initialized with template directory: {template_dir}"
             )
 
+            # Validate default cover image availability
+            self._validate_default_cover_image(current_dir)
+
         except Exception as e:
             raise ArticleGeneratorError(f"Failed to initialize template system: {e}")
+
+    def _validate_default_cover_image(self, project_root: Path) -> None:
+        """
+        Validate that the default cover image file exists and is accessible.
+
+        Args:
+            project_root: Path to the project root directory
+
+        Raises:
+            ArticleGeneratorError: If default cover image validation fails
+        """
+        try:
+            default_cover_path = project_root / self.config.default_cover_image_path
+
+            if not default_cover_path.exists():
+                logger.warning(
+                    f"⚠️ Default cover image not found at: {default_cover_path}"
+                )
+                logger.warning(
+                    "💡 To fix: Place a cover image at the configured path or update the path in config/wechat.yaml"
+                )
+                return  # Don't raise error, just warn since fallback to None is handled
+
+            # Check if it's a valid image file (basic validation)
+            if not default_cover_path.is_file():
+                logger.warning(
+                    f"⚠️ Default cover path exists but is not a file: {default_cover_path}"
+                )
+                return
+
+            # Check file size (should be reasonable for an image)
+            file_size = default_cover_path.stat().st_size
+            if file_size == 0:
+                logger.warning(f"⚠️ Default cover image is empty: {default_cover_path}")
+                return
+
+            logger.info(
+                f"✅ Default cover image validated: {default_cover_path} ({file_size} bytes)"
+            )
+
+        except Exception as e:
+            logger.warning(f"⚠️ Error validating default cover image: {e}")
+            # Don't raise error since the system can work without a default cover image
 
     def generate_from_translation(
         self,
@@ -159,7 +205,7 @@ class ArticleGenerator:
             output_dir.mkdir(parents=True, exist_ok=True)
 
             # Handle cover image fallback logic
-            cover_image_path = self._handle_cover_image_fallback(output_dir)
+            cover_image_abs_path = self._handle_cover_image_fallback(output_dir)
 
             # Pre-generate translation notes to get the LLM digest
             llm_digest = None
@@ -220,7 +266,7 @@ class ArticleGenerator:
                 translation_data,
                 metadata,
                 self._cached_translation_notes,
-                cover_image_path,
+                cover_image_abs_path,
             )
 
             # Determine final digest (prioritize LLM-generated)
@@ -243,8 +289,8 @@ class ArticleGenerator:
             )
 
             # Store cover image information for WeChat API usage
-            if cover_image_path:
-                article.cover_image_path = str(Path(output_dir) / cover_image_path)
+            if cover_image_abs_path:
+                article.cover_image_path = cover_image_abs_path
                 article.show_cover_pic = True  # Enable cover picture display
 
             # Save files
@@ -268,7 +314,9 @@ class ArticleGenerator:
                 "source_lang": metadata.source_lang,
                 "target_lang": metadata.target_lang,
                 "workflow_id": metadata.workflow_id,
-                "cover_image": cover_image_path,  # Add cover image information
+                "cover_image": (
+                    Path(cover_image_abs_path).name if cover_image_abs_path else None
+                ),  # Store only filename for reference
             }
 
             with open(metadata_path, "w", encoding="utf-8") as f:
@@ -314,14 +362,14 @@ class ArticleGenerator:
         Handle cover image fallback logic.
 
         1. First check if local cover image exists in the output directory (using configured filename)
-        2. If not, use the default cover image from configured path
-        3. Copy the appropriate image to the output directory using the configured local filename
+        2. If not, reference the default cover image from configured path without copying
+        3. Return the appropriate cover image path for upload
 
         Args:
             output_dir: Path to the output directory for the article
 
         Returns:
-            Path to the cover image relative to the output directory, or None if no image available
+            Absolute path to the cover image file for upload, or None if no image available
         """
         try:
             # Get local cover image filename from configuration
@@ -334,18 +382,14 @@ class ArticleGenerator:
             project_root = Path(__file__).parent.parent.parent.parent
             default_cover_path = project_root / self.config.default_cover_image_path
 
-            target_cover_path = output_dir / local_cover_filename
-
             if local_cover_path.exists():
                 # Local cover image exists, use it
                 logger.info(f"✅ Using local cover image: {local_cover_path}")
-                return local_cover_filename
+                return str(local_cover_path)
             elif default_cover_path.exists():
-                # Fallback to default cover image
+                # Fallback to default cover image without copying (storage efficient)
                 logger.info(f"📸 Using default cover image: {default_cover_path}")
-                shutil.copy2(default_cover_path, target_cover_path)
-                logger.info(f"✅ Default cover image copied to: {target_cover_path}")
-                return local_cover_filename
+                return str(default_cover_path)
             else:
                 # No cover image available
                 logger.warning(
