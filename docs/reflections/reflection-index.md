@@ -1,40 +1,40 @@
-# VPSWeb Project Reviews Index
+# VPSWeb Project Reflections Index
 
 ## Overview
-This index provides searchable access to all project reviews conducted using the Strategy-Todo-Code-Review Process. Reviews are organized by decision type, complexity, and applicability for easy reference.
+This index provides searchable access to all project reflections conducted using the Strategy-Todo-Code-Reflection Process. Reflections are organized by decision type, complexity, and applicability for easy reference.
 
-## Review Categories
+## Reflection Categories
 
-### 🏗️ Architectural Reviews
-**Reviews of major structural and design decisions that affect the entire system architecture.**
+### 🏗️ Architectural Reflections
+**Reflections of major structural and design decisions that affect the entire system architecture.**
 
-#### [VPSWeb Foundational Review](2025/2025-10-16_vpsweb-foundational-review.md) `• Critical • High Confidence • 2025-10-16`
+#### [VPSWeb Foundational Reflection](2025/2025-10-16_vpsweb-foundational-reflection.md) `• Critical • High Confidence • 2025-10-16`
 - **Scope**: Complete project evolution from v0.1.0 to v0.2.8
 - **Key Insights**: Provider abstraction essential, PSD-driven development process critical, user experience over architecture purity, progressive enhancement works
 - **Applies to**: AI workflow systems, CLI development, translation platforms
 - **Tags**: `project-foundation`, `architecture`, `workflow-systems`, `provider-integration`, `process-improvement`, `psd-driven-development`
 
-### 🔧 Integration Reviews
-*Reviews of external service integrations, APIs, and third-party dependencies.*
+### 🔧 Integration Reflections
+*Reflections of external service integrations, APIs, and third-party dependencies.*
 
-*No integration reviews yet - will be added as specific integration decisions are reviewed.*
+*No integration reflections yet - will be added as specific integration decisions are reflected upon.*
 
-### 🚀 Feature Reviews
-*Reviews of specific feature implementations and user-facing functionality.*
+### 🚀 Feature Reflections
+*Reflections of specific feature implementations and user-facing functionality.*
 
-*No feature reviews yet - will be added as specific feature decisions are reviewed.*
+*No feature reflections yet - will be added as specific feature decisions are reflected upon.*
 
-### ⚙️ Process Reviews
-*Reviews of development processes, workflows, and methodology improvements.*
+### ⚙️ Process Reflections
+*Reflections of development processes, workflows, and methodology improvements.*
 
-*No process reviews yet - will be added as process improvements are reviewed.*
+*No process reflections yet - will be added as process improvements are reflected upon.*
 
 ## Search Templates
 
 ### By Decision Type
-- **Show me architectural reviews**: Look in 🏗️ Architectural Reviews section
-- **What decisions about integration patterns?**: Search 🔧 Integration Reviews
-- **How did we approach feature X?**: Search 🚀 Feature Reviews
+- **Show me architectural reflections**: Look in 🏗️ Architectural Reflections section
+- **What decisions about integration patterns?**: Search 🔧 Integration Reflections
+- **How did we approach feature X?**: Search 🚀 Feature Reflections
 
 ### By Complexity Level
 - **Critical decisions that shaped the project**: Look for `Critical` complexity tag
@@ -49,9 +49,9 @@ This index provides searchable access to all project reviews conducted using the
 - **What should we avoid?**: Look for `failed` success level
 
 ### By Confidence Level
-- **Proven best practices**: Look for `high-confidence` reviews
-- **Working hypotheses**: Look for `medium-confidence` reviews
-- **Experimental approaches**: Look for `low-confidence` reviews
+- **Proven best practices**: Look for `high-confidence` reflections
+- **Working hypotheses**: Look for `medium-confidence` reflections
+- **Experimental approaches**: Look for `low-confidence` reflections
 
 ### By Applicability
 - **AI workflow systems**: Search for `ai-workflow-systems` tag
@@ -81,38 +81,38 @@ This index provides searchable access to all project reviews conducted using the
 ## Using This Index
 
 ### For New Projects
-1. **Search by Project Type**: Find reviews applicable to your project domain
+1. **Search by Project Type**: Find reflections applicable to your project domain
 2. **Review Strategic Decisions**: Understand what worked and what didn't in similar contexts
 3. **Apply Proven Patterns**: Use high-confidence insights to inform your strategy
-4. **Avoid Known Anti-Patterns**: Check relevant reviews for pitfalls to avoid
+4. **Avoid Known Anti-Patterns**: Check relevant reflections for pitfalls to avoid
 
 ### For Strategy Phase
-1. **Search Historical Context**: Look for reviews of similar decision types
+1. **Search Historical Context**: Look for reflections of similar decision types
 2. **Extract Key Insights**: Use "Always Do" and "Never Do" sections
 3. **Consider Applicability**: Adapt insights to your specific context
-4. **Document Learning Gaps**: Note what existing reviews don't cover
+4. **Document Learning Gaps**: Note what existing reflections don't cover
 
 ### For Process Improvement
-1. **Meta-Analysis**: Look for patterns across multiple reviews
-2. **Process Reviews**: Check for insights about Strategy-Todo-Code-Review process itself
+1. **Meta-Analysis**: Look for patterns across multiple reflections
+2. **Process Reflections**: Check for insights about Strategy-Todo-Code-Reflection process itself
 3. **Update Based on Experience**: Add new insights as you validate or refute existing ones
 
 ## Maintaining This Index
 
-### Adding New Reviews
+### Adding New Reflections
 1. Categorize under appropriate section
 2. Update key patterns if new insights emerge
 3. Update search templates with new tags
-4. Link related reviews using `relates_to` field
+4. Link related reflections using `relates_to` field
 
-### Updating Existing Reviews
+### Updating Existing Reflections
 1. Add validation notes as insights are applied
 2. Update confidence levels as patterns are proven
-3. Mark superseded reviews when consolidated
+3. Mark superseded reflections when consolidated
 4. Maintain version history for major updates
 
 ---
 
-*Last Updated: 2024-10-16*
-*Total Reviews: 1*
-*Next Review Date: When next significant non-trivial decision is made*
+*Last Updated: 2025-10-17*
+*Total Reflections: 1*
+*Next Reflection Date: Immediately after successful release of next significant non-trivial decision*
