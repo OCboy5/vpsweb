@@ -149,7 +149,7 @@ CREATE TABLE ai_logs (
 #### Table: human_notes
 
 ```sql
-CREATE TABLE human_logs (
+CREATE TABLE human_notes (
     id TEXT PRIMARY KEY,
     translation_id TEXT NOT NULL REFERENCES translations(id),
     note_text TEXT NOT NULL,
