@@ -14,6 +14,7 @@ sys.path.insert(0, str(repo_root))
 # Change to repository directory for proper package imports
 os.chdir(Path(__file__).parent)
 
+
 def test_imports():
     """Test that we can import all modules correctly"""
     try:
@@ -22,11 +23,13 @@ def test_imports():
         from schemas import PoemCreate, TranslationCreate, AILogCreate, HumanNoteCreate
         from schemas import TranslatorType, WorkflowMode
         from pydantic import ValidationError
+
         print("✓ All imports successful")
         return True
     except ImportError as e:
         print(f"✗ Import error: {e}")
         return False
+
 
 def test_basic_models():
     """Test basic model creation without database"""
@@ -39,7 +42,7 @@ def test_basic_models():
             poet_name="李白",
             poem_title="靜夜思",
             source_language="zh",
-            original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。"
+            original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。",
         )
         assert poem.poet_name == "李白"
         assert poem.poem_title == "靜夜思"
@@ -51,7 +54,7 @@ def test_basic_models():
             poem_id="test_poem",
             translator_type="ai",
             target_language="en",
-            translated_text="Before my bed, the bright moonlight shines..."
+            translated_text="Before my bed, the bright moonlight shines...",
         )
         assert translation.translator_type == "ai"
         print("✓ Translation model creation works")
@@ -61,7 +64,7 @@ def test_basic_models():
             id="test_ai",
             translation_id="test_trans",
             model_name="gpt-4",
-            workflow_mode="reasoning"
+            workflow_mode="reasoning",
         )
         assert ai_log.model_name == "gpt-4"
         print("✓ AI log model creation works")
@@ -70,7 +73,7 @@ def test_basic_models():
         note = HumanNote(
             id="test_note",
             translation_id="test_trans",
-            note_text="This is a good translation."
+            note_text="This is a good translation.",
         )
         assert "good translation" in note.note_text
         print("✓ Human note model creation works")
@@ -79,6 +82,7 @@ def test_basic_models():
     except Exception as e:
         print(f"✗ Model creation error: {e}")
         return False
+
 
 def test_pydantic_schemas():
     """Test Pydantic schema validation"""
@@ -92,7 +96,7 @@ def test_pydantic_schemas():
             poet_name="陶渊明",
             poem_title="歸園田居",
             source_language="zh",
-            original_text="採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。"
+            original_text="採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。",
         )
         assert poem.poet_name == "陶渊明"
         print("✓ Valid poem schema works")
@@ -103,7 +107,7 @@ def test_pydantic_schemas():
                 poet_name="Test",
                 poem_title="Test",
                 source_language="en",
-                original_text="Short"  # Too short
+                original_text="Short",  # Too short
             )
             print("✗ Should have failed with short text")
             return False
@@ -117,7 +121,7 @@ def test_pydantic_schemas():
             translator_info="gpt-4",
             target_language="en",
             translated_text="This is a valid translation with enough content to pass validation.",
-            quality_rating=4
+            quality_rating=4,
         )
         assert translation.translator_type == TranslatorType.AI
         print("✓ Valid translation schema works")
@@ -129,7 +133,7 @@ def test_pydantic_schemas():
                 translator_type=TranslatorType.HUMAN,
                 target_language="en",
                 translated_text="This is a valid translation.",
-                quality_rating=6  # Too high
+                quality_rating=6,  # Too high
             )
             print("✗ Should have failed with invalid quality rating")
             return False
@@ -140,6 +144,7 @@ def test_pydantic_schemas():
     except Exception as e:
         print(f"✗ Schema validation error: {e}")
         return False
+
 
 def test_database_connection():
     """Test database connection and table creation"""
@@ -169,6 +174,7 @@ def test_database_connection():
         print(f"✗ Database connection error: {e}")
         return False
 
+
 def main():
     """Run all tests"""
     print("Running VPSWeb Repository v0.3.1 Isolated Tests")
@@ -178,7 +184,7 @@ def main():
         ("Import Tests", test_imports),
         ("Model Tests", test_basic_models),
         ("Schema Tests", test_pydantic_schemas),
-        ("Database Tests", test_database_connection)
+        ("Database Tests", test_database_connection),
     ]
 
     passed = 0
@@ -200,6 +206,7 @@ def main():
     else:
         print("❌ Some tests failed!")
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

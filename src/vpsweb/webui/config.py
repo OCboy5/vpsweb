@@ -15,11 +15,7 @@ class WebUISettings(BaseSettings):
     reload: bool = True
     log_level: str = "INFO"
 
-    model_config = {
-        "env_file": ".env",
-        "env_prefix": "WEBUI_",
-        "extra": "ignore"
-    }
+    model_config = {"env_file": ".env", "env_prefix": "WEBUI_", "extra": "ignore"}
 
 
 # Global settings instance

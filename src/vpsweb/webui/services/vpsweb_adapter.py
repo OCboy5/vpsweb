@@ -31,16 +31,19 @@ logger = get_logger(__name__)
 
 class VPSWebIntegrationError(Exception):
     """Base exception for VPSWeb integration errors."""
+
     pass
 
 
 class WorkflowExecutionError(VPSWebIntegrationError):
     """Raised when workflow execution fails."""
+
     pass
 
 
 class ConfigurationError(VPSWebIntegrationError):
     """Raised when configuration loading fails."""
+
     pass
 
 
@@ -69,7 +72,7 @@ class VPSWebWorkflowAdapter:
         poem_service: PoemService,
         translation_service: TranslationService,
         repository_service: RepositoryWebService,
-        config_path: Optional[str] = None
+        config_path: Optional[str] = None,
     ):
         """
         Initialize the VPSWeb workflow adapter.
@@ -109,16 +112,19 @@ class VPSWebWorkflowAdapter:
                 self._workflow_config = self._config.main.workflow
                 self._providers_config = self._config.providers
 
-                logger.info(f"Loaded workflow: {self._workflow_config.name} v{self._workflow_config.version}")
-                logger.info(f"Available providers: {list(self._providers_config.providers.keys())}")
+                logger.info(
+                    f"Loaded workflow: {self._workflow_config.name} v{self._workflow_config.version}"
+                )
+                logger.info(
+                    f"Available providers: {list(self._providers_config.providers.keys())}"
+                )
 
             except Exception as e:
                 logger.error(f"Failed to load VPSWeb configuration: {e}")
                 raise ConfigurationError(f"Configuration loading failed: {e}")
 
     async def _create_workflow(
-        self,
-        workflow_mode: WorkflowMode = WorkflowMode.HYBRID
+        self, workflow_mode: WorkflowMode = WorkflowMode.HYBRID
     ) -> TranslationWorkflow:
         """
         Create a new workflow instance.
@@ -141,7 +147,7 @@ class VPSWebWorkflowAdapter:
                     "preview_lengths": {
                         "input_preview": 100,
                         "response_preview": 100,
-                        "editor_preview": 200
+                        "editor_preview": 200,
                     }
                 }
             }
@@ -150,7 +156,7 @@ class VPSWebWorkflowAdapter:
                 config=self._workflow_config,
                 providers_config=self._providers_config,
                 workflow_mode=workflow_mode,
-                system_config=system_config
+                system_config=system_config,
             )
             return workflow
 
@@ -169,38 +175,35 @@ class VPSWebWorkflowAdapter:
             Display language name (e.g., 'English', 'Chinese')
         """
         language_mapping = {
-            'en': 'English',
-            'en-US': 'English',
-            'en-GB': 'English',
-            'zh': 'Chinese',
-            'zh-CN': 'Chinese',
-            'zh-TW': 'Chinese',
-            'zh-HK': 'Chinese',
-            'es': 'Spanish',
-            'es-ES': 'Spanish',
-            'es-MX': 'Spanish',
-            'fr': 'French',
-            'fr-FR': 'French',
-            'de': 'German',
-            'de-DE': 'German',
-            'ja': 'Japanese',
-            'ja-JP': 'Japanese',
-            'ru': 'Russian',
-            'ru-RU': 'Russian',
-            'pl': 'Polish',
-            'pl-PL': 'Polish',
-            'ar': 'Arabic',
-            'ar-SA': 'Arabic',
+            "en": "English",
+            "en-US": "English",
+            "en-GB": "English",
+            "zh": "Chinese",
+            "zh-CN": "Chinese",
+            "zh-TW": "Chinese",
+            "zh-HK": "Chinese",
+            "es": "Spanish",
+            "es-ES": "Spanish",
+            "es-MX": "Spanish",
+            "fr": "French",
+            "fr-FR": "French",
+            "de": "German",
+            "de-DE": "German",
+            "ja": "Japanese",
+            "ja-JP": "Japanese",
+            "ru": "Russian",
+            "ru-RU": "Russian",
+            "pl": "Polish",
+            "pl-PL": "Polish",
+            "ar": "Arabic",
+            "ar-SA": "Arabic",
         }
 
         # Return the mapped language or default to English if not found
-        return language_mapping.get(iso_code, 'English')
+        return language_mapping.get(iso_code, "English")
 
     def _map_repository_to_workflow_input(
-        self,
-        poem_data: Dict[str, Any],
-        source_lang: str,
-        target_lang: str
+        self, poem_data: Dict[str, Any], source_lang: str, target_lang: str
     ) -> TranslationInput:
         """
         Map repository poem data to VPSWeb TranslationInput.
@@ -216,14 +219,11 @@ class VPSWebWorkflowAdapter:
         return TranslationInput(
             original_poem=poem_data["content"],
             source_lang=self._map_iso_to_display_language(source_lang),
-            target_lang=self._map_iso_to_display_language(target_lang)
+            target_lang=self._map_iso_to_display_language(target_lang),
         )
 
     def _map_workflow_output_to_repository(
-        self,
-        workflow_output: TranslationOutput,
-        poem_id: str,
-        workflow_mode: str
+        self, workflow_output: TranslationOutput, poem_id: str, workflow_mode: str
     ) -> Dict[str, Any]:
         """
         Map VPSWeb TranslationOutput to repository translation format.
@@ -243,36 +243,30 @@ class VPSWebWorkflowAdapter:
             "source_lang": workflow_output.input.source_lang,
             "target_lang": workflow_output.input.target_lang,
             "original_poem": workflow_output.input.original_poem,
-
             # Workflow steps
             "initial_translation": workflow_output.initial_translation.initial_translation,
             "initial_translation_notes": workflow_output.initial_translation.initial_translation_notes,
             "editor_suggestions": workflow_output.editor_review.editor_suggestions,
             "revised_translation": workflow_output.revised_translation.revised_translation,
             "revised_translation_notes": workflow_output.revised_translation.revised_translation_notes,
-
             # Metadata
             "total_tokens": workflow_output.total_tokens,
             "duration_seconds": workflow_output.duration_seconds,
             "total_cost": workflow_output.total_cost,
             "full_log": workflow_output.full_log,
-
             # Step-specific metadata
             "initial_model_info": workflow_output.initial_translation.model_info,
             "editor_model_info": workflow_output.editor_review.model_info,
             "revision_model_info": workflow_output.revised_translation.model_info,
-
             # Step-specific metrics
             "initial_tokens": workflow_output.initial_translation.tokens_used,
             "editor_tokens": workflow_output.editor_review.tokens_used,
             "revision_tokens": workflow_output.revised_translation.tokens_used,
-
-            "initial_cost": getattr(workflow_output.initial_translation, 'cost', None),
-            "editor_cost": getattr(workflow_output.editor_review, 'cost', None),
-            "revision_cost": getattr(workflow_output.revised_translation, 'cost', None),
-
+            "initial_cost": getattr(workflow_output.initial_translation, "cost", None),
+            "editor_cost": getattr(workflow_output.editor_review, "cost", None),
+            "revision_cost": getattr(workflow_output.revised_translation, "cost", None),
             "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "updated_at": datetime.utcnow().isoformat(),
         }
 
     async def execute_translation_workflow(
@@ -282,7 +276,7 @@ class VPSWebWorkflowAdapter:
         target_lang: str,
         workflow_mode: str = "hybrid",
         background_tasks: Optional[BackgroundTasks] = None,
-        synchronous: bool = False
+        synchronous: bool = False,
     ) -> Dict[str, Any]:
         """
         Execute VPSWeb translation workflow for a poem.
@@ -307,7 +301,9 @@ class VPSWebWorkflowAdapter:
             raise WorkflowExecutionError("Poem ID is required")
 
         if source_lang == target_lang:
-            raise WorkflowExecutionError("Source and target languages must be different")
+            raise WorkflowExecutionError(
+                "Source and target languages must be different"
+            )
 
         # Validate workflow mode
         try:
@@ -325,7 +321,7 @@ class VPSWebWorkflowAdapter:
             poem_id=poem_id,
             source_lang=source_lang,
             target_lang=target_lang,
-            workflow_mode=workflow_mode_enum
+            workflow_mode=workflow_mode_enum,
         )
 
         # Save task to database
@@ -339,32 +335,22 @@ class VPSWebWorkflowAdapter:
             # Add to background tasks
             if background_tasks:
                 background_tasks.add_task(
-                    self._execute_workflow_task,
-                    task_id,
-                    poem,
-                    workflow_mode_enum
+                    self._execute_workflow_task, task_id, poem, workflow_mode_enum
                 )
             else:
                 # Execute as coroutine
                 asyncio.create_task(
-                    self._execute_workflow_task(
-                        task_id,
-                        poem,
-                        workflow_mode_enum
-                    )
+                    self._execute_workflow_task(task_id, poem, workflow_mode_enum)
                 )
 
             return {
                 "task_id": task_id,
                 "status": TaskStatus.PENDING,
-                "message": "Translation workflow started"
+                "message": "Translation workflow started",
             }
 
     async def _execute_workflow_task(
-        self,
-        task_id: str,
-        poem: Dict[str, Any],
-        workflow_mode: WorkflowMode
+        self, task_id: str, poem: Dict[str, Any], workflow_mode: WorkflowMode
     ) -> Dict[str, Any]:
         """
         Execute the actual workflow task.
@@ -388,32 +374,30 @@ class VPSWebWorkflowAdapter:
         try:
             # Update task status in database
             self.repository_service.update_workflow_task_status(
-                task_id,
-                TaskStatus.RUNNING,
-                progress_percentage=0
+                task_id, TaskStatus.RUNNING, progress_percentage=0
             )
 
-            logger.info(f"Starting translation workflow task {task_id} for poem {db_task.poem_id}")
+            logger.info(
+                f"Starting translation workflow task {task_id} for poem {db_task.poem_id}"
+            )
 
             # Create workflow
             workflow = await self._create_workflow(workflow_mode)
 
             # Prepare input
             input_data = self._map_repository_to_workflow_input(
-                poem,
-                db_task.source_lang,
-                db_task.target_lang
+                poem, db_task.source_lang, db_task.target_lang
             )
 
             # Execute workflow
-            logger.info(f"Executing VPSWeb translation workflow in {workflow_mode.value} mode")
+            logger.info(
+                f"Executing VPSWeb translation workflow in {workflow_mode.value} mode"
+            )
             workflow_output = await workflow.execute(input_data, show_progress=False)
 
             # Map output to repository format
             translation_data = self._map_workflow_output_to_repository(
-                workflow_output,
-                db_task.poem_id,
-                db_task.workflow_mode
+                workflow_output, db_task.poem_id, db_task.workflow_mode
             )
 
             # Save to repository
@@ -423,7 +407,7 @@ class VPSWebWorkflowAdapter:
                 source_lang=db_task.source_lang,
                 target_lang=db_task.target_lang,
                 workflow_mode=db_task.workflow_mode,
-                translation_data=translation_data
+                translation_data=translation_data,
             )
 
             # Update task with result in database
@@ -432,13 +416,11 @@ class VPSWebWorkflowAdapter:
                 "workflow_id": workflow_output.workflow_id,
                 "total_tokens": workflow_output.total_tokens,
                 "duration_seconds": workflow_output.duration_seconds,
-                "total_cost": workflow_output.total_cost
+                "total_cost": workflow_output.total_cost,
             }
             self.repository_service.set_workflow_task_result(task_id, result_data)
             self.repository_service.update_workflow_task_status(
-                task_id,
-                TaskStatus.COMPLETED,
-                progress_percentage=100
+                task_id, TaskStatus.COMPLETED, progress_percentage=100
             )
 
             logger.info(f"Translation workflow task {task_id} completed successfully")
@@ -451,17 +433,14 @@ class VPSWebWorkflowAdapter:
                 "total_tokens": workflow_output.total_tokens,
                 "duration_seconds": workflow_output.duration_seconds,
                 "total_cost": workflow_output.total_cost,
-                "message": "Translation completed successfully"
+                "message": "Translation completed successfully",
             }
 
         except WorkflowError as e:
             logger.error(f"VPSWeb workflow failed for task {task_id}: {e}")
             # Update task status in database
             self.repository_service.update_workflow_task_status(
-                task_id,
-                TaskStatus.FAILED,
-                progress_percentage=0,
-                error_message=str(e)
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
             )
 
             raise WorkflowExecutionError(f"Workflow execution failed: {e}")
@@ -470,10 +449,7 @@ class VPSWebWorkflowAdapter:
             logger.error(f"Unexpected error in workflow task {task_id}: {e}")
             # Update task status in database
             self.repository_service.update_workflow_task_status(
-                task_id,
-                TaskStatus.FAILED,
-                progress_percentage=0,
-                error_message=str(e)
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
             )
 
             raise WorkflowExecutionError(f"Unexpected error: {e}")
@@ -502,12 +478,18 @@ class VPSWebWorkflowAdapter:
             "source_lang": db_task.source_lang,
             "target_lang": db_task.target_lang,
             "workflow_mode": db_task.workflow_mode.value,
-            "created_at": db_task.created_at.isoformat() if db_task.created_at else None,
-            "started_at": db_task.started_at.isoformat() if db_task.started_at else None,
-            "completed_at": db_task.completed_at.isoformat() if db_task.completed_at else None,
+            "created_at": (
+                db_task.created_at.isoformat() if db_task.created_at else None
+            ),
+            "started_at": (
+                db_task.started_at.isoformat() if db_task.started_at else None
+            ),
+            "completed_at": (
+                db_task.completed_at.isoformat() if db_task.completed_at else None
+            ),
             "progress_percentage": db_task.progress_percentage,
             "error": db_task.error_message,
-            "result": db_task.result_json
+            "result": db_task.result_json,
         }
 
     async def list_active_tasks(self, limit: int = 50) -> List[Dict[str, Any]]:
@@ -533,8 +515,10 @@ class VPSWebWorkflowAdapter:
                 "workflow_mode": task.workflow_mode.value,
                 "created_at": task.created_at.isoformat() if task.created_at else None,
                 "started_at": task.started_at.isoformat() if task.started_at else None,
-                "completed_at": task.completed_at.isoformat() if task.completed_at else None,
-                "error": task.error_message
+                "completed_at": (
+                    task.completed_at.isoformat() if task.completed_at else None
+                ),
+                "error": task.error_message,
             }
             for task in db_tasks
         ]
@@ -560,7 +544,7 @@ class VPSWebWorkflowAdapter:
                 task_id,
                 TaskStatus.FAILED,
                 progress_percentage=0,
-                error_message="Task cancelled by user"
+                error_message="Task cancelled by user",
             )
 
             logger.info(f"Task {task_id} cancelled by user")
@@ -576,17 +560,25 @@ class VPSWebWorkflowAdapter:
             List of available workflow modes with descriptions
         """
         return [
-            {"value": "hybrid", "label": "Hybrid", "description": "Balanced approach with reasoning for review steps"},
-            {"value": "reasoning", "label": "Reasoning", "description": "Highest quality with detailed reasoning for all steps"},
-            {"value": "non_reasoning", "label": "Non-Reasoning", "description": "Fast and cost-effective for standard translations"}
+            {
+                "value": "hybrid",
+                "label": "Hybrid",
+                "description": "Balanced approach with reasoning for review steps",
+            },
+            {
+                "value": "reasoning",
+                "label": "Reasoning",
+                "description": "Highest quality with detailed reasoning for all steps",
+            },
+            {
+                "value": "non_reasoning",
+                "label": "Non-Reasoning",
+                "description": "Fast and cost-effective for standard translations",
+            },
         ]
 
     async def validate_workflow_input(
-        self,
-        poem_id: str,
-        source_lang: str,
-        target_lang: str,
-        workflow_mode: str
+        self, poem_id: str, source_lang: str, target_lang: str, workflow_mode: str
     ) -> Dict[str, Any]:
         """
         Validate workflow input without executing.
@@ -604,16 +596,13 @@ class VPSWebWorkflowAdapter:
             # Check if poem exists
             poem = await self.poem_service.get_poem(poem_id)
             if not poem:
-                return {
-                    "valid": False,
-                    "errors": [f"Poem not found: {poem_id}"]
-                }
+                return {"valid": False, "errors": [f"Poem not found: {poem_id}"]}
 
             # Validate languages
             if source_lang == target_lang:
                 return {
                     "valid": False,
-                    "errors": ["Source and target languages must be different"]
+                    "errors": ["Source and target languages must be different"],
                 }
 
             # Validate workflow mode
@@ -622,14 +611,14 @@ class VPSWebWorkflowAdapter:
             except ValueError:
                 return {
                     "valid": False,
-                    "errors": [f"Invalid workflow mode: {workflow_mode}"]
+                    "errors": [f"Invalid workflow mode: {workflow_mode}"],
                 }
 
             # Validate poem content
             if not poem.get("content") or len(poem["content"].strip()) < 10:
                 return {
                     "valid": False,
-                    "errors": ["Poem content is too short or empty"]
+                    "errors": ["Poem content is too short or empty"],
                 }
 
             # Try to load configuration
@@ -638,19 +627,20 @@ class VPSWebWorkflowAdapter:
             return {
                 "valid": True,
                 "message": "Validation passed",
-                "poem_preview": poem["content"][:100] + "..." if len(poem["content"]) > 100 else poem["content"],
+                "poem_preview": (
+                    poem["content"][:100] + "..."
+                    if len(poem["content"]) > 100
+                    else poem["content"]
+                ),
                 "workflow_info": {
                     "workflow": self._workflow_config.name,
                     "version": self._workflow_config.version,
-                    "providers": list(self._providers_config.providers.keys())
-                }
+                    "providers": list(self._providers_config.providers.keys()),
+                },
             }
 
         except Exception as e:
-            return {
-                "valid": False,
-                "errors": [f"Validation error: {e}"]
-            }
+            return {"valid": False, "errors": [f"Validation error: {e}"]}
 
 
 @asynccontextmanager
@@ -658,7 +648,7 @@ async def get_vpsweb_adapter(
     poem_service: PoemService,
     translation_service: TranslationService,
     repository_service: RepositoryWebService,
-    config_path: Optional[str] = None
+    config_path: Optional[str] = None,
 ):
     """
     Context manager for VPSWeb adapter instance.
@@ -676,7 +666,7 @@ async def get_vpsweb_adapter(
         poem_service=poem_service,
         translation_service=translation_service,
         repository_service=repository_service,
-        config_path=config_path
+        config_path=config_path,
     )
 
     try:

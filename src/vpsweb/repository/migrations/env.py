@@ -8,7 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add repository root to path to import our modules
-repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
@@ -17,7 +17,7 @@ if repo_root not in sys.path:
 config = context.config
 
 # Import database configuration and models directly to avoid circular imports
-sys.path.insert(0, os.path.join(repo_root, 'src', 'vpsweb', 'repository'))
+sys.path.insert(0, os.path.join(repo_root, "src", "vpsweb", "repository"))
 
 # Set up minimal database configuration for Alembic
 from sqlalchemy import create_engine

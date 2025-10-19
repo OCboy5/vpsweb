@@ -25,16 +25,19 @@ import calendar
 
 class DateTimeError(Exception):
     """Base exception for datetime operations."""
+
     pass
 
 
 class TimezoneError(DateTimeError):
     """Timezone-related errors."""
+
     pass
 
 
 class ParsingError(DateTimeError):
     """Date/time parsing errors."""
+
     pass
 
 
@@ -48,22 +51,22 @@ class TimezoneManager:
 
     # Common timezones for poetry translation
     COMMON_TIMEZONES = {
-        'UTC': 'UTC',
-        'US/Eastern': 'America/New_York',
-        'US/Central': 'America/Chicago',
-        'US/Mountain': 'America/Denver',
-        'US/Pacific': 'America/Los_Angeles',
-        'Europe/London': 'Europe/London',
-        'Europe/Paris': 'Europe/Paris',
-        'Europe/Berlin': 'Europe/Berlin',
-        'Asia/Shanghai': 'Asia/Shanghai',
-        'Asia/Tokyo': 'Asia/Tokyo',
-        'Asia/Seoul': 'Asia/Seoul',
-        'Asia/Dubai': 'Asia/Dubai',
-        'Australia/Sydney': 'Australia/Sydney',
+        "UTC": "UTC",
+        "US/Eastern": "America/New_York",
+        "US/Central": "America/Chicago",
+        "US/Mountain": "America/Denver",
+        "US/Pacific": "America/Los_Angeles",
+        "Europe/London": "Europe/London",
+        "Europe/Paris": "Europe/Paris",
+        "Europe/Berlin": "Europe/Berlin",
+        "Asia/Shanghai": "Asia/Shanghai",
+        "Asia/Tokyo": "Asia/Tokyo",
+        "Asia/Seoul": "Asia/Seoul",
+        "Asia/Dubai": "Asia/Dubai",
+        "Australia/Sydney": "Australia/Sydney",
     }
 
-    def __init__(self, default_timezone: str = 'UTC'):
+    def __init__(self, default_timezone: str = "UTC"):
         """
         Initialize timezone manager.
 
@@ -97,12 +100,7 @@ class TimezoneManager:
         except pytz.UnknownTimeZoneError:
             raise TimezoneError(f"Unknown timezone: {tz_name}")
 
-    def convert_timezone(
-        self,
-        dt: datetime,
-        from_tz: str,
-        to_tz: str
-    ) -> datetime:
+    def convert_timezone(self, dt: datetime, from_tz: str, to_tz: str) -> datetime:
         """
         Convert datetime from one timezone to another.
 
@@ -193,13 +191,13 @@ class DateTimeFormatter:
 
     # Relative formats
     RELATIVE_FORMATS = {
-        'seconds': '%S seconds',
-        'minutes': '%M minutes',
-        'hours': '%H hours',
-        'days': '%d days',
-        'weeks': '%W weeks',
-        'months': '%M months',
-        'years': '%Y years'
+        "seconds": "%S seconds",
+        "minutes": "%M minutes",
+        "hours": "%H hours",
+        "days": "%d days",
+        "weeks": "%W weeks",
+        "months": "%M months",
+        "years": "%Y years",
     }
 
     @staticmethod
@@ -368,7 +366,9 @@ class TimeCalculator:
         return dt.weekday() >= 5  # Saturday=5, Sunday=6
 
     @staticmethod
-    def is_business_hours(dt: datetime, start_hour: int = 9, end_hour: int = 17) -> bool:
+    def is_business_hours(
+        dt: datetime, start_hour: int = 9, end_hour: int = 17
+    ) -> bool:
         """
         Check if datetime falls within business hours.
 
@@ -405,7 +405,9 @@ class TimeCalculator:
         return result
 
     @staticmethod
-    def get_age(birth_date: Union[date, datetime], reference: Optional[datetime] = None) -> Dict[str, int]:
+    def get_age(
+        birth_date: Union[date, datetime], reference: Optional[datetime] = None
+    ) -> Dict[str, int]:
         """
         Calculate age from birth date.
 
@@ -432,14 +434,10 @@ class TimeCalculator:
 
         delta = relativedelta(reference, birth_date)
 
-        return {
-            'years': delta.years,
-            'months': delta.months,
-            'days': delta.days
-        }
+        return {"years": delta.years, "months": delta.months, "days": delta.days}
 
     @staticmethod
-    def get_season(dt: datetime, hemisphere: str = 'northern') -> str:
+    def get_season(dt: datetime, hemisphere: str = "northern") -> str:
         """
         Get season for datetime.
 
@@ -452,24 +450,24 @@ class TimeCalculator:
         """
         month = dt.month
 
-        if hemisphere.lower() == 'northern':
+        if hemisphere.lower() == "northern":
             if month in [12, 1, 2]:
-                return 'Winter'
+                return "Winter"
             elif month in [3, 4, 5]:
-                return 'Spring'
+                return "Spring"
             elif month in [6, 7, 8]:
-                return 'Summer'
+                return "Summer"
             else:
-                return 'Autumn'
+                return "Autumn"
         else:
             if month in [12, 1, 2]:
-                return 'Summer'
+                return "Summer"
             elif month in [3, 4, 5]:
-                return 'Autumn'
+                return "Autumn"
             elif month in [6, 7, 8]:
-                return 'Winter'
+                return "Winter"
             else:
-                return 'Spring'
+                return "Spring"
 
     @staticmethod
     def get_quarter(dt: datetime) -> int:
@@ -519,7 +517,7 @@ class PoetryDateTimeUtils:
     """
 
     @staticmethod
-    def format_creation_date(dt: datetime, style: str = 'modern') -> str:
+    def format_creation_date(dt: datetime, style: str = "modern") -> str:
         """
         Format creation date for poetry display.
 
@@ -530,11 +528,11 @@ class PoetryDateTimeUtils:
         Returns:
             Formatted date string
         """
-        if style == 'modern':
+        if style == "modern":
             return DateTimeFormatter.to_poetry_date(dt)
-        elif style == 'classical':
+        elif style == "classical":
             return dt.strftime(DateTimeFormatter.CLASSICAL_FORMAT)
-        elif style == 'academic':
+        elif style == "academic":
             return f"{dt.year:04d}-{dt.month:02d}-{dt.day:02d}"
         else:
             return DateTimeFormatter.to_poetry_date(dt)
@@ -558,9 +556,7 @@ class PoetryDateTimeUtils:
 
     @staticmethod
     def calculate_translation_speed(
-        word_count: int,
-        start_time: datetime,
-        end_time: Optional[datetime] = None
+        word_count: int, start_time: datetime, end_time: Optional[datetime] = None
     ) -> Dict[str, float]:
         """
         Calculate translation speed metrics.
@@ -595,11 +591,11 @@ class PoetryDateTimeUtils:
             words_per_minute = 0
 
         return {
-            'word_count': word_count,
-            'duration_seconds': duration_seconds,
-            'duration_hours': duration_hours,
-            'words_per_hour': words_per_hour,
-            'words_per_minute': words_per_minute
+            "word_count": word_count,
+            "duration_seconds": duration_seconds,
+            "duration_hours": duration_hours,
+            "words_per_hour": words_per_hour,
+            "words_per_minute": words_per_minute,
         }
 
     @staticmethod
@@ -616,29 +612,29 @@ class PoetryDateTimeUtils:
         year = dt.year
 
         if year < 500:
-            return 'Classical Antiquity'
+            return "Classical Antiquity"
         elif year < 1000:
-            return 'Early Medieval'
+            return "Early Medieval"
         elif year < 1300:
-            return 'High Medieval'
+            return "High Medieval"
         elif year < 1500:
-            return 'Late Medieval'
+            return "Late Medieval"
         elif year < 1600:
-            return 'Renaissance'
+            return "Renaissance"
         elif year < 1700:
-            return 'Baroque'
+            return "Baroque"
         elif year < 1800:
-            return 'Enlightenment'
+            return "Enlightenment"
         elif year < 1850:
-            return 'Romantic'
+            return "Romantic"
         elif year < 1900:
-            return 'Victorian'
+            return "Victorian"
         elif year < 1950:
-            return 'Modernist'
+            return "Modernist"
         elif year < 2000:
-            return 'Contemporary'
+            return "Contemporary"
         else:
-            return '21st Century'
+            return "21st Century"
 
 
 # Global instances
@@ -691,12 +687,14 @@ def time_ago(dt: datetime, reference: Optional[datetime] = None) -> str:
     return TimeCalculator.time_ago(dt, reference)
 
 
-def format_poetry_date(dt: datetime, style: str = 'modern') -> str:
+def format_poetry_date(dt: datetime, style: str = "modern") -> str:
     """Format date for poetry display."""
     return PoetryDateTimeUtils.format_creation_date(dt, style)
 
 
-def get_age(birth_date: Union[date, datetime], reference: Optional[datetime] = None) -> Dict[str, int]:
+def get_age(
+    birth_date: Union[date, datetime], reference: Optional[datetime] = None
+) -> Dict[str, int]:
     """Calculate age from birth date."""
     return TimeCalculator.get_age(birth_date, reference)
 

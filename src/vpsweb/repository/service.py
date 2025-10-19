@@ -11,12 +11,21 @@ from sqlalchemy.orm import Session
 
 from .crud import RepositoryService
 from .schemas import (
-    PoemCreate, PoemUpdate, PoemResponse,
-    TranslationCreate, TranslationUpdate, TranslationResponse,
-    AILogCreate, AILogResponse,
-    HumanNoteCreate, HumanNoteResponse,
+    PoemCreate,
+    PoemUpdate,
+    PoemResponse,
+    TranslationCreate,
+    TranslationUpdate,
+    TranslationResponse,
+    AILogCreate,
+    AILogResponse,
+    HumanNoteCreate,
+    HumanNoteResponse,
     RepositoryStats,
-    WorkflowTaskCreate, WorkflowTaskResponse, TaskStatus, WorkflowMode
+    WorkflowTaskCreate,
+    WorkflowTaskResponse,
+    TaskStatus,
+    WorkflowMode,
 )
 from .models import Poem, Translation, AILog, HumanNote, WorkflowTask
 
@@ -41,7 +50,9 @@ class RepositoryWebService:
         return {
             "stats": stats,
             "recent_poems": [self._poem_to_response(p) for p in recent_poems],
-            "recent_translations": [self._translation_to_response(t) for t in recent_translations]
+            "recent_translations": [
+                self._translation_to_response(t) for t in recent_translations
+            ],
         }
 
     # Poem Methods
@@ -66,7 +77,7 @@ class RepositoryWebService:
         page_size: int = 10,
         search: Optional[str] = None,
         poet: Optional[str] = None,
-        language: Optional[str] = None
+        language: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get paginated poems with optional filtering"""
         offset = (page - 1) * page_size
@@ -76,10 +87,7 @@ class RepositoryWebService:
             total = len(poems)  # Note: For large datasets, this should be optimized
         else:
             poems = self.repo.poems.get_multi(
-                skip=offset,
-                limit=page_size,
-                poet_name=poet,
-                language=language
+                skip=offset, limit=page_size, poet_name=poet, language=language
             )
             total = self.repo.poems.count()
 
@@ -91,11 +99,13 @@ class RepositoryWebService:
                 "total_items": total,
                 "total_pages": (total + page_size - 1) // page_size,
                 "has_next": offset + page_size < total,
-                "has_previous": page > 1
-            }
+                "has_previous": page > 1,
+            },
         }
 
-    def update_poem(self, poem_id: str, poem_data: PoemUpdate) -> Optional[PoemResponse]:
+    def update_poem(
+        self, poem_id: str, poem_data: PoemUpdate
+    ) -> Optional[PoemResponse]:
         """Update a poem"""
         try:
             poem = self.repo.poems.update(poem_id, poem_data)
@@ -113,7 +123,9 @@ class RepositoryWebService:
             raise self._handle_error("Failed to delete poem", e)
 
     # Translation Methods
-    def create_translation(self, translation_data: TranslationCreate) -> TranslationResponse:
+    def create_translation(
+        self, translation_data: TranslationCreate
+    ) -> TranslationResponse:
         """Create a new translation"""
         try:
             # Verify poem exists
@@ -138,7 +150,9 @@ class RepositoryWebService:
         translations = self.repo.translations.get_by_poem(poem_id)
         return [self._translation_to_response(t) for t in translations]
 
-    def get_translation_with_details(self, translation_id: str) -> Optional[Dict[str, Any]]:
+    def get_translation_with_details(
+        self, translation_id: str
+    ) -> Optional[Dict[str, Any]]:
         """Get translation with all related details (AI logs, human notes)"""
         translation = self.repo.translations.get_by_id(translation_id)
         if not translation:
@@ -150,13 +164,17 @@ class RepositoryWebService:
         return {
             "translation": self._translation_to_response(translation),
             "ai_logs": [self._ai_log_to_response(log) for log in ai_logs],
-            "human_notes": [self._human_note_to_response(note) for note in human_notes]
+            "human_notes": [self._human_note_to_response(note) for note in human_notes],
         }
 
-    def update_translation(self, translation_id: str, translation_data: TranslationUpdate) -> Optional[TranslationResponse]:
+    def update_translation(
+        self, translation_id: str, translation_data: TranslationUpdate
+    ) -> Optional[TranslationResponse]:
         """Update a translation"""
         try:
-            translation = self.repo.translations.update(translation_id, translation_data)
+            translation = self.repo.translations.update(
+                translation_id, translation_data
+            )
             if translation:
                 return self._translation_to_response(translation)
             return None
@@ -177,7 +195,9 @@ class RepositoryWebService:
             # Verify translation exists
             translation = self.repo.translations.get_by_id(ai_log_data.translation_id)
             if not translation:
-                raise ValueError(f"Translation with ID {ai_log_data.translation_id} not found")
+                raise ValueError(
+                    f"Translation with ID {ai_log_data.translation_id} not found"
+                )
 
             ai_log = self.repo.ai_logs.create(ai_log_data)
             return self._ai_log_to_response(ai_log)
@@ -201,14 +221,18 @@ class RepositoryWebService:
             # Verify translation exists
             translation = self.repo.translations.get_by_id(note_data.translation_id)
             if not translation:
-                raise ValueError(f"Translation with ID {note_data.translation_id} not found")
+                raise ValueError(
+                    f"Translation with ID {note_data.translation_id} not found"
+                )
 
             note = self.repo.human_notes.create(note_data)
             return self._human_note_to_response(note)
         except Exception as e:
             raise self._handle_error("Failed to create human note", e)
 
-    def get_human_notes_by_translation(self, translation_id: str) -> List[HumanNoteResponse]:
+    def get_human_notes_by_translation(
+        self, translation_id: str
+    ) -> List[HumanNoteResponse]:
         """Get all human notes for a translation"""
         notes = self.repo.human_notes.get_by_translation(translation_id)
         return [self._human_note_to_response(note) for note in notes]
@@ -247,7 +271,7 @@ class RepositoryWebService:
             metadata_json=poem.metadata_json,
             created_at=poem.created_at,
             updated_at=poem.updated_at,
-            translation_count=poem.translation_count
+            translation_count=poem.translation_count,
         )
 
     def _translation_to_response(self, translation: Translation) -> TranslationResponse:
@@ -261,7 +285,7 @@ class RepositoryWebService:
             translated_text=translation.translated_text,
             quality_rating=translation.quality_rating,
             raw_path=translation.raw_path,
-            created_at=translation.created_at
+            created_at=translation.created_at,
         )
 
     def _ai_log_to_response(self, ai_log: AILog) -> AILogResponse:
@@ -275,7 +299,7 @@ class RepositoryWebService:
             cost_info_json=ai_log.cost_info_json,
             runtime_seconds=ai_log.runtime_seconds,
             notes=ai_log.notes,
-            created_at=ai_log.created_at
+            created_at=ai_log.created_at,
         )
 
     def _human_note_to_response(self, note: HumanNote) -> HumanNoteResponse:
@@ -284,11 +308,13 @@ class RepositoryWebService:
             id=note.id,
             translation_id=note.translation_id,
             note_text=note.note_text,
-            created_at=note.created_at
+            created_at=note.created_at,
         )
 
     # Workflow Task Methods
-    def create_workflow_task(self, task_data: WorkflowTaskCreate) -> WorkflowTaskResponse:
+    def create_workflow_task(
+        self, task_data: WorkflowTaskCreate
+    ) -> WorkflowTaskResponse:
         """Create a new workflow task"""
         try:
             task = self.repo.workflow_tasks.create(task_data)
@@ -309,7 +335,7 @@ class RepositoryWebService:
         skip: int = 0,
         limit: int = 100,
         status: Optional[TaskStatus] = None,
-        poem_id: Optional[str] = None
+        poem_id: Optional[str] = None,
     ) -> List[WorkflowTaskResponse]:
         """Get workflow tasks with optional filtering"""
         tasks = self.repo.workflow_tasks.get_multi(
@@ -322,7 +348,7 @@ class RepositoryWebService:
         task_id: str,
         status: TaskStatus,
         progress_percentage: Optional[int] = None,
-        error_message: Optional[str] = None
+        error_message: Optional[str] = None,
     ) -> Optional[WorkflowTaskResponse]:
         """Update workflow task status"""
         try:
@@ -335,7 +361,9 @@ class RepositoryWebService:
         except Exception as e:
             raise self._handle_error("Failed to update workflow task status", e)
 
-    def set_workflow_task_result(self, task_id: str, result_data: Dict[str, Any]) -> Optional[WorkflowTaskResponse]:
+    def set_workflow_task_result(
+        self, task_id: str, result_data: Dict[str, Any]
+    ) -> Optional[WorkflowTaskResponse]:
         """Set workflow task result and mark as completed"""
         try:
             task = self.repo.workflow_tasks.set_result(task_id, result_data)
@@ -363,7 +391,7 @@ class RepositoryWebService:
             updated_at=task.updated_at,
             is_running=task.is_running,
             is_completed=task.is_completed,
-            duration_seconds=task.duration_seconds
+            duration_seconds=task.duration_seconds,
         )
 
     def _handle_error(self, message: str, error: Exception) -> Exception:

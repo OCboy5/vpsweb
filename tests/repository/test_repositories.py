@@ -15,7 +15,7 @@ from vpsweb.repository.human_notes import HumanNoteRepository
 from vpsweb.repository.exceptions import (
     DatabaseException,
     ValidationException,
-    ResourceNotFoundException
+    ResourceNotFoundException,
 )
 from vpsweb.repository.schemas import (
     PoemCreate,
@@ -23,7 +23,7 @@ from vpsweb.repository.schemas import (
     AiLogCreate,
     HumanNoteCreate,
     AiLogStatus,
-    WorkflowMode
+    WorkflowMode,
 )
 
 
@@ -43,7 +43,7 @@ async def test_poem_repository_create(db_session):
         poem_title="Test Poem",
         source_language="en",
         original_text="This is a test poem\nFor testing purposes\nWritten in English",
-        tags=["test", "sample"]
+        tags=["test", "sample"],
     )
 
     poem = await repo.create(poem_data)
@@ -103,10 +103,7 @@ async def test_poem_repository_update(db_session, sample_poem):
     """
     repo = PoemRepository(db_session)
 
-    update_data = {
-        "poem_title": "Updated Test Poem",
-        "tags": ["updated", "test"]
-    }
+    update_data = {"poem_title": "Updated Test Poem", "tags": ["updated", "test"]}
 
     updated_poem = await repo.update(sample_poem, update_data)
 
@@ -172,7 +169,7 @@ async def test_translation_repository_create(db_session, sample_poem):
         translated_text="这是一首测试诗\n用于测试目的\n用中文写成",
         target_language="zh",
         version=1,
-        translator_type="ai"
+        translator_type="ai",
     )
 
     translation = await repo.create(translation_data)
@@ -223,7 +220,7 @@ async def test_ai_log_repository_create(db_session, sample_poem, sample_translat
         status=AiLogStatus.COMPLETED,
         duration_seconds=5.2,
         total_tokens=150,
-        cost=0.005
+        cost=0.005,
     )
 
     ai_log = await repo.create(ai_log_data)
@@ -236,7 +233,9 @@ async def test_ai_log_repository_create(db_session, sample_poem, sample_translat
 
 @pytest.mark.repository
 @pytest.mark.unit
-async def test_human_note_repository_create(db_session, sample_poem, sample_translation):
+async def test_human_note_repository_create(
+    db_session, sample_poem, sample_translation
+):
     """
     Test human note repository create operation.
 
@@ -254,7 +253,7 @@ async def test_human_note_repository_create(db_session, sample_poem, sample_tran
         content="This is a test note for the translation",
         note_type="editorial",
         author_name="Test Editor",
-        is_public=True
+        is_public=True,
     )
 
     note = await repo.create(note_data)
@@ -281,7 +280,7 @@ async def test_poem_repository_validation_error(db_session):
         poet_name="Test Poet",
         poem_title="Test Poem",
         source_language="invalid_lang",
-        original_text="Test content"
+        original_text="Test content",
     )
 
     with pytest.raises(ValidationException):
@@ -304,7 +303,7 @@ async def test_translation_repository_not_found_error(db_session):
         poem_id="non-existent-poem-id",
         translated_text="Test translation",
         target_language="zh",
-        version=1
+        version=1,
     )
 
     with pytest.raises(ResourceNotFoundException):
@@ -381,7 +380,7 @@ async def test_database_error_handling(db_session, mock_ulid_generator):
     # Create a poem that will cause an error (missing required field)
     invalid_data = {
         "id": mock_ulid_generator(),
-        "poet_name": "Test Poet"
+        "poet_name": "Test Poet",
         # Missing required fields
     }
 

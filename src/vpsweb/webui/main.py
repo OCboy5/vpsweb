@@ -25,6 +25,7 @@ from .services.poem_service import PoemService
 from .services.translation_service import TranslationService
 from .services.vpsweb_adapter import VPSWebWorkflowAdapter, get_vpsweb_adapter
 
+
 # Pydantic models for workflow endpoints
 class TranslationRequest(BaseModel):
     poem_id: str
@@ -46,11 +47,12 @@ app = FastAPI(
     description="Local poetry translation repository with AI integration",
     version="0.3.1",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Performance monitoring middleware
 logger = logging.getLogger(__name__)
+
 
 @app.middleware("http")
 async def performance_monitoring_middleware(request: Request, call_next):
@@ -75,7 +77,7 @@ async def performance_monitoring_middleware(request: Request, call_next):
 
     logger.log(
         log_level,
-        f"{request.method} {request.url.path} - {response.status_code} - {process_time:.2f}ms"
+        f"{request.method} {request.url.path} - {response.status_code} - {process_time:.2f}ms",
     )
 
     return response
@@ -92,15 +94,17 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             "message": exc.detail,
             "data": None,
             "error_code": exc.status_code,
-            "timestamp": time.time()
-        }
+            "timestamp": time.time(),
+        },
     )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle unexpected exceptions with consistent error response format"""
-    logger.error(f"Unexpected error in {request.method} {request.url.path}: {exc}", exc_info=True)
+    logger.error(
+        f"Unexpected error in {request.method} {request.url.path}: {exc}", exc_info=True
+    )
 
     return JSONResponse(
         status_code=500,
@@ -110,19 +114,24 @@ async def general_exception_handler(request: Request, exc: Exception):
             "data": None,
             "error_code": 500,
             "timestamp": time.time(),
-            "error_id": f"ERR_{int(time.time() * 1000)}"  # Unique error ID for tracking
-        }
+            "error_id": f"ERR_{int(time.time() * 1000)}",  # Unique error ID for tracking
+        },
     )
 
+
 # Mount static files directory
-app.mount("/static", StaticFiles(directory="src/vpsweb/webui/web/static"), name="static")
+app.mount(
+    "/static", StaticFiles(directory="src/vpsweb/webui/web/static"), name="static"
+)
 
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory="src/vpsweb/webui/web/templates")
 
 # Include API routers
 app.include_router(poems.router, prefix="/api/v1/poems", tags=["poems"])
-app.include_router(translations.router, prefix="/api/v1/translations", tags=["translations"])
+app.include_router(
+    translations.router, prefix="/api/v1/translations", tags=["translations"]
+)
 app.include_router(statistics.router, prefix="/api/v1/statistics", tags=["statistics"])
 
 
@@ -132,11 +141,14 @@ async def index(request: Request, db: Session = Depends(get_db)):
     Dashboard - List all poems in the repository
     """
     poems_list = db.query(Poem).order_by(Poem.created_at.desc()).all()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "poems": poems_list,
-        "title": "VPSWeb Repository - Dashboard"
-    })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "poems": poems_list,
+            "title": "VPSWeb Repository - Dashboard",
+        },
+    )
 
 
 @app.get("/health")
@@ -165,11 +177,13 @@ def get_translation_service(db: Session = Depends(get_db)) -> TranslationService
 async def get_vpsweb_adapter_dependency(
     poem_service: PoemService = Depends(get_poem_service),
     translation_service: TranslationService = Depends(get_translation_service),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> VPSWebWorkflowAdapter:
     """Dependency to get VPSWeb workflow adapter instance"""
     repository_service = RepositoryWebService(db)
-    async with get_vpsweb_adapter(poem_service, translation_service, repository_service) as adapter:
+    async with get_vpsweb_adapter(
+        poem_service, translation_service, repository_service
+    ) as adapter:
         yield adapter
 
 
@@ -180,11 +194,10 @@ async def poems_list(request: Request, db: Session = Depends(get_db)):
     """
     service = get_repository_service(db)
     poems_list = service.poems.get_multi(skip=0, limit=100)
-    return templates.TemplateResponse("poems_list.html", {
-        "request": request,
-        "poems": poems_list,
-        "title": "Poems - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "poems_list.html",
+        {"request": request, "poems": poems_list, "title": "Poems - VPSWeb Repository"},
+    )
 
 
 @app.get("/poems/new", response_class=HTMLResponse)
@@ -192,10 +205,10 @@ async def new_poem_form(request: Request):
     """
     Display form to create a new poem
     """
-    return templates.TemplateResponse("poem_new.html", {
-        "request": request,
-        "title": "Add New Poem - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "poem_new.html",
+        {"request": request, "title": "Add New Poem - VPSWeb Repository"},
+    )
 
 
 @app.get("/poems/{poem_id}", response_class=HTMLResponse)
@@ -209,11 +222,14 @@ async def poem_detail(poem_id: str, request: Request, db: Session = Depends(get_
     if not poem:
         raise HTTPException(status_code=404, detail="Poem not found")
 
-    return templates.TemplateResponse("poem_detail.html", {
-        "request": request,
-        "poem": poem,
-        "title": f"{poem.poem_title} - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "poem_detail.html",
+        {
+            "request": request,
+            "poem": poem,
+            "title": f"{poem.poem_title} - VPSWeb Repository",
+        },
+    )
 
 
 @app.get("/poems/{poem_id}/compare", response_class=HTMLResponse)
@@ -227,11 +243,14 @@ async def poem_compare(poem_id: str, request: Request, db: Session = Depends(get
     if not poem:
         raise HTTPException(status_code=404, detail="Poem not found")
 
-    return templates.TemplateResponse("poem_compare.html", {
-        "request": request,
-        "poem": poem,
-        "title": f"Compare Translations - {poem.poem_title} - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "poem_compare.html",
+        {
+            "request": request,
+            "poem": poem,
+            "title": f"Compare Translations - {poem.poem_title} - VPSWeb Repository",
+        },
+    )
 
 
 @app.get("/translations", response_class=HTMLResponse)
@@ -241,11 +260,14 @@ async def translations_list(request: Request, db: Session = Depends(get_db)):
     """
     service = get_repository_service(db)
     translations_list = service.translations.get_multi(skip=0, limit=100)
-    return templates.TemplateResponse("translations_list.html", {
-        "request": request,
-        "translations": translations_list,
-        "title": "Translations - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "translations_list.html",
+        {
+            "request": request,
+            "translations": translations_list,
+            "title": "Translations - VPSWeb Repository",
+        },
+    )
 
 
 @app.get("/statistics", response_class=HTMLResponse)
@@ -255,11 +277,10 @@ async def statistics_page(request: Request, db: Session = Depends(get_db)):
     """
     service = get_repository_service(db)
     stats = service.get_repository_stats()
-    return templates.TemplateResponse("statistics.html", {
-        "request": request,
-        "stats": stats,
-        "title": "Statistics - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "statistics.html",
+        {"request": request, "stats": stats, "title": "Statistics - VPSWeb Repository"},
+    )
 
 
 @app.get("/api-docs", response_class=HTMLResponse)
@@ -267,19 +288,20 @@ async def api_documentation(request: Request):
     """
     Display API documentation page
     """
-    return templates.TemplateResponse("api_docs.html", {
-        "request": request,
-        "title": "API Documentation - VPSWeb Repository"
-    })
+    return templates.TemplateResponse(
+        "api_docs.html",
+        {"request": request, "title": "API Documentation - VPSWeb Repository"},
+    )
 
 
 # Workflow Integration API Endpoints
+
 
 @app.post("/api/v1/workflow/translate")
 async def start_translation_workflow(
     request: TranslationRequest,
     background_tasks: BackgroundTasks,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Start a new translation workflow using VPSWeb engine
@@ -294,27 +316,32 @@ async def start_translation_workflow(
             target_lang=request.target_lang,
             workflow_mode=request.workflow_mode,
             background_tasks=background_tasks,
-            synchronous=False
+            synchronous=False,
         )
 
-        return JSONResponse({
-            "success": True,
-            "message": "Translation workflow started successfully",
-            "data": result
-        })
+        return JSONResponse(
+            {
+                "success": True,
+                "message": "Translation workflow started successfully",
+                "data": result,
+            }
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Failed to start translation workflow: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Failed to start translation workflow: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.post("/api/v1/workflow/translate/sync")
 async def execute_translation_workflow_sync(
     request: TranslationRequest,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Execute a translation workflow synchronously and return the result
@@ -329,27 +356,32 @@ async def execute_translation_workflow_sync(
             target_lang=request.target_lang,
             workflow_mode=request.workflow_mode,
             background_tasks=None,
-            synchronous=True
+            synchronous=True,
         )
 
-        return JSONResponse({
-            "success": True,
-            "message": "Translation workflow completed successfully",
-            "data": result
-        })
+        return JSONResponse(
+            {
+                "success": True,
+                "message": "Translation workflow completed successfully",
+                "data": result,
+            }
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Translation workflow failed: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Translation workflow failed: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.post("/api/v1/workflow/validate")
 async def validate_translation_workflow(
     request: TranslationValidationRequest,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Validate translation workflow input without executing
@@ -362,27 +394,24 @@ async def validate_translation_workflow(
             poem_id=request.poem_id,
             source_lang=request.source_lang,
             target_lang=request.target_lang,
-            workflow_mode=request.workflow_mode
+            workflow_mode=request.workflow_mode,
         )
 
-        return JSONResponse({
-            "success": True,
-            "message": "Validation completed",
-            "data": result
-        })
+        return JSONResponse(
+            {"success": True, "message": "Validation completed", "data": result}
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Validation failed: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {"success": False, "message": f"Validation failed: {str(e)}", "data": None},
+            status_code=500,
+        )
 
 
 @app.get("/api/v1/workflow/tasks/{task_id}")
 async def get_workflow_task_status(
     task_id: str,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Get the status of a background translation workflow task
@@ -394,30 +423,38 @@ async def get_workflow_task_status(
         result = await adapter.get_task_status(task_id)
 
         if result is None:
-            return JSONResponse({
-                "success": False,
-                "message": f"Task not found: {task_id}",
-                "data": None
-            }, status_code=404)
+            return JSONResponse(
+                {
+                    "success": False,
+                    "message": f"Task not found: {task_id}",
+                    "data": None,
+                },
+                status_code=404,
+            )
 
-        return JSONResponse({
-            "success": True,
-            "message": "Task status retrieved successfully",
-            "data": result
-        })
+        return JSONResponse(
+            {
+                "success": True,
+                "message": "Task status retrieved successfully",
+                "data": result,
+            }
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Failed to get task status: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Failed to get task status: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.get("/api/v1/workflow/tasks")
 async def list_workflow_tasks(
     limit: int = 50,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     List active and recent background translation workflow tasks
@@ -428,24 +465,25 @@ async def list_workflow_tasks(
     try:
         result = await adapter.list_active_tasks(limit=limit)
 
-        return JSONResponse({
-            "success": True,
-            "message": "Tasks retrieved successfully",
-            "data": result
-        })
+        return JSONResponse(
+            {"success": True, "message": "Tasks retrieved successfully", "data": result}
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Failed to list tasks: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Failed to list tasks: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.delete("/api/v1/workflow/tasks/{task_id}")
 async def cancel_workflow_task(
     task_id: str,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Cancel a background translation workflow task
@@ -457,29 +495,37 @@ async def cancel_workflow_task(
         cancelled = await adapter.cancel_task(task_id)
 
         if not cancelled:
-            return JSONResponse({
-                "success": False,
-                "message": f"Task not found or cannot be cancelled: {task_id}",
-                "data": None
-            }, status_code=404)
+            return JSONResponse(
+                {
+                    "success": False,
+                    "message": f"Task not found or cannot be cancelled: {task_id}",
+                    "data": None,
+                },
+                status_code=404,
+            )
 
-        return JSONResponse({
-            "success": True,
-            "message": "Task cancelled successfully",
-            "data": {"task_id": task_id}
-        })
+        return JSONResponse(
+            {
+                "success": True,
+                "message": "Task cancelled successfully",
+                "data": {"task_id": task_id},
+            }
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Failed to cancel task: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Failed to cancel task: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.get("/api/v1/workflow/modes")
 async def get_workflow_modes(
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency)
+    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
 ):
     """
     Get available VPSWeb workflow modes
@@ -490,18 +536,23 @@ async def get_workflow_modes(
     try:
         result = await adapter.get_workflow_modes()
 
-        return JSONResponse({
-            "success": True,
-            "message": "Workflow modes retrieved successfully",
-            "data": result
-        })
+        return JSONResponse(
+            {
+                "success": True,
+                "message": "Workflow modes retrieved successfully",
+                "data": result,
+            }
+        )
 
     except Exception as e:
-        return JSONResponse({
-            "success": False,
-            "message": f"Failed to get workflow modes: {str(e)}",
-            "data": None
-        }, status_code=500)
+        return JSONResponse(
+            {
+                "success": False,
+                "message": f"Failed to get workflow modes: {str(e)}",
+                "data": None,
+            },
+            status_code=500,
+        )
 
 
 @app.on_event("startup")
@@ -524,5 +575,5 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=settings.reload,
-        log_level=settings.log_level.lower()
+        log_level=settings.log_level.lower(),
     )

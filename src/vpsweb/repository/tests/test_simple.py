@@ -16,8 +16,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # Import directly from current module to avoid circular imports
 from models import Poem, Translation, AILog, HumanNote, Base
 from schemas import (
-    PoemCreate, TranslationCreate, AILogCreate, HumanNoteCreate,
-    TranslatorType, WorkflowMode
+    PoemCreate,
+    TranslationCreate,
+    AILogCreate,
+    HumanNoteCreate,
+    TranslatorType,
+    WorkflowMode,
 )
 from pydantic import ValidationError
 
@@ -31,7 +35,7 @@ def test_pydantic_validation():
         "poem_title": "歸園田居",
         "source_language": "zh",
         "original_text": "採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。",
-        "metadata_json": '{"dynasty": "東晉"}'
+        "metadata_json": '{"dynasty": "東晉"}',
     }
 
     poem = PoemCreate(**poem_data)
@@ -54,7 +58,7 @@ def test_pydantic_validation():
         "translator_info": "gpt-4",
         "target_language": "en",
         "translated_text": "Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain.",
-        "quality_rating": 5
+        "quality_rating": 5,
     }
 
     translation = TranslationCreate(**trans_data)
@@ -79,7 +83,7 @@ def test_model_creation():
         poet_name="李白",
         poem_title="靜夜思",
         source_language="zh",
-        original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。"
+        original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。",
     )
 
     assert poem.id == "test_poem_001"
@@ -92,7 +96,7 @@ def test_model_creation():
         poem_id="test_poem_001",
         translator_type=TranslatorType.AI,
         target_language="en",
-        translated_text="Before my bed, the bright moonlight shines..."
+        translated_text="Before my bed, the bright moonlight shines...",
     )
 
     assert translation.id == "test_trans_001"
@@ -105,7 +109,7 @@ def test_model_creation():
         translation_id="test_trans_001",
         model_name="gpt-4",
         workflow_mode=WorkflowMode.REASONING,
-        runtime_seconds=12.5
+        runtime_seconds=12.5,
     )
 
     assert ai_log.id == "test_ai_001"
@@ -116,7 +120,7 @@ def test_model_creation():
     note = HumanNote(
         id="test_note_001",
         translation_id="test_trans_001",
-        note_text="This is a good translation that captures the essence."
+        note_text="This is a good translation that captures the essence.",
     )
 
     assert note.id == "test_note_001"
@@ -135,7 +139,11 @@ def test_enums():
     assert WorkflowMode.REASONING == "reasoning"
     assert WorkflowMode.NON_REASONING == "non_reasoning"
     assert WorkflowMode.HYBRID == "hybrid"
-    assert list(WorkflowMode) == [WorkflowMode.REASONING, WorkflowMode.NON_REASONING, WorkflowMode.HYBRID]
+    assert list(WorkflowMode) == [
+        WorkflowMode.REASONING,
+        WorkflowMode.NON_REASONING,
+        WorkflowMode.HYBRID,
+    ]
 
 
 def test_model_relationships():
@@ -147,7 +155,7 @@ def test_model_relationships():
         poet_name="杜甫",
         poem_title="春望",
         source_language="zh",
-        original_text="國破山河在，城春草木深。"
+        original_text="國破山河在，城春草木深。",
     )
 
     translation = Translation(
@@ -155,14 +163,14 @@ def test_model_relationships():
         poem_id="test_poem_rel",
         translator_type=TranslatorType.AI,
         target_language="en",
-        translated_text="The state is destroyed, but the mountains and rivers remain."
+        translated_text="The state is destroyed, but the mountains and rivers remain.",
     )
 
     ai_log = AILog(
         id="test_ai_rel",
         translation_id="test_trans_rel",
         model_name="claude-3",
-        workflow_mode=WorkflowMode.HYBRID
+        workflow_mode=WorkflowMode.HYBRID,
     )
 
     # Test relationships (without database)
@@ -180,14 +188,14 @@ def test_model_properties():
         poet_name="王維",
         poem_title="相思",
         source_language="zh",
-        original_text="紅豆生南國，春來發幾枝。"
+        original_text="紅豆生南國，春來發幾枝。",
     )
 
     # Test translation count properties (would be 0 without actual relationships)
     # These properties would work properly when relationships are established
-    assert hasattr(poem, 'translation_count')
-    assert hasattr(poem, 'ai_translation_count')
-    assert hasattr(poem, 'human_translation_count')
+    assert hasattr(poem, "translation_count")
+    assert hasattr(poem, "ai_translation_count")
+    assert hasattr(poem, "human_translation_count")
 
     # Create translation
     translation = Translation(
@@ -195,12 +203,12 @@ def test_model_properties():
         poem_id="test_poem_prop",
         translator_type=TranslatorType.AI,
         target_language="en",
-        translated_text="Red beans grow in the southern country..."
+        translated_text="Red beans grow in the southern country...",
     )
 
     # Test translation properties
-    assert hasattr(translation, 'has_ai_logs')
-    assert hasattr(translation, 'has_human_notes')
+    assert hasattr(translation, "has_ai_logs")
+    assert hasattr(translation, "has_human_notes")
 
     # Create AI log
     ai_log = AILog(
@@ -208,12 +216,12 @@ def test_model_properties():
         translation_id="test_trans_prop",
         model_name="gpt-4",
         workflow_mode=WorkflowMode.REASONING,
-        token_usage_json='{"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}'
+        token_usage_json='{"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}',
     )
 
     # Test AI log properties
-    assert hasattr(ai_log, 'token_usage')
-    assert hasattr(ai_log, 'cost_info')
+    assert hasattr(ai_log, "token_usage")
+    assert hasattr(ai_log, "cost_info")
 
     # Test token_usage parsing
     if ai_log.token_usage:

@@ -26,7 +26,6 @@ __all__ = [
     "TranslationRunner",
     "quick_translate",
     "quick_translate_file",
-
     # WeChat article utilities
     "WeChatArticleRunner",
     "quick_generate_article",

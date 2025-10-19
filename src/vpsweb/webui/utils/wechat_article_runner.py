@@ -54,8 +54,17 @@ class WeChatArticleRunner:
 
         self.article_generator = ArticleGenerator(
             config=self.article_config,
-            providers_config=self.config.providers.model_dump() if hasattr(self.config, 'providers') else None,
-            wechat_llm_config=self.config.models.wechat_translation_notes.model_dump() if hasattr(self.config, 'models') and hasattr(self.config.models, 'wechat_translation_notes') else None,
+            providers_config=(
+                self.config.providers.model_dump()
+                if hasattr(self.config, "providers")
+                else None
+            ),
+            wechat_llm_config=(
+                self.config.models.wechat_translation_notes.model_dump()
+                if hasattr(self.config, "models")
+                and hasattr(self.config.models, "wechat_translation_notes")
+                else None
+            ),
             system_config=self.config.model_dump(),
         )
 
@@ -98,7 +107,7 @@ class WeChatArticleRunner:
 
             # 添加自定义元数据
             if custom_metadata:
-                if not hasattr(result, 'custom_metadata'):
+                if not hasattr(result, "custom_metadata"):
                     result.custom_metadata = {}
                 result.custom_metadata.update(custom_metadata)
 
@@ -138,7 +147,10 @@ class WeChatArticleRunner:
         try:
             # 创建临时JSON文件
             import tempfile
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
+
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as f:
                 json.dump(translation_data, f, ensure_ascii=False, indent=2)
                 temp_json_path = f.name
 
@@ -187,7 +199,9 @@ class WeChatArticleRunner:
         results = []
         for i, translation_file in enumerate(translation_files):
             try:
-                logger.info(f"处理第 {i+1}/{len(translation_files)} 个文件: {translation_file}")
+                logger.info(
+                    f"处理第 {i+1}/{len(translation_files)} 个文件: {translation_file}"
+                )
 
                 result = self.generate_from_translation(
                     translation_json_path=translation_file,
@@ -200,21 +214,25 @@ class WeChatArticleRunner:
                     },
                 )
 
-                results.append({
-                    "file_index": i,
-                    "file_path": translation_file,
-                    "status": "success",
-                    "result": result,
-                })
+                results.append(
+                    {
+                        "file_index": i,
+                        "file_path": translation_file,
+                        "status": "success",
+                        "result": result,
+                    }
+                )
 
             except Exception as e:
                 logger.error(f"第 {i+1} 个文件处理失败: {e}")
-                results.append({
-                    "file_index": i,
-                    "file_path": translation_file,
-                    "status": "error",
-                    "error": str(e),
-                })
+                results.append(
+                    {
+                        "file_index": i,
+                        "file_path": translation_file,
+                        "status": "error",
+                        "error": str(e),
+                    }
+                )
 
         success_count = sum(1 for r in results if r["status"] == "success")
         logger.info(f"批量生成完成: {success_count}/{len(translation_files)} 成功")
@@ -243,24 +261,29 @@ class WeChatArticleRunner:
         }
 
         # 诗歌信息
-        summary.update({
-            "poem_title": result.article.poem_title,
-            "poet_name": result.article.poet_name,
-            "source_lang": result.article.source_lang,
-            "target_lang": result.article.target_lang,
-        })
+        summary.update(
+            {
+                "poem_title": result.article.poem_title,
+                "poet_name": result.article.poet_name,
+                "source_lang": result.article.source_lang,
+                "target_lang": result.article.target_lang,
+            }
+        )
 
         # LLM 指标
         if result.llm_metrics:
             summary["llm_metrics"] = result.llm_metrics
 
         # 封面图片信息
-        if hasattr(result.article, 'cover_image_path') and result.article.cover_image_path:
+        if (
+            hasattr(result.article, "cover_image_path")
+            and result.article.cover_image_path
+        ):
             summary["cover_image_path"] = result.article.cover_image_path
-            summary["show_cover_pic"] = getattr(result.article, 'show_cover_pic', False)
+            summary["show_cover_pic"] = getattr(result.article, "show_cover_pic", False)
 
         # 自定义元数据
-        if hasattr(result, 'custom_metadata') and result.custom_metadata:
+        if hasattr(result, "custom_metadata") and result.custom_metadata:
             summary["custom_metadata"] = result.custom_metadata
 
         return summary
@@ -286,11 +309,13 @@ class WeChatArticleRunner:
             # 检查文件是否存在
             file_path = Path(translation_json_path)
             if not file_path.exists():
-                validation_result["errors"].append(f"文件不存在: {translation_json_path}")
+                validation_result["errors"].append(
+                    f"文件不存在: {translation_json_path}"
+                )
                 return validation_result
 
             # 尝试加载JSON
-            with open(translation_json_path, 'r', encoding='utf-8') as f:
+            with open(translation_json_path, "r", encoding="utf-8") as f:
                 translation_data = json.load(f)
 
             # 验证必需字段
@@ -316,7 +341,7 @@ class WeChatArticleRunner:
             # 提取元数据
             if not validation_result["errors"]:
                 original_poem = input_data.get("original_poem", "")
-                lines = original_poem.strip().split('\n')
+                lines = original_poem.strip().split("\n")
                 poem_title = "无题"
                 poet_name = "佚名"
 
@@ -364,7 +389,9 @@ class WeChatArticleRunner:
         validation = self.validate_translation_file(translation_json_path)
 
         if not validation["valid"]:
-            raise ArticleGeneratorError(f"Invalid translation file: {', '.join(validation['errors'])}")
+            raise ArticleGeneratorError(
+                f"Invalid translation file: {', '.join(validation['errors'])}"
+            )
 
         metadata = validation["metadata"]
 

@@ -45,7 +45,7 @@ def sample_poem():
         poem_title="歸園田居",
         source_language="zh",
         original_text="採菊東籬下，悠然見南山。",
-        metadata_json='{"dynasty": "東晉", "theme": "田園"}'
+        metadata_json='{"dynasty": "東晉", "theme": "田園"}',
     )
 
 
@@ -59,7 +59,7 @@ def sample_translation(sample_poem):
         translator_info="gpt-4",
         target_language="en",
         translated_text="Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain.",
-        quality_rating=5
+        quality_rating=5,
     )
 
 
@@ -74,7 +74,7 @@ def sample_ai_log(sample_translation):
         token_usage_json='{"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}',
         cost_info_json='{"total_cost": 0.003, "currency": "USD"}',
         runtime_seconds=12.5,
-        notes="Translation completed successfully"
+        notes="Translation completed successfully",
     )
 
 
@@ -84,7 +84,7 @@ def sample_human_note(sample_translation):
     return HumanNote(
         id="test_note_001",
         translation_id=sample_translation.id,
-        note_text="This translation captures the poetic essence well. The imagery is preserved effectively."
+        note_text="This translation captures the poetic essence well. The imagery is preserved effectively.",
     )
 
 
@@ -139,7 +139,7 @@ class TestPoemModel:
             translator_type=TranslatorType.AI,
             translator_info="claude-3",
             target_language="en",
-            translated_text="AI translation of the poem."
+            translated_text="AI translation of the poem.",
         )
         db_session.add(ai_translation)
 
@@ -150,7 +150,7 @@ class TestPoemModel:
             translator_type=TranslatorType.HUMAN,
             translator_info="John Translator",
             target_language="en",
-            translated_text="Human translation of the poem."
+            translated_text="Human translation of the poem.",
         )
         db_session.add(human_translation)
         db_session.commit()
@@ -183,7 +183,14 @@ class TestTranslationModel:
         assert sample_translation.quality_rating == 5
         assert sample_translation.created_at is not None
 
-    def test_translation_relationships(self, db_session, sample_poem, sample_translation, sample_ai_log, sample_human_note):
+    def test_translation_relationships(
+        self,
+        db_session,
+        sample_poem,
+        sample_translation,
+        sample_ai_log,
+        sample_human_note,
+    ):
         """Test translation relationships with AI logs and human notes"""
         # Add all to database
         db_session.add(sample_poem)
@@ -199,7 +206,9 @@ class TestTranslationModel:
         assert sample_translation.ai_logs[0] == sample_ai_log
         assert sample_translation.human_notes[0] == sample_human_note
 
-    def test_translation_properties(self, sample_translation, sample_ai_log, sample_human_note):
+    def test_translation_properties(
+        self, sample_translation, sample_ai_log, sample_human_note
+    ):
         """Test translation helper properties"""
         # Set up relationships manually for testing
         sample_translation.ai_logs = [sample_ai_log]
@@ -220,7 +229,9 @@ class TestTranslationModel:
 class TestAILogModel:
     """Test cases for AILog model"""
 
-    def test_create_ai_log(self, db_session, sample_poem, sample_translation, sample_ai_log):
+    def test_create_ai_log(
+        self, db_session, sample_poem, sample_translation, sample_ai_log
+    ):
         """Test creating an AI log"""
         # Add poem and translation first
         db_session.add(sample_poem)
@@ -239,7 +250,9 @@ class TestAILogModel:
         assert sample_ai_log.runtime_seconds == 12.5
         assert sample_ai_log.created_at is not None
 
-    def test_ai_log_relationship(self, db_session, sample_poem, sample_translation, sample_ai_log):
+    def test_ai_log_relationship(
+        self, db_session, sample_poem, sample_translation, sample_ai_log
+    ):
         """Test AI log relationship with translation"""
         # Add all to database
         db_session.add(sample_poem)
@@ -266,7 +279,7 @@ class TestAILogModel:
             id="test_empty",
             translation_id="test_trans",
             model_name="test-model",
-            workflow_mode=WorkflowMode.NON_REASONING
+            workflow_mode=WorkflowMode.NON_REASONING,
         )
 
         assert ai_log.token_usage is None
@@ -284,7 +297,9 @@ class TestAILogModel:
 class TestHumanNoteModel:
     """Test cases for HumanNote model"""
 
-    def test_create_human_note(self, db_session, sample_poem, sample_translation, sample_human_note):
+    def test_create_human_note(
+        self, db_session, sample_poem, sample_translation, sample_human_note
+    ):
         """Test creating a human note"""
         # Add poem and translation first
         db_session.add(sample_poem)
@@ -298,10 +313,15 @@ class TestHumanNoteModel:
 
         assert sample_human_note.id == "test_note_001"
         assert sample_human_note.translation_id == sample_translation.id
-        assert sample_human_note.note_text == "This translation captures the poetic essence well. The imagery is preserved effectively."
+        assert (
+            sample_human_note.note_text
+            == "This translation captures the poetic essence well. The imagery is preserved effectively."
+        )
         assert sample_human_note.created_at is not None
 
-    def test_human_note_relationship(self, db_session, sample_poem, sample_translation, sample_human_note):
+    def test_human_note_relationship(
+        self, db_session, sample_poem, sample_translation, sample_human_note
+    ):
         """Test human note relationship with translation"""
         # Add all to database
         db_session.add(sample_poem)
@@ -338,7 +358,7 @@ class TestModelConstraints:
             poem_id="non_existent_poem",
             translator_type=TranslatorType.AI,
             target_language="en",
-            translated_text="Test translation"
+            translated_text="Test translation",
         )
 
         with pytest.raises(Exception):  # SQLAlchemy will raise IntegrityError
@@ -354,12 +374,16 @@ class TestModelConstraints:
     def test_workflow_mode_enum(self):
         """Test workflow mode enum constraints"""
         # Test valid workflow modes
-        for mode in [WorkflowMode.REASONING, WorkflowMode.NON_REASONING, WorkflowMode.HYBRID]:
+        for mode in [
+            WorkflowMode.REASONING,
+            WorkflowMode.NON_REASONING,
+            WorkflowMode.HYBRID,
+        ]:
             ai_log = AILog(
                 id=f"test_{mode.value}",
                 translation_id="test_trans",
                 model_name="test-model",
-                workflow_mode=mode
+                workflow_mode=mode,
             )
             assert ai_log.workflow_mode == mode
 
@@ -372,6 +396,6 @@ class TestModelConstraints:
                 poem_id="test_poem",
                 translator_type=trans_type,
                 target_language="en",
-                translated_text="Test translation"
+                translated_text="Test translation",
             )
             assert translation.translator_type == trans_type

@@ -28,12 +28,13 @@ engine = create_engine(
 Base = declarative_base()
 
 # Import and register models
-sys.path.insert(0, os.path.join(repo_root, 'src', 'vpsweb', 'repository'))
+sys.path.insert(0, os.path.join(repo_root, "src", "vpsweb", "repository"))
 
 # Import models with their columns defined inline
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON, Integer
 from datetime import datetime
 from sqlalchemy.sql import func
+
 
 class Poem(Base):
     __tablename__ = "poems"
@@ -44,42 +45,75 @@ class Poem(Base):
     source_language = Column(String(10), nullable=False, index=True)
     original_text = Column(Text, nullable=False)
     metadata_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, server_default=func.now(), onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+    )
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=datetime.utcnow,
+    )
+
 
 class Translation(Base):
     __tablename__ = "translations"
 
     id = Column(String(26), primary_key=True, index=True)
-    poem_id = Column(String(26), ForeignKey("poems.id", ondelete="CASCADE"), nullable=False, index=True)
+    poem_id = Column(
+        String(26),
+        ForeignKey("poems.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     translator_type = Column(String(10), nullable=False, index=True)
     translator_info = Column(String(200), nullable=True)
     target_language = Column(String(10), nullable=False, index=True)
     translated_text = Column(Text, nullable=False)
     quality_rating = Column(Integer, nullable=True)
     raw_path = Column(String(500), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, server_default=func.now())
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+    )
+
 
 class AILog(Base):
     __tablename__ = "ai_logs"
 
     id = Column(String(26), primary_key=True, index=True)
-    translation_id = Column(String(26), ForeignKey("translations.id", ondelete="CASCADE"), nullable=False, index=True)
+    translation_id = Column(
+        String(26),
+        ForeignKey("translations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     model_name = Column(String(100), nullable=False, index=True)
     workflow_mode = Column(String(20), nullable=False, index=True)
     token_usage_json = Column(Text, nullable=True)
     cost_info_json = Column(Text, nullable=True)
     runtime_seconds = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, server_default=func.now())
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+    )
+
 
 class HumanNote(Base):
     __tablename__ = "human_notes"
 
     id = Column(String(26), primary_key=True, index=True)
-    translation_id = Column(String(26), ForeignKey("translations.id", ondelete="CASCADE"), nullable=False, index=True)
+    translation_id = Column(
+        String(26),
+        ForeignKey("translations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     note_text = Column(Text, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, server_default=func.now())
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+    )
+
 
 if __name__ == "__main__":
     # Create the migration file manually
@@ -210,7 +244,7 @@ def downgrade() -> None:
     migrations_dir.mkdir(parents=True, exist_ok=True)
 
     migration_file = migrations_dir / "001_initial_schema.py"
-    with open(migration_file, 'w') as f:
+    with open(migration_file, "w") as f:
         f.write(migration_content)
 
     print(f"Created migration file: {migration_file}")

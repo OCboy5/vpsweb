@@ -22,6 +22,7 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 
+
 def create_tables():
     """Create all tables using SQL"""
 
@@ -32,7 +33,9 @@ def create_tables():
     # Create tables
     with engine.connect() as conn:
         # Create poems table
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             CREATE TABLE IF NOT EXISTS poems (
                 id VARCHAR(26) PRIMARY KEY,
                 poet_name VARCHAR(200) NOT NULL,
@@ -43,10 +46,14 @@ def create_tables():
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL
             )
-        """))
+        """
+            )
+        )
 
         # Create translations table
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             CREATE TABLE IF NOT EXISTS translations (
                 id VARCHAR(26) PRIMARY KEY,
                 poem_id VARCHAR(26) NOT NULL,
@@ -59,10 +66,14 @@ def create_tables():
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (poem_id) REFERENCES poems(id) ON DELETE CASCADE
             )
-        """))
+        """
+            )
+        )
 
         # Create ai_logs table
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             CREATE TABLE IF NOT EXISTS ai_logs (
                 id VARCHAR(26) PRIMARY KEY,
                 translation_id VARCHAR(26) NOT NULL,
@@ -75,10 +86,14 @@ def create_tables():
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (translation_id) REFERENCES translations(id) ON DELETE CASCADE
             )
-        """))
+        """
+            )
+        )
 
         # Create human_notes table
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
             CREATE TABLE IF NOT EXISTS human_notes (
                 id VARCHAR(26) PRIMARY KEY,
                 translation_id VARCHAR(26) NOT NULL,
@@ -86,32 +101,87 @@ def create_tables():
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (translation_id) REFERENCES translations(id) ON DELETE CASCADE
             )
-        """))
+        """
+            )
+        )
 
         # Create indexes
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_created_at ON poems (created_at)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_language ON poems (source_language)"))
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_poems_created_at ON poems (created_at)"
+            )
+        )
+        conn.execute(
+            text("CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)")
+        )
+        conn.execute(
+            text("CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)")
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_poems_language ON poems (source_language)"
+            )
+        )
 
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_poem_id ON translations (poem_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_type ON translations (translator_type)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_language ON translations (target_language)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_created_at ON translations (created_at)"))
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_translations_poem_id ON translations (poem_id)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_translations_type ON translations (translator_type)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_translations_language ON translations (target_language)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_translations_created_at ON translations (created_at)"
+            )
+        )
 
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_translation_id ON ai_logs (translation_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_model_name ON ai_logs (model_name)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_workflow_mode ON ai_logs (workflow_mode)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_logs (created_at)"))
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_ai_logs_translation_id ON ai_logs (translation_id)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_ai_logs_model_name ON ai_logs (model_name)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_ai_logs_workflow_mode ON ai_logs (workflow_mode)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_logs (created_at)"
+            )
+        )
 
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_human_notes_translation_id ON human_notes (translation_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_human_notes_created_at ON human_notes (created_at)"))
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_human_notes_translation_id ON human_notes (translation_id)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_human_notes_created_at ON human_notes (created_at)"
+            )
+        )
 
         conn.commit()
 
     print("Database tables created successfully!")
     print("Tables: poems, translations, ai_logs, human_notes")
     print("Indexes created for optimal query performance")
+
 
 if __name__ == "__main__":
     create_tables()

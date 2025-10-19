@@ -19,12 +19,14 @@ import re
 
 class LanguageDirection(str, Enum):
     """Text direction for languages."""
+
     LTR = "ltr"  # Left-to-right
     RTL = "rtl"  # Right-to-left
 
 
 class ScriptType(str, Enum):
     """Writing script types."""
+
     LATIN = "latin"
     CYRILLIC = "cyrillic"
     ARABIC = "arabic"
@@ -54,7 +56,7 @@ class LanguageInfo:
         script: ScriptType = ScriptType.LATIN,
         poetic_tradition: bool = True,
         common_in_translation: bool = True,
-        regional_variants: Optional[List[str]] = None
+        regional_variants: Optional[List[str]] = None,
     ):
         self.code = code
         self.name = name
@@ -97,9 +99,8 @@ class LanguageMapper:
                 native_name="English",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["en-US", "en-GB", "en-AU", "en-CA", "en-IE"]
+                regional_variants=["en-US", "en-GB", "en-AU", "en-CA", "en-IE"],
             ),
-
             # Chinese
             LanguageInfo(
                 code="zh",
@@ -107,9 +108,8 @@ class LanguageMapper:
                 native_name="中文",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.CHINESE,
-                regional_variants=["zh-CN", "zh-TW", "zh-HK", "zh-SG"]
+                regional_variants=["zh-CN", "zh-TW", "zh-HK", "zh-SG"],
             ),
-
             # Classical Chinese
             LanguageInfo(
                 code="zh-Hant",
@@ -117,9 +117,8 @@ class LanguageMapper:
                 native_name="文言文",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.CHINESE,
-                poetic_tradition=True
+                poetic_tradition=True,
             ),
-
             # Japanese
             LanguageInfo(
                 code="ja",
@@ -127,9 +126,8 @@ class LanguageMapper:
                 native_name="日本語",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.JAPANESE,
-                regional_variants=["ja-JP"]
+                regional_variants=["ja-JP"],
             ),
-
             # Korean
             LanguageInfo(
                 code="ko",
@@ -137,9 +135,8 @@ class LanguageMapper:
                 native_name="한국어",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.KOREAN,
-                regional_variants=["ko-KR"]
+                regional_variants=["ko-KR"],
             ),
-
             # French
             LanguageInfo(
                 code="fr",
@@ -147,9 +144,8 @@ class LanguageMapper:
                 native_name="Français",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["fr-FR", "fr-CA", "fr-BE", "fr-CH"]
+                regional_variants=["fr-FR", "fr-CA", "fr-BE", "fr-CH"],
             ),
-
             # German
             LanguageInfo(
                 code="de",
@@ -157,9 +153,8 @@ class LanguageMapper:
                 native_name="Deutsch",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["de-DE", "de-AT", "de-CH"]
+                regional_variants=["de-DE", "de-AT", "de-CH"],
             ),
-
             # Spanish
             LanguageInfo(
                 code="es",
@@ -167,9 +162,8 @@ class LanguageMapper:
                 native_name="Español",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["es-ES", "es-MX", "es-AR", "es-CO"]
+                regional_variants=["es-ES", "es-MX", "es-AR", "es-CO"],
             ),
-
             # Italian
             LanguageInfo(
                 code="it",
@@ -177,9 +171,8 @@ class LanguageMapper:
                 native_name="Italiano",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["it-IT", "it-CH"]
+                regional_variants=["it-IT", "it-CH"],
             ),
-
             # Portuguese
             LanguageInfo(
                 code="pt",
@@ -187,9 +180,8 @@ class LanguageMapper:
                 native_name="Português",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["pt-PT", "pt-BR"]
+                regional_variants=["pt-PT", "pt-BR"],
             ),
-
             # Russian
             LanguageInfo(
                 code="ru",
@@ -197,9 +189,8 @@ class LanguageMapper:
                 native_name="Русский",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.CYRILLIC,
-                regional_variants=["ru-RU"]
+                regional_variants=["ru-RU"],
             ),
-
             # Arabic
             LanguageInfo(
                 code="ar",
@@ -207,9 +198,8 @@ class LanguageMapper:
                 native_name="العربية",
                 direction=LanguageDirection.RTL,
                 script=ScriptType.ARABIC,
-                regional_variants=["ar-SA", "ar-EG", "ar-MA", "ar-IQ"]
+                regional_variants=["ar-SA", "ar-EG", "ar-MA", "ar-IQ"],
             ),
-
             # Hindi
             LanguageInfo(
                 code="hi",
@@ -217,9 +207,8 @@ class LanguageMapper:
                 native_name="हिन्दी",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.DEVANAGARI,
-                regional_variants=["hi-IN"]
+                regional_variants=["hi-IN"],
             ),
-
             # Sanskrit (Classical)
             LanguageInfo(
                 code="sa",
@@ -227,9 +216,8 @@ class LanguageMapper:
                 native_name="संस्कृतम्",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.DEVANAGARI,
-                poetic_tradition=True
+                poetic_tradition=True,
             ),
-
             # Persian
             LanguageInfo(
                 code="fa",
@@ -237,9 +225,8 @@ class LanguageMapper:
                 native_name="فارسی",
                 direction=LanguageDirection.RTL,
                 script=ScriptType.ARABIC,
-                regional_variants=["fa-IR", "fa-AF"]
+                regional_variants=["fa-IR", "fa-AF"],
             ),
-
             # Urdu
             LanguageInfo(
                 code="ur",
@@ -247,9 +234,8 @@ class LanguageMapper:
                 native_name="اردو",
                 direction=LanguageDirection.RTL,
                 script=ScriptType.ARABIC,
-                regional_variants=["ur-PK", "ur-IN"]
+                regional_variants=["ur-PK", "ur-IN"],
             ),
-
             # Turkish
             LanguageInfo(
                 code="tr",
@@ -257,9 +243,8 @@ class LanguageMapper:
                 native_name="Türkçe",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["tr-TR"]
+                regional_variants=["tr-TR"],
             ),
-
             # Greek
             LanguageInfo(
                 code="el",
@@ -267,9 +252,8 @@ class LanguageMapper:
                 native_name="Ελληνικά",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.GREEK,
-                regional_variants=["el-GR"]
+                regional_variants=["el-GR"],
             ),
-
             # Hebrew
             LanguageInfo(
                 code="he",
@@ -277,9 +261,8 @@ class LanguageMapper:
                 native_name="עברית",
                 direction=LanguageDirection.RTL,
                 script=ScriptType.HEBREW,
-                regional_variants=["he-IL"]
+                regional_variants=["he-IL"],
             ),
-
             # Dutch
             LanguageInfo(
                 code="nl",
@@ -287,9 +270,8 @@ class LanguageMapper:
                 native_name="Nederlands",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["nl-NL", "nl-BE"]
+                regional_variants=["nl-NL", "nl-BE"],
             ),
-
             # Swedish
             LanguageInfo(
                 code="sv",
@@ -297,9 +279,8 @@ class LanguageMapper:
                 native_name="Svenska",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["sv-SE"]
+                regional_variants=["sv-SE"],
             ),
-
             # Norwegian
             LanguageInfo(
                 code="no",
@@ -307,9 +288,8 @@ class LanguageMapper:
                 native_name="Norsk",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["nb-NO", "nn-NO"]
+                regional_variants=["nb-NO", "nn-NO"],
             ),
-
             # Danish
             LanguageInfo(
                 code="da",
@@ -317,9 +297,8 @@ class LanguageMapper:
                 native_name="Dansk",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["da-DK"]
+                regional_variants=["da-DK"],
             ),
-
             # Finnish
             LanguageInfo(
                 code="fi",
@@ -327,9 +306,8 @@ class LanguageMapper:
                 native_name="Suomi",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["fi-FI"]
+                regional_variants=["fi-FI"],
             ),
-
             # Polish
             LanguageInfo(
                 code="pl",
@@ -337,9 +315,8 @@ class LanguageMapper:
                 native_name="Polski",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["pl-PL"]
+                regional_variants=["pl-PL"],
             ),
-
             # Czech
             LanguageInfo(
                 code="cs",
@@ -347,9 +324,8 @@ class LanguageMapper:
                 native_name="Čeština",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["cs-CZ"]
+                regional_variants=["cs-CZ"],
             ),
-
             # Hungarian
             LanguageInfo(
                 code="hu",
@@ -357,9 +333,8 @@ class LanguageMapper:
                 native_name="Magyar",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["hu-HU"]
+                regional_variants=["hu-HU"],
             ),
-
             # Romanian
             LanguageInfo(
                 code="ro",
@@ -367,9 +342,8 @@ class LanguageMapper:
                 native_name="Română",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["ro-RO"]
+                regional_variants=["ro-RO"],
             ),
-
             # Ukrainian
             LanguageInfo(
                 code="uk",
@@ -377,9 +351,8 @@ class LanguageMapper:
                 native_name="Українська",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.CYRILLIC,
-                regional_variants=["uk-UA"]
+                regional_variants=["uk-UA"],
             ),
-
             # Bulgarian
             LanguageInfo(
                 code="bg",
@@ -387,9 +360,8 @@ class LanguageMapper:
                 native_name="Български",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.CYRILLIC,
-                regional_variants=["bg-BG"]
+                regional_variants=["bg-BG"],
             ),
-
             # Thai
             LanguageInfo(
                 code="th",
@@ -397,9 +369,8 @@ class LanguageMapper:
                 native_name="ไทย",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.THAI,
-                regional_variants=["th-TH"]
+                regional_variants=["th-TH"],
             ),
-
             # Vietnamese
             LanguageInfo(
                 code="vi",
@@ -407,9 +378,8 @@ class LanguageMapper:
                 native_name="Tiếng Việt",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["vi-VN"]
+                regional_variants=["vi-VN"],
             ),
-
             # Indonesian
             LanguageInfo(
                 code="id",
@@ -417,9 +387,8 @@ class LanguageMapper:
                 native_name="Bahasa Indonesia",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["id-ID"]
+                regional_variants=["id-ID"],
             ),
-
             # Malay
             LanguageInfo(
                 code="ms",
@@ -427,9 +396,8 @@ class LanguageMapper:
                 native_name="Bahasa Melayu",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                regional_variants=["ms-MY", "ms-SG"]
+                regional_variants=["ms-MY", "ms-SG"],
             ),
-
             # Latin (Classical)
             LanguageInfo(
                 code="la",
@@ -437,9 +405,8 @@ class LanguageMapper:
                 native_name="Latina",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.LATIN,
-                poetic_tradition=True
+                poetic_tradition=True,
             ),
-
             # Ancient Greek
             LanguageInfo(
                 code="grc",
@@ -447,7 +414,7 @@ class LanguageMapper:
                 native_name="Ἀρχαία ἑλληνικὴ",
                 direction=LanguageDirection.LTR,
                 script=ScriptType.GREEK,
-                poetic_tradition=True
+                poetic_tradition=True,
             ),
         ]
 
@@ -510,7 +477,9 @@ class LanguageMapper:
             BCP-47 language code or None if not found
         """
         normalized_name = name.strip().lower()
-        return self._name_to_code.get(normalized_name) or self._native_name_to_code.get(normalized_name)
+        return self._name_to_code.get(normalized_name) or self._native_name_to_code.get(
+            normalized_name
+        )
 
     def normalize_code(self, code: str) -> str:
         """
@@ -525,14 +494,14 @@ class LanguageMapper:
         code = code.strip().lower()
 
         # Handle common variations
-        if code in ['zh-cn', 'zh hans']:
-            return 'zh-CN'
-        elif code in ['zh-tw', 'zh hant']:
-            return 'zh-TW'
-        elif code in ['en-us']:
-            return 'en-US'
-        elif code in ['en-gb']:
-            return 'en-GB'
+        if code in ["zh-cn", "zh hans"]:
+            return "zh-CN"
+        elif code in ["zh-tw", "zh hant"]:
+            return "zh-TW"
+        elif code in ["en-us"]:
+            return "en-US"
+        elif code in ["en-gb"]:
+            return "en-GB"
 
         return code
 
@@ -576,7 +545,9 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for common translation languages
         """
-        return [info for info in self._code_to_info.values() if info.common_in_translation]
+        return [
+            info for info in self._code_to_info.values() if info.common_in_translation
+        ]
 
     def get_rtl_languages(self) -> List[LanguageInfo]:
         """
@@ -585,7 +556,11 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for RTL languages
         """
-        return [info for info in self._code_to_info.values() if info.direction == LanguageDirection.RTL]
+        return [
+            info
+            for info in self._code_to_info.values()
+            if info.direction == LanguageDirection.RTL
+        ]
 
     def get_languages_by_script(self, script: ScriptType) -> List[LanguageInfo]:
         """
@@ -613,9 +588,11 @@ class LanguageMapper:
         results = []
 
         for code, info in self._code_to_info.items():
-            if (query in code.lower() or
-                query in info.name.lower() or
-                query in info.native_name.lower()):
+            if (
+                query in code.lower()
+                or query in info.name.lower()
+                or query in info.native_name.lower()
+            ):
                 results.append(info)
 
         return results
@@ -674,7 +651,7 @@ def validate_language_code(code: str) -> Tuple[bool, Optional[str]]:
     code = code.strip()
 
     # Basic BCP-47 format validation
-    if not re.match(r'^[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?(-[A-Z0-9]{5,8})?$', code):
+    if not re.match(r"^[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?(-[A-Z0-9]{5,8})?$", code):
         return False, f"Invalid BCP-47 language code format: {code}"
 
     mapper = get_language_mapper()
@@ -705,26 +682,26 @@ def get_display_name(code: str, use_native: bool = False) -> str:
 
 # Common language pairs for poetry translation
 COMMON_TRANSLATION_PAIRS = [
-    ("en", "zh"),    # English ↔ Chinese
-    ("zh", "en"),    # Chinese ↔ English
-    ("en", "ja"),    # English ↔ Japanese
-    ("ja", "en"),    # Japanese ↔ English
-    ("en", "fr"),    # English ↔ French
-    ("fr", "en"),    # French ↔ English
-    ("en", "de"),    # English ↔ German
-    ("de", "en"),    # German ↔ English
-    ("en", "es"),    # English ↔ Spanish
-    ("es", "en"),    # Spanish ↔ English
-    ("en", "ru"),    # English ↔ Russian
-    ("ru", "en"),    # Russian ↔ English
-    ("en", "ar"),    # English ↔ Arabic
-    ("ar", "en"),    # Arabic ↔ English
-    ("zh", "ja"),    # Chinese ↔ Japanese
-    ("ja", "zh"),    # Japanese ↔ Chinese
-    ("fr", "de"),    # French ↔ German
-    ("de", "fr"),    # German ↔ French
-    ("es", "fr"),    # Spanish ↔ French
-    ("fr", "es"),    # French ↔ Spanish
+    ("en", "zh"),  # English ↔ Chinese
+    ("zh", "en"),  # Chinese ↔ English
+    ("en", "ja"),  # English ↔ Japanese
+    ("ja", "en"),  # Japanese ↔ English
+    ("en", "fr"),  # English ↔ French
+    ("fr", "en"),  # French ↔ English
+    ("en", "de"),  # English ↔ German
+    ("de", "en"),  # German ↔ English
+    ("en", "es"),  # English ↔ Spanish
+    ("es", "en"),  # Spanish ↔ English
+    ("en", "ru"),  # English ↔ Russian
+    ("ru", "en"),  # Russian ↔ English
+    ("en", "ar"),  # English ↔ Arabic
+    ("ar", "en"),  # Arabic ↔ English
+    ("zh", "ja"),  # Chinese ↔ Japanese
+    ("ja", "zh"),  # Japanese ↔ Chinese
+    ("fr", "de"),  # French ↔ German
+    ("de", "fr"),  # German ↔ French
+    ("es", "fr"),  # Spanish ↔ French
+    ("fr", "es"),  # French ↔ Spanish
 ]
 
 

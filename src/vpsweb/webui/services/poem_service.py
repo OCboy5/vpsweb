@@ -58,7 +58,7 @@ class PoemService:
                 "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
-                "human_translation_count": poem.human_translation_count
+                "human_translation_count": poem.human_translation_count,
             }
 
         except Exception as e:
@@ -70,7 +70,7 @@ class PoemService:
         skip: int = 0,
         limit: int = 100,
         poet_name: Optional[str] = None,
-        source_language: Optional[str] = None
+        source_language: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         List poems with optional filtering.
@@ -95,7 +95,9 @@ class PoemService:
                 query = query.filter(Poem.source_language == source_language)
 
             # Order by creation date (newest first) and paginate
-            poems = query.order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
+            poems = (
+                query.order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
+            )
 
             return [
                 {
@@ -103,12 +105,20 @@ class PoemService:
                     "poet_name": poem.poet_name,
                     "poem_title": poem.poem_title,
                     "source_language": poem.source_language,
-                    "content_preview": poem.original_text[:200] + "..." if len(poem.original_text) > 200 else poem.original_text,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "content_preview": (
+                        poem.original_text[:200] + "..."
+                        if len(poem.original_text) > 200
+                        else poem.original_text
+                    ),
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
+                    "updated_at": (
+                        poem.updated_at.isoformat() if poem.updated_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
-                    "human_translation_count": poem.human_translation_count
+                    "human_translation_count": poem.human_translation_count,
                 }
                 for poem in poems
             ]
@@ -123,7 +133,7 @@ class PoemService:
         poem_title: str,
         source_language: str,
         content: str,
-        metadata_json: Optional[str] = None
+        metadata_json: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a new poem in the repository.
@@ -170,7 +180,7 @@ class PoemService:
                 original_text=content.strip(),
                 metadata_json=metadata_json,
                 created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
             )
 
             # Save to database
@@ -191,7 +201,7 @@ class PoemService:
                 "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
                 "translation_count": 0,
                 "ai_translation_count": 0,
-                "human_translation_count": 0
+                "human_translation_count": 0,
             }
 
         except ValueError:
@@ -208,7 +218,7 @@ class PoemService:
         poem_title: Optional[str] = None,
         source_language: Optional[str] = None,
         content: Optional[str] = None,
-        metadata_json: Optional[str] = None
+        metadata_json: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update an existing poem.
@@ -277,7 +287,7 @@ class PoemService:
                 "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
-                "human_translation_count": poem.human_translation_count
+                "human_translation_count": poem.human_translation_count,
             }
 
         except ValueError:
@@ -325,18 +335,24 @@ class PoemService:
             total_poems = self.db.query(Poem).count()
 
             # Count by language
-            languages = self.db.query(
-                Poem.source_language,
-                self.db.func.count(Poem.id).label('count')
-            ).group_by(Poem.source_language).all()
+            languages = (
+                self.db.query(
+                    Poem.source_language, self.db.func.count(Poem.id).label("count")
+                )
+                .group_by(Poem.source_language)
+                .all()
+            )
 
             # Count by poet (top 10)
-            poets = self.db.query(
-                Poem.poet_name,
-                self.db.func.count(Poem.id).label('count')
-            ).group_by(Poem.poet_name).order_by(
-                desc(self.db.func.count(Poem.id))
-            ).limit(10).all()
+            poets = (
+                self.db.query(
+                    Poem.poet_name, self.db.func.count(Poem.id).label("count")
+                )
+                .group_by(Poem.poet_name)
+                .order_by(desc(self.db.func.count(Poem.id)))
+                .limit(10)
+                .all()
+            )
 
             return {
                 "total_poems": total_poems,
@@ -347,7 +363,7 @@ class PoemService:
                 "top_poets": [
                     {"poet_name": poet.poet_name, "poem_count": poet.count}
                     for poet in poets
-                ]
+                ],
             }
 
         except Exception as e:
@@ -355,10 +371,7 @@ class PoemService:
             raise
 
     async def search_poems(
-        self,
-        query: str,
-        skip: int = 0,
-        limit: int = 50
+        self, query: str, skip: int = 0, limit: int = 50
     ) -> List[Dict[str, Any]]:
         """
         Search poems by title, poet name, or content.
@@ -377,11 +390,18 @@ class PoemService:
 
             search_term = f"%{query.strip()}%"
 
-            poems = self.db.query(Poem).filter(
-                (Poem.poet_name.ilike(search_term)) |
-                (Poem.poem_title.ilike(search_term)) |
-                (Poem.original_text.ilike(search_term))
-            ).order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
+            poems = (
+                self.db.query(Poem)
+                .filter(
+                    (Poem.poet_name.ilike(search_term))
+                    | (Poem.poem_title.ilike(search_term))
+                    | (Poem.original_text.ilike(search_term))
+                )
+                .order_by(desc(Poem.created_at))
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
 
             return [
                 {
@@ -389,11 +409,17 @@ class PoemService:
                     "poet_name": poem.poet_name,
                     "poem_title": poem.poem_title,
                     "source_language": poem.source_language,
-                    "content_preview": poem.original_text[:200] + "..." if len(poem.original_text) > 200 else poem.original_text,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
+                    "content_preview": (
+                        poem.original_text[:200] + "..."
+                        if len(poem.original_text) > 200
+                        else poem.original_text
+                    ),
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
-                    "human_translation_count": poem.human_translation_count
+                    "human_translation_count": poem.human_translation_count,
                 }
                 for poem in poems
             ]

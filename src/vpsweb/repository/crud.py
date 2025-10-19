@@ -19,12 +19,22 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .models import Poem, Translation, AILog, HumanNote, WorkflowTask
 from .schemas import (
-    PoemCreate, PoemUpdate, PoemResponse,
-    TranslationCreate, TranslationUpdate, TranslationResponse,
-    AILogCreate, AILogResponse,
-    HumanNoteCreate, HumanNoteResponse,
-    WorkflowTaskCreate, WorkflowTaskUpdate, WorkflowTaskResponse,
-    TranslatorType, WorkflowMode, TaskStatus
+    PoemCreate,
+    PoemUpdate,
+    PoemResponse,
+    TranslationCreate,
+    TranslationUpdate,
+    TranslationResponse,
+    AILogCreate,
+    AILogResponse,
+    HumanNoteCreate,
+    HumanNoteResponse,
+    WorkflowTaskCreate,
+    WorkflowTaskUpdate,
+    WorkflowTaskResponse,
+    TranslatorType,
+    WorkflowMode,
+    TaskStatus,
 )
 
 
@@ -56,7 +66,7 @@ class CRUDPoem:
             poem_title=poem_data.poem_title,
             source_language=poem_data.source_language,
             original_text=poem_data.original_text,
-            metadata_json=poem_data.metadata_json
+            metadata_json=poem_data.metadata_json,
         )
 
         try:
@@ -91,7 +101,7 @@ class CRUDPoem:
         limit: int = 100,
         poet_name: Optional[str] = None,
         language: Optional[str] = None,
-        title_search: Optional[str] = None
+        title_search: Optional[str] = None,
     ) -> List[Poem]:
         """
         Get multiple poems with optional filtering
@@ -142,7 +152,7 @@ class CRUDPoem:
                 source_language=poem_data.source_language,
                 original_text=poem_data.original_text,
                 metadata_json=poem_data.metadata_json,
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
             )
         )
 
@@ -176,7 +186,11 @@ class CRUDPoem:
 
     def get_by_poet(self, poet_name: str) -> List[Poem]:
         """Get all poems by a specific poet"""
-        stmt = select(Poem).where(Poem.poet_name == poet_name).order_by(Poem.created_at.desc())
+        stmt = (
+            select(Poem)
+            .where(Poem.poet_name == poet_name)
+            .order_by(Poem.created_at.desc())
+        )
         result = self.db.execute(stmt).scalars().all()
         return result
 
@@ -208,7 +222,7 @@ class CRUDTranslation:
             target_language=translation_data.target_language,
             translated_text=translation_data.translated_text,
             quality_rating=translation_data.quality_rating,
-            raw_path=translation_data.raw_path
+            raw_path=translation_data.raw_path,
         )
 
         try:
@@ -244,7 +258,7 @@ class CRUDTranslation:
         skip: int = 0,
         limit: int = 100,
         translator_type: Optional[TranslatorType] = None,
-        target_language: Optional[str] = None
+        target_language: Optional[str] = None,
     ) -> List[Translation]:
         """Get multiple translations with optional filtering"""
         stmt = select(Translation)
@@ -258,7 +272,9 @@ class CRUDTranslation:
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def update(self, translation_id: str, translation_data: TranslationUpdate) -> Optional[Translation]:
+    def update(
+        self, translation_id: str, translation_data: TranslationUpdate
+    ) -> Optional[Translation]:
         """Update existing translation"""
         stmt = (
             update(Translation)
@@ -269,7 +285,7 @@ class CRUDTranslation:
                 target_language=translation_data.target_language,
                 translated_text=translation_data.translated_text,
                 quality_rating=translation_data.quality_rating,
-                raw_path=translation_data.raw_path
+                raw_path=translation_data.raw_path,
             )
         )
 
@@ -293,7 +309,9 @@ class CRUDTranslation:
         result = self.db.execute(stmt).scalar()
         return result
 
-    def get_by_language_pair(self, source_lang: str, target_lang: str) -> List[Translation]:
+    def get_by_language_pair(
+        self, source_lang: str, target_lang: str
+    ) -> List[Translation]:
         """Get translations by language pair"""
         stmt = (
             select(Translation)
@@ -301,7 +319,7 @@ class CRUDTranslation:
             .where(
                 and_(
                     Poem.source_language == source_lang,
-                    Translation.target_language == target_lang
+                    Translation.target_language == target_lang,
                 )
             )
             .order_by(Translation.created_at.desc())
@@ -329,7 +347,7 @@ class CRUDAILog:
             token_usage_json=ai_log_data.token_usage_json,
             cost_info_json=ai_log_data.cost_info_json,
             runtime_seconds=ai_log_data.runtime_seconds,
-            notes=ai_log_data.notes
+            notes=ai_log_data.notes,
         )
 
         try:
@@ -395,7 +413,7 @@ class CRUDHumanNote:
         db_note = HumanNote(
             id=note_id,
             translation_id=note_data.translation_id,
-            note_text=note_data.note_text
+            note_text=note_data.note_text,
         )
 
         try:
@@ -463,7 +481,7 @@ class CRUDWorkflowTask:
             target_lang=task_data.target_lang,
             workflow_mode=task_data.workflow_mode.value,
             status=TaskStatus.PENDING.value,
-            progress_percentage=0
+            progress_percentage=0,
         )
 
         try:
@@ -488,9 +506,14 @@ class CRUDWorkflowTask:
         stmt = select(WorkflowTask).where(WorkflowTask.id == task_id)
         return self.db.execute(stmt).scalar_one_or_none()
 
-    def get_multi(self, *, skip: int = 0, limit: int = 100,
-                  status: Optional[TaskStatus] = None,
-                  poem_id: Optional[str] = None) -> List[WorkflowTask]:
+    def get_multi(
+        self,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+        status: Optional[TaskStatus] = None,
+        poem_id: Optional[str] = None,
+    ) -> List[WorkflowTask]:
         """
         Get multiple workflow tasks with optional filtering
 
@@ -514,7 +537,9 @@ class CRUDWorkflowTask:
 
         return self.db.execute(stmt).scalars().all()
 
-    def update(self, task_id: str, task_data: WorkflowTaskUpdate) -> Optional[WorkflowTask]:
+    def update(
+        self, task_id: str, task_data: WorkflowTaskUpdate
+    ) -> Optional[WorkflowTask]:
         """
         Update a workflow task
 
@@ -540,9 +565,13 @@ class CRUDWorkflowTask:
             self.db.rollback()
             return None
 
-    def update_status(self, task_id: str, status: TaskStatus,
-                     progress_percentage: Optional[int] = None,
-                     error_message: Optional[str] = None) -> Optional[WorkflowTask]:
+    def update_status(
+        self,
+        task_id: str,
+        status: TaskStatus,
+        progress_percentage: Optional[int] = None,
+        error_message: Optional[str] = None,
+    ) -> Optional[WorkflowTask]:
         """
         Update task status with optional progress and error message
 
@@ -570,7 +599,9 @@ class CRUDWorkflowTask:
 
         return self.update(task_id, WorkflowTaskUpdate(**update_data))
 
-    def set_result(self, task_id: str, result_data: Dict[str, Any]) -> Optional[WorkflowTask]:
+    def set_result(
+        self, task_id: str, result_data: Dict[str, Any]
+    ) -> Optional[WorkflowTask]:
         """
         Set task result and mark as completed
 
@@ -582,13 +613,14 @@ class CRUDWorkflowTask:
             Updated task object if found, None otherwise
         """
         import json
+
         result_json = json.dumps(result_data)
 
         update_data = WorkflowTaskUpdate(
             status=TaskStatus.COMPLETED,
             progress_percentage=100,
             result_json=result_json,
-            completed_at=datetime.utcnow()
+            completed_at=datetime.utcnow(),
         )
 
         return self.update(task_id, update_data)
@@ -644,19 +676,21 @@ class RepositoryService:
             "total_poems": self.poems.count(),
             "total_translations": self.translations.count(),
             "ai_translations": self.db.execute(
-                select(func.count(Translation.id))
-                .where(Translation.translator_type == TranslatorType.AI)
+                select(func.count(Translation.id)).where(
+                    Translation.translator_type == TranslatorType.AI
+                )
             ).scalar(),
             "human_translations": self.db.execute(
-                select(func.count(Translation.id))
-                .where(Translation.translator_type == TranslatorType.HUMAN)
+                select(func.count(Translation.id)).where(
+                    Translation.translator_type == TranslatorType.HUMAN
+                )
             ).scalar(),
-            "languages": list(self.db.execute(
-                select(Poem.source_language).distinct()
-            ).scalars()),
+            "languages": list(
+                self.db.execute(select(Poem.source_language).distinct()).scalars()
+            ),
             "latest_translation": self.db.execute(
                 select(func.max(Translation.created_at))
-            ).scalar()
+            ).scalar(),
         }
 
     def search_poems(self, query: str, limit: int = 50) -> List[Poem]:
@@ -667,7 +701,7 @@ class RepositoryService:
                 or_(
                     Poem.poem_title.ilike(f"%{query}%"),
                     Poem.original_text.ilike(f"%{query}%"),
-                    Poem.poet_name.ilike(f"%{query}%")
+                    Poem.poet_name.ilike(f"%{query}%"),
                 )
             )
             .limit(limit)
@@ -683,20 +717,19 @@ class RepositoryService:
 
         translations = self.translations.get_by_poem(poem_id)
 
-        result = {
-            "poem": poem,
-            "translations": []
-        }
+        result = {"poem": poem, "translations": []}
 
         for translation in translations:
             ai_logs = self.ai_logs.get_by_translation(translation.id)
             human_notes = self.human_notes.get_by_translation(translation.id)
 
-            result["translations"].append({
-                "translation": translation,
-                "ai_logs": ai_logs,
-                "human_notes": human_notes
-            })
+            result["translations"].append(
+                {
+                    "translation": translation,
+                    "ai_logs": ai_logs,
+                    "human_notes": human_notes,
+                }
+            )
 
         return result
 

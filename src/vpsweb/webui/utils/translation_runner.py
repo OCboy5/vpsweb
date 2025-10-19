@@ -77,7 +77,9 @@ class TranslationRunner:
         """
         try:
             logger.info(f"开始翻译工作流")
-            logger.info(f"源语言: {source_lang}, 目标语言: {target_lang}, 模式: {workflow_mode}")
+            logger.info(
+                f"源语言: {source_lang}, 目标语言: {target_lang}, 模式: {workflow_mode}"
+            )
 
             if not original_poem or not original_poem.strip():
                 raise ValueError("诗歌内容为空")
@@ -194,7 +196,7 @@ class TranslationRunner:
         logger.info("执行试运行工作流")
 
         # 解析诗歌头部信息
-        lines = original_poem.strip().split('\n')
+        lines = original_poem.strip().split("\n")
         poem_title = "无题"
         poet_name = "佚名"
 
@@ -271,7 +273,9 @@ This is a simulated result for testing purposes."""
 
         return mock_result
 
-    async def _save_result(self, result: Dict[str, Any], output_dir: Optional[str] = None) -> Path:
+    async def _save_result(
+        self, result: Dict[str, Any], output_dir: Optional[str] = None
+    ) -> Path:
         """
         保存翻译结果到文件
 
@@ -312,21 +316,25 @@ This is a simulated result for testing purposes."""
 
         # 输入信息
         input_data = result.get("input", {})
-        summary.update({
-            "source_lang": input_data.get("source_lang"),
-            "target_lang": input_data.get("target_lang"),
-            "poem_length": len(input_data.get("original_poem", "")),
-        })
+        summary.update(
+            {
+                "source_lang": input_data.get("source_lang"),
+                "target_lang": input_data.get("target_lang"),
+                "poem_length": len(input_data.get("original_poem", "")),
+            }
+        )
 
         # 性能指标
         metrics = result.get("total_metrics", {})
         if metrics and not result.get("dry_run"):
-            summary.update({
-                "total_llm_calls": metrics.get("total_llm_calls", 0),
-                "total_tokens_used": metrics.get("total_tokens_used", 0),
-                "total_duration": metrics.get("total_duration", 0),
-                "total_cost": metrics.get("total_cost", 0),
-            })
+            summary.update(
+                {
+                    "total_llm_calls": metrics.get("total_llm_calls", 0),
+                    "total_tokens_used": metrics.get("total_tokens_used", 0),
+                    "total_duration": metrics.get("total_duration", 0),
+                    "total_cost": metrics.get("total_cost", 0),
+                }
+            )
 
         # 输出文件
         if "output_path" in result:
@@ -336,7 +344,9 @@ This is a simulated result for testing purposes."""
         congregated = result.get("congregated_output", {})
         final_translation = congregated.get("revised_translation", "")
         if final_translation:
-            preview = final_translation[:200] + ("..." if len(final_translation) > 200 else "")
+            preview = final_translation[:200] + (
+                "..." if len(final_translation) > 200 else ""
+            )
             summary["translation_preview"] = preview
 
         return summary
@@ -376,19 +386,23 @@ This is a simulated result for testing purposes."""
                     metadata=task.get("metadata"),
                 )
 
-                results.append({
-                    "task_index": i,
-                    "status": "success",
-                    "result": result,
-                })
+                results.append(
+                    {
+                        "task_index": i,
+                        "status": "success",
+                        "result": result,
+                    }
+                )
 
             except Exception as e:
                 logger.error(f"第 {i+1} 个翻译任务失败: {e}")
-                results.append({
-                    "task_index": i,
-                    "status": "error",
-                    "error": str(e),
-                })
+                results.append(
+                    {
+                        "task_index": i,
+                        "status": "error",
+                        "error": str(e),
+                    }
+                )
 
         success_count = sum(1 for r in results if r["status"] == "success")
         logger.info(f"批量翻译完成: {success_count}/{len(translation_tasks)} 成功")

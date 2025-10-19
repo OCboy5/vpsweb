@@ -32,22 +32,26 @@ DECODE_MAP = {i: char for i, char in enumerate(CROCKFORD_BASE32)}
 
 class ULIDError(Exception):
     """Base exception for ULID operations."""
+
     pass
 
 
 class InvalidULIDError(ULIDError):
     """Invalid ULID format or encoding."""
+
     pass
 
 
 class TimeOverflowError(ULIDError):
     """ULID time component overflow."""
+
     pass
 
 
 @dataclass
 class ULIDComponents:
     """Components of a parsed ULID."""
+
     timestamp: int  # Milliseconds since Unix epoch
     randomness: int  # Random component
     datetime: datetime  # Parsed datetime
@@ -161,10 +165,7 @@ class ULIDGenerator:
             dt = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc)
 
             return ULIDComponents(
-                timestamp=timestamp,
-                randomness=randomness,
-                datetime=dt,
-                encoded=ulid
+                timestamp=timestamp, randomness=randomness, datetime=dt, encoded=ulid
             )
 
         except Exception as e:
@@ -188,7 +189,7 @@ class ULIDGenerator:
             return False
 
         # Check characters
-        if not re.match(r'^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$', ulid):
+        if not re.match(r"^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$", ulid):
             return False
 
         return True
@@ -273,7 +274,7 @@ class ULIDGenerator:
             value >>= 5
 
         # Reverse to get correct order
-        return ''.join(reversed(encoded))
+        return "".join(reversed(encoded))
 
     def _decode_ulid(self, ulid: str) -> tuple[int, int]:
         """Decode ULID string into timestamp and randomness."""
@@ -299,7 +300,7 @@ class ULIDGenerator:
             16-byte binary representation
         """
         timestamp, randomness = self._decode_ulid(ulid)
-        return struct.pack('>QQ', timestamp, randomness)
+        return struct.pack(">QQ", timestamp, randomness)
 
     def decode_binary(self, binary_data: bytes) -> str:
         """
@@ -314,7 +315,7 @@ class ULIDGenerator:
         if len(binary_data) != 16:
             raise InvalidULIDError("Binary data must be exactly 16 bytes")
 
-        timestamp, randomness = struct.unpack('>QQ', binary_data)
+        timestamp, randomness = struct.unpack(">QQ", binary_data)
         return self._encode_ulid(timestamp, randomness)
 
 
@@ -562,30 +563,30 @@ def validate_ulid_list(ulids: List[str]) -> Dict[str, Any]:
         Dictionary with validation results
     """
     results = {
-        'valid': [],
-        'invalid': [],
-        'duplicates': [],
-        'count': len(ulids),
-        'valid_count': 0,
-        'invalid_count': 0,
-        'duplicate_count': 0
+        "valid": [],
+        "invalid": [],
+        "duplicates": [],
+        "count": len(ulids),
+        "valid_count": 0,
+        "invalid_count": 0,
+        "duplicate_count": 0,
     }
 
     seen = set()
 
     for ulid in ulids:
         if is_valid_ulid(ulid):
-            results['valid'].append(ulid)
-            results['valid_count'] += 1
+            results["valid"].append(ulid)
+            results["valid_count"] += 1
 
             if ulid in seen:
-                results['duplicates'].append(ulid)
-                results['duplicate_count'] += 1
+                results["duplicates"].append(ulid)
+                results["duplicate_count"] += 1
             else:
                 seen.add(ulid)
         else:
-            results['invalid'].append(ulid)
-            results['invalid_count'] += 1
+            results["invalid"].append(ulid)
+            results["invalid_count"] += 1
 
     return results
 
@@ -602,11 +603,11 @@ def get_ulid_stats(ulids: List[str]) -> Dict[str, Any]:
     """
     if not ulids:
         return {
-            'count': 0,
-            'time_range': None,
-            'oldest': None,
-            'newest': None,
-            'span_hours': 0
+            "count": 0,
+            "time_range": None,
+            "oldest": None,
+            "newest": None,
+            "span_hours": 0,
         }
 
     timestamps = []
@@ -623,12 +624,12 @@ def get_ulid_stats(ulids: List[str]) -> Dict[str, Any]:
 
     if not timestamps:
         return {
-            'count': len(ulids),
-            'valid_count': 0,
-            'time_range': None,
-            'oldest': None,
-            'newest': None,
-            'span_hours': 0
+            "count": len(ulids),
+            "valid_count": 0,
+            "time_range": None,
+            "oldest": None,
+            "newest": None,
+            "span_hours": 0,
         }
 
     oldest_ts = min(timestamps)
@@ -636,15 +637,19 @@ def get_ulid_stats(ulids: List[str]) -> Dict[str, Any]:
     span_hours = (newest_ts - oldest_ts) / (1000 * 60 * 60)
 
     return {
-        'count': len(ulids),
-        'valid_count': len(valid_ulids),
-        'time_range': {
-            'oldest_timestamp': oldest_ts,
-            'newest_timestamp': newest_ts,
-            'oldest_datetime': datetime.fromtimestamp(oldest_ts / 1000, tz=timezone.utc).isoformat(),
-            'newest_datetime': datetime.fromtimestamp(newest_ts / 1000, tz=timezone.utc).isoformat()
+        "count": len(ulids),
+        "valid_count": len(valid_ulids),
+        "time_range": {
+            "oldest_timestamp": oldest_ts,
+            "newest_timestamp": newest_ts,
+            "oldest_datetime": datetime.fromtimestamp(
+                oldest_ts / 1000, tz=timezone.utc
+            ).isoformat(),
+            "newest_datetime": datetime.fromtimestamp(
+                newest_ts / 1000, tz=timezone.utc
+            ).isoformat(),
         },
-        'oldest': valid_ulids[timestamps.index(oldest_ts)],
-        'newest': valid_ulids[timestamps.index(newest_ts)],
-        'span_hours': span_hours
+        "oldest": valid_ulids[timestamps.index(oldest_ts)],
+        "newest": valid_ulids[timestamps.index(newest_ts)],
+        "span_hours": span_hours,
     }

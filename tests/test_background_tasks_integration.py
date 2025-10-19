@@ -22,12 +22,25 @@ from unittest.mock import Mock, AsyncMock, patch
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
 # Import the modules we're testing
-from vpsweb.repository.tasks import TaskManager, TaskStatus, TaskPriority, TaskDefinition
+from vpsweb.repository.tasks import (
+    TaskManager,
+    TaskStatus,
+    TaskPriority,
+    TaskDefinition,
+)
 from vpsweb.repository.task_queue import TaskQueue, QueuedTask
-from vpsweb.repository.vpsweb_adapter import VPSWebAdapter, TranslationJobRequest, WorkflowMode
+from vpsweb.repository.vpsweb_adapter import (
+    VPSWebAdapter,
+    TranslationJobRequest,
+    WorkflowMode,
+)
 from vpsweb.repository.database.models import (
-    BackgroundTask, TaskExecution, TaskMetrics, TranslationJob,
-    create_database_engine, initialize_database
+    BackgroundTask,
+    TaskExecution,
+    TaskMetrics,
+    TranslationJob,
+    create_database_engine,
+    initialize_database,
 )
 from vpsweb.repository.database.repository import Repository
 from vpsweb.repository.monitoring import TaskMonitor
@@ -46,7 +59,7 @@ class TestBackgroundTaskIntegration:
                 "database_url": "sqlite+aiosqlite:///:memory:",
                 "repo_root": "./test_repository_root",
                 "auto_create_dirs": True,
-                "enable_wal_mode": True
+                "enable_wal_mode": True,
             },
             "background_tasks": {
                 "enabled": True,
@@ -57,7 +70,7 @@ class TestBackgroundTaskIntegration:
                 "retry_delay": 5,
                 "max_queue_size": 10,
                 "queue_check_interval": 0.1,
-                "task_retention_hours": 1
+                "task_retention_hours": 1,
             },
             "task_monitoring": {
                 "enable_health_checks": True,
@@ -66,7 +79,7 @@ class TestBackgroundTaskIntegration:
                 "metrics_history_size": 100,
                 "failed_task_threshold": 3,
                 "queue_size_warning": 5,
-                "memory_usage_warning": 0.8
+                "memory_usage_warning": 0.8,
             },
             "system_resources": {
                 "enable_resource_monitoring": True,
@@ -76,21 +89,16 @@ class TestBackgroundTaskIntegration:
                 "max_memory_usage_percent": 90.0,
                 "memory_warning_threshold": 70.0,
                 "max_disk_usage_percent": 90.0,
-                "disk_warning_threshold": 70.0
+                "disk_warning_threshold": 70.0,
             },
-            "logging": {
-                "level": "INFO",
-                "format": "text"
-            },
-            "security": {
-                "require_auth": False
-            },
+            "logging": {"level": "INFO", "format": "text"},
+            "security": {"require_auth": False},
             "server": {
                 "host": "127.0.0.1",
                 "port": 8000,
                 "reload": False,
                 "debug": True,
-                "workers": 1
+                "workers": 1,
             },
             "data": {
                 "default_language": "en",
@@ -98,7 +106,7 @@ class TestBackgroundTaskIntegration:
                 "default_license": "CC-BY-4.0",
                 "max_poem_length": 10000,
                 "max_translation_length": 20000,
-                "enable_validation": True
+                "enable_validation": True,
             },
             "integration": {
                 "vpsweb": {
@@ -106,7 +114,7 @@ class TestBackgroundTaskIntegration:
                     "workflow_mode": "hybrid",
                     "timeout": 60,
                     "max_retries": 2,
-                    "retry_delay": 5
+                    "retry_delay": 5,
                 }
             },
             "web_ui": {
@@ -115,7 +123,7 @@ class TestBackgroundTaskIntegration:
                 "theme": "default",
                 "items_per_page": 20,
                 "enable_search": True,
-                "enable_comparison": True
+                "enable_comparison": True,
             },
             "performance": {
                 "database_pool_size": 1,
@@ -125,12 +133,13 @@ class TestBackgroundTaskIntegration:
                 "enable_metrics": True,
                 "metrics_retention_days": 1,
                 "gc_threshold": 100,
-                "max_memory_usage": 512
-            }
+                "max_memory_usage": 512,
+            },
         }
 
-        with patch('vpsweb.repository.config.load_config') as mock_load:
+        with patch("vpsweb.repository.config.load_config") as mock_load:
             from types import SimpleNamespace
+
             config = SimpleNamespace(**config_data)
             config.background_tasks = SimpleNamespace(**config_data["background_tasks"])
             config.task_monitoring = SimpleNamespace(**config_data["task_monitoring"])
@@ -143,10 +152,7 @@ class TestBackgroundTaskIntegration:
     async def test_database(self, test_config):
         """Create test database session."""
         # Create in-memory SQLite database
-        engine = create_async_engine(
-            "sqlite+aiosqlite:///:memory:",
-            echo=False
-        )
+        engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
 
         # Create tables
         async with engine.begin() as conn:
@@ -154,9 +160,7 @@ class TestBackgroundTaskIntegration:
 
         # Create session
         session_maker = async_sessionmaker(
-            engine,
-            class_=AsyncSession,
-            expire_on_commit=False
+            engine, class_=AsyncSession, expire_on_commit=False
         )
 
         async with session_maker() as session:
@@ -181,9 +185,7 @@ class TestBackgroundTaskIntegration:
     async def task_queue(self):
         """Create task queue instance."""
         queue = TaskQueue(
-            max_concurrent_tasks=2,
-            max_queue_size=10,
-            queue_check_interval=0.1
+            max_concurrent_tasks=2, max_queue_size=10, queue_check_interval=0.1
         )
         await queue.initialize()
         yield queue
@@ -198,7 +200,7 @@ class TestBackgroundTaskIntegration:
         adapter.get_integration_status.return_value = {
             "available": True,
             "status": "healthy",
-            "last_check": datetime.now(timezone.utc).isoformat()
+            "last_check": datetime.now(timezone.utc).isoformat(),
         }
 
         # Mock translation job creation
@@ -206,13 +208,17 @@ class TestBackgroundTaskIntegration:
             job_id = f"test_job_{uuid.uuid4().hex[:8]}"
             return job_id
 
-        adapter.create_translation_job = AsyncMock(side_effect=mock_create_translation_job)
+        adapter.create_translation_job = AsyncMock(
+            side_effect=mock_create_translation_job
+        )
 
         # Mock translation job cancellation
         async def mock_cancel_translation_job(job_id):
             return True
 
-        adapter.cancel_translation_job = AsyncMock(side_effect=mock_cancel_translation_job)
+        adapter.cancel_translation_job = AsyncMock(
+            side_effect=mock_cancel_translation_job
+        )
 
         return adapter
 
@@ -226,12 +232,7 @@ class TestBackgroundTaskIntegration:
 
     @pytest.mark.asyncio
     async def test_complete_task_lifecycle(
-        self,
-        repository,
-        task_manager,
-        task_queue,
-        vpsweb_adapter_mock,
-        task_monitor
+        self, repository, task_manager, task_queue, vpsweb_adapter_mock, task_monitor
     ):
         """Test complete task lifecycle from creation to completion."""
 
@@ -242,7 +243,7 @@ class TestBackgroundTaskIntegration:
             priority=TaskPriority.NORMAL,
             max_retries=2,
             timeout_seconds=60,
-            metadata={"test": True}
+            metadata={"test": True},
         )
 
         # 2. Create task execution context
@@ -264,10 +265,7 @@ class TestBackgroundTaskIntegration:
         assert initial_progress == 0.0
 
         # 5. Simulate task execution
-        await task_manager._execute_task_with_monitoring(
-            context,
-            task_function
-        )
+        await task_manager._execute_task_with_monitoring(context, task_function)
 
         # 6. Verify task completion
         assert context.status == TaskStatus.COMPLETED
@@ -286,10 +284,7 @@ class TestBackgroundTaskIntegration:
 
     @pytest.mark.asyncio
     async def test_translation_job_integration(
-        self,
-        repository,
-        vpsweb_adapter_mock,
-        task_monitor
+        self, repository, vpsweb_adapter_mock, task_monitor
     ):
         """Test VPSWeb translation job integration."""
 
@@ -300,7 +295,7 @@ class TestBackgroundTaskIntegration:
             target_language="zh-Hans",
             workflow_mode=WorkflowMode.HYBRID,
             poem_id=None,
-            metadata={"test": True}
+            metadata={"test": True},
         )
 
         # 2. Submit translation job
@@ -315,7 +310,7 @@ class TestBackgroundTaskIntegration:
             target_language=translation_request.target_language,
             workflow_mode=translation_request.workflow_mode.value,
             original_task_id=None,
-            metadata=translation_request.metadata
+            metadata=translation_request.metadata,
         )
 
         assert job.id is not None
@@ -329,7 +324,7 @@ class TestBackgroundTaskIntegration:
             TaskStatus.COMPLETED,
             translated_text="你好世界",
             quality_score=0.95,
-            confidence_score=0.88
+            confidence_score=0.88,
         )
 
         # 5. Verify job completion
@@ -340,16 +335,17 @@ class TestBackgroundTaskIntegration:
         assert completed_job.quality_score == 0.95
 
     @pytest.mark.asyncio
-    async def test_task_queue_with_priority(
-        self,
-        task_manager,
-        task_queue
-    ):
+    async def test_task_queue_with_priority(self, task_manager, task_queue):
         """Test task queue priority handling."""
 
         # Create tasks with different priorities
         tasks = []
-        priorities = [TaskPriority.LOW, TaskPriority.HIGH, TaskPriority.CRITICAL, TaskPriority.NORMAL]
+        priorities = [
+            TaskPriority.LOW,
+            TaskPriority.HIGH,
+            TaskPriority.CRITICAL,
+            TaskPriority.NORMAL,
+        ]
 
         for i, priority in enumerate(priorities):
             task_def = TaskDefinition(
@@ -357,7 +353,7 @@ class TestBackgroundTaskIntegration:
                 task_type="test",
                 priority=priority,
                 max_retries=1,
-                timeout_seconds=30
+                timeout_seconds=30,
             )
 
             async def test_task(context):
@@ -383,7 +379,7 @@ class TestBackgroundTaskIntegration:
                 TaskPriority.CRITICAL: 0,
                 TaskPriority.HIGH: 1,
                 TaskPriority.NORMAL: 2,
-                TaskPriority.LOW: 3
+                TaskPriority.LOW: 3,
             }
 
             for i in range(len(queued_tasks) - 1):
@@ -396,12 +392,7 @@ class TestBackgroundTaskIntegration:
                 assert current_order <= next_order
 
     @pytest.mark.asyncio
-    async def test_error_handling_and_retry(
-        self,
-        repository,
-        task_manager,
-        task_queue
-    ):
+    async def test_error_handling_and_retry(self, repository, task_manager, task_queue):
         """Test error handling and retry logic."""
 
         # Create a task that will fail
@@ -410,7 +401,7 @@ class TestBackgroundTaskIntegration:
             task_type="test",
             priority=TaskPriority.NORMAL,
             max_retries=2,
-            timeout_seconds=30
+            timeout_seconds=30,
         )
 
         attempt_count = 0
@@ -438,12 +429,7 @@ class TestBackgroundTaskIntegration:
         assert final_context.result == "Success after retries"
 
     @pytest.mark.asyncio
-    async def test_monitoring_system(
-        self,
-        task_monitor,
-        repository,
-        task_queue
-    ):
+    async def test_monitoring_system(self, task_monitor, repository, task_queue):
         """Test the monitoring system."""
 
         # Verify monitoring is active
@@ -469,7 +455,7 @@ class TestBackgroundTaskIntegration:
             task_id=task_id,
             progress=0.5,
             message="Test progress update",
-            metadata={"test": True}
+            metadata={"test": True},
         )
 
         # Verify progress was recorded
@@ -483,10 +469,7 @@ class TestBackgroundTaskIntegration:
         assert history[0].message == "Test progress update"
 
     @pytest.mark.asyncio
-    async def test_database_operations(
-        self,
-        repository
-    ):
+    async def test_database_operations(self, repository):
         """Test database repository operations."""
 
         # 1. Create and retrieve a task
@@ -496,7 +479,7 @@ class TestBackgroundTaskIntegration:
             priority=TaskPriority.HIGH,
             max_retries=3,
             timeout_seconds=60,
-            metadata={"db_test": True}
+            metadata={"db_test": True},
         )
 
         assert task.id is not None
@@ -505,10 +488,7 @@ class TestBackgroundTaskIntegration:
 
         # 2. Update task status
         success = await repository.update_task_status(
-            task.id,
-            TaskStatus.RUNNING,
-            progress=0.3,
-            message="Task is running"
+            task.id, TaskStatus.RUNNING, progress=0.3, message="Task is running"
         )
         assert success is True
 
@@ -521,9 +501,7 @@ class TestBackgroundTaskIntegration:
 
         # 4. Create task execution record
         execution = await repository.create_task_execution(
-            task_id=task.id,
-            attempt_number=1,
-            status=TaskStatus.RUNNING
+            task_id=task.id, attempt_number=1, status=TaskStatus.RUNNING
         )
         assert execution.id is not None
         assert execution.task_id == task.id
@@ -535,7 +513,7 @@ class TestBackgroundTaskIntegration:
             cpu_usage=25.5,
             memory_usage=128.0,
             progress=0.6,
-            custom_metrics={"custom_metric": 42}
+            custom_metrics={"custom_metric": 42},
         )
         assert metrics.id is not None
         assert metrics.task_id == task.id
@@ -547,7 +525,7 @@ class TestBackgroundTaskIntegration:
             TaskStatus.COMPLETED,
             progress=1.0,
             result={"status": "success"},
-            message="Task completed successfully"
+            message="Task completed successfully",
         )
 
         # 7. Verify completion
@@ -564,10 +542,7 @@ class TestBackgroundTaskIntegration:
         assert stats["status_counts"].get("completed", 0) >= 1
 
     @pytest.mark.asyncio
-    async def test_system_resource_monitoring(
-        self,
-        task_monitor
-    ):
+    async def test_system_resource_monitoring(self, task_monitor):
         """Test system resource monitoring."""
 
         # Get system metrics
@@ -595,11 +570,7 @@ class TestBackgroundTaskIntegration:
         assert 0 <= thresholds["error_rate_warning"] <= 1
 
     @pytest.mark.asyncio
-    async def test_cleanup_operations(
-        self,
-        repository,
-        task_manager
-    ):
+    async def test_cleanup_operations(self, repository, task_manager):
         """Test cleanup operations for old data."""
 
         # Create several tasks
@@ -610,7 +581,7 @@ class TestBackgroundTaskIntegration:
                 task_type="cleanup_test",
                 priority=TaskPriority.NORMAL,
                 max_retries=1,
-                timeout_seconds=30
+                timeout_seconds=30,
             )
             task_ids.append(task.id)
 
@@ -620,7 +591,7 @@ class TestBackgroundTaskIntegration:
                     task.id,
                     TaskStatus.COMPLETED,
                     progress=1.0,
-                    result=f"Task {i} result"
+                    result=f"Task {i} result",
                 )
 
         # Get cleanup statistics before cleanup
@@ -639,12 +610,7 @@ class TestBackgroundTaskIntegration:
         # we mainly verify the cleanup operation doesn't error out.
 
     @pytest.mark.asyncio
-    async def test_performance_under_load(
-        self,
-        repository,
-        task_manager,
-        task_queue
-    ):
+    async def test_performance_under_load(self, repository, task_manager, task_queue):
         """Test system performance under load."""
 
         # Create multiple concurrent tasks
@@ -659,7 +625,7 @@ class TestBackgroundTaskIntegration:
                 task_type="load_test",
                 priority=TaskPriority.NORMAL,
                 max_retries=1,
-                timeout_seconds=30
+                timeout_seconds=30,
             )
 
             async def load_test_task(context):

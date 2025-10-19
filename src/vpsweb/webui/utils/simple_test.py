@@ -9,12 +9,14 @@ from pathlib import Path
 # Add root path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
+
 def test_basic_imports():
     """Test that we can import the utilities"""
     print("Testing basic imports...")
 
     try:
         from vpsweb.webui.utils.translation_runner import TranslationRunner
+
         print("✅ TranslationRunner import successful")
     except Exception as e:
         print(f"❌ TranslationRunner import failed: {e}")
@@ -22,12 +24,14 @@ def test_basic_imports():
 
     try:
         from vpsweb.webui.utils.wechat_article_runner import WeChatArticleRunner
+
         print("✅ WeChatArticleRunner import successful")
     except Exception as e:
         print(f"❌ WeChatArticleRunner import failed: {e}")
         return False
 
     return True
+
 
 def test_class_instantiation():
     """Test that we can create instances of the classes"""
@@ -48,6 +52,7 @@ def test_class_instantiation():
         print(f"❌ TranslationRunner instantiation failed: {e}")
         return False
 
+
 def test_wechat_runner():
     """Test WeChat runner functionality"""
     print("\nTesting WeChat article runner...")
@@ -66,6 +71,7 @@ def test_wechat_runner():
     except Exception as e:
         print(f"❌ WeChatArticleRunner instantiation failed: {e}")
         return False
+
 
 def test_mock_data_validation():
     """Test mock data validation functionality"""
@@ -99,7 +105,7 @@ def test_mock_data_validation():
                 "source_lang": "Chinese",
                 "target_lang": "English",
                 "workflow_id": "test-workflow",
-            }
+            },
         }
 
         print("✅ Mock data validation structure created successfully")
@@ -111,6 +117,7 @@ def test_mock_data_validation():
     except Exception as e:
         print(f"❌ Mock data validation failed: {e}")
         return False
+
 
 def main():
     """Run all simple tests"""
@@ -152,9 +159,12 @@ def main():
         print("   - Basic structure is sound")
         print("   - Ready for integration with proper configuration")
     else:
-        print(f"\n⚠️  {total - passed} tests failed, but this may be expected without proper config.")
+        print(
+            f"\n⚠️  {total - passed} tests failed, but this may be expected without proper config."
+        )
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

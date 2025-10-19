@@ -49,6 +49,7 @@ import asyncio
 import os
 from pathlib import Path
 
+
 def get_default_repo_root() -> Path:
     """Get default repository root directory"""
     # Use environment variable or default to repository_root in project
@@ -64,21 +65,25 @@ def get_default_repo_root() -> Path:
 
 class FileStorageError(Exception):
     """Base exception for file storage operations."""
+
     pass
 
 
 class FileNotFoundError(FileStorageError):
     """File not found in storage."""
+
     pass
 
 
 class InvalidFileTypeError(FileStorageError):
     """Invalid file type for operation."""
+
     pass
 
 
 class SecurityValidationError(FileStorageError):
     """Security validation failed."""
+
     pass
 
 
@@ -111,7 +116,7 @@ class FileStorageManager:
             "imports",
             "backups",
             "temp",
-            "logs"
+            "logs",
         ]
 
         for directory in directories:
@@ -166,7 +171,9 @@ class FileStorageManager:
         """
         return self.repo_root / "human_notes" / note_id
 
-    def validate_file_path(self, file_path: Path, allowed_extensions: Optional[List[str]] = None) -> bool:
+    def validate_file_path(
+        self, file_path: Path, allowed_extensions: Optional[List[str]] = None
+    ) -> bool:
         """
         Validate file path for security.
 
@@ -188,7 +195,9 @@ class FileStorageManager:
 
         # Check file extension
         if allowed_extensions:
-            if file_path.suffix.lower() not in [ext.lower() for ext in allowed_extensions]:
+            if file_path.suffix.lower() not in [
+                ext.lower() for ext in allowed_extensions
+            ]:
                 raise SecurityValidationError(
                     f"File extension not allowed: {file_path.suffix}. "
                     f"Allowed: {allowed_extensions}"
@@ -196,8 +205,19 @@ class FileStorageManager:
 
         # Check for dangerous file patterns
         dangerous_patterns = [
-            "..", "~", "$", "<", ">", "|", ";", "&", "`",
-            "script", "executable", "batch", "cmd"
+            "..",
+            "~",
+            "$",
+            "<",
+            ">",
+            "|",
+            ";",
+            "&",
+            "`",
+            "script",
+            "executable",
+            "batch",
+            "cmd",
         ]
 
         file_str = str(file_path).lower()
@@ -212,7 +232,7 @@ class FileStorageManager:
         file_path: Path,
         content: Union[str, bytes],
         allowed_extensions: Optional[List[str]] = None,
-        create_directories: bool = True
+        create_directories: bool = True,
     ) -> Dict[str, Any]:
         """
         Save file content to storage.
@@ -239,10 +259,10 @@ class FileStorageManager:
 
             # Write file
             if isinstance(content, str):
-                async with aiofiles.open(file_path, 'w', encoding='utf-8') as f:
+                async with aiofiles.open(file_path, "w", encoding="utf-8") as f:
                     await f.write(content)
             else:
-                async with aiofiles.open(file_path, 'wb') as f:
+                async with aiofiles.open(file_path, "wb") as f:
                     await f.write(content)
 
             # Get file metadata
@@ -250,12 +270,12 @@ class FileStorageManager:
             file_hash = await self.calculate_file_hash(file_path)
 
             metadata = {
-                'path': str(file_path),
-                'size': stat.st_size,
-                'created': datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc),
-                'modified': datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
-                'hash': file_hash,
-                'extension': file_path.suffix
+                "path": str(file_path),
+                "size": stat.st_size,
+                "created": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc),
+                "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+                "hash": file_hash,
+                "extension": file_path.suffix,
             }
 
             return metadata
@@ -263,7 +283,7 @@ class FileStorageManager:
         except Exception as e:
             raise FileStorageError(f"Failed to save file {file_path}: {str(e)}")
 
-    async def load_file(self, file_path: Path, mode: str = 'r') -> Union[str, bytes]:
+    async def load_file(self, file_path: Path, mode: str = "r") -> Union[str, bytes]:
         """
         Load file content from storage.
 
@@ -319,7 +339,9 @@ class FileStorageManager:
         except Exception as e:
             raise FileStorageError(f"Failed to delete file {file_path}: {str(e)}")
 
-    async def calculate_file_hash(self, file_path: Path, algorithm: str = 'sha256') -> str:
+    async def calculate_file_hash(
+        self, file_path: Path, algorithm: str = "sha256"
+    ) -> str:
         """
         Calculate hash of a file.
 
@@ -332,7 +354,7 @@ class FileStorageManager:
         """
         hash_obj = hashlib.new(algorithm)
 
-        async with aiofiles.open(file_path, 'rb') as f:
+        async with aiofiles.open(file_path, "rb") as f:
             while chunk := await f.read(8192):
                 hash_obj.update(chunk)
 
@@ -342,7 +364,7 @@ class FileStorageManager:
         self,
         source_dir: Path,
         backup_name: Optional[str] = None,
-        compression: bool = True
+        compression: bool = True,
     ) -> Path:
         """
         Create backup of a directory.
@@ -381,9 +403,10 @@ class FileStorageManager:
 
     async def _create_zip_backup(self, source_dir: Path, backup_path: Path) -> None:
         """Create a compressed zip backup."""
+
         def create_zip():
-            with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                for file_path in source_dir.rglob('*'):
+            with zipfile.ZipFile(backup_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+                for file_path in source_dir.rglob("*"):
                     if file_path.is_file():
                         arcname = file_path.relative_to(source_dir)
                         zipf.write(file_path, arcname)
@@ -412,7 +435,7 @@ class FileStorageManager:
 
             target_dir.parent.mkdir(parents=True, exist_ok=True)
 
-            if backup_path.suffix == '.zip':
+            if backup_path.suffix == ".zip":
                 await self._extract_zip_backup(backup_path, target_dir)
             else:
                 await asyncio.to_thread(shutil.copytree, backup_path, target_dir)
@@ -422,13 +445,16 @@ class FileStorageManager:
 
     async def _extract_zip_backup(self, backup_path: Path, target_dir: Path) -> None:
         """Extract a zip backup."""
+
         def extract_zip():
-            with zipfile.ZipFile(backup_path, 'r') as zipf:
+            with zipfile.ZipFile(backup_path, "r") as zipf:
                 zipf.extractall(target_dir)
 
         await asyncio.to_thread(extract_zip)
 
-    async def save_poem_data(self, poem_id: str, poem_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def save_poem_data(
+        self, poem_id: str, poem_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Save poem data to structured file storage.
 
@@ -445,7 +471,7 @@ class FileStorageManager:
         return await self.save_file(
             poem_file,
             json.dumps(poem_data, indent=2, ensure_ascii=False),
-            allowed_extensions=['.json']
+            allowed_extensions=[".json"],
         )
 
     async def load_poem_data(self, poem_id: str) -> Dict[str, Any]:
@@ -462,13 +488,11 @@ class FileStorageManager:
             FileNotFoundError: If poem file doesn't exist
         """
         poem_file = self.get_poem_directory(poem_id) / "poem.json"
-        content = await self.load_file(poem_file, 'r')
+        content = await self.load_file(poem_file, "r")
         return json.loads(content)
 
     async def save_translation_data(
-        self,
-        translation_id: str,
-        translation_data: Dict[str, Any]
+        self, translation_id: str, translation_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Save translation data to structured file storage.
@@ -486,7 +510,7 @@ class FileStorageManager:
         return await self.save_file(
             translation_file,
             json.dumps(translation_data, indent=2, ensure_ascii=False),
-            allowed_extensions=['.json']
+            allowed_extensions=[".json"],
         )
 
     async def load_translation_data(self, translation_id: str) -> Dict[str, Any]:
@@ -502,15 +526,14 @@ class FileStorageManager:
         Raises:
             FileNotFoundError: If translation file doesn't exist
         """
-        translation_file = self.get_translation_directory(translation_id) / "translation.json"
-        content = await self.load_file(translation_file, 'r')
+        translation_file = (
+            self.get_translation_directory(translation_id) / "translation.json"
+        )
+        content = await self.load_file(translation_file, "r")
         return json.loads(content)
 
     async def list_files(
-        self,
-        directory: Path,
-        pattern: str = "*",
-        recursive: bool = False
+        self, directory: Path, pattern: str = "*", recursive: bool = False
     ) -> List[Dict[str, Any]]:
         """
         List files in a directory with metadata.
@@ -530,25 +553,33 @@ class FileStorageManager:
                 return []
 
             files = []
-            glob_pattern = directory.rglob(pattern) if recursive else directory.glob(pattern)
+            glob_pattern = (
+                directory.rglob(pattern) if recursive else directory.glob(pattern)
+            )
 
             for file_path in glob_pattern:
                 if file_path.is_file():
                     stat = file_path.stat()
                     file_hash = await self.calculate_file_hash(file_path)
 
-                    files.append({
-                        'path': str(file_path),
-                        'name': file_path.name,
-                        'size': stat.st_size,
-                        'created': datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc),
-                        'modified': datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
-                        'hash': file_hash,
-                        'extension': file_path.suffix,
-                        'relative_path': str(file_path.relative_to(self.repo_root))
-                    })
+                    files.append(
+                        {
+                            "path": str(file_path),
+                            "name": file_path.name,
+                            "size": stat.st_size,
+                            "created": datetime.fromtimestamp(
+                                stat.st_ctime, tz=timezone.utc
+                            ),
+                            "modified": datetime.fromtimestamp(
+                                stat.st_mtime, tz=timezone.utc
+                            ),
+                            "hash": file_hash,
+                            "extension": file_path.suffix,
+                            "relative_path": str(file_path.relative_to(self.repo_root)),
+                        }
+                    )
 
-            return sorted(files, key=lambda x: x['name'])
+            return sorted(files, key=lambda x: x["name"])
 
         except Exception as e:
             raise FileStorageError(f"Failed to list files in {directory}: {str(e)}")
@@ -571,7 +602,7 @@ class FileStorageManager:
             cutoff_time = datetime.now().timestamp() - (max_age_hours * 3600)
             cleaned_count = 0
 
-            for file_path in temp_dir.rglob('*'):
+            for file_path in temp_dir.rglob("*"):
                 if file_path.is_file() and file_path.stat().st_mtime < cutoff_time:
                     await self.delete_file(file_path)
                     cleaned_count += 1
@@ -589,28 +620,24 @@ class FileStorageManager:
             Dictionary with storage statistics
         """
         try:
-            stats = {
-                'total_size': 0,
-                'file_count': 0,
-                'directory_sizes': {}
-            }
+            stats = {"total_size": 0, "file_count": 0, "directory_sizes": {}}
 
             for directory in self.repo_root.iterdir():
                 if directory.is_dir():
                     dir_size = 0
                     dir_files = 0
 
-                    for file_path in directory.rglob('*'):
+                    for file_path in directory.rglob("*"):
                         if file_path.is_file():
                             dir_size += file_path.stat().st_size
                             dir_files += 1
 
-                    stats['directory_sizes'][directory.name] = {
-                        'size': dir_size,
-                        'file_count': dir_files
+                    stats["directory_sizes"][directory.name] = {
+                        "size": dir_size,
+                        "file_count": dir_files,
                     }
-                    stats['total_size'] += dir_size
-                    stats['file_count'] += dir_files
+                    stats["total_size"] += dir_size
+                    stats["file_count"] += dir_files
 
             return stats
 

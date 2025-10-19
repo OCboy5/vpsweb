@@ -10,12 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from unittest.mock import AsyncMock, patch
 
 from vpsweb.repository.translations import TranslationRepository
-from vpsweb.repository.schemas import TranslationCreate, TranslationUpdate, TranslatorType, AiLogStatus
+from vpsweb.repository.schemas import (
+    TranslationCreate,
+    TranslationUpdate,
+    TranslatorType,
+    AiLogStatus,
+)
 from vpsweb.repository.exceptions import (
     ResourceNotFoundException,
     ConflictException,
     ValidationError,
-    DatabaseException
+    DatabaseException,
 )
 from vpsweb.repository.models import Translation, Poem
 
@@ -25,7 +30,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_translation_success(self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data):
+    async def test_create_translation_success(
+        self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data
+    ):
         """Test successful translation creation."""
         repo = TranslationRepository(db_session)
 
@@ -44,7 +51,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_non_existent_poem_fails(self, db_session: AsyncSession, sample_translation_data):
+    async def test_create_non_existent_poem_fails(
+        self, db_session: AsyncSession, sample_translation_data
+    ):
         """Test creating translation for non-existent poem fails."""
         repo = TranslationRepository(db_session)
 
@@ -58,7 +67,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_duplicate_translation_fails(self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data):
+    async def test_create_duplicate_translation_fails(
+        self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data
+    ):
         """Test creating duplicate translation fails with conflict."""
         repo = TranslationRepository(db_session)
 
@@ -75,13 +86,17 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_same_language_as_source_fails(self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data):
+    async def test_create_same_language_as_source_fails(
+        self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data
+    ):
         """Test creating translation with same language as source fails."""
         repo = TranslationRepository(db_session)
 
         translation_data = sample_translation_data.copy()
         translation_data["poem_id"] = sample_poem.id
-        translation_data["target_language"] = sample_poem.source_language  # Same as source
+        translation_data["target_language"] = (
+            sample_poem.source_language
+        )  # Same as source
 
         with pytest.raises(ValidationError) as exc_info:
             await repo.create(TranslationCreate(**translation_data))
@@ -90,7 +105,12 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_by_poem(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_by_poem(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting translations by poem."""
         repo = TranslationRepository(db_session)
 
@@ -102,28 +122,39 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_by_poem_with_language_filter(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_by_poem_with_language_filter(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting translations by poem with language filter."""
         repo = TranslationRepository(db_session)
 
         translations = await repo.get_by_poem(
-            sample_poem.id,
-            target_language=sample_translation.target_language
+            sample_poem.id, target_language=sample_translation.target_language
         )
 
         assert len(translations) >= 1
-        assert all(t.target_language == sample_translation.target_language for t in translations)
+        assert all(
+            t.target_language == sample_translation.target_language
+            for t in translations
+        )
         assert all(t.poem_id == sample_poem.id for t in translations)
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_latest_version(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_latest_version(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting latest version of translation."""
         repo = TranslationRepository(db_session)
 
         latest = await repo.get_latest_version(
-            sample_poem.id,
-            sample_translation.target_language
+            sample_poem.id, sample_translation.target_language
         )
 
         assert latest is not None
@@ -132,13 +163,17 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_by_language_pair(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_by_language_pair(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting translations by language pair."""
         repo = TranslationRepository(db_session)
 
         translations, total = await repo.get_by_language_pair(
-            sample_poem.source_language,
-            sample_translation.target_language
+            sample_poem.source_language, sample_translation.target_language
         )
 
         assert len(translations) >= 1
@@ -147,7 +182,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_by_translator_type(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_get_by_translator_type(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test getting translations by translator type."""
         repo = TranslationRepository(db_session)
 
@@ -157,11 +194,16 @@ class TestTranslationRepository:
 
         assert isinstance(translations, list)
         assert isinstance(total, int)
-        assert all(t.translator_type == sample_translation.translator_type for t in translations)
+        assert all(
+            t.translator_type == sample_translation.translator_type
+            for t in translations
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_search_translations(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_search_translations(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test searching translations."""
         repo = TranslationRepository(db_session)
 
@@ -194,14 +236,16 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_update_status(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_update_status(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test updating translation status."""
         repo = TranslationRepository(db_session)
 
         updated_translation = await repo.update_status(
             sample_translation.id,
             AiLogStatus.FAILED,
-            error_message="Test error message"
+            error_message="Test error message",
         )
 
         assert updated_translation is not None
@@ -215,14 +259,16 @@ class TestTranslationRepository:
         repo = TranslationRepository(db_session)
 
         with pytest.raises(ResourceNotFoundException):
-            await repo.update_status(
-                "non_existent_id",
-                AiLogStatus.COMPLETED
-            )
+            await repo.update_status("non_existent_id", AiLogStatus.COMPLETED)
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_language_pair_statistics(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_language_pair_statistics(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting language pair statistics."""
         repo = TranslationRepository(db_session)
 
@@ -238,7 +284,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_translator_statistics(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_get_translator_statistics(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test getting translator statistics."""
         repo = TranslationRepository(db_session)
 
@@ -253,7 +301,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_recent_translations(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_get_recent_translations(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test getting recent translations."""
         repo = TranslationRepository(db_session)
 
@@ -266,13 +316,14 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_bulk_publish(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_bulk_publish(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test bulk updating translation publish status."""
         repo = TranslationRepository(db_session)
 
         result = await repo.bulk_publish(
-            translation_ids=[sample_translation.id],
-            is_published=False
+            translation_ids=[sample_translation.id], is_published=False
         )
 
         assert result == 1
@@ -283,7 +334,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_count(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_count(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test counting translations."""
         repo = TranslationRepository(db_session)
 
@@ -294,7 +347,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_exists(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_exists(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test checking if translation exists."""
         repo = TranslationRepository(db_session)
 
@@ -306,7 +361,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_multi_with_pagination(self, db_session: AsyncSession, sample_translation: Translation):
+    async def test_get_multi_with_pagination(
+        self, db_session: AsyncSession, sample_translation: Translation
+    ):
         """Test listing translations with pagination."""
         repo = TranslationRepository(db_session)
 
@@ -320,14 +377,19 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_get_by_poem_language_version(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_get_by_poem_language_version(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test getting translation by poem, language, and version."""
         repo = TranslationRepository(db_session)
 
         found_translation = await repo.get_by_poem_language_version(
             sample_poem.id,
             sample_translation.target_language,
-            sample_translation.version
+            sample_translation.version,
         )
 
         assert found_translation is not None
@@ -335,13 +397,20 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_with_translation_reference(self, db_session: AsyncSession, sample_poem: Poem, sample_translation: Translation):
+    async def test_create_with_translation_reference(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation: Translation,
+    ):
         """Test creating translation with translation reference."""
         repo = TranslationRepository(db_session)
 
         translation_data = sample_translation_data.copy()
         translation_data["poem_id"] = sample_poem.id
-        translation_data["translation_id"] = sample_translation.id  # Reference to existing translation
+        translation_data["translation_id"] = (
+            sample_translation.id
+        )  # Reference to existing translation
 
         # This should work since the translation exists and belongs to the poem
         new_translation = await repo.create(TranslationCreate(**translation_data))
@@ -352,7 +421,9 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_create_with_invalid_translation_reference_fails(self, db_session: AsyncSession, sample_poem: Poem):
+    async def test_create_with_invalid_translation_reference_fails(
+        self, db_session: AsyncSession, sample_poem: Poem
+    ):
         """Test creating translation with invalid translation reference fails."""
         repo = TranslationRepository(db_session)
 
@@ -365,7 +436,13 @@ class TestTranslationRepository:
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_database_error_handling(self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data, raise_database_error):
+    async def test_database_error_handling(
+        self,
+        db_session: AsyncSession,
+        sample_poem: Poem,
+        sample_translation_data,
+        raise_database_error,
+    ):
         """Test database error handling."""
         repo = TranslationRepository(db_session)
 
@@ -373,20 +450,22 @@ class TestTranslationRepository:
         translation_data["poem_id"] = sample_poem.id
 
         # Mock database session to raise an error
-        with patch.object(db_session, 'commit', side_effect=raise_database_error()):
+        with patch.object(db_session, "commit", side_effect=raise_database_error()):
             with pytest.raises(DatabaseException):
                 await repo.create(TranslationCreate(**translation_data))
 
     @pytest.mark.asyncio
     @pytest.mark.repository
-    async def test_logger_called(self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data):
+    async def test_logger_called(
+        self, db_session: AsyncSession, sample_poem: Poem, sample_translation_data
+    ):
         """Test that logger is called during operations."""
         repo = TranslationRepository(db_session)
 
         translation_data = sample_translation_data.copy()
         translation_data["poem_id"] = sample_poem.id
 
-        with patch.object(repo.logger, 'info') as mock_logger:
+        with patch.object(repo.logger, "info") as mock_logger:
             await repo.create(TranslationCreate(**translation_data))
 
             # Verify logger was called

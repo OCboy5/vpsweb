@@ -24,7 +24,7 @@ def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
 
 @router.get("/overview", response_model=RepositoryStats)
 async def get_repository_overview(
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get comprehensive repository statistics and overview.
@@ -38,15 +38,17 @@ async def get_repository_overview(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate repository statistics: {str(e)}"
+            detail=f"Failed to generate repository statistics: {str(e)}",
         )
 
 
 @router.get("/translations/comparison/{poem_id}", response_model=ComparisonView)
 async def get_translation_comparison(
     poem_id: str,
-    target_language: Optional[str] = Query(None, description="Filter by target language"),
-    service: RepositoryService = Depends(get_repository_service)
+    target_language: Optional[str] = Query(
+        None, description="Filter by target language"
+    ),
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get comparison view for all translations of a specific poem.
@@ -64,8 +66,7 @@ async def get_translation_comparison(
     poem = service.poems.get_by_id(poem_id)
     if not poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
 
     try:
@@ -74,14 +75,13 @@ async def get_translation_comparison(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate translation comparison: {str(e)}"
+            detail=f"Failed to generate translation comparison: {str(e)}",
         )
 
 
 @router.get("/translations/quality-summary/{poem_id}")
 async def get_translation_quality_summary(
-    poem_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    poem_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Get quality summary for all translations of a poem.
@@ -96,8 +96,7 @@ async def get_translation_quality_summary(
     poem = service.poems.get_by_id(poem_id)
     if not poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
 
     try:
@@ -112,12 +111,14 @@ async def get_translation_quality_summary(
                     "average_rating": None,
                     "highest_rated": None,
                     "lowest_rated": None,
-                    "distribution": {}
-                }
+                    "distribution": {},
+                },
             }
 
         # Calculate quality metrics
-        ratings = [t.quality_rating for t in translations if t.quality_rating is not None]
+        ratings = [
+            t.quality_rating for t in translations if t.quality_rating is not None
+        ]
 
         if ratings:
             average_rating = sum(ratings) / len(ratings)
@@ -148,20 +149,19 @@ async def get_translation_quality_summary(
                 "average_rating": average_rating,
                 "highest_rated": highest_rated,
                 "lowest_rated": lowest_rated,
-                "distribution": distribution
-            }
+                "distribution": distribution,
+            },
         }
 
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate quality summary: {str(e)}"
+            status_code=500, detail=f"Failed to generate quality summary: {str(e)}"
         )
 
 
 @router.get("/poems/language-distribution")
 async def get_language_distribution(
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get distribution of poems and translations by language.
@@ -193,33 +193,33 @@ async def get_language_distribution(
         return {
             "source_languages": {
                 "total_poems": len(poems),
-                "distribution": source_language_counts
+                "distribution": source_language_counts,
             },
             "target_languages": {
                 "total_translations": len(all_translations),
-                "distribution": target_language_counts
+                "distribution": target_language_counts,
             },
             "language_pairs": [
                 {
                     "source": poem.source_language,
                     "target": translation.target_language,
-                    "count": 1
+                    "count": 1,
                 }
                 for poem in poems
                 for translation in service.translations.get_by_poem_id(poem.id)
-            ]
+            ],
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate language distribution: {str(e)}"
+            detail=f"Failed to generate language distribution: {str(e)}",
         )
 
 
 @router.get("/translators/productivity")
 async def get_translator_productivity(
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get productivity statistics for translators (both AI and human).
@@ -243,14 +243,18 @@ async def get_translator_productivity(
                         "total_translations": 0,
                         "target_languages": set(),
                         "average_quality": 0,
-                        "quality_ratings": []
+                        "quality_ratings": [],
                     }
 
                 translator_stats[translator]["total_translations"] += 1
-                translator_stats[translator]["target_languages"].add(translation.target_language)
+                translator_stats[translator]["target_languages"].add(
+                    translation.target_language
+                )
 
                 if translation.quality_rating is not None:
-                    translator_stats[translator]["quality_ratings"].append(translation.quality_rating)
+                    translator_stats[translator]["quality_ratings"].append(
+                        translation.quality_rating
+                    )
 
         # Calculate average quality for each translator
         for translator, stats in translator_stats.items():
@@ -267,27 +271,29 @@ async def get_translator_productivity(
 
         # Sort by total translations
         sorted_stats = dict(
-            sorted(translator_stats.items(),
-                   key=lambda x: x[1]["total_translations"],
-                   reverse=True)
+            sorted(
+                translator_stats.items(),
+                key=lambda x: x[1]["total_translations"],
+                reverse=True,
+            )
         )
 
         return {
             "total_translators": len(sorted_stats),
-            "translator_stats": sorted_stats
+            "translator_stats": sorted_stats,
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate translator productivity: {str(e)}"
+            detail=f"Failed to generate translator productivity: {str(e)}",
         )
 
 
 @router.get("/timeline/activity")
 async def get_activity_timeline(
     days: int = Query(30, ge=1, le=365, description="Number of days to look back"),
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get repository activity timeline.
@@ -307,8 +313,7 @@ async def get_activity_timeline(
         # Get poems created in the time range
         poems = service.poems.get_multi(skip=0, limit=10000)
         poems_in_range = [
-            poem for poem in poems
-            if start_date <= poem.created_at <= end_date
+            poem for poem in poems if start_date <= poem.created_at <= end_date
         ]
 
         # Get translations created in the time range
@@ -327,7 +332,7 @@ async def get_activity_timeline(
             activity_by_date[date_str] = {
                 "poems_created": 0,
                 "translations_created": 0,
-                "total_activity": 0
+                "total_activity": 0,
             }
             current_date += timedelta(days=1)
 
@@ -348,27 +353,29 @@ async def get_activity_timeline(
             "period": {
                 "start_date": start_date.isoformat(),
                 "end_date": end_date.isoformat(),
-                "days": days
+                "days": days,
             },
             "summary": {
                 "total_poems_created": len(poems_in_range),
                 "total_translations_created": len(translations_in_range),
                 "total_activity": len(poems_in_range) + len(translations_in_range),
-                "average_daily_activity": (len(poems_in_range) + len(translations_in_range)) / days
+                "average_daily_activity": (
+                    len(poems_in_range) + len(translations_in_range)
+                )
+                / days,
             },
-            "daily_activity": activity_by_date
+            "daily_activity": activity_by_date,
         }
 
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate activity timeline: {str(e)}"
+            status_code=500, detail=f"Failed to generate activity timeline: {str(e)}"
         )
 
 
 @router.get("/search/metrics")
 async def get_search_metrics(
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get metrics useful for search and filtering.
@@ -400,18 +407,17 @@ async def get_search_metrics(
                 "poets": sorted(list(poets)),
                 "source_languages": sorted(list(source_languages)),
                 "target_languages": sorted(list(target_languages)),
-                "translator_types": sorted(list(translator_types))
+                "translator_types": sorted(list(translator_types)),
             },
             "collection_stats": {
                 "total_poems": len(poems),
                 "total_unique_poets": len(poets),
                 "total_unique_source_languages": len(source_languages),
-                "total_unique_target_languages": len(target_languages)
-            }
+                "total_unique_target_languages": len(target_languages),
+            },
         }
 
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate search metrics: {str(e)}"
+            status_code=500, detail=f"Failed to generate search metrics: {str(e)}"
         )

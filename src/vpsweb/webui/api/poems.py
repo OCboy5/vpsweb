@@ -10,12 +10,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.schemas import (
-    PoemCreate, PoemUpdate, PoemResponse
-)
-from ..schemas import (
-    PoemFormCreate, WebAPIResponse, PaginationInfo
-)
+from src.vpsweb.repository.schemas import PoemCreate, PoemUpdate, PoemResponse
+from ..schemas import PoemFormCreate, WebAPIResponse, PaginationInfo
 
 router = APIRouter()
 
@@ -28,11 +24,13 @@ def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
 @router.get("/", response_model=List[PoemResponse])
 async def list_poems(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=100, description="Maximum number of records to return"),
+    limit: int = Query(
+        100, ge=1, le=100, description="Maximum number of records to return"
+    ),
     poet_name: Optional[str] = Query(None, description="Filter by poet name"),
     language: Optional[str] = Query(None, description="Filter by source language"),
     title_search: Optional[str] = Query(None, description="Search in poem title"),
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get list of poems with optional filtering and pagination.
@@ -52,7 +50,7 @@ async def list_poems(
         limit=limit,
         poet_name=poet_name,
         language=language,
-        title_search=title_search
+        title_search=title_search,
     )
     return poems
 
@@ -60,7 +58,7 @@ async def list_poems(
 @router.post("/", response_model=PoemResponse)
 async def create_poem(
     poem_data: PoemFormCreate,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Create a new poem in the repository.
@@ -81,23 +79,19 @@ async def create_poem(
         poem_title=poem_data.poem_title,
         source_language=poem_data.source_language,
         original_text=poem_data.original_text,
-        metadata_json=poem_data.metadata
+        metadata_json=poem_data.metadata,
     )
 
     try:
         poem = service.poems.create(poem_create)
         return poem
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to create poem: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to create poem: {str(e)}")
 
 
 @router.get("/{poem_id}", response_model=PoemResponse)
 async def get_poem(
-    poem_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    poem_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Get detailed information about a specific poem.
@@ -111,8 +105,7 @@ async def get_poem(
     poem = service.poems.get_by_id(poem_id)
     if not poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
     return poem
 
@@ -121,7 +114,7 @@ async def get_poem(
 async def update_poem(
     poem_id: str,
     poem_data: PoemFormCreate,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Update an existing poem.
@@ -139,8 +132,7 @@ async def update_poem(
     existing_poem = service.poems.get_by_id(poem_id)
     if not existing_poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
 
     # Convert form schema to update schema
@@ -149,23 +141,19 @@ async def update_poem(
         poem_title=poem_data.poem_title,
         source_language=poem_data.source_language,
         original_text=poem_data.original_text,
-        metadata_json=poem_data.metadata
+        metadata_json=poem_data.metadata,
     )
 
     try:
         updated_poem = service.poems.update(poem_id, poem_update)
         return updated_poem
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to update poem: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to update poem: {str(e)}")
 
 
 @router.delete("/{poem_id}", response_model=WebAPIResponse)
 async def delete_poem(
-    poem_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    poem_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Delete a poem and all its associated translations.
@@ -180,27 +168,22 @@ async def delete_poem(
     existing_poem = service.poems.get_by_id(poem_id)
     if not existing_poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
 
     try:
         service.poems.remove(poem_id)
         return WebAPIResponse(
             success=True,
-            message=f"Poem '{existing_poem.poem_title}' deleted successfully"
+            message=f"Poem '{existing_poem.poem_title}' deleted successfully",
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to delete poem: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to delete poem: {str(e)}")
 
 
 @router.get("/{poem_id}/translations", response_model=List[dict])
 async def get_poem_translations(
-    poem_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    poem_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Get all translations for a specific poem.
@@ -215,8 +198,7 @@ async def get_poem_translations(
     poem = service.poems.get_by_id(poem_id)
     if not poem:
         raise HTTPException(
-            status_code=404,
-            detail=f"Poem with ID '{poem_id}' not found"
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
 
     # Get translations for this poem
@@ -231,7 +213,7 @@ async def get_poem_translations(
             "target_language": t.target_language,
             "quality_rating": t.quality_rating,
             "created_at": t.created_at.isoformat(),
-            "translation_count": 1  # Each translation record represents one
+            "translation_count": 1,  # Each translation record represents one
         }
         for t in translations
     ]
@@ -240,8 +222,10 @@ async def get_poem_translations(
 @router.post("/search", response_model=List[PoemResponse])
 async def search_poems(
     query: str = Query(..., min_length=1, max_length=100, description="Search query"),
-    search_type: str = Query("title", regex="^(title|poet|text|all)$", description="Search field"),
-    service: RepositoryService = Depends(get_repository_service)
+    search_type: str = Query(
+        "title", regex="^(title|poet|text|all)$", description="Search field"
+    ),
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Search poems by text content.

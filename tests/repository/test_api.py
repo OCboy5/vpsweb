@@ -97,7 +97,10 @@ async def test_cors_headers_present(test_client: AsyncClient):
 
     # Check for CORS headers
     headers = response.headers
-    assert "access-control-allow-origin" in headers or "Access-Control-Allow-Origin" in headers
+    assert (
+        "access-control-allow-origin" in headers
+        or "Access-Control-Allow-Origin" in headers
+    )
 
 
 @pytest.mark.api
@@ -115,11 +118,7 @@ async def test_security_headers_present(test_client: AsyncClient):
     headers = dict((key.lower(), value) for key, value in response.headers.items())
 
     # Some common security headers that should be present
-    security_headers = [
-        "x-content-type-options",
-        "x-frame-options",
-        "x-xss-protection"
-    ]
+    security_headers = ["x-content-type-options", "x-frame-options", "x-xss-protection"]
 
     # At least some security headers should be present
     found_headers = [header for header in security_headers if header in headers]
@@ -212,11 +211,7 @@ async def test_api_versioning_headers(test_client: AsyncClient):
     headers = dict((key.lower(), value) for key, value in response.headers.items())
 
     # Look for API version headers
-    version_headers = [
-        "api-version",
-        "x-api-version",
-        "version"
-    ]
+    version_headers = ["api-version", "x-api-version", "version"]
 
     # At least one version header should be present
     found_headers = [header for header in version_headers if header in headers]

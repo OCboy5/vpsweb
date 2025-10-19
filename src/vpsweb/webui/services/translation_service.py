@@ -60,7 +60,9 @@ class TranslationService:
                         "cost_info": log.cost_info,
                         "runtime_seconds": log.runtime_seconds,
                         "notes": log.notes,
-                        "created_at": log.created_at.isoformat() if log.created_at else None
+                        "created_at": (
+                            log.created_at.isoformat() if log.created_at else None
+                        ),
                     }
                     for log in translation.ai_logs
                 ]
@@ -72,7 +74,9 @@ class TranslationService:
                     {
                         "id": note.id,
                         "note_text": note.note_text,
-                        "created_at": note.created_at.isoformat() if note.created_at else None
+                        "created_at": (
+                            note.created_at.isoformat() if note.created_at else None
+                        ),
                     }
                     for note in translation.human_notes
                 ]
@@ -86,15 +90,23 @@ class TranslationService:
                 "translated_text": translation.translated_text,
                 "quality_rating": translation.quality_rating,
                 "raw_path": translation.raw_path,
-                "created_at": translation.created_at.isoformat() if translation.created_at else None,
+                "created_at": (
+                    translation.created_at.isoformat()
+                    if translation.created_at
+                    else None
+                ),
                 "ai_logs": ai_logs,
                 "human_notes": human_notes,
-                "poem": {
-                    "id": translation.poem.id,
-                    "poet_name": translation.poem.poet_name,
-                    "poem_title": translation.poem.poem_title,
-                    "source_language": translation.poem.source_language
-                } if translation.poem else None
+                "poem": (
+                    {
+                        "id": translation.poem.id,
+                        "poet_name": translation.poem.poet_name,
+                        "poem_title": translation.poem.poem_title,
+                        "source_language": translation.poem.source_language,
+                    }
+                    if translation.poem
+                    else None
+                ),
             }
 
         except Exception as e:
@@ -107,7 +119,7 @@ class TranslationService:
         limit: int = 100,
         poem_id: Optional[str] = None,
         target_language: Optional[str] = None,
-        translator_type: Optional[str] = None
+        translator_type: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         List translations with optional filtering.
@@ -136,7 +148,12 @@ class TranslationService:
                 query = query.filter(Translation.translator_type == translator_type)
 
             # Order by creation date (newest first) and paginate
-            translations = query.order_by(desc(Translation.created_at)).offset(skip).limit(limit).all()
+            translations = (
+                query.order_by(desc(Translation.created_at))
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
 
             return [
                 {
@@ -147,11 +164,19 @@ class TranslationService:
                     "translator_type": translation.translator_type,
                     "translator_info": translation.translator_info,
                     "target_language": translation.target_language,
-                    "translated_preview": translation.translated_text[:200] + "..." if len(translation.translated_text) > 200 else translation.translated_text,
+                    "translated_preview": (
+                        translation.translated_text[:200] + "..."
+                        if len(translation.translated_text) > 200
+                        else translation.translated_text
+                    ),
                     "quality_rating": translation.quality_rating,
-                    "created_at": translation.created_at.isoformat() if translation.created_at else None,
+                    "created_at": (
+                        translation.created_at.isoformat()
+                        if translation.created_at
+                        else None
+                    ),
                     "has_ai_logs": translation.has_ai_logs,
-                    "has_human_notes": translation.has_human_notes
+                    "has_human_notes": translation.has_human_notes,
                 }
                 for translation in translations
             ]
@@ -166,7 +191,7 @@ class TranslationService:
         source_lang: str,
         target_lang: str,
         workflow_mode: str,
-        translation_data: Dict[str, Any]
+        translation_data: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
         Create a new translation from VPSWeb workflow output.
@@ -200,7 +225,7 @@ class TranslationService:
                 translated_text=translation_data.get("revised_translation", ""),
                 quality_rating=None,  # Could be calculated later
                 raw_path=None,  # Could store file path if needed
-                created_at=datetime.utcnow()
+                created_at=datetime.utcnow(),
             )
 
             # Save translation
@@ -213,42 +238,58 @@ class TranslationService:
                 translation_id=translation.id,
                 model_name="VPSWeb Workflow",  # Could be more specific
                 workflow_mode=workflow_mode,
-                token_usage_json=json.dumps({
-                    "total_tokens": translation_data.get("total_tokens", 0),
-                    "initial_tokens": translation_data.get("initial_tokens", 0),
-                    "editor_tokens": translation_data.get("editor_tokens", 0),
-                    "revision_tokens": translation_data.get("revision_tokens", 0)
-                }),
-                cost_info_json=json.dumps({
-                    "total_cost": translation_data.get("total_cost", 0.0),
-                    "initial_cost": translation_data.get("initial_cost", 0.0),
-                    "editor_cost": translation_data.get("editor_cost", 0.0),
-                    "revision_cost": translation_data.get("revision_cost", 0.0)
-                }),
-                runtime_seconds=translation_data.get("duration_seconds"),
-                notes=json.dumps({
-                    "workflow_id": translation_data.get("workflow_id"),
-                    "source_lang": source_lang,
-                    "target_lang": target_lang,
-                    "full_log": translation_data.get("full_log", ""),
-                    "step_details": {
-                        "initial_translation": {
-                            "text": translation_data.get("initial_translation", ""),
-                            "notes": translation_data.get("initial_translation_notes", ""),
-                            "model_info": translation_data.get("initial_model_info", {})
-                        },
-                        "editor_suggestions": {
-                            "text": translation_data.get("editor_suggestions", ""),
-                            "model_info": translation_data.get("editor_model_info", {})
-                        },
-                        "revision": {
-                            "text": translation_data.get("revised_translation", ""),
-                            "notes": translation_data.get("revised_translation_notes", ""),
-                            "model_info": translation_data.get("revision_model_info", {})
-                        }
+                token_usage_json=json.dumps(
+                    {
+                        "total_tokens": translation_data.get("total_tokens", 0),
+                        "initial_tokens": translation_data.get("initial_tokens", 0),
+                        "editor_tokens": translation_data.get("editor_tokens", 0),
+                        "revision_tokens": translation_data.get("revision_tokens", 0),
                     }
-                }),
-                created_at=datetime.utcnow()
+                ),
+                cost_info_json=json.dumps(
+                    {
+                        "total_cost": translation_data.get("total_cost", 0.0),
+                        "initial_cost": translation_data.get("initial_cost", 0.0),
+                        "editor_cost": translation_data.get("editor_cost", 0.0),
+                        "revision_cost": translation_data.get("revision_cost", 0.0),
+                    }
+                ),
+                runtime_seconds=translation_data.get("duration_seconds"),
+                notes=json.dumps(
+                    {
+                        "workflow_id": translation_data.get("workflow_id"),
+                        "source_lang": source_lang,
+                        "target_lang": target_lang,
+                        "full_log": translation_data.get("full_log", ""),
+                        "step_details": {
+                            "initial_translation": {
+                                "text": translation_data.get("initial_translation", ""),
+                                "notes": translation_data.get(
+                                    "initial_translation_notes", ""
+                                ),
+                                "model_info": translation_data.get(
+                                    "initial_model_info", {}
+                                ),
+                            },
+                            "editor_suggestions": {
+                                "text": translation_data.get("editor_suggestions", ""),
+                                "model_info": translation_data.get(
+                                    "editor_model_info", {}
+                                ),
+                            },
+                            "revision": {
+                                "text": translation_data.get("revised_translation", ""),
+                                "notes": translation_data.get(
+                                    "revised_translation_notes", ""
+                                ),
+                                "model_info": translation_data.get(
+                                    "revision_model_info", {}
+                                ),
+                            },
+                        },
+                    }
+                ),
+                created_at=datetime.utcnow(),
             )
 
             # Save AI log
@@ -275,7 +316,7 @@ class TranslationService:
         translation_id: str,
         translated_text: Optional[str] = None,
         quality_rating: Optional[int] = None,
-        translator_info: Optional[str] = None
+        translator_info: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update an existing translation.
@@ -354,9 +395,7 @@ class TranslationService:
             raise
 
     async def add_human_note(
-        self,
-        translation_id: str,
-        note_text: str
+        self, translation_id: str, note_text: str
     ) -> Dict[str, Any]:
         """
         Add a human note to a translation.
@@ -385,7 +424,7 @@ class TranslationService:
                 id=generate_ulid(),
                 translation_id=translation_id,
                 note_text=note_text.strip(),
-                created_at=datetime.utcnow()
+                created_at=datetime.utcnow(),
             )
 
             # Save note
@@ -399,7 +438,7 @@ class TranslationService:
                 "id": note.id,
                 "translation_id": note.translation_id,
                 "note_text": note.note_text,
-                "created_at": note.created_at.isoformat() if note.created_at else None
+                "created_at": note.created_at.isoformat() if note.created_at else None,
             }
 
         except ValueError:
@@ -420,25 +459,38 @@ class TranslationService:
             total_translations = self.db.query(Translation).count()
 
             # Count by type
-            ai_count = self.db.query(Translation).filter_by(translator_type='ai').count()
-            human_count = self.db.query(Translation).filter_by(translator_type='human').count()
+            ai_count = (
+                self.db.query(Translation).filter_by(translator_type="ai").count()
+            )
+            human_count = (
+                self.db.query(Translation).filter_by(translator_type="human").count()
+            )
 
             # Count by language
-            target_languages = self.db.query(
-                Translation.target_language,
-                self.db.func.count(Translation.id).label('count')
-            ).group_by(Translation.target_language).all()
+            target_languages = (
+                self.db.query(
+                    Translation.target_language,
+                    self.db.func.count(Translation.id).label("count"),
+                )
+                .group_by(Translation.target_language)
+                .all()
+            )
 
             # Count by workflow mode (from AI logs)
-            workflow_modes = self.db.query(
-                AILog.workflow_mode,
-                self.db.func.count(AILog.id).label('count')
-            ).group_by(AILog.workflow_mode).all()
+            workflow_modes = (
+                self.db.query(
+                    AILog.workflow_mode, self.db.func.count(AILog.id).label("count")
+                )
+                .group_by(AILog.workflow_mode)
+                .all()
+            )
 
             # Calculate average quality rating
-            avg_quality = self.db.query(
-                self.db.func.avg(Translation.quality_rating)
-            ).filter(Translation.quality_rating.isnot(None)).scalar()
+            avg_quality = (
+                self.db.query(self.db.func.avg(Translation.quality_rating))
+                .filter(Translation.quality_rating.isnot(None))
+                .scalar()
+            )
 
             return {
                 "total_translations": total_translations,
@@ -452,7 +504,7 @@ class TranslationService:
                     {"mode": mode.workflow_mode, "count": mode.count}
                     for mode in workflow_modes
                 ],
-                "average_quality_rating": float(avg_quality) if avg_quality else None
+                "average_quality_rating": float(avg_quality) if avg_quality else None,
             }
 
         except Exception as e:
@@ -472,10 +524,7 @@ class TranslationService:
         return await self.list_translations(poem_id=poem_id, limit=1000)
 
     async def search_translations(
-        self,
-        query: str,
-        skip: int = 0,
-        limit: int = 50
+        self, query: str, skip: int = 0, limit: int = 50
     ) -> List[Dict[str, Any]]:
         """
         Search translations by translated text or poem info.
@@ -494,11 +543,19 @@ class TranslationService:
 
             search_term = f"%{query.strip()}%"
 
-            translations = self.db.query(Translation).join(Poem).filter(
-                (Translation.translated_text.ilike(search_term)) |
-                (Poem.poet_name.ilike(search_term)) |
-                (Poem.poem_title.ilike(search_term))
-            ).order_by(desc(Translation.created_at)).offset(skip).limit(limit).all()
+            translations = (
+                self.db.query(Translation)
+                .join(Poem)
+                .filter(
+                    (Translation.translated_text.ilike(search_term))
+                    | (Poem.poet_name.ilike(search_term))
+                    | (Poem.poem_title.ilike(search_term))
+                )
+                .order_by(desc(Translation.created_at))
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
 
             return [
                 {
@@ -508,9 +565,17 @@ class TranslationService:
                     "poet_name": translation.poem.poet_name,
                     "translator_type": translation.translator_type,
                     "target_language": translation.target_language,
-                    "translated_preview": translation.translated_text[:200] + "..." if len(translation.translated_text) > 200 else translation.translated_text,
+                    "translated_preview": (
+                        translation.translated_text[:200] + "..."
+                        if len(translation.translated_text) > 200
+                        else translation.translated_text
+                    ),
                     "quality_rating": translation.quality_rating,
-                    "created_at": translation.created_at.isoformat() if translation.created_at else None
+                    "created_at": (
+                        translation.created_at.isoformat()
+                        if translation.created_at
+                        else None
+                    ),
                 }
                 for translation in translations
             ]

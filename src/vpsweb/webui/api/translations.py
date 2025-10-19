@@ -11,12 +11,19 @@ from sqlalchemy.orm import Session
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import (
-    TranslationCreate, TranslationUpdate, TranslationResponse,
-    AILogCreate, HumanNoteCreate
+    TranslationCreate,
+    TranslationUpdate,
+    TranslationResponse,
+    AILogCreate,
+    HumanNoteCreate,
 )
 from ..schemas import (
-    TranslationFormCreate, TranslationFormRequest, WebAPIResponse,
-    TranslationFormResponse, TranslatorType, WorkflowMode
+    TranslationFormCreate,
+    TranslationFormRequest,
+    WebAPIResponse,
+    TranslationFormResponse,
+    TranslatorType,
+    WorkflowMode,
 )
 
 router = APIRouter()
@@ -30,11 +37,17 @@ def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
 @router.get("/", response_model=List[TranslationResponse])
 async def list_translations(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=100, description="Maximum number of records to return"),
+    limit: int = Query(
+        100, ge=1, le=100, description="Maximum number of records to return"
+    ),
     poem_id: Optional[str] = Query(None, description="Filter by poem ID"),
-    target_language: Optional[str] = Query(None, description="Filter by target language"),
-    translator_type: Optional[str] = Query(None, description="Filter by translator type"),
-    service: RepositoryService = Depends(get_repository_service)
+    target_language: Optional[str] = Query(
+        None, description="Filter by target language"
+    ),
+    translator_type: Optional[str] = Query(
+        None, description="Filter by translator type"
+    ),
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Get list of translations with optional filtering and pagination.
@@ -54,7 +67,7 @@ async def list_translations(
         limit=limit,
         poem_id=poem_id,
         target_language=target_language,
-        translator_type=translator_type
+        translator_type=translator_type,
     )
     return translations
 
@@ -62,7 +75,7 @@ async def list_translations(
 @router.post("/", response_model=TranslationResponse)
 async def create_translation(
     translation_data: TranslationFormCreate,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Create a new human translation.
@@ -82,7 +95,7 @@ async def create_translation(
     if not poem:
         raise HTTPException(
             status_code=404,
-            detail=f"Poem with ID '{translation_data.poem_id}' not found"
+            detail=f"Poem with ID '{translation_data.poem_id}' not found",
         )
 
     # Convert form schema to creation schema
@@ -92,7 +105,7 @@ async def create_translation(
         translator_info=translation_data.translator_name or "Anonymous",
         target_language=translation_data.target_language,
         translated_text=translation_data.translated_text,
-        quality_rating=translation_data.quality_rating
+        quality_rating=translation_data.quality_rating,
     )
 
     try:
@@ -100,15 +113,13 @@ async def create_translation(
         return translation
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to create translation: {str(e)}"
+            status_code=400, detail=f"Failed to create translation: {str(e)}"
         )
 
 
 @router.get("/{translation_id}", response_model=TranslationResponse)
 async def get_translation(
-    translation_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    translation_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Get detailed information about a specific translation.
@@ -122,8 +133,7 @@ async def get_translation(
     translation = service.translations.get_by_id(translation_id)
     if not translation:
         raise HTTPException(
-            status_code=404,
-            detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
     return translation
 
@@ -132,7 +142,7 @@ async def get_translation(
 async def update_translation(
     translation_id: str,
     translation_data: TranslationFormCreate,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Update an existing translation.
@@ -150,8 +160,7 @@ async def update_translation(
     existing_translation = service.translations.get_by_id(translation_id)
     if not existing_translation:
         raise HTTPException(
-            status_code=404,
-            detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
 
     # Convert form schema to update schema
@@ -159,23 +168,23 @@ async def update_translation(
         translator_info=translation_data.translator_name or "Anonymous",
         target_language=translation_data.target_language,
         translated_text=translation_data.translated_text,
-        quality_rating=translation_data.quality_rating
+        quality_rating=translation_data.quality_rating,
     )
 
     try:
-        updated_translation = service.translations.update(translation_id, translation_update)
+        updated_translation = service.translations.update(
+            translation_id, translation_update
+        )
         return updated_translation
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to update translation: {str(e)}"
+            status_code=400, detail=f"Failed to update translation: {str(e)}"
         )
 
 
 @router.delete("/{translation_id}", response_model=WebAPIResponse)
 async def delete_translation(
-    translation_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    translation_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Delete a translation and its associated logs and notes.
@@ -190,20 +199,15 @@ async def delete_translation(
     existing_translation = service.translations.get_by_id(translation_id)
     if not existing_translation:
         raise HTTPException(
-            status_code=404,
-            detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
 
     try:
         service.translations.remove(translation_id)
-        return WebAPIResponse(
-            success=True,
-            message="Translation deleted successfully"
-        )
+        return WebAPIResponse(success=True, message="Translation deleted successfully")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to delete translation: {str(e)}"
+            status_code=400, detail=f"Failed to delete translation: {str(e)}"
         )
 
 
@@ -211,7 +215,7 @@ async def delete_translation(
 async def trigger_translation_workflow(
     workflow_request: TranslationFormRequest,
     background_tasks: BackgroundTasks,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Trigger an AI translation workflow for a poem.
@@ -229,19 +233,18 @@ async def trigger_translation_workflow(
     if not poem:
         raise HTTPException(
             status_code=404,
-            detail=f"Poem with ID '{workflow_request.poem_id}' not found"
+            detail=f"Poem with ID '{workflow_request.poem_id}' not found",
         )
 
     # Check if translation already exists
     existing_translations = service.translations.get_by_poem_id(
-        workflow_request.poem_id,
-        target_language=workflow_request.target_lang
+        workflow_request.poem_id, target_language=workflow_request.target_lang
     )
     if existing_translations:
         return TranslationFormResponse(
             success=False,
             message=f"Translation to {workflow_request.target_lang} already exists",
-            data={"existing_translations": len(existing_translations)}
+            data={"existing_translations": len(existing_translations)},
         )
 
     try:
@@ -253,7 +256,7 @@ async def trigger_translation_workflow(
             translator_info="AI Translation System",
             target_language=workflow_request.target_lang,
             translated_text="[Translation in progress...]",
-            quality_rating=None
+            quality_rating=None,
         )
 
         translation = service.translations.create(placeholder_translation)
@@ -264,20 +267,19 @@ async def trigger_translation_workflow(
             translation.id,
             poem.original_text,
             workflow_request.target_lang,
-            workflow_request.workflow_mode
+            workflow_request.workflow_mode,
         )
 
         return TranslationFormResponse(
             success=True,
             message="Translation workflow started successfully",
             translation_id=translation.id,
-            model_name="AI Translation System"
+            model_name="AI Translation System",
         )
 
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to trigger translation workflow: {str(e)}"
+            status_code=400, detail=f"Failed to trigger translation workflow: {str(e)}"
         )
 
 
@@ -285,7 +287,7 @@ async def trigger_translation_workflow(
 async def add_human_note(
     translation_id: str,
     note_text: str,
-    service: RepositoryService = Depends(get_repository_service)
+    service: RepositoryService = Depends(get_repository_service),
 ):
     """
     Add a human note to a translation.
@@ -303,32 +305,25 @@ async def add_human_note(
     translation = service.translations.get_by_id(translation_id)
     if not translation:
         raise HTTPException(
-            status_code=404,
-            detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
 
     try:
         note_create = HumanNoteCreate(
-            translation_id=translation_id,
-            note_text=note_text
+            translation_id=translation_id, note_text=note_text
         )
         service.human_notes.create(note_create)
 
-        return WebAPIResponse(
-            success=True,
-            message="Human note added successfully"
-        )
+        return WebAPIResponse(success=True, message="Human note added successfully")
     except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to add human note: {str(e)}"
+            status_code=400, detail=f"Failed to add human note: {str(e)}"
         )
 
 
 @router.get("/{translation_id}/notes", response_model=List[dict])
 async def get_translation_notes(
-    translation_id: str,
-    service: RepositoryService = Depends(get_repository_service)
+    translation_id: str, service: RepositoryService = Depends(get_repository_service)
 ):
     """
     Get all human notes for a translation.
@@ -343,8 +338,7 @@ async def get_translation_notes(
     translation = service.translations.get_by_id(translation_id)
     if not translation:
         raise HTTPException(
-            status_code=404,
-            detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
 
     # Get notes for this translation
@@ -354,7 +348,7 @@ async def get_translation_notes(
         {
             "id": note.id,
             "note_text": note.note_text,
-            "created_at": note.created_at.isoformat()
+            "created_at": note.created_at.isoformat(),
         }
         for note in notes
     ]
@@ -365,7 +359,7 @@ async def process_translation_background(
     translation_id: str,
     original_text: str,
     target_language: str,
-    workflow_mode: WorkflowMode
+    workflow_mode: WorkflowMode,
 ):
     """
     Background task to process AI translation workflow.

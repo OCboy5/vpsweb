@@ -101,7 +101,7 @@ def sample_poem_data():
         "publication_year": 2020,
         "genre": "test",
         "tags": "test,poetry,validation",
-        "is_active": True
+        "is_active": True,
     }
 
 
@@ -117,7 +117,7 @@ def sample_translation_data():
         "translator_info": "Test Translator",
         "quality_score": "0.85",
         "license": "CC-BY-4.0",
-        "is_published": True
+        "is_published": True,
     }
 
 
@@ -136,7 +136,7 @@ def sample_ai_log_data():
         "duration_seconds": "5.5",
         "status": "completed",
         "error_message": None,
-        "raw_response": '{"result": "test"}'
+        "raw_response": '{"result": "test"}',
     }
 
 
@@ -147,26 +147,30 @@ def sample_human_note_data():
         "note_type": "editorial",
         "content": "This is a test note with sufficient content to pass validation. It provides meaningful feedback about the poem or translation.",
         "author_name": "Test Reviewer",
-        "is_public": True
+        "is_public": True,
     }
 
 
 @pytest.fixture
 def mock_ulid_generator():
     """Mock ULID generator for predictable test IDs."""
+
     def _generate_ulid():
         return "01HXRQ8YJ9P9N7Q4J8K2R4S4T3"
+
     return _generate_ulid
 
 
 @pytest.fixture
 def mock_language_validator():
     """Mock language validator for testing."""
+
     def _validate_language_code(code):
         valid_codes = ["en", "zh", "es", "fr", "de", "ja"]
         if code.lower() in valid_codes:
             return True, None
         return False, f"Invalid language code: {code}"
+
     return _validate_language_code
 
 
@@ -187,7 +191,9 @@ async def sample_poem(db_session, sample_poem_data, mock_ulid_generator):
 
 
 @pytest_asyncio.fixture
-async def sample_translation(db_session, sample_poem, sample_translation_data, mock_ulid_generator):
+async def sample_translation(
+    db_session, sample_poem, sample_translation_data, mock_ulid_generator
+):
     """Create a sample translation in the database."""
     from vpsweb.repository.models import Translation
 
@@ -212,18 +218,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: Integration tests (require database)"
     )
-    config.addinivalue_line(
-        "markers", "slow: Slow tests (marked for CI)"
-    )
-    config.addinivalue_line(
-        "markers", "repository: Repository layer tests"
-    )
-    config.addinivalue_line(
-        "markers", "api: API endpoint tests"
-    )
-    config.addinivalue_line(
-        "markers", "validation: Input validation tests"
-    )
+    config.addinivalue_line("markers", "slow: Slow tests (marked for CI)")
+    config.addinivalue_line("markers", "repository: Repository layer tests")
+    config.addinivalue_line("markers", "api: API endpoint tests")
+    config.addinivalue_line("markers", "validation: Input validation tests")
 
 
 @pytest.fixture(autouse=True)
@@ -238,7 +236,7 @@ def configure_logging():
     # Use a simple console handler for tests
     logging.basicConfig(
         level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
 
@@ -259,7 +257,7 @@ class AsyncTestContext:
             "poem_title": "Test Poem",
             "source_language": "en",
             "original_text": "Test poem content for testing purposes.",
-            "is_active": True
+            "is_active": True,
         }
         default_data.update(kwargs)
 
@@ -281,7 +279,7 @@ class AsyncTestContext:
             "translated_text": "测试翻译内容",
             "translator_type": "hybrid",
             "license": "CC-BY-4.0",
-            "is_published": True
+            "is_published": True,
         }
         default_data.update(kwargs)
 
@@ -302,18 +300,24 @@ async def test_context(db_session) -> AsyncGenerator[AsyncTestContext, None]:
 @pytest.fixture
 def raise_database_error():
     """Utility to raise database errors in tests."""
+
     def _raise_error(message="Test database error"):
         from vpsweb.repository.exceptions import DatabaseException
+
         raise DatabaseException(message)
+
     return _raise_error
 
 
 @pytest.fixture
 def raise_validation_error():
     """Utility to raise validation errors in tests."""
+
     def _raise_error(message="Test validation error"):
         from vpsweb.repository.exceptions import ValidationException
+
         raise ValidationException(message)
+
     return _raise_error
 
 
@@ -321,6 +325,7 @@ def raise_validation_error():
 @pytest.fixture
 def generate_test_poems():
     """Generate multiple test poems."""
+
     def _generate_poems(count: int = 5):
         poems = []
         for i in range(count):
@@ -330,10 +335,11 @@ def generate_test_poems():
                 "poem_title": f"Test Poem {i}",
                 "source_language": "en" if i % 2 == 0 else "zh",
                 "original_text": f"This is test poem number {i} with sufficient content for validation.",
-                "is_active": True
+                "is_active": True,
             }
             poems.append(poem)
         return poems
+
     return _generate_poems
 
 

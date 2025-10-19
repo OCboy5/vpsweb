@@ -13,6 +13,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
+
 def test_api_endpoints():
     """Test basic API endpoints"""
     base_url = "http://localhost:8000"
@@ -53,7 +54,7 @@ def test_api_endpoints():
             "poet_name": "Test Poet",
             "poem_title": "Test Poem for API",
             "source_language": "English",
-            "original_text": "This is a test poem created via API."
+            "original_text": "This is a test poem created via API.",
         }
 
         response = requests.post(f"{base_url}/api/v1/poems/", json=poem_data, timeout=5)

@@ -26,7 +26,9 @@ def db_session():
     from sqlalchemy.orm import sessionmaker
 
     # Use in-memory SQLite for testing
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -45,11 +47,12 @@ def sample_poem(db_session: Session):
         poem_title="Test Poem",
         source_language="English",
         original_text="This is a test poem for integration testing.",
-        metadata_json={"test": True}
+        metadata_json={"test": True},
     )
 
     # Use the repository service to create the poem
     from src.vpsweb.repository.crud import RepositoryService
+
     service = RepositoryService(db_session)
     poem = service.poems.create(poem_data)
     return poem
@@ -71,7 +74,7 @@ class TestPoemAPI:
             "poem_title": "Sonnet 18",
             "source_language": "English",
             "original_text": "Shall I compare thee to a summer's day?",
-            "metadata": '{"test": true}'
+            "metadata": '{"test": true}',
         }
 
         response = client.post("/api/v1/poems/", json=poem_data)
@@ -107,7 +110,7 @@ class TestPoemAPI:
             "poem_title": "Updated Title",
             "source_language": "English",
             "original_text": "Updated poem text",
-            "metadata": "Updated metadata"
+            "metadata": "Updated metadata",
         }
 
         response = client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
@@ -125,10 +128,9 @@ class TestPoemAPI:
 
     def test_search_poems(self, db_session: Session, sample_poem):
         """Test searching poems"""
-        response = client.post("/api/v1/poems/search", params={
-            "query": "Test",
-            "search_type": "title"
-        })
+        response = client.post(
+            "/api/v1/poems/search", params={"query": "Test", "search_type": "title"}
+        )
         assert response.status_code == 200
         # Should return the sample poem
         data = response.json()
@@ -136,9 +138,7 @@ class TestPoemAPI:
 
     def test_filter_poems_by_poet(self, db_session: Session, sample_poem):
         """Test filtering poems by poet name"""
-        response = client.get("/api/v1/poems/", params={
-            "poet_name": "Test Poet"
-        })
+        response = client.get("/api/v1/poems/", params={"poet_name": "Test Poet"})
         assert response.status_code == 200
         data = response.json()
         assert len(data) >= 1
@@ -162,7 +162,7 @@ class TestTranslationAPI:
             "target_language": "Chinese",
             "translator_name": "Test Translator",
             "translated_text": "这是一个测试翻译。",
-            "quality_rating": 4
+            "quality_rating": 4,
         }
 
         response = client.post("/api/v1/translations/", json=translation_data)
@@ -180,7 +180,7 @@ class TestTranslationAPI:
             "target_language": "Chinese",
             "translator_name": "Test Translator",
             "translated_text": "这是一个测试翻译。",
-            "quality_rating": 4
+            "quality_rating": 4,
         }
 
         response = client.post("/api/v1/translations/", json=translation_data)
@@ -195,7 +195,7 @@ class TestTranslationAPI:
             "target_language": "Chinese",
             "translator_name": "Test Translator",
             "translated_text": "这是一个测试翻译。",
-            "quality_rating": 4
+            "quality_rating": 4,
         }
         client.post("/api/v1/translations/", json=translation_data)
 
@@ -210,7 +210,7 @@ class TestTranslationAPI:
         workflow_data = {
             "poem_id": sample_poem.id,
             "target_lang": "Spanish",
-            "workflow_mode": "hybrid"
+            "workflow_mode": "hybrid",
         }
 
         response = client.post("/api/v1/translations/trigger", json=workflow_data)
@@ -228,17 +228,19 @@ class TestTranslationAPI:
             "target_language": "Chinese",
             "translator_name": "Test Translator",
             "translated_text": "这是一个测试翻译。",
-            "quality_rating": 4
+            "quality_rating": 4,
         }
-        translation_response = client.post("/api/v1/translations/", json=translation_data)
+        translation_response = client.post(
+            "/api/v1/translations/", json=translation_data
+        )
         translation_id = translation_response.json()["id"]
 
         # Then add a note
-        note_data = {
-            "note_text": "This is a test note for the translation."
-        }
+        note_data = {"note_text": "This is a test note for the translation."}
 
-        response = client.post(f"/api/v1/translations/{translation_id}/notes", json=note_data)
+        response = client.post(
+            f"/api/v1/translations/{translation_id}/notes", json=note_data
+        )
         assert response.status_code == 200
         assert response.json()["success"] is True
 
@@ -292,9 +294,9 @@ class TestStatisticsAPI:
 
     def test_get_activity_timeline(self, db_session: Session, sample_poem):
         """Test getting activity timeline"""
-        response = client.get("/api/v1/statistics/timeline/activity", params={
-            "days": 30
-        })
+        response = client.get(
+            "/api/v1/statistics/timeline/activity", params={"days": 30}
+        )
         assert response.status_code == 200
 
         data = response.json()
@@ -312,7 +314,7 @@ class TestAPIErrorHandling:
             "poet_name": "",  # Empty poet name
             "poem_title": "Test",
             "source_language": "EN",
-            "original_text": "Test"
+            "original_text": "Test",
         }
 
         response = client.post("/api/v1/poems/", json=invalid_data)
@@ -326,7 +328,7 @@ class TestAPIErrorHandling:
             "target_language": "",  # Empty target language
             "translator_name": "Test",
             "translated_text": "Test",
-            "quality_rating": 10  # Invalid rating (should be 1-5)
+            "quality_rating": 10,  # Invalid rating (should be 1-5)
         }
 
         response = client.post("/api/v1/translations/", json=invalid_data)
@@ -335,18 +337,15 @@ class TestAPIErrorHandling:
 
     def test_invalid_query_parameters(self, db_session: Session):
         """Test validation of invalid query parameters"""
-        response = client.get("/api/v1/poems/", params={
-            "limit": 200  # Exceeds maximum limit
-        })
+        response = client.get(
+            "/api/v1/poems/", params={"limit": 200}  # Exceeds maximum limit
+        )
         # Should return validation error
         assert response.status_code == 422
 
     def test_pagination_parameters(self, db_session: Session, sample_poem):
         """Test pagination parameters work correctly"""
-        response = client.get("/api/v1/poems/", params={
-            "skip": 0,
-            "limit": 10
-        })
+        response = client.get("/api/v1/poems/", params={"skip": 0, "limit": 10})
         assert response.status_code == 200
         # Should return results or empty list
 

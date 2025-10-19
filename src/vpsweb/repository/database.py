@@ -15,15 +15,11 @@ engine = create_engine(
     settings.database_url,
     connect_args={"check_same_thread": False},  # Required for SQLite
     poolclass=StaticPool,  # Use StaticPool for SQLite
-    echo=settings.log_level.lower() == "debug"  # Log SQL in debug mode
+    echo=settings.log_level.lower() == "debug",  # Log SQL in debug mode
 )
 
 # Create session factory
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create declarative base for ORM models
 Base = declarative_base()
@@ -35,6 +31,7 @@ def init_db() -> None:
     Creates all tables defined in ORM models.
     """
     from . import models  # Import models to ensure they're registered
+
     Base.metadata.create_all(bind=engine)
 
 

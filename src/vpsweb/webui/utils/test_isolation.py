@@ -39,11 +39,13 @@ class IsolationTester:
         if message:
             print(f"    {message}")
 
-        self.test_results.append({
-            "test_name": test_name,
-            "success": success,
-            "message": message,
-        })
+        self.test_results.append(
+            {
+                "test_name": test_name,
+                "success": success,
+                "message": message,
+            }
+        )
 
     async def test_translation_isolation(self):
         """测试翻译工作流的独立性"""
@@ -65,9 +67,7 @@ class IsolationTester:
             for field in required_fields:
                 if field not in result:
                     self.log_test(
-                        f"翻译结果字段检查 ({field})",
-                        False,
-                        f"缺少字段: {field}"
+                        f"翻译结果字段检查 ({field})", False, f"缺少字段: {field}"
                     )
                     return
 
@@ -109,13 +109,17 @@ class IsolationTester:
             )
 
             # 验证结果结构
-            required_fields = ["slug", "article", "html_path", "metadata_path", "status"]
+            required_fields = [
+                "slug",
+                "article",
+                "html_path",
+                "metadata_path",
+                "status",
+            ]
             for field in required_fields:
                 if not hasattr(result, field):
                     self.log_test(
-                        f"微信文章结果字段检查 ({field})",
-                        False,
-                        f"缺少字段: {field}"
+                        f"微信文章结果字段检查 ({field})", False, f"缺少字段: {field}"
                     )
                     return
 
@@ -153,9 +157,13 @@ class IsolationTester:
 
             # 验证两个结果都正确
             translation_ok = translation_result.get("dry_run", False)
-            wechat_ok = hasattr(wechat_result, 'article')
+            wechat_ok = hasattr(wechat_result, "article")
 
-            self.log_test("翻译到微信文章工作流", translation_ok and wechat_ok, "两个工作流正常协作")
+            self.log_test(
+                "翻译到微信文章工作流",
+                translation_ok and wechat_ok,
+                "两个工作流正常协作",
+            )
 
             # 验证没有共享状态的意外修改
             original_translation_workflow_id = translation_result.get("workflow_id")
@@ -181,7 +189,9 @@ class IsolationTester:
             )
 
             translation_ok = translation_result.get("dry_run", False)
-            self.log_test("快速翻译便捷函数", translation_ok, "quick_translate 正常工作")
+            self.log_test(
+                "快速翻译便捷函数", translation_ok, "quick_translate 正常工作"
+            )
 
             # 创建临时翻译文件用于测试微信文章
             mock_translation_data = {
@@ -197,7 +207,9 @@ class IsolationTester:
                 },
             }
 
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as f:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as f:
                 json.dump(mock_translation_data, f, ensure_ascii=False, indent=2)
                 temp_file = f.name
 
@@ -208,8 +220,10 @@ class IsolationTester:
                     dry_run=True,
                 )
 
-                wechat_ok = hasattr(wechat_result, 'article')
-                self.log_test("快速微信文章便捷函数", wechat_ok, "quick_generate_article 正常工作")
+                wechat_ok = hasattr(wechat_result, "article")
+                self.log_test(
+                    "快速微信文章便捷函数", wechat_ok, "quick_generate_article 正常工作"
+                )
 
             finally:
                 Path(temp_file).unlink(missing_ok=True)
@@ -263,7 +277,9 @@ class IsolationTester:
             except Exception:
                 wechat_still_works = False
 
-            self.log_test("错误隔离验证", wechat_still_works, "翻译错误不影响微信文章生成")
+            self.log_test(
+                "错误隔离验证", wechat_still_works, "翻译错误不影响微信文章生成"
+            )
 
         except Exception as e:
             self.log_test("错误隔离测试", False, f"测试过程错误: {e}")
