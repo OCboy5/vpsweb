@@ -2,13 +2,15 @@
 
 This guide provides detailed information for developers working on Vox Poetica Studio Web (vpsweb).
 
-## 🎯 Current Status: v0.2.3 Enhanced Metrics & Display
+## 🎯 Current Status: v0.3.0 - Repository System Architecture
 
-**Version**: 0.2.3 (Enhanced Metrics & Display Release)
-**Status**: ✅ **PRODUCTION READY WITH ENHANCED METRICS & DISPLAY**
-**Last Updated**: 2025-10-13
+**Version**: 0.3.0 (Major Enhancement Milestone)
+**Status**: ✅ **PRODUCTION READY + REPOSITORY SYSTEM DEVELOPMENT**
+**Last Updated**: 2025-10-18
 
-The system has evolved through multiple iterations to v0.2.3, achieving enhanced metrics and display capabilities. This landmark release features enhanced translation workflow display with detailed prompt/completion token breakdown, corrected cost calculation using accurate per 1K token pricing, and successful integration of high-quality LLM-generated digests. The system now provides consistent, professional-grade display formats across both translation and WeChat workflows, establishing itself as a sophisticated, production-ready poetry translation platform with comprehensive metrics tracking and WeChat Official Account integration.
+The system has reached v0.3.0, a major enhancement milestone establishing the foundation for repository system architecture. Current production features include complete 3-step T-E-T translation workflow, WeChat Official Account integration, comprehensive metrics tracking, and professional-grade output formatting.
+
+**Active Development**: Repository system and Web UI development on `feature/repo_webui` branch, enabling next-generation architecture while maintaining production stability on main branch.
 
 ## 🏗️ Architecture Overview
 
@@ -449,13 +451,56 @@ CMD ["vpsweb", "translate", "--help"]
 5. **Caching**: Add response caching layer
 6. **Web Interface**: Develop web-based user interface
 
+### Feature Branch Development Strategy
+
+For major architectural changes or new features that could impact existing functionality, VPSWeb follows a feature branch approach to ensure production stability:
+
+**When to Use Feature Branches:**
+- Repository system implementation (architectural change)
+- Web UI development (new interface layer)
+- Major workflow modifications
+- Changes affecting multiple components
+
+**Current Active Feature Branches:**
+- `feature/repo_webui` - Repository system and Web UI development
+  - Maintains stable translation and WeChat workflows on main
+  - Enables parallel development of next-generation architecture
+  - Allows safe rollback if needed
+
+**Branch Naming Convention:**
+- Use concise, descriptive names: `feature/short-descriptive-name`
+- Example: `feature/repo_webui` instead of `feature/repository-system-and-web-ui`
+
+**Development Workflow:**
+```bash
+# Create feature branch
+git checkout main
+git checkout -b feature/short-descriptive-name
+
+# Development on feature branch
+# Implement changes incrementally
+# Test thoroughly
+# Commit regularly with clear messages
+
+# Merge back when complete and tested
+git checkout main
+git merge feature/short-descriptive-name
+git branch -d feature/short-descriptive-name
+```
+
+**Benefits:**
+- ✅ Production workflows remain stable on main branch
+- ✅ Safe parallel development without breaking existing functionality
+- ✅ Easy to abandon if approach proves problematic
+- ✅ Clean separation of experimental vs. stable code
+
 ### Contributing
 
-1. Fork the repository
-2. Create feature branch
+1. Check for existing feature branches for your work area
+2. Create feature branch for major changes (as above)
 3. Implement changes with tests
 4. Update documentation
-5. Submit pull request
+5. Submit pull request with clear description of changes
 
 ### Architecture Evolution
 

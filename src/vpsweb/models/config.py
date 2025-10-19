@@ -6,7 +6,7 @@ all configuration aspects of the translation workflow system.
 """
 
 from typing import Dict, List, Optional, Any, Literal
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
 
@@ -52,18 +52,16 @@ class ModelProviderConfig(BaseModel):
         default_factory=ModelCapabilities, description="Model capabilities"
     )
 
-    @validator("default_model")
-    def validate_default_model(cls, v, values):
+    @field_validator("default_model")
+    @classmethod
+    def validate_default_model(cls, v, info):
         """Validate that default_model is in the models list."""
-        if v and "models" in values:
-            if v not in values["models"]:
+        if v and "models" in info.data:
+            if v not in info.data["models"]:
                 raise ValueError(f"default_model '{v}' must be in models list")
         return v
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class WorkflowMode(str, Enum):
@@ -95,14 +93,16 @@ class StepConfig(BaseModel):
     )
     stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
 
-    @validator("provider")
+    @field_validator("provider")
+    @classmethod
     def validate_provider(cls, v):
         """Validate provider name format."""
         if not v or not v.strip():
             raise ValueError("Provider name cannot be empty")
         return v.strip()
 
-    @validator("prompt_template")
+    @field_validator("prompt_template")
+    @classmethod
     def validate_prompt_template(cls, v):
         """Validate prompt template path."""
         if not v or not v.strip():
@@ -129,14 +129,16 @@ class WorkflowConfig(BaseModel):
         None, description="Configuration for hybrid mode workflow steps"
     )
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def validate_name(cls, v):
         """Validate workflow name."""
         if not v or not v.strip():
             raise ValueError("Workflow name cannot be empty")
         return v.strip()
 
-    @validator("version")
+    @field_validator("version")
+    @classmethod
     def validate_version(cls, v):
         """Validate version format."""
         if not v or not v.strip():
@@ -150,13 +152,14 @@ class WorkflowConfig(BaseModel):
                 raise ValueError("Version parts must be numeric")
         return v.strip()
 
-    @validator("hybrid_workflow")
-    def validate_workflows(cls, v, values):
+    @field_validator("hybrid_workflow")
+    @classmethod
+    def validate_workflows(cls, v, info):
         """Validate that at least one workflow mode is configured."""
         if (
             not v
-            and not values.get("reasoning_workflow")
-            and not values.get("non_reasoning_workflow")
+            and not info.data.get("reasoning_workflow")
+            and not info.data.get("non_reasoning_workflow")
         ):
             raise ValueError("At least one workflow mode must be configured")
         return v
@@ -188,7 +191,8 @@ class StorageConfig(BaseModel):
         False, description="Whether to include workflow mode in output filenames"
     )
 
-    @validator("output_dir")
+    @field_validator("output_dir")
+    @classmethod
     def validate_output_dir(cls, v):
         """Validate output directory."""
         if not v or not v.strip():
@@ -264,7 +268,8 @@ class ProvidersConfig(BaseModel):
         None, description="Pricing information for cost calculation"
     )
 
-    @validator("providers")
+    @field_validator("providers")
+    @classmethod
     def validate_providers(cls, v):
         """Validate that at least one provider is configured."""
         if not v:
@@ -310,7 +315,4 @@ class CompleteConfig(BaseModel):
             raise ValueError(f"Step '{step_name}' not found in workflow configuration")
         return self.main.workflow.steps[step_name]
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

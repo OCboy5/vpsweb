@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Welcome to VPSWeb - Your Poetry Translation Repository
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="/poems/new" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add New Poem
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8" id="stats-cards">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Poems</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="total-poems">Loading...</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Translations</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="total-translations">Loading...</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">AI Translations</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="ai-translations">Loading...</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Human Translations</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="human-translations">Loading...</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <a href="/poems/new" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Poem
+                </a>
+                <a href="/poems" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Browse Poems
+                </a>
+                <a href="/translations" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                    </svg>
+                    View Translations
+                </a>
+                <a href="/statistics" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Statistics
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Poems Section -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Poems</h3>
+                <a href="/poems" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View all poems →
+                </a>
+            </div>
+
+            <!-- Loading State -->
+            <div id="poems-loading" class="text-center py-8">
+                <div class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Loading poems...</span>
+                </div>
+            </div>
+
+            <!-- Poems Grid -->
+            <div id="poems-grid" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 hidden">
+                <!-- Poems will be loaded here via JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="poems-empty" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No poems</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by adding your first poem to the repository.</p>
+                <div class="mt-6">
+                    <a href="/poems/new" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Your First Poem
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load dashboard data
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardStats();
+    loadRecentPoems();
+});
+
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/api/v1/statistics/overview');
+        if (response.ok) {
+            const stats = await response.json();
+            document.getElementById('total-poems').textContent = stats.total_poems || 0;
+            document.getElementById('total-translations').textContent = stats.total_translations || 0;
+            document.getElementById('ai-translations').textContent = stats.total_ai_translations || 0;
+            document.getElementById('human-translations').textContent = stats.total_human_translations || 0;
+        }
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+        // Set default values
+        document.getElementById('total-poems').textContent = '0';
+        document.getElementById('total-translations').textContent = '0';
+        document.getElementById('ai-translations').textContent = '0';
+        document.getElementById('human-translations').textContent = '0';
+    }
+}
+
+async function loadRecentPoems() {
+    try {
+        const response = await fetch('/api/v1/poems/?limit=6');
+        if (response.ok) {
+            const poems = await response.json();
+            displayPoems(poems);
+        } else {
+            showError();
+        }
+    } catch (error) {
+        console.error('Failed to load poems:', error);
+        showError();
+    }
+}
+
+function displayPoems(poems) {
+    const loadingEl = document.getElementById('poems-loading');
+    const gridEl = document.getElementById('poems-grid');
+    const emptyEl = document.getElementById('poems-empty');
+
+    loadingEl.classList.add('hidden');
+
+    if (poems.length === 0) {
+        emptyEl.classList.remove('hidden');
+        return;
+    }
+
+    gridEl.classList.remove('hidden');
+    gridEl.innerHTML = poems.map(poem => createPoemCard(poem)).join('');
+}
+
+function createPoemCard(poem) {
+    const createdDate = new Date(poem.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    return `
+        <div class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">${poem.poem_title}</h4>
+                    <p class="text-sm text-gray-600 mb-2">by ${poem.poet_name}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${poem.source_language}
+                        </span>
+                        <span>${createdDate}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-sm text-gray-500">
+                            <span>${poem.translation_count || 0} translations</span>
+                            <span>${poem.ai_translation_count || 0} AI</span>
+                            <span>${poem.human_translation_count || 0} Human</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <a href="/poems/${poem.id}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-500">
+                    View Details
+                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <div class="flex space-x-2">
+                    ${poem.can_translate ? `
+                    <a href="/poems/${poem.id}/translate" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                        Translate
+                    </a>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showError() {
+    const loadingEl = document.getElementById('poems-loading');
+    const gridEl = document.getElementById('poems-grid');
+
+    loadingEl.classList.add('hidden');
+    gridEl.innerHTML = `
+        <div class="col-span-full text-center py-8">
+            <p class="text-red-600">Failed to load poems. Please refresh the page.</p>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

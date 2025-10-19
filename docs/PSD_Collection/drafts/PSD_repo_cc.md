@@ -16,14 +16,15 @@ This PSD represents a **hybrid architectural approach** that combines the best o
 * **Frontend**: **HTMX + Tailwind CSS** for modern, lightweight server-rendered UI
 * **Background Jobs**: **FastAPI BackgroundTasks** (appropriate for local use)
 * **Configuration**: **YAML + Pydantic** (consistent with existing vpsweb system)
-* **Security**: **Argon2 password hashing** + comprehensive constraints
+* **Security**: **Input validation and XSS protection** (localhost-only deployment)
+* **Authentication**: **Moved to v0.4+** (Argon2 + BasicAuth for internet access)
 * **Integration**: **Direct vpsweb API calls** with proper error handling
 * **Database**: **SQLite with full constraints and optimization**
 
 ### Implementation Scope
 
-* **MVP architecture** ready for **2-week implementation**
-* **Local deployment** (single-user with secure authentication)
+* **MVP architecture** ready for **3-week implementation** (updated timeline)
+* **Local deployment** (localhost-only, no authentication required)
 * **Configuration consistency** with existing translation workflows
 * **Easily extensible** to multi-user or cloud deployment
 
@@ -41,10 +42,11 @@ This PSD represents a **hybrid architectural approach** that combines the best o
 
 ### Non-Goals (for this phase)
 
-* Multi-user authentication (beyond single password)
+* Any authentication system (moved to v0.4+)
 * Real-time WebSocket updates
 * Full-text search (planned for v0.4)
 * Cloud deployment optimization
+* Internet-facing deployment (localhost-only)
 
 ---
 
@@ -59,7 +61,8 @@ This PSD represents a **hybrid architectural approach** that combines the best o
 | Frontend    | **HTMX + Tailwind CSS**        | Server-rendered reactive UI         |
 | Integration | **Direct API**                 | Uses vpsweb.TranslationWorkflow API |
 | Config      | **YAML + Pydantic**            | Consistent with existing vpsweb     |
-| Security    | **Argon2 + HTTPBasic**         | Enterprise-grade password hashing   |
+| Security    | **Input validation + XSS**     | Localhost-only deployment          |
+| Authentication| **Moved to v0.4+**             | Argon2 + BasicAuth for internet access |
 | Logging     | **structlog / JSON logs**      | For traceability and debugging      |
 
 ### System Components
@@ -70,8 +73,9 @@ FastAPI Web Server
 ├── Web UI (HTMX templates, Tailwind)
 ├── Integration Adapter (direct vpsweb calls)
 ├── Background Task Manager (FastAPI BackgroundTasks)
-├── Security Manager (Argon2 + BasicAuth)
+├── Input Validation & Security (XSS protection, validation)
 └── Configuration Manager (YAML + Pydantic)
+# Authentication Manager (Argon2 + BasicAuth) - v0.4+
 ```
 
 ### Directory Layout
@@ -1133,11 +1137,13 @@ pydantic = "^2.5.0"
 pydantic-settings = "^2.1.0"
 jinja2 = "^3.1.0"
 python-multipart = "^0.0.6"
-passlib = "^1.7.4"
-argon2-cffi = "^23.1.0"
 structlog = "^23.2.0"
 click = "^8.1.0"
 pyyaml = "^6.0.1"
+
+# Authentication dependencies moved to v0.4+
+# passlib = "^1.7.4"
+# argon2-cffi = "^23.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"

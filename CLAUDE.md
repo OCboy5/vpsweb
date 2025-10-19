@@ -16,12 +16,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this four-step process with explicit approval required between phases:
 
-#### **STRATEGY Phase** - Analysis and Planning
-- Analyze current codebase and existing implementation
-- Research best practices and evaluate trade-offs
-- Review existing configuration and documentation
-- Consider impact on version management, testing, and deployment
-- **CRITICAL**: Present complete strategy for user approval before proceeding
+#### **STRATEGY Phase** - Analysis, Brainstorming, and Planning
+- **1. Current State Analysis**: Analyze current codebase and existing implementation
+- **2. Research Phase**: Research best practices and evaluate trade-offs
+- **3. Brainstorming Session**: Generate multiple approaches and solutions
+  - Explore at least 2-3 different implementation strategies
+  - Consider unconventional and creative approaches
+  - Identify potential risks and benefits of each approach
+- **4. Debating Session**: Critical evaluation and comparison of approaches
+  - Debate pros and cons of each strategy
+  - Challenge assumptions and identify hidden risks
+  - Consider technical debt, maintenance implications, and scalability
+  - Evaluate based on project-specific constraints and goals
+- **5. Strategic Decision**: Select optimal approach with clear rationale
+- **6. Impact Analysis**: Review existing configuration and documentation
+- **7. Implementation Considerations**: Consider impact on version management, testing, and deployment
+- **CRITICAL**: Present complete strategy with brainstorming/debate summary for user approval before proceeding
 
 #### **TODO Phase** - Structured Task Planning
 - **REQUIREMENT**: Must get explicit consensus on strategy before creating TODO list
@@ -46,6 +56,100 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - **CRITICAL**: Reflections must create actionable insights for future decisions
 
 **See [REFLECTION_SYSTEM.md](REFLECTION_SYSTEM.md) for complete guidance.**
+
+### Brainstorming and Debating Guidelines
+
+#### **Effective Brainstorming Session**
+**Purpose**: Generate diverse approaches before settling on a solution
+
+**Process**:
+1. **Divergent Thinking**: Generate as many approaches as possible without judgment
+2. **Consider Multiple Dimensions**:
+   - Technical approaches (different patterns, libraries, architectures)
+   - Implementation strategies (phased vs. big-bang, monolithic vs. modular)
+   - User experience considerations
+   - Maintenance and scalability implications
+3. **Document All Ideas**: Capture every approach with brief pros/cons
+4. **Encourage Creativity**: Consider unconventional solutions that might reveal new insights
+
+**Brainstorming Output Format**:
+```markdown
+## Brainstorming: [Decision Name]
+
+### Approach 1: [Approach Name]
+- **Description**: Brief description of the approach
+- **Pros**: List of advantages
+- **Cons**: List of disadvantages
+- **Risks**: Potential risks and challenges
+- **Best For**: Situations where this approach excels
+
+### Approach 2: [Alternative Approach]
+- **Description**: Brief description of the approach
+- **Pros**: List of advantages
+- **Cons**: List of disadvantages
+- **Risks**: Potential risks and challenges
+- **Best For**: Situations where this approach excels
+
+### Approach 3: [Another Alternative]
+- ... continue for all approaches considered
+```
+
+#### **Structured Debating Session**
+**Purpose**: Critical evaluation of approaches through systematic comparison
+
+**Process**:
+1. **Establish Criteria**: Define evaluation criteria relevant to the decision
+   - Technical complexity and risk
+   - Implementation time and effort
+   - Maintenance burden
+   - Scalability and performance
+   - Alignment with project goals
+   - User impact
+
+2. **Systematic Comparison**: Compare each approach against all criteria
+3. **Challenge Assumptions**: Question underlying assumptions for each approach
+4. **Identify Hidden Risks**: Look for risks that might not be immediately obvious
+5. **Consider Context**: Evaluate approaches based on specific project constraints
+
+**Debating Output Format**:
+```markdown
+## Debating Session: [Decision Name]
+
+### Evaluation Criteria
+- **Technical Risk**: [Description of what this means for the decision]
+- **Implementation Complexity**: [Description]
+- **Maintenance Impact**: [Description]
+- **Scalability**: [Description]
+- **User Experience**: [Description]
+
+### Approach Comparison Matrix
+| Approach | Technical Risk | Complexity | Maintenance | Scalability | UX | Overall Score |
+|----------|----------------|------------|-------------|-------------|----|--------------|
+| Approach 1 | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | [Score] |
+| Approach 2 | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | [Score] |
+
+### Key Debating Points
+- **Point 1**: [Critical discussion point with resolution]
+- **Point 2**: [Another critical discussion point with resolution]
+- **Point 3**: [Additional point where approaches differ significantly]
+
+### Risk Analysis
+- **Approach 1 Risks**: [Specific risks with mitigation strategies]
+- **Approach 2 Risks**: [Specific risks with mitigation strategies]
+
+### Final Recommendation
+- **Selected Approach**: [Which approach and why]
+- **Key Reasons**: [Top 3 reasons for this choice]
+- **Mitigation Strategy**: [How we'll address the chosen approach's risks]
+```
+
+#### **Integration with Strategy Phase**
+**Enhanced Strategy Presentation**:
+When presenting strategy for user approval, include:
+1. **Brainstorming Summary**: Brief overview of approaches considered
+2. **Key Debating Points**: Most important trade-offs discussed
+3. **Decision Rationale**: Clear explanation of why chosen approach is optimal
+4. **Risk Mitigation**: How identified risks will be addressed
 
 ### 2. Decision Classification
 

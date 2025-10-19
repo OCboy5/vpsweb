@@ -1,0 +1,17 @@
+/* Placeholder for Tailwind CSS - v0.3.1 */
+/* TODO: Download and include actual Tailwind CSS file */
+
+body {
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+}
+
+.poetry-text {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    white-space: pre-wrap;
+}
+
+.ui-text {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}

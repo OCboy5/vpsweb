@@ -6,7 +6,7 @@ matching the exact structure specified in vpts.yml.
 """
 
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from enum import Enum
 import json
@@ -39,33 +39,33 @@ class TranslationInput(BaseModel):
         None, description="Additional metadata about the poem (author, title, etc.)"
     )
 
-    @validator("source_lang", "target_lang")
-    def validate_languages(cls, v, values):
+    @field_validator("source_lang", "target_lang")
+    @classmethod
+    def validate_languages(cls, v):
         """Validate language choices against vpts.yml specification."""
         return v
 
-    @validator("target_lang")
-    def validate_target_language(cls, v, values):
+    @field_validator("target_lang")
+    @classmethod
+    def validate_target_language(cls, v, info):
         """Ensure target language is only English or Chinese (from vpts.yml)."""
         if v not in [Language.ENGLISH, Language.CHINESE]:
             raise ValueError("Target language must be either English or Chinese")
         return v
 
-    @validator("source_lang", "target_lang")
-    def validate_source_target_distinct(cls, v, values):
+    @field_validator("target_lang")
+    @classmethod
+    def validate_source_target_distinct(cls, v, info):
         """Ensure source and target languages are different."""
-        if "source_lang" in values and v == values["source_lang"]:
+        if "source_lang" in info.data and v == info.data["source_lang"]:
             raise ValueError("Source and target languages must be different")
         return v
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
-        return self.dict()
+        return self.model_dump()
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TranslationInput":
@@ -104,7 +104,8 @@ class InitialTranslation(BaseModel):
         None, ge=0.0, description="Cost in RMB for this translation step"
     )
 
-    @validator("initial_translation_notes")
+    @field_validator("initial_translation_notes")
+    @classmethod
     def validate_notes_length(cls, v):
         """Validate notes length matches vpts.yml specification (200-300 words)."""
         # Note: Removed warning for shorter notes during development
@@ -112,7 +113,7 @@ class InitialTranslation(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with ISO format timestamp."""
-        data = self.dict()
+        data = self.model_dump()
         data["timestamp"] = self.timestamp.isoformat()
         return data
 
@@ -221,7 +222,8 @@ class RevisedTranslation(BaseModel):
         None, ge=0.0, description="Cost in RMB for this translator revision step"
     )
 
-    @validator("revised_translation_notes")
+    @field_validator("revised_translation_notes")
+    @classmethod
     def validate_revision_notes_length(cls, v):
         """Validate notes length matches vpts.yml specification (200-300 words)."""
         word_count = len(v.split())
@@ -230,7 +232,7 @@ class RevisedTranslation(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with ISO format timestamp."""
-        data = self.dict()
+        data = self.model_dump()
         data["timestamp"] = self.timestamp.isoformat()
         return data
 

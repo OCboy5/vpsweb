@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% block title %}Compare Translations - {{ poem.poem_title }} - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        Poems
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems/{{ poem.id }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        {{ poem.poem_title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Compare Translations</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Compare Translations</h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Compare different translations of "{{ poem.poem_title }}" by {{ poem.poet_name }}
+                </p>
+            </div>
+            <a href="/poems/{{ poem.id }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Poem
+            </a>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="comparison-loading" class="text-center py-8">
+        <div class="inline-flex items-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-gray-600">Loading translations for comparison...</span>
+        </div>
+    </div>
+
+    <!-- Comparison Interface -->
+    <div id="comparison-content" class="hidden">
+        <!-- Filter and Selection Controls -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap gap-3">
+                        <select id="language-filter" onchange="filterComparisons()" class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">All Languages</option>
+                        </select>
+                        <select id="translator-filter" onchange="filterComparisons()" class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">All Translators</option>
+                        </select>
+                        <select id="sort-order" onchange="sortComparisons()" class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="quality-desc">Best Quality First</option>
+                            <option value="quality-asc">Lowest Quality First</option>
+                            <option value="date-desc">Most Recent First</option>
+                            <option value="date-asc">Oldest First</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="selectBestTranslations()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Select Best
+                        </button>
+                        <button onclick="clearSelection()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Original Poem Reference -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Original Text ({{ poem.source_language }})
+                </h2>
+                <div class="poetry-text text-gray-700 bg-gray-50 rounded-lg p-6 whitespace-pre-wrap">{{ poem.original_text }}</div>
+            </div>
+        </div>
+
+        <!-- Translation Comparison Grid -->
+        <div id="translations-grid" class="grid gap-6 mb-6">
+            <!-- Translation cards will be loaded here via JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="no-translations" class="hidden text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No translations available</h3>
+            <p class="mt-1 text-sm text-gray-500">This poem doesn't have any translations yet.</p>
+            <div class="mt-6">
+                <a href="/poems/{{ poem.id }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add First Translation
+                </a>
+            </div>
+        </div>
+
+        <!-- Comparison Summary -->
+        <div id="comparison-summary" class="bg-white shadow rounded-lg hidden">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Comparison Summary</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary-600" id="selected-count">0</div>
+                        <div class="text-sm text-gray-500">Translations Selected</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600" id="avg-quality">0.0</div>
+                        <div class="text-sm text-gray-500">Average Quality</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="languages-count">0</div>
+                        <div class="text-sm text-gray-500">Languages</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allTranslations = [];
+let filteredTranslations = [];
+let selectedTranslations = new Set();
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadTranslationsForComparison();
+});
+
+async function loadTranslationsForComparison() {
+    try {
+        const response = await fetch(`/api/v1/poems/{{ poem.id }}/translations`);
+        if (response.ok) {
+            allTranslations = await response.json();
+            filteredTranslations = [...allTranslations];
+            displayComparisonInterface();
+        } else {
+            showError();
+        }
+    } catch (error) {
+        console.error('Failed to load translations:', error);
+        showError();
+    }
+}
+
+function displayComparisonInterface() {
+    const loadingEl = document.getElementById('comparison-loading');
+    const contentEl = document.getElementById('comparison-content');
+    const noTranslationsEl = document.getElementById('no-translations');
+
+    loadingEl.classList.add('hidden');
+
+    if (allTranslations.length === 0) {
+        noTranslationsEl.classList.remove('hidden');
+        contentEl.classList.add('hidden');
+        return;
+    }
+
+    noTranslationsEl.classList.add('hidden');
+    contentEl.classList.remove('hidden');
+
+    populateFilters();
+    displayTranslations();
+    updateSummary();
+}
+
+function populateFilters() {
+    // Populate language filter
+    const languages = [...new Set(allTranslations.map(t => t.target_language))];
+    const languageSelect = document.getElementById('language-filter');
+    languageSelect.innerHTML = '<option value="">All Languages</option>' +
+        languages.map(lang => `<option value="${lang}">${lang}</option>`).join('');
+
+    // Populate translator filter
+    const translators = [...new Set(allTranslations.map(t => t.translator_info))];
+    const translatorSelect = document.getElementById('translator-filter');
+    translatorSelect.innerHTML = '<option value="">All Translators</option>' +
+        translators.map(translator => `<option value="${translator}">${translator}</option>`).join('');
+}
+
+function displayTranslations() {
+    const gridEl = document.getElementById('translations-grid');
+
+    if (filteredTranslations.length === 0) {
+        gridEl.innerHTML = `
+            <div class="col-span-full text-center py-8 bg-white rounded-lg shadow">
+                <p class="text-gray-500">No translations match the selected filters.</p>
+            </div>
+        `;
+        return;
+    }
+
+    gridEl.innerHTML = filteredTranslations.map(translation => createTranslationCard(translation)).join('');
+}
+
+function createTranslationCard(translation) {
+    const createdDate = new Date(translation.created_at).toLocaleString();
+    const qualityStars = translation.quality_rating ?
+        '★'.repeat(translation.quality_rating) + '☆'.repeat(5 - translation.quality_rating) :
+        'Not rated';
+
+    const isSelected = selectedTranslations.has(translation.id);
+
+    return `
+        <div class="bg-white shadow rounded-lg overflow-hidden transition-all duration-200 ${isSelected ? 'ring-2 ring-primary-500' : ''}" id="translation-${translation.id}">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${translation.translator_type === 'AI' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}">
+                                ${translation.translator_type}
+                            </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${translation.target_language}
+                            </span>
+                            <div class="text-yellow-400 text-sm" title="Quality Rating">
+                                ${qualityStars}
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">${translation.translator_info}</h3>
+                        <p class="text-sm text-gray-500">${createdDate}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox"
+                               id="select-${translation.id}"
+                               onchange="toggleTranslationSelection('${translation.id}')"
+                               ${isSelected ? 'checked' : ''}
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <label for="select-${translation.id}" class="text-sm text-gray-600 cursor-pointer">
+                            Compare
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Translation Content -->
+                <div class="poetry-text text-gray-700 bg-gray-50 rounded-lg p-4 mb-4 whitespace-pre-wrap">
+                    ${translation.translated_text}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-4 text-sm text-gray-500">
+                        <span>ID: ${translation.id[:8]}...</span>
+                        ${translation.quality_rating ? `<span>Quality: ${translation.quality_rating}/5</span>` : ''}
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="viewTranslationDetails('${translation.id}')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+                            Details
+                        </button>
+                        <a href="/poems/{{ poem.id }}/translations/${translation.id}/edit" class="text-gray-600 hover:text-gray-500 text-sm font-medium">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function toggleTranslationSelection(translationId) {
+    const card = document.getElementById(`translation-${translationId}`);
+    const checkbox = document.getElementById(`select-${translationId}`);
+
+    if (selectedTranslations.has(translationId)) {
+        selectedTranslations.delete(translationId);
+        card.classList.remove('ring-2', 'ring-primary-500');
+    } else {
+        selectedTranslations.add(translationId);
+        card.classList.add('ring-2', 'ring-primary-500');
+    }
+
+    updateSummary();
+}
+
+function updateSummary() {
+    const summaryEl = document.getElementById('comparison-summary');
+    const selectedCountEl = document.getElementById('selected-count');
+    const avgQualityEl = document.getElementById('avg-quality');
+    const languagesCountEl = document.getElementById('languages-count');
+
+    if (selectedTranslations.size === 0) {
+        summaryEl.classList.add('hidden');
+        return;
+    }
+
+    summaryEl.classList.remove('hidden');
+
+    // Calculate statistics for selected translations
+    const selectedTranslationsData = allTranslations.filter(t => selectedTranslations.has(t.id));
+    const avgQuality = selectedTranslationsData
+        .filter(t => t.quality_rating)
+        .reduce((sum, t) => sum + t.quality_rating, 0) /
+        selectedTranslationsData.filter(t => t.quality_rating).length || 0;
+    const languages = new Set(selectedTranslationsData.map(t => t.target_language));
+
+    selectedCountEl.textContent = selectedTranslations.size;
+    avgQualityEl.textContent = avgQuality.toFixed(1);
+    languagesCountEl.textContent = languages.size;
+}
+
+function filterComparisons() {
+    const languageFilter = document.getElementById('language-filter').value;
+    const translatorFilter = document.getElementById('translator-filter').value;
+
+    filteredTranslations = allTranslations.filter(translation => {
+        if (languageFilter && translation.target_language !== languageFilter) {
+            return false;
+        }
+        if (translatorFilter && translation.translator_info !== translatorFilter) {
+            return false;
+        }
+        return true;
+    });
+
+    displayTranslations();
+}
+
+function sortComparisons() {
+    const sortOrder = document.getElementById('sort-order').value;
+
+    switch (sortOrder) {
+        case 'quality-desc':
+            filteredTranslations.sort((a, b) => (b.quality_rating || 0) - (a.quality_rating || 0));
+            break;
+        case 'quality-asc':
+            filteredTranslations.sort((a, b) => (a.quality_rating || 0) - (b.quality_rating || 0));
+            break;
+        case 'date-desc':
+            filteredTranslations.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            break;
+        case 'date-asc':
+            filteredTranslations.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            break;
+    }
+
+    displayTranslations();
+}
+
+function selectBestTranslations() {
+    // Clear current selection
+    selectedTranslations.clear();
+
+    // Select best translation per language
+    const translationsByLanguage = {};
+    allTranslations.forEach(translation => {
+        const lang = translation.target_language;
+        if (!translationsByLanguage[lang] ||
+            (translation.quality_rating || 0) > (translationsByLanguage[lang].quality_rating || 0)) {
+            translationsByLanguage[lang] = translation;
+        }
+    });
+
+    // Select the best translations
+    Object.values(translationsByLanguage).forEach(translation => {
+        selectedTranslations.add(translation.id);
+    });
+
+    // Refresh display
+    displayTranslations();
+    updateSummary();
+}
+
+function clearSelection() {
+    selectedTranslations.clear();
+    displayTranslations();
+    updateSummary();
+}
+
+function viewTranslationDetails(translationId) {
+    // TODO: Implement translation details modal or navigation
+    alert('Translation details view coming soon!');
+}
+
+function showError() {
+    const loadingEl = document.getElementById('comparison-loading');
+    const contentEl = document.getElementById('comparison-content');
+
+    loadingEl.classList.add('hidden');
+    contentEl.innerHTML = `
+        <div class="text-center py-8 bg-white rounded-lg shadow">
+            <p class="text-red-600">Failed to load translations for comparison. Please refresh the page.</p>
+        </div>
+    `;
+}
+</script>
+
+<style>
+.poetry-text {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}

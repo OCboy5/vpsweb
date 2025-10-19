@@ -463,10 +463,15 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         Raises:
             ConfigurationError: If configuration is invalid
         """
-        # Handle both dict and Pydantic model
-        if hasattr(config, "dict"):
+        # Handle both dict and Pydantic model (V1 and V2 compatibility)
+        if hasattr(config, "model_dump"):
+            # Pydantic V2
+            config_dict = config.model_dump()
+        elif hasattr(config, "dict"):
+            # Pydantic V1
             config_dict = config.dict()
         else:
+            # Already a dict
             config_dict = config
 
         required_keys = ["api_key_env", "base_url", "type"]
