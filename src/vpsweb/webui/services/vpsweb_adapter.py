@@ -13,20 +13,26 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks
+import os
 
-from ...core.workflow import TranslationWorkflow, WorkflowError, StepExecutionError
-from ...models.translation import TranslationInput, TranslationOutput
-from ...models.config import WorkflowMode
-from ...utils.config_loader import load_config
-from ...utils.logger import get_logger
-from ...utils.storage import StorageHandler
+from vpsweb.core.workflow import TranslationWorkflow, WorkflowError, StepExecutionError
+from vpsweb.models.translation import TranslationInput, TranslationOutput
+from vpsweb.models.config import WorkflowMode
+from vpsweb.utils.config_loader import load_config
+from vpsweb.utils.logger import get_logger
+from vpsweb.utils.storage import StorageHandler
+from vpsweb.utils.language_mapper import get_language_mapper
 
 from .poem_service import PoemService
 from .translation_service import TranslationService
-from ...repository.service import RepositoryWebService
-from ...repository.schemas import WorkflowTaskCreate, TaskStatus, WorkflowTaskResult
+from vpsweb.repository.service import RepositoryWebService
+from vpsweb.repository.schemas import WorkflowTaskCreate, TaskStatus, WorkflowTaskResult
 
 logger = get_logger(__name__)
+
+# P0.1: Timeout configuration for workflow execution
+DEFAULT_WORKFLOW_TIMEOUT = int(os.getenv("VPSWEB_WORKFLOW_TIMEOUT", "600"))  # 10 minutes default
+MAX_WORKFLOW_TIMEOUT = int(os.getenv("VPSWEB_MAX_WORKFLOW_TIMEOUT", "1800"))  # 30 minutes maximum
 
 
 class VPSWebIntegrationError(Exception):
@@ -43,6 +49,12 @@ class WorkflowExecutionError(VPSWebIntegrationError):
 
 class ConfigurationError(VPSWebIntegrationError):
     """Raised when configuration loading fails."""
+
+    pass
+
+
+class WorkflowTimeoutError(VPSWebIntegrationError):
+    """Raised when workflow execution times out."""
 
     pass
 
@@ -96,7 +108,43 @@ class VPSWebWorkflowAdapter:
         self._workflow_config = None
         self._providers_config = None
 
+        # Language mapper for ISO code conversion
+        self.language_mapper = get_language_mapper()
+
         logger.info("VPSWebWorkflowAdapter initialized")
+
+    def _convert_language_code(self, lang_code: str) -> str:
+        """
+        Convert ISO language code to display name for VPSWeb workflow.
+
+        Args:
+            lang_code: ISO language code (e.g., 'en', 'zh-CN')
+
+        Returns:
+            Display name (e.g., 'English', 'Chinese')
+        """
+        display_name = self.language_mapper.get_language_name(lang_code)
+        if display_name:
+            return display_name
+
+        # Fallback mapping for common codes
+        fallback_mapping = {
+            'en': 'English',
+            'zh': 'Chinese',
+            'zh-CN': 'Chinese',
+            'zh-TW': 'Chinese',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'fr': 'French',
+            'de': 'German',
+            'es': 'Spanish',
+            'ru': 'Russian',
+            'ar': 'Arabic',
+            'hi': 'Hindi',
+            'pl': 'Polish'
+        }
+
+        return fallback_mapping.get(lang_code, lang_code.title())
 
     async def _load_configuration(self):
         """
@@ -218,8 +266,8 @@ class VPSWebWorkflowAdapter:
         """
         return TranslationInput(
             original_poem=poem_data["content"],
-            source_lang=self._map_iso_to_display_language(source_lang),
-            target_lang=self._map_iso_to_display_language(target_lang),
+            source_lang=self._convert_language_code(source_lang),
+            target_lang=self._convert_language_code(target_lang),
         )
 
     def _map_workflow_output_to_repository(
@@ -268,6 +316,44 @@ class VPSWebWorkflowAdapter:
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat(),
         }
+
+    async def _execute_workflow_with_timeout(
+        self,
+        workflow: TranslationWorkflow,
+        input_data: TranslationInput,
+        timeout: int = DEFAULT_WORKFLOW_TIMEOUT
+    ) -> TranslationOutput:
+        """
+        Execute VPSWeb workflow with timeout protection.
+
+        Args:
+            workflow: VPSWeb workflow instance
+            input_data: Translation input data
+            timeout: Timeout in seconds
+
+        Returns:
+            TranslationOutput: Workflow execution result
+
+        Raises:
+            WorkflowTimeoutError: If workflow execution times out
+            ConfigurationError: If workflow configuration is invalid
+        """
+        try:
+            logger.info(f"Executing workflow with {timeout}s timeout")
+            workflow_output = await asyncio.wait_for(
+                workflow.execute(input_data, show_progress=False),
+                timeout=timeout
+            )
+            logger.info("Workflow execution completed successfully")
+            return workflow_output
+        except asyncio.TimeoutError:
+            logger.error(f"Workflow execution timed out after {timeout}s")
+            raise WorkflowTimeoutError(
+                f"Translation workflow timed out after {timeout} seconds."
+            )
+        except Exception as e:
+            logger.error(f"Workflow execution failed: {e}")
+            raise ConfigurationError(f"Workflow execution failed: {e}")
 
     async def execute_translation_workflow(
         self,
@@ -389,11 +475,13 @@ class VPSWebWorkflowAdapter:
                 poem, db_task.source_lang, db_task.target_lang
             )
 
-            # Execute workflow
+            # Execute workflow with timeout protection
             logger.info(
                 f"Executing VPSWeb translation workflow in {workflow_mode.value} mode"
             )
-            workflow_output = await workflow.execute(input_data, show_progress=False)
+            workflow_output = await self._execute_workflow_with_timeout(
+                workflow, input_data, timeout=DEFAULT_WORKFLOW_TIMEOUT
+            )
 
             # Map output to repository format
             translation_data = self._map_workflow_output_to_repository(
@@ -436,6 +524,15 @@ class VPSWebWorkflowAdapter:
                 "message": "Translation completed successfully",
             }
 
+        except WorkflowTimeoutError as e:
+            logger.error(f"VPSWeb workflow timed out for task {task_id}: {e}")
+            # Update task status in database
+            self.repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+
+            raise WorkflowExecutionError(f"Workflow execution timed out: {e}")
+
         except WorkflowError as e:
             logger.error(f"VPSWeb workflow failed for task {task_id}: {e}")
             # Update task status in database
@@ -454,7 +551,7 @@ class VPSWebWorkflowAdapter:
 
             raise WorkflowExecutionError(f"Unexpected error: {e}")
 
-        # Note: Task cleanup is now handled by database - no need for manual cleanup
+    # Note: Task cleanup is now handled by database - no need for manual cleanup
 
     async def get_task_status(self, task_id: str) -> Optional[Dict[str, Any]]:
         """

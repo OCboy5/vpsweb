@@ -1,5 +1,5 @@
 """
-VPSWeb Repository Web UI - FastAPI Application v0.3.1
+VPSWeb Repository Web UI - FastAPI Application v0.3.2
 
 Main FastAPI application entrypoint for the poetry translation repository.
 Provides web interface and API endpoints for managing poems and translations.
@@ -23,7 +23,7 @@ from .api import poems, translations, statistics
 from .config import settings
 from .services.poem_service import PoemService
 from .services.translation_service import TranslationService
-from .services.vpsweb_adapter import VPSWebWorkflowAdapter, get_vpsweb_adapter
+from .services.vpsweb_adapter import VPSWebWorkflowAdapter, get_vpsweb_adapter, WorkflowTimeoutError
 
 
 # Pydantic models for workflow endpoints
@@ -86,7 +86,34 @@ async def performance_monitoring_middleware(request: Request, call_next):
 # Global exception handler for improved error handling
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions with consistent error response format"""
+    """Handle HTTP exceptions with appropriate response format"""
+
+    # Check if this is a web request (browser request) - prefers HTML
+    accept_header = request.headers.get("accept", "")
+    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
+
+    if is_web_request and exc.status_code in [404, 403, 401, 422]:
+        # Return HTML error page for common HTTP errors in web interface
+        template_context = {
+            "request": request,
+            "error_details": f"{request.method} {request.url.path}",
+            "error_id": f"HTTP{exc.status_code}-{int(time.time()) % 10000:04d}",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+        if exc.status_code == 404:
+            return templates.TemplateResponse("404.html", template_context, status_code=404)
+        elif exc.status_code == 403:
+            template_context["error_details"] = "You don't have permission to access this resource."
+            return templates.TemplateResponse("403.html", template_context, status_code=403)
+        elif exc.status_code == 401:
+            template_context["error_details"] = "Authentication required to access this resource."
+            return templates.TemplateResponse("403.html", template_context, status_code=401)
+        elif exc.status_code == 422:
+            template_context["error_details"] = f"Validation error: {exc.detail}"
+            return templates.TemplateResponse("422.html", template_context, status_code=422)
+
+    # Return JSON response for API requests
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -99,13 +126,69 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    """Handle unexpected exceptions with consistent error response format"""
-    logger.error(
-        f"Unexpected error in {request.method} {request.url.path}: {exc}", exc_info=True
+@app.exception_handler(WorkflowTimeoutError)
+async def workflow_timeout_handler(request: Request, exc: WorkflowTimeoutError):
+    """Handle workflow timeout errors with user-friendly response"""
+
+    # Check if this is a web request (browser request) - prefers HTML
+    accept_header = request.headers.get("accept", "")
+    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
+
+    if is_web_request:
+        # Return HTML error page for web interface using existing 404 template
+        template_context = {
+            "request": request,
+            "error_details": "The translation workflow is taking longer than expected. This could be due to high demand or system load. Please try again in a few minutes, or consider using a simpler workflow mode.",
+            "error_id": f"TIMEOUT-{int(time.time()) % 10000:04d}",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return templates.TemplateResponse("404.html", template_context, status_code=408)
+
+    # Return JSON response for API requests
+    return JSONResponse(
+        status_code=408,
+        content={
+            "success": False,
+            "message": f"Translation workflow timed out. {str(exc)}",
+            "data": None,
+            "error_code": "WORKFLOW_TIMEOUT",
+            "error_type": "timeout",
+            "timestamp": time.time(),
+            "retry_suggested": True,
+        },
     )
 
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle unexpected exceptions with appropriate response format"""
+
+    # Generate unique error ID for tracking
+    error_id = f"ERR-{int(time.time() * 1000)}"
+
+    # Log the error with details
+    logger.error(
+        f"Unexpected error {error_id} in {request.method} {request.url.path}: {exc}",
+        exc_info=True
+    )
+
+    # Check if this is a web request (browser request) - prefers HTML
+    accept_header = request.headers.get("accept", "")
+    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
+
+    if is_web_request:
+        # Return HTML error page for web interface
+        template_context = {
+            "request": request,
+            "error_details": str(exc) if settings.DEBUG else "An unexpected error occurred.",
+            "error_id": error_id,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "show_debug": settings.DEBUG,  # Only show debug info in development
+        }
+
+        return templates.TemplateResponse("500.html", template_context, status_code=500)
+
+    # Return JSON response for API requests
     return JSONResponse(
         status_code=500,
         content={
@@ -114,7 +197,7 @@ async def general_exception_handler(request: Request, exc: Exception):
             "data": None,
             "error_code": 500,
             "timestamp": time.time(),
-            "error_id": f"ERR_{int(time.time() * 1000)}",  # Unique error ID for tracking
+            "error_id": error_id,
         },
     )
 
@@ -560,6 +643,28 @@ async def startup_event():
     """
     Initialize database on application startup
     """
+    # P0.3: Add startup guard for public binding
+    import os
+
+    # Check if host is set to bind to all interfaces (0.0.0.0)
+    if settings.host == "0.0.0.0":
+        # Only allow public binding if explicitly authorized
+        allow_public = os.getenv("VPSWEB_ALLOW_PUBLIC", "").lower() in ("true", "1", "yes")
+
+        if not allow_public:
+            print("❌ SECURITY WARNING: Refusing to bind to 0.0.0.0 (public interface)")
+            print("   VPSWeb is designed for local use only by default.")
+            print("   To enable public binding, set VPSWEB_ALLOW_PUBLIC=true")
+            print("   Use uvicorn --host 127.0.0.1 for local access only")
+            import sys
+            sys.exit(1)
+        else:
+            print("⚠️  WARNING: Binding to public interface (0.0.0.0)")
+            print("   Ensure you understand the security implications.")
+            print("   This application is designed for local use.")
+
+    print("✅ Security check passed - local-only mode by default")
+
     init_db()
 
 

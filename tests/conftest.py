@@ -410,3 +410,449 @@ def integration_workflow_config():
             ),
         ],
     )
+
+
+# ==============================================================================
+# Enhanced Database Fixtures for P2.1
+# ==============================================================================
+
+import asyncio
+import sys
+from typing import AsyncGenerator, Generator
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest_asyncio
+from fastapi.testclient import TestClient
+from sqlalchemy import pool
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+
+# Add src to Python path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from vpsweb.repository.models import Base
+from vpsweb.repository.crud import RepositoryService
+from vpsweb.repository.service import RepositoryWebService
+from vpsweb.webui.services.poem_service import PoemService
+from vpsweb.webui.services.translation_service import TranslationService
+from vpsweb.webui.main import app
+from vpsweb.utils.logger import get_logger
+
+# Configure pytest-asyncio
+pytest_asyncio.default_mode = "auto"
+
+logger = get_logger(__name__)
+
+
+@pytest_asyncio.fixture(scope="session")
+async def test_engine():
+    """
+    Create a test database engine with in-memory SQLite.
+
+    This fixture creates a fresh database for each test session,
+    providing fast, isolated testing without external dependencies.
+    """
+    # Use in-memory SQLite for testing
+    test_url = "sqlite+aiosqlite:///:memory:"
+
+    engine = create_async_engine(
+        test_url,
+        echo=False,
+        poolclass=pool.StaticPool,
+        connect_args={
+            "check_same_thread": False,
+        },
+    )
+
+    # Create all tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield engine
+
+    # Clean up
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+    """
+    Create a database session for testing.
+
+    Provides an async database session with automatic rollback
+    to ensure test isolation.
+
+    Yields:
+        AsyncSession: Database session with automatic rollback
+    """
+    async_session = async_sessionmaker(
+        bind=test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with async_session() as session:
+        yield session
+        # Session automatically rolls back after context exit
+
+
+@pytest.fixture
+def test_client(db_session) -> Generator[TestClient, None]:
+    """
+    Create a FastAPI test client with database override.
+
+    This fixture provides a TestClient for the FastAPI application
+    with the database dependency overridden to use the test session.
+
+    Args:
+        db_session: Async database session fixture
+
+    Yields:
+        TestClient: FastAPI test client
+    """
+    from vpsweb.repository.database import get_db
+
+    # Override the database dependency
+    def override_get_db():
+        return db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    # Create test client
+    with TestClient(app) as client:
+        yield client
+
+    # Clean up
+    app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def repository_service(db_session) -> RepositoryService:
+    """
+    Create a repository service for testing.
+
+    Args:
+        db_session: Async database session
+
+    Returns:
+        RepositoryService: Repository service instance
+    """
+    return RepositoryService(db_session)
+
+
+@pytest_asyncio.fixture
+async def repository_web_service(db_session) -> RepositoryWebService:
+    """
+    Create a repository web service for testing.
+
+    Args:
+        db_session: Async database session
+
+    Returns:
+        RepositoryWebService: Repository web service instance
+    """
+    return RepositoryWebService("sqlite:///test.db")
+
+
+@pytest.fixture
+def poem_service(repository_service: RepositoryService) -> PoemService:
+    """
+    Create a poem service for testing.
+
+    Args:
+        repository_service: Repository service instance
+
+    Returns:
+        PoemService: Poem service instance
+    """
+    return PoemService(repository_service)
+
+
+@pytest.fixture
+def translation_service(repository_service: RepositoryService) -> TranslationService:
+    """
+    Create a translation service for testing.
+
+    Args:
+        repository_service: Repository service instance
+
+    Returns:
+        TranslationService: Translation service instance
+    """
+    return TranslationService(repository_service=repository_service)
+
+
+# Sample data fixtures for database testing
+@pytest.fixture
+def sample_poem_data():
+    """Sample poem data for database testing."""
+    return {
+        "poet_name": "Test Poet",
+        "poem_title": "Test Poem Title",
+        "source_language": "English",
+        "original_text": """The fog comes
+on little cat feet.
+It sits looking
+over harbor and city
+on silent haunches
+and then moves on.""",
+        "metadata_json": '{"author_birth_year": 1990, "genre": "modern"}',
+    }
+
+
+@pytest.fixture
+def sample_chinese_poem_data():
+    """Sample Chinese poem data for database testing."""
+    return {
+        "poet_name": "李白",
+        "poem_title": "静夜思",
+        "source_language": "Chinese",
+        "original_text": """床前明月光，
+疑是地上霜。
+举头望明月，
+低头思故乡。""",
+        "metadata_json": '{"dynasty": "Tang", "genre": "classical"}',
+    }
+
+
+@pytest.fixture
+def sample_translation_data():
+    """Sample translation data for database testing."""
+    return {
+        "target_language": "Chinese",
+        "translated_text": """雾来了，
+踏着猫的细步。
+它静静地蹲伏着，
+俯视海港和城市，
+再向前走去。""",
+        "translator_type": "ai",
+        "translator_info": "VPSWeb AI Translator",
+        "metadata_json": '{"workflow_mode": "hybrid", "model": "test-model"}',
+    }
+
+
+@pytest.fixture
+def sample_workflow_task_data():
+    """Sample workflow task data for testing."""
+    return {
+        "source_lang": "English",
+        "target_lang": "Chinese",
+        "workflow_mode": "hybrid",
+        "status": "pending",
+        "progress_percentage": 0,
+    }
+
+
+# Database entity fixtures
+@pytest_asyncio.fixture
+async def sample_poem(db_session, sample_poem_data):
+    """Create a sample poem in the database."""
+    from vpsweb.repository.models import Poem
+    import uuid
+
+    poem_data = sample_poem_data.copy()
+    poem_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
+
+    poem = Poem(**poem_data)
+    db_session.add(poem)
+    await db_session.commit()
+    await db_session.refresh(poem)
+
+    return poem
+
+
+@pytest_asyncio.fixture
+async def sample_chinese_poem(db_session, sample_chinese_poem_data):
+    """Create a sample Chinese poem in the database."""
+    from vpsweb.repository.models import Poem
+    import uuid
+
+    poem_data = sample_chinese_poem_data.copy()
+    poem_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
+
+    poem = Poem(**poem_data)
+    db_session.add(poem)
+    await db_session.commit()
+    await db_session.refresh(poem)
+
+    return poem
+
+
+@pytest_asyncio.fixture
+async def sample_translation(db_session, sample_poem, sample_translation_data):
+    """Create a sample translation in the database."""
+    from vpsweb.repository.models import Translation
+    import uuid
+
+    translation_data = sample_translation_data.copy()
+    translation_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
+    translation_data["poem_id"] = sample_poem.id
+
+    translation = Translation(**translation_data)
+    db_session.add(translation)
+    await db_session.commit()
+    await db_session.refresh(translation)
+
+    return translation
+
+
+# Test data generators
+@pytest.fixture
+def poem_generator():
+    """Generate multiple test poems."""
+
+    def _generate_poems(count: int = 5):
+        poems = []
+        for i in range(count):
+            poem = {
+                "poet_name": f"Poet {i+1}",
+                "poem_title": f"Test Poem {i+1}",
+                "source_language": "English" if i % 2 == 0 else "Chinese",
+                "original_text": f"This is test poem number {i+1} with sufficient content for validation. " * 3,
+                "metadata_json": f'{{"test_index": {i+1}}}',
+            }
+            poems.append(poem)
+        return poems
+
+    return _generate_poems
+
+
+@pytest.fixture
+def translation_generator():
+    """Generate multiple test translations."""
+
+    def _generate_translations(poem_ids: list, target_lang: str = "Chinese"):
+        translations = []
+        for i, poem_id in enumerate(poem_ids):
+            translation = {
+                "poem_id": poem_id,
+                "target_language": target_lang,
+                "translated_text": f"This is translation {i+1} for poem {poem_id}. " * 2,
+                "translator_type": "ai",
+                "translator_info": f"Test Translator {i+1}",
+                "metadata_json": f'{{"translation_index": {i+1}}}',
+            }
+            translations.append(translation)
+        return translations
+
+    return _generate_translations
+
+
+# Testing utilities
+class TestDataFactory:
+    """Factory for creating test data."""
+
+    @staticmethod
+    def create_poem(**overrides):
+        """Create a poem with default values."""
+        default_data = {
+            "poet_name": "Test Poet",
+            "poem_title": "Test Poem",
+            "source_language": "English",
+            "original_text": "Test poem content for testing purposes.",
+            "metadata_json": "{}",
+        }
+        default_data.update(overrides)
+        return default_data
+
+    @staticmethod
+    def create_translation(poem_id: str, **overrides):
+        """Create a translation with default values."""
+        default_data = {
+            "poem_id": poem_id,
+            "target_language": "Chinese",
+            "translated_text": "测试翻译内容",
+            "translator_type": "ai",
+            "translator_info": "Test Translator",
+            "metadata_json": "{}",
+        }
+        default_data.update(overrides)
+        return default_data
+
+
+@pytest.fixture
+def test_data_factory():
+    """Create a test data factory."""
+    return TestDataFactory()
+
+
+# Async test context helper
+class AsyncTestContext:
+    """Helper class for async test context management."""
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def create_poem(self, **kwargs):
+        """Create a poem with default values."""
+        from vpsweb.repository.models import Poem
+        import uuid
+
+        default_data = TestDataFactory.create_poem()
+        default_data["id"] = str(uuid.uuid4())[:26]
+        default_data.update(kwargs)
+
+        poem = Poem(**default_data)
+        self.session.add(poem)
+        await self.session.commit()
+        await self.session.refresh(poem)
+        return poem
+
+    async def create_translation(self, poem_id: str, **kwargs):
+        """Create a translation with default values."""
+        from vpsweb.repository.models import Translation
+        import uuid
+
+        default_data = TestDataFactory.create_translation(poem_id)
+        default_data["id"] = str(uuid.uuid4())[:26]
+        default_data.update(kwargs)
+
+        translation = Translation(**default_data)
+        self.session.add(translation)
+        await self.session.commit()
+        await self.session.refresh(translation)
+        return translation
+
+
+@pytest_asyncio.fixture
+async def test_context(db_session) -> AsyncGenerator[AsyncTestContext, None]:
+    """Create a test context helper."""
+    yield AsyncTestContext(db_session)
+
+
+# Performance testing fixtures
+@pytest.fixture
+def performance_timer():
+    """Utility for timing test execution."""
+    import time
+
+    class Timer:
+        def __init__(self):
+            self.start_time = None
+            self.end_time = None
+
+        def start(self):
+            self.start_time = time.time()
+
+        def stop(self):
+            self.end_time = time.time()
+
+        @property
+        def duration(self):
+            if self.start_time and self.end_time:
+                return self.end_time - self.start_time
+            return None
+
+    return Timer()
+
+
+# Enhanced pytest markers
+def pytest_configure(config):
+    """Configure enhanced custom pytest markers."""
+    config.addinivalue_line("markers", "unit: Unit tests (fast, no external dependencies)")
+    config.addinivalue_line("markers", "integration: Integration tests (require database)")
+    config.addinivalue_line("markers", "slow: Slow tests (marked for CI)")
+    config.addinivalue_line("markers", "repository: Repository layer tests")
+    config.addinivalue_line("markers", "webui: Web UI tests")
+    config.addinivalue_line("markers", "workflow: Workflow tests")
+    config.addinivalue_line("markers", "api: API endpoint tests")
+    config.addinivalue_line("markers", "database: Database tests (requires in-memory DB)")

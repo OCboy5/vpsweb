@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Validation Error - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="flex-grow flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 text-center">
+        <!-- Error Icon -->
+        <div class="flex justify-center">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="space-y-4">
+            <h1 class="text-4xl font-bold text-gray-900">422</h1>
+            <h2 class="text-2xl font-semibold text-gray-800">Validation Error</h2>
+            <p class="text-gray-600 leading-relaxed">
+                The data you submitted doesn't meet our requirements. Please check your input and try again.
+            </p>
+        </div>
+
+        <!-- Error Details (if provided) -->
+        {% if error_details %}
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-left">
+            <h3 class="text-sm font-medium text-orange-800 mb-2">Validation Issues:</h3>
+            <p class="text-sm text-orange-700">{{ error_details }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Common Validation Issues -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+            <h3 class="text-sm font-medium text-blue-800 mb-2">Common issues to check:</h3>
+            <ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                <li>Poem title and content are required</li>
+                <li>Poet name should be provided</li>
+                <li>Language selection must be valid</li>
+                <li>File uploads should be in supported formats</li>
+                <li>Text fields shouldn't exceed length limits</li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="history.back()" class="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-lg shadow-sm text-white font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Go Back & Fix
+                </button>
+                <a href="/poems/new" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-lg shadow-sm text-gray-700 font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Start Fresh
+                </a>
+            </div>
+        </div>
+
+        <!-- Helpful Links -->
+        <div class="mt-8 pt-8 border-t border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Need help?</h3>
+            <div class="grid grid-cols-1 gap-4 text-sm">
+                <a href="/docs" class="text-primary-600 hover:text-primary-800 flex items-center justify-center p-3 bg-gray-50 rounded-lg">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    API Documentation
+                </a>
+                <a href="/poems" class="text-primary-600 hover:text-primary-800 flex items-center justify-center p-3 bg-gray-50 rounded-lg">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Browse Examples
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

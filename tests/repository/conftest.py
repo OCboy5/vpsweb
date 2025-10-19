@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from vpsweb.repository.models import Base
-from vpsweb.utils.logger import get_structured_logger
+from vpsweb.utils.logger import get_logger
 
 
 # Configure pytest-asyncio

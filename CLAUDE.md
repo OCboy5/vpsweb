@@ -245,6 +245,21 @@ vpsweb translate -i poem.txt -s English -t Chinese --dry-run
 
 **Pre-commit validation (MANDATORY)**: `python -m black --check src/ tests/ && python -m pytest tests/`
 
+### Demo Scripts & Tools (v0.3.2+)
+```bash
+# Alembic database migration demonstration
+python scripts/demo_alembic_migrations.py --action demo        # Full demo
+python scripts/demo_alembic_migrations.py --action history      # Show migration history
+python scripts/demo_alembic_migrations.py --action upgrade      # Upgrade database
+python scripts/demo_alembic_migrations.py --action status       # Current status
+
+# Rotating file logging demonstration
+python scripts/demo_rotating_logging.py --mode demo            # Full logging demo
+python scripts/demo_rotating_logging.py --mode status          # Logging status
+python scripts/demo_rotating_logging.py --mode test --count 100 # Generate test logs
+python scripts/demo_rotating_logging.py --mode cleanup --days 7 # Clean old logs
+```
+
 ## Development Guidelines
 
 ### Code Standards
