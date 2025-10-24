@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.2-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.3.2)
+[![Version](https://img.shields.io/badge/Version-0.3.3-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.3.3)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -13,7 +13,7 @@
 
 ## 🏗️ Architecture & Quality
 
-VPSWeb v0.3.2 represents a **gold-standard implementation** with professional-grade architecture and comprehensive quality assurance:
+VPSWeb v0.3.3 represents a **gold-standard implementation** with professional-grade architecture and comprehensive quality assurance:
 
 ### **System Architecture**
 - **🎯 Modular FastAPI Monolith**: Clean separation between repository/ (data layer) and webui/ (interface layer)
@@ -34,8 +34,10 @@ VPSWeb v0.3.2 represents a **gold-standard implementation** with professional-gr
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.3.1 - COMPLETE WEB UI & REPOSITORY SYSTEM IMPLEMENTATION**
+## 🎯 Current Status: **v0.3.3 - STORAGE ARCHITECTURE ANALYSIS & FRONTEND INTEGRATION PLANNING**
 
+🔍 **Storage Architecture Analysis**: Comprehensive analysis of current storage patterns and optimization opportunities
+📋 **Frontend Integration Planning**: Detailed planning for enhanced user interface and experience improvements
 🌐 **Complete Web Interface**: Full-featured FastAPI web application with responsive design and Tailwind CSS
 📊 **Repository Database System**: 4-table schema with 15+ REST endpoints and comprehensive CRUD operations
 🔄 **Workflow Integration**: Seamless integration with existing VPSWeb translation and WeChat workflows
@@ -94,7 +96,7 @@ VPSWeb v0.3.2 represents a **gold-standard implementation** with professional-gr
 
 ## 🚀 Quick Start
 
-VPSWeb v0.3.1 features a **one-command automated setup** that configures the entire development environment in minutes.
+VPSWeb v0.3.3 features a **one-command automated setup** that configures the entire development environment in minutes.
 
 ### Automated Setup (Recommended)
 
@@ -419,6 +421,23 @@ mypy src/
 ### **Configuration**
 - **[Dify Workflow](config/vpts.yml)** - Original workflow definition
 - **[Repository Configuration](config/repository.yaml)** - Repository system settings
+
+## 📚 Quick References
+
+### Key Configuration Files
+- `config/default.yaml`: Main workflow configuration
+- `config/models.yaml`: Provider configurations
+- `config/wechat.yaml`: WeChat Official Account integration
+- `config/repository.yaml`: Central Repository and WebUI configurations
+
+### Configuration Structure
+- YAML format for readability
+- Environment variable substitution using `${VAR_NAME}` syntax
+- Pydantic model validation
+- Support for workflow modes: reasoning, non_reasoning, hybrid
+
+### Release Management
+🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
 
 ## 🤝 Contributing
 
