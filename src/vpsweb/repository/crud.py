@@ -259,6 +259,7 @@ class CRUDTranslation:
         limit: int = 100,
         translator_type: Optional[TranslatorType] = None,
         target_language: Optional[str] = None,
+        poem_id: Optional[str] = None,
     ) -> List[Translation]:
         """Get multiple translations with optional filtering"""
         stmt = select(Translation)
@@ -267,6 +268,8 @@ class CRUDTranslation:
             stmt = stmt.where(Translation.translator_type == translator_type)
         if target_language:
             stmt = stmt.where(Translation.target_language == target_language)
+        if poem_id:
+            stmt = stmt.where(Translation.poem_id == poem_id)
 
         stmt = stmt.order_by(Translation.created_at.desc()).offset(skip).limit(limit)
         result = self.db.execute(stmt).scalars().all()

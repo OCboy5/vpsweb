@@ -264,7 +264,7 @@ function setupTranslationTypeToggle() {
 
 async function loadTranslations() {
     try {
-        const response = await fetch(`/api/v1/poems/{{ poem.id }}/translations`);
+        const response = await fetch(`/api/v1/translations/?poem_id={{ poem.id }}`);
         if (response.ok) {
             translations = await response.json();
             displayTranslations();
@@ -348,7 +348,7 @@ function createTranslationCard(translation) {
             <div class="poetry-text text-gray-700 whitespace-pre-wrap mb-4">${translation.translated_text}</div>
             <div class="flex justify-between items-center text-sm">
                 <div class="flex space-x-4 text-gray-500">
-                    <span>ID: ${translation.id[:8]}...</span>
+                    <span>ID: ${translation.id.substring(0, 8)}...</span>
                 </div>
                 <button onclick="addNote('${translation.id}')" class="text-primary-600 hover:text-primary-500 font-medium">
                     Add Note
@@ -466,6 +466,11 @@ function showSuccessMessage(message) {
     alert(message); // Replace with a better notification system
 }
 
+function showError(message) {
+    // Implementation for showing error messages
+    alert(message); // Replace with a better notification system
+}
+
 function showErrorMessage(message) {
     // Implementation for showing error messages
     alert(message); // Replace with a better notification system
@@ -481,11 +486,4 @@ function addNote(translationId) {
     alert('Add note functionality coming soon!');
 }
 </script>
-
-<style>
-.poetry-text {
-    line-height: 1.8;
-    font-size: 1.1rem;
-}
-</style>
 {% endblock %}

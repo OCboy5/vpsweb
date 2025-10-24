@@ -35,8 +35,8 @@ engine = create_engine(
 # Create declarative base for Alembic
 Base = declarative_base()
 
-# Now import models
-from models import Poem, Translation, AILog, HumanNote
+# Now import models using absolute import path
+from vpsweb.repository.models import Poem, Translation, AILog, HumanNote
 
 # add your model's MetaData object here
 # for 'autogenerate' support

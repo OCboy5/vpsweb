@@ -23,7 +23,11 @@ from .api import poems, translations, statistics
 from .config import settings
 from .services.poem_service import PoemService
 from .services.translation_service import TranslationService
-from .services.vpsweb_adapter import VPSWebWorkflowAdapter, get_vpsweb_adapter, WorkflowTimeoutError
+from .services.vpsweb_adapter import (
+    VPSWebWorkflowAdapter,
+    get_vpsweb_adapter,
+    WorkflowTimeoutError,
+)
 
 
 # Pydantic models for workflow endpoints
@@ -102,16 +106,28 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         }
 
         if exc.status_code == 404:
-            return templates.TemplateResponse("404.html", template_context, status_code=404)
+            return templates.TemplateResponse(
+                "404.html", template_context, status_code=404
+            )
         elif exc.status_code == 403:
-            template_context["error_details"] = "You don't have permission to access this resource."
-            return templates.TemplateResponse("403.html", template_context, status_code=403)
+            template_context["error_details"] = (
+                "You don't have permission to access this resource."
+            )
+            return templates.TemplateResponse(
+                "403.html", template_context, status_code=403
+            )
         elif exc.status_code == 401:
-            template_context["error_details"] = "Authentication required to access this resource."
-            return templates.TemplateResponse("403.html", template_context, status_code=401)
+            template_context["error_details"] = (
+                "Authentication required to access this resource."
+            )
+            return templates.TemplateResponse(
+                "403.html", template_context, status_code=401
+            )
         elif exc.status_code == 422:
             template_context["error_details"] = f"Validation error: {exc.detail}"
-            return templates.TemplateResponse("422.html", template_context, status_code=422)
+            return templates.TemplateResponse(
+                "422.html", template_context, status_code=422
+            )
 
     # Return JSON response for API requests
     return JSONResponse(
@@ -169,7 +185,7 @@ async def general_exception_handler(request: Request, exc: Exception):
     # Log the error with details
     logger.error(
         f"Unexpected error {error_id} in {request.method} {request.url.path}: {exc}",
-        exc_info=True
+        exc_info=True,
     )
 
     # Check if this is a web request (browser request) - prefers HTML
@@ -180,10 +196,12 @@ async def general_exception_handler(request: Request, exc: Exception):
         # Return HTML error page for web interface
         template_context = {
             "request": request,
-            "error_details": str(exc) if settings.DEBUG else "An unexpected error occurred.",
+            "error_details": (
+                str(exc) if settings.debug else "An unexpected error occurred."
+            ),
             "error_id": error_id,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "show_debug": settings.DEBUG,  # Only show debug info in development
+            "show_debug": settings.debug,  # Only show debug info in development
         }
 
         return templates.TemplateResponse("500.html", template_context, status_code=500)
@@ -649,7 +667,11 @@ async def startup_event():
     # Check if host is set to bind to all interfaces (0.0.0.0)
     if settings.host == "0.0.0.0":
         # Only allow public binding if explicitly authorized
-        allow_public = os.getenv("VPSWEB_ALLOW_PUBLIC", "").lower() in ("true", "1", "yes")
+        allow_public = os.getenv("VPSWEB_ALLOW_PUBLIC", "").lower() in (
+            "true",
+            "1",
+            "yes",
+        )
 
         if not allow_public:
             print("❌ SECURITY WARNING: Refusing to bind to 0.0.0.0 (public interface)")
@@ -657,6 +679,7 @@ async def startup_event():
             print("   To enable public binding, set VPSWEB_ALLOW_PUBLIC=true")
             print("   Use uvicorn --host 127.0.0.1 for local access only")
             import sys
+
             sys.exit(1)
         else:
             print("⚠️  WARNING: Binding to public interface (0.0.0.0)")

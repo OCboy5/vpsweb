@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% block title %}Statistics - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    Dashboard
+                </a>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Statistics</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Statistics</h1>
+        <p class="mt-2 text-gray-600">Analytics and insights for your poetry translation repository</p>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div id="stats-container">
+        <!-- Loading State -->
+        <div id="stats-loading" class="text-center py-8">
+            <div class="inline-flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Loading statistics...</span>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div id="stats-content" class="hidden">
+            <!-- Overview Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Poems</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-poems">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Translations</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-translations">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Poets</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-poets">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Languages</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-languages">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Poems -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Poems</h3>
+                        <div id="recent-poems" class="space-y-4">
+                            <!-- Recent poems will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Popular Languages -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Language Distribution</h3>
+                        <div id="language-distribution" class="space-y-4">
+                            <!-- Language distribution will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Translator Stats -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Translator Types</h3>
+                        <div id="translator-stats" class="space-y-4">
+                            <!-- Translator stats will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Distribution -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Quality Ratings</h3>
+                        <div id="quality-stats" class="space-y-4">
+                            <!-- Quality stats will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 flex justify-center">
+                <button onclick="refreshStats()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Refresh Statistics
+                </button>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="stats-error" class="text-center py-12 hidden">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Failed to load statistics</h3>
+            <p class="mt-1 text-sm text-gray-500">Please refresh the page or try again later.</p>
+            <div class="mt-6">
+                <button onclick="refreshStats()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let stats = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+});
+
+async function loadStats() {
+    try {
+        const response = await fetch('/api/v1/statistics/overview');
+        if (response.ok) {
+            stats = await response.json();
+            displayStats();
+        } else {
+            showError();
+        }
+    } catch (error) {
+        console.error('Failed to load statistics:', error);
+        showError();
+    }
+}
+
+function displayStats() {
+    document.getElementById('stats-loading').classList.add('hidden');
+    document.getElementById('stats-error').classList.add('hidden');
+    document.getElementById('stats-content').classList.remove('hidden');
+
+    // Update overview cards
+    document.getElementById('total-poems').textContent = stats.total_poems || 0;
+    document.getElementById('total-translations').textContent = stats.total_translations || 0;
+    document.getElementById('total-poets').textContent = stats.total_poets || 0;
+    document.getElementById('total-languages').textContent = stats.total_languages || 0;
+
+    // Update recent poems
+    if (stats.recent_poems && stats.recent_poems.length > 0) {
+        const recentPoemsEl = document.getElementById('recent-poems');
+        recentPoemsEl.innerHTML = stats.recent_poems.map(poem => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                    <h4 class="text-sm font-medium text-gray-900">${poem.poem_title}</h4>
+                    <p class="text-xs text-gray-500">${poem.poet_name} • ${new Date(poem.created_at).toLocaleDateString()}</p>
+                </div>
+                <a href="/poems/${poem.id}" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+                    View
+                </a>
+            </div>
+        `).join('');
+    }
+
+    // Update language distribution
+    if (stats.language_distribution) {
+        const languageEl = document.getElementById('language-distribution');
+        const languages = Object.entries(stats.language_distribution);
+        if (languages.length > 0) {
+            languageEl.innerHTML = languages.map(([lang, count]) => {
+                const percentage = stats.total_translations > 0 ? (count / stats.total_translations * 100).toFixed(1) : 0;
+                return `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">${lang}</span>
+                                <span class="text-sm text-gray-500">${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-primary-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // Update translator stats
+    if (stats.translator_types) {
+        const translatorEl = document.getElementById('translator-stats');
+        const types = Object.entries(stats.translator_types);
+        if (types.length > 0) {
+            translatorEl.innerHTML = types.map(([type, count]) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${type === 'AI' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}">
+                        ${type}
+                    </span>
+                    <span class="text-sm font-medium text-gray-900">${count} translations</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Update quality stats
+    if (stats.quality_distribution) {
+        const qualityEl = document.getElementById('quality-stats');
+        const ratings = Object.entries(stats.quality_distribution).sort((a, b) => a[0] - b[0]);
+        if (ratings.length > 0) {
+            qualityEl.innerHTML = ratings.map(([rating, count]) => {
+                const stars = '★'.repeat(parseInt(rating)) + '☆'.repeat(5 - parseInt(rating));
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-yellow-400">${stars}</span>
+                        <span class="text-sm font-medium text-gray-900">${count} translations</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+}
+
+function refreshStats() {
+    document.getElementById('stats-content').classList.add('hidden');
+    document.getElementById('stats-error').classList.add('hidden');
+    document.getElementById('stats-loading').classList.remove('hidden');
+    loadStats();
+}
+
+function showError() {
+    document.getElementById('stats-loading').classList.add('hidden');
+    document.getElementById('stats-content').classList.add('hidden');
+    document.getElementById('stats-error').classList.remove('hidden');
+}
+</script>
+{% endblock %}

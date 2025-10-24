@@ -123,17 +123,24 @@ class PoemBase(BaseSchema):
         if not v or len(v.strip()) < 2:
             raise ValueError("Language code must be at least 2 characters")
 
-        v = v.strip().lower()
+        v = v.strip()
 
-        # Validate BCP-47 format (simplified)
-        if not re.match(r"^[a-z]{2}(-[A-Z]{2})?(-[a-z]{3})?$", v):
-            # Allow common language codes even if not strictly BCP-47
-            if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?$", v):
-                raise ValueError(
-                    'Language code must be in valid format (e.g., "en", "zh-CN")'
-                )
+        # Validate BCP-47 format (case-insensitive)
+        # Accept formats like: en, zh-CN, zh-Hans, en-US
+        if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?(-[a-z]{3,4})?$", v, re.IGNORECASE):
+            raise ValueError(
+                'Language code must be in valid format (e.g., "en", "zh-CN")'
+            )
 
-        return v
+        # Normalize to lowercase language code and uppercase country code
+        parts = v.split("-")
+        if len(parts) == 1:
+            return parts[0].lower()
+        elif len(parts) == 2:
+            return f"{parts[0].lower()}-{parts[1].upper()}"
+        else:
+            # For script codes like zh-Hans-CN, normalize appropriately
+            return f"{parts[0].lower()}-{parts[1].capitalize()}-{parts[2].upper() if len(parts[2]) == 2 else parts[2].lower()}"
 
     @field_validator("original_text")
     @classmethod

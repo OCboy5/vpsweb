@@ -54,7 +54,11 @@ check_requirements() {
         PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
         info "Python version: $PYTHON_VERSION"
 
-        if [[ $(echo "$PYTHON_VERSION >= 3.8" | bc -l) -eq 1 ]]; then
+        # Use proper version comparison (major.minor)
+        MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
+        MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
+
+        if [[ $MAJOR -gt 3 ]] || [[ $MAJOR -eq 3 && $MINOR -ge 8 ]]; then
             success "Python $PYTHON_VERSION meets requirements (>= 3.8)"
         else
             error "Python $PYTHON_VERSION is too old. Requires Python 3.8 or higher"
@@ -177,12 +181,6 @@ DEV_MODE=true
 VERBOSE_LOGGING=true
 LOG_FORMAT=text
 
-# AI Provider Configuration
-# Add your API keys below
-TONGYI_API_KEY=your_tongyi_api_key_here
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-# OPENAI_API_KEY=your_openai_api_key_here  # Optional
-
 # Development Settings
 PYTHONPATH=$(pwd)/src
 EOF
@@ -205,43 +203,8 @@ EOF
     success "Environment configuration completed"
 }
 
-# Initialize database
-setup_database() {
-    step "Setting up database..."
-
-    cd "$PROJECT_ROOT"
-
-    # Create repository directory
-    mkdir -p repository_root
-    info "Repository directory created: $(pwd)/repository_root"
-
-    # Set PYTHONPATH for alembic
-    export PYTHONPATH="${PROJECT_ROOT}/src:$PYTHONPATH"
-
-    # Run database migrations
-    info "Running database migrations..."
-    cd src/vpsweb/repository
-    if poetry run alembic upgrade head; then
-        success "Database migrations completed successfully"
-    else
-        error "Database migrations failed"
-        exit 1
-    fi
-    cd - > /dev/null
-
-    # Verify database creation
-    if [[ -f "repository_root/repo.db" ]]; then
-        DB_SIZE=$(du -h repository_root/repo.db | cut -f1)
-        success "Database created successfully (size: $DB_SIZE)"
-
-        # Show basic stats
-        TABLE_COUNT=$(sqlite3 repository_root/repo.db "SELECT COUNT(*) FROM sqlite_master WHERE type='table';")
-        info "Database contains $TABLE_COUNT tables"
-    else
-        error "Database file not found after migrations"
-        exit 1
-    fi
-}
+# Note: Database setup is now handled by the dedicated setup-database.sh script
+# Run: ./scripts/setup-database.sh init
 
 # Verify setup
 verify_setup() {
@@ -261,16 +224,18 @@ verify_setup() {
     # Test database connection
     if poetry run python -c "
 from vpsweb.repository.service import RepositoryWebService
-from vpsweb.repository.database import get_db_session
+from vpsweb.repository.database import get_db, create_session
 import os
 
 try:
-    with get_db_session() as db:
-        service = RepositoryWebService(db)
-        stats = service.get_repository_stats()
-        print(f'✅ Database connection successful')
-        print(f'   - Total poems: {stats.total_poems}')
-        print(f'   - Total translations: {stats.total_translations}')
+    # Use create_session for direct session access
+    db = create_session()
+    service = RepositoryWebService(db)
+    stats = service.get_repository_stats()
+    db.close()
+    print(f'✅ Database connection successful')
+    print(f'   - Total poems: {stats.total_poems}')
+    print(f'   - Total translations: {stats.total_translations}')
 except Exception as e:
     print(f'❌ Database connection failed: {e}')
     exit(1)
@@ -387,18 +352,21 @@ show_next_steps() {
     echo
     echo -e "${GREEN}VPSWeb development environment is ready!${NC}"
     echo
-    echo -e "${CYAN}Quick Start Commands:${NC}"
-    echo "  Start development server:"
+    echo -e "${CYAN}Next Steps:${NC}"
+    echo "  1. Setup database:"
+    echo "    ${YELLOW}./scripts/setup-database.sh init${NC}"
+    echo
+    echo "  2. Start development server:"
     echo "    ${YELLOW}./scripts/start.sh${NC}"
     echo
-    echo "  Run tests:"
+    echo "  3. Run tests:"
     echo "    ${YELLOW}./scripts/test.sh${NC}"
     echo
-    echo "  Reset database:"
-    echo "    ${YELLOW}./scripts/reset.sh${NC}"
-    echo
-    echo "  Create backup:"
-    echo "    ${YELLOW}./scripts/backup.sh${NC}"
+    echo -e "${CYAN}Database Management:${NC}"
+    echo "  Initialize:    ${YELLOW}./scripts/setup-database.sh init${NC}"
+    echo "  Reset:         ${YELLOW}./scripts/setup-database.sh reset${NC}"
+    echo "  Backup:        ${YELLOW}./scripts/setup-database.sh backup${NC}"
+    echo "  Status:        ${YELLOW}./scripts/setup-database.sh status${NC}"
     echo
     echo -e "${CYAN}Important Files:${NC}"
     echo "  - Configuration: ${YELLOW}.env.local${NC} (edit to add API keys)"
@@ -437,7 +405,9 @@ main() {
     check_requirements
     setup_python_env
     setup_environment
-    setup_database
+
+    # Note: Database setup is now separate
+    # Run: ./scripts/setup-database.sh init
 
     # Verify everything works
     if verify_setup; then

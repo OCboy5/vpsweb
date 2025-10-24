@@ -14,6 +14,7 @@ class WebUISettings(BaseSettings):
     port: int = 8000
     reload: bool = True
     log_level: str = "INFO"
+    debug: bool = False
 
     model_config = {"env_file": ".env", "env_prefix": "WEBUI_", "extra": "ignore"}
 
