@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.3-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.3.3)
+[![Version](https://img.shields.io/badge/Version-0.3.4-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.3.4)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -34,10 +34,11 @@ VPSWeb v0.3.3 represents a **gold-standard implementation** with professional-gr
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.3.3 - STORAGE ARCHITECTURE ANALYSIS & FRONTEND INTEGRATION PLANNING**
+## 🎯 Current Status: **v0.3.4 - REPOSITORY SYSTEM ENHANCEMENT & ASYNC DATABASE SUPPORT**
 
-🔍 **Storage Architecture Analysis**: Comprehensive analysis of current storage patterns and optimization opportunities
-📋 **Frontend Integration Planning**: Detailed planning for enhanced user interface and experience improvements
+🗃️ **Async Database Support**: New async database layer with AsyncSQLiteDatabase for improved performance
+🚀 **Alembic Migration Integration**: Complete migration system with automatic rollback support
+📝 **Enhanced Poet Management**: Comprehensive poet model with file organization and metadata tracking
 🌐 **Complete Web Interface**: Full-featured FastAPI web application with responsive design and Tailwind CSS
 📊 **Repository Database System**: 4-table schema with 15+ REST endpoints and comprehensive CRUD operations
 🔄 **Workflow Integration**: Seamless integration with existing VPSWeb translation and WeChat workflows

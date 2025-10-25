@@ -5,6 +5,57 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-10-25 (Repository System Enhancement & Async Database Support)
+
+### 🚀 Overview
+VPSWeb v0.3.4 delivers major **repository system enhancements** and introduces **async database support** for improved scalability. This release adds comprehensive migration management with Alembic, implements poet management workflows, and enhances the WebUI with new templates and task orchestration capabilities.
+
+### ✨ New Features
+
+#### 🗃️ Enhanced Repository System
+- **Async Database Layer**: New async database support with AsyncSQLiteDatabase for improved performance
+- **Alembic Migration Integration**: Complete migration system with automatic rollback support
+- **Enhanced Poet Management**: Comprehensive poet model with file organization and metadata tracking
+- **Workflow Orchestration**: New workflow launch service for managing async translation workflows
+- **Improved Database Operations**: Enhanced CRUD operations with better error handling and transaction support
+
+#### 🎨 WebUI Enhancements
+- **New Poet Management Pages**: Poet detail and list views with comprehensive metadata
+- **Task Model Integration**: New task models for workflow state management
+- **Enhanced Templates**: Improved base template and poem detail presentation
+- **API Extensions**: New poets API endpoint for comprehensive poet management
+
+#### 🔧 Development Tooling
+- **Clean Start Script**: New development workflow script for fresh database setup
+- **Comprehensive Test Suite**: New test files for database, serialization, and SSE functionality
+- **Documentation Organization**: Improved documentation structure with proper backup management
+- **Code Quality Updates**: Consistent code formatting and enhanced type safety
+
+### 🛠️ Technical Improvements
+
+#### Database Schema Enhancements
+- **New Migration Files**: Comprehensive migration files for poet organization and performance indexes
+- **Enhanced Models**: Updated repository models with better relationship definitions
+- **Async Support**: Full async database operations for improved concurrency
+- **Performance Optimizations**: Composite indexes for better query performance
+
+#### API and Service Updates
+- **Better Error Handling**: Comprehensive error handling across all service layers
+- **Enhanced Validation**: Improved input validation and sanitization
+- **Service Orchestration**: Better service composition and dependency management
+- **Configuration Management**: Enhanced configuration loading and validation
+
+### 📋 Development Notes
+- **Breaking Changes**: None - all changes are backwards compatible
+- **Migration Required**: Database migrations will be applied automatically on first run
+- **New Dependencies**: Added Alembic for migration management
+- **Test Coverage**: Expanded test coverage for new async database operations
+
+### 🙏 Acknowledgments
+This release continues our commitment to providing a robust, scalable poetry translation platform with enhanced developer experience and improved system reliability.
+
+---
+
 ## [0.3.3] - 2025-10-24 (Storage Architecture Analysis & Frontend Integration Planning)
 
 ### 🚀 Overview
