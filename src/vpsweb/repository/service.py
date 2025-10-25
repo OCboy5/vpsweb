@@ -336,7 +336,7 @@ class RepositoryWebService:
         query = (
             self.db.query(
                 Poem.poet_name,
-                func.count(Poem.id).label("poem_count"),
+                func.count(func.distinct(Poem.id)).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),
@@ -354,7 +354,7 @@ class RepositoryWebService:
             query = query.filter(Poem.poet_name.ilike(f"%{search}%"))
 
         if min_poems is not None:
-            query = query.having(func.count(Poem.id) >= min_poems)
+            query = query.having(func.count(func.distinct(Poem.id)) >= min_poems)
 
         if min_translations is not None:
             query = query.having(func.count(Translation.id) >= min_translations)
@@ -363,7 +363,7 @@ class RepositoryWebService:
         if sort_by == "name":
             order_column = Poem.poet_name
         elif sort_by == "poem_count":
-            order_column = func.count(Poem.id)
+            order_column = func.count(func.distinct(Poem.id))
         elif sort_by == "translation_count":
             order_column = func.count(Translation.id)
         elif sort_by == "recent_activity":
