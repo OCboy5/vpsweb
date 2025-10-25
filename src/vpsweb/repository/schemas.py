@@ -316,9 +316,9 @@ class TranslationBase(BaseSchema):
 
         # Enhanced validation: check basic format first
         if not re.match(r"^[a-z]{2}(-[A-Z]{2})?$", v, re.IGNORECASE):
-                raise ValueError(
-                    'Target language code must be in valid format (e.g., "en", "zh-CN")'
-                )
+            raise ValueError(
+                'Target language code must be in valid format (e.g., "en", "zh-CN")'
+            )
 
         # Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
         if "-" in v and len(v.split("-")) == 2:

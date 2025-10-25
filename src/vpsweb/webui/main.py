@@ -780,7 +780,9 @@ async def stream_workflow_task_status(
                 print(f"🔌 Client disconnected from task {task_id} SSE stream")
                 break
 
-            await asyncio.sleep(0.2)  # Check every 200ms for better responsiveness (faster than before)
+            await asyncio.sleep(
+                0.2
+            )  # Check every 200ms for better responsiveness (faster than before)
 
             try:
                 # Reset consecutive errors counter on successful iteration
@@ -806,9 +808,13 @@ async def stream_workflow_task_status(
                         last_step_details = last_status.get("step_details", {})
 
                         # Check if current step status changed (running -> completed)
-                        if (current_step_details.get("step_status") != last_step_details.get("step_status")):
+                        if current_step_details.get(
+                            "step_status"
+                        ) != last_step_details.get("step_status"):
                             has_step_change = True
-                            print(f"🔍 [SSE] Step status change detected: {last_step_details.get('step_status')} -> {current_step_details.get('step_status')}")
+                            print(
+                                f"🔍 [SSE] Step status change detected: {last_step_details.get('step_status')} -> {current_step_details.get('step_status')}"
+                            )
 
                         # Check if any step states changed
                         current_step_states = current_dict.get("step_states", {})
@@ -866,7 +872,10 @@ async def stream_workflow_task_status(
                     # Force periodic updates every 5 seconds to ensure connection stays alive
                     if current_time - last_update_time > 5.0:
                         last_update_time = current_time
-                        yield {"event": "heartbeat", "data": json.dumps({"timestamp": current_time})}
+                        yield {
+                            "event": "heartbeat",
+                            "data": json.dumps({"timestamp": current_time}),
+                        }
 
                 else:
                     # Task was removed from app.state
@@ -881,10 +890,15 @@ async def stream_workflow_task_status(
                 break
             except Exception as e:
                 consecutive_errors += 1
-                print(f"❌ [SSE] Error {consecutive_errors}/{max_consecutive_errors} in stream for task {task_id}: {str(e)}")
+                print(
+                    f"❌ [SSE] Error {consecutive_errors}/{max_consecutive_errors} in stream for task {task_id}: {str(e)}"
+                )
 
                 if consecutive_errors >= max_consecutive_errors:
-                    yield {"event": "error", "data": json.dumps({"message": f"SSE stream error: {str(e)}"})}
+                    yield {
+                        "event": "error",
+                        "data": json.dumps({"message": f"SSE stream error: {str(e)}"}),
+                    }
                     break
 
                 # Continue after a brief delay for non-critical errors

@@ -22,6 +22,7 @@ engine = create_engine(
     echo=settings.log_level.lower() == "debug",  # Log SQL in debug mode
 )
 
+
 # Enable foreign key constraints for SQLite connections
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -31,6 +32,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
+
 # Also ensure foreign keys are enabled on checkout from pool
 @event.listens_for(engine, "checkout")
 def on_checkout(dbapi_connection, connection_record, connection_proxy):
@@ -38,6 +40,7 @@ def on_checkout(dbapi_connection, connection_record, connection_proxy):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

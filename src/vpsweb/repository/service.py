@@ -338,12 +338,8 @@ class RepositoryWebService:
                 Poem.poet_name,
                 func.count(Poem.id).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
-                func.avg(Translation.quality_rating).label(
-                    "avg_quality_rating"
-                ),
-                func.max(Translation.created_at).label(
-                    "last_translation_date"
-                ),
+                func.avg(Translation.quality_rating).label("avg_quality_rating"),
+                func.max(Translation.created_at).label("last_translation_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
             )
             .outerjoin(
@@ -361,9 +357,7 @@ class RepositoryWebService:
             query = query.having(func.count(Poem.id) >= min_poems)
 
         if min_translations is not None:
-            query = query.having(
-                func.count(Translation.id) >= min_translations
-            )
+            query = query.having(func.count(Translation.id) >= min_translations)
 
         # Apply sorting
         if sort_by == "name":
@@ -428,9 +422,7 @@ class RepositoryWebService:
             self.db.query(
                 Poem,
                 func.count(Translation.id).label("translation_count"),
-                func.max(Translation.created_at).label(
-                    "last_translation_date"
-                ),
+                func.max(Translation.created_at).label("last_translation_date"),
             )
             .outerjoin(
                 Translation,
@@ -520,19 +512,13 @@ class RepositoryWebService:
 
         # Apply filters
         if target_language:
-            query = query.filter(
-                Translation.target_language == target_language
-            )
+            query = query.filter(Translation.target_language == target_language)
 
         if translator_type:
-            query = query.filter(
-                Translation.translator_type == translator_type
-            )
+            query = query.filter(Translation.translator_type == translator_type)
 
         if min_quality is not None:
-            query = query.filter(
-                Translation.quality_rating >= min_quality
-            )
+            query = query.filter(Translation.quality_rating >= min_quality)
 
         # Apply sorting
         if sort_by == "created_at":
@@ -604,11 +590,7 @@ class RepositoryWebService:
         from sqlalchemy import func
 
         # Check if poet exists
-        poet_exists = (
-            self.db.query(Poem)
-            .filter(Poem.poet_name == poet_name)
-            .first()
-        )
+        poet_exists = self.db.query(Poem).filter(Poem.poet_name == poet_name).first()
 
         if not poet_exists:
             raise ValueError(f"Poet '{poet_name}' not found")
@@ -631,21 +613,15 @@ class RepositoryWebService:
         translation_stats = (
             self.db.query(
                 func.count(Translation.id).label("total_translations"),
-                func.count(
-                    func.distinct(Translation.target_language)
-                ).label("target_languages_count"),
-                func.avg(Translation.quality_rating).label(
-                    "avg_quality_rating"
+                func.count(func.distinct(Translation.target_language)).label(
+                    "target_languages_count"
                 ),
-                func.count(
-                    func.distinct(Translation.translator_type)
-                ).label("translator_types_count"),
-                func.min(Translation.created_at).label(
-                    "first_translation_date"
+                func.avg(Translation.quality_rating).label("avg_quality_rating"),
+                func.count(func.distinct(Translation.translator_type)).label(
+                    "translator_types_count"
                 ),
-                func.max(Translation.created_at).label(
-                    "last_translation_date"
-                ),
+                func.min(Translation.created_at).label("first_translation_date"),
+                func.max(Translation.created_at).label("last_translation_date"),
             )
             .join(
                 Poem,

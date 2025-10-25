@@ -83,7 +83,9 @@ class TranslationWorkflow:
         self.step_executor = StepExecutor(self.llm_factory, self.prompt_service)
 
         # Initialize progress callback (optional)
-        self.progress_callback: Optional[Callable[[str, Dict[str, Any]], Awaitable[None]]] = None
+        self.progress_callback: Optional[
+            Callable[[str, Dict[str, Any]], Awaitable[None]]
+        ] = None
 
         # Get the appropriate workflow steps for the mode
         self.workflow_steps = config.get_workflow_steps(workflow_mode)
@@ -196,10 +198,10 @@ class TranslationWorkflow:
 
             # Call progress callback when Step 1 starts
             if self.progress_callback:
-                await self.progress_callback("Initial Translation", {
-                    "status": "started",
-                    "message": "Starting initial translation..."
-                })
+                await self.progress_callback(
+                    "Initial Translation",
+                    {"status": "started", "message": "Starting initial translation..."},
+                )
 
             step_start_time = time.time()
             initial_translation = await self._initial_translation(input_data)
@@ -208,13 +210,16 @@ class TranslationWorkflow:
 
             # Call progress callback after Step 1 completion
             if self.progress_callback:
-                await self.progress_callback("Initial Translation", {
-                    "status": "completed",
-                    "tokens_used": initial_translation.tokens_used,
-                    "duration": getattr(initial_translation, "duration", None),
-                    "cost": getattr(initial_translation, "cost", None),
-                    "model_info": getattr(initial_translation, "model_info", None)
-                })
+                await self.progress_callback(
+                    "Initial Translation",
+                    {
+                        "status": "completed",
+                        "tokens_used": initial_translation.tokens_used,
+                        "duration": getattr(initial_translation, "duration", None),
+                        "cost": getattr(initial_translation, "cost", None),
+                        "model_info": getattr(initial_translation, "model_info", None),
+                    },
+                )
 
             # Step 2: Editor Review
             log_entries.append(
@@ -236,10 +241,10 @@ class TranslationWorkflow:
 
             # Call progress callback when Step 2 starts
             if self.progress_callback:
-                await self.progress_callback("Editor Review", {
-                    "status": "started",
-                    "message": "Starting editor review..."
-                })
+                await self.progress_callback(
+                    "Editor Review",
+                    {"status": "started", "message": "Starting editor review..."},
+                )
 
             step_start_time = time.time()
             editor_review = await self._editor_review(input_data, initial_translation)
@@ -290,13 +295,16 @@ class TranslationWorkflow:
 
             # Call progress callback after Step 2 completion
             if self.progress_callback:
-                await self.progress_callback("Editor Review", {
-                    "status": "completed",
-                    "tokens_used": editor_review.tokens_used,
-                    "duration": getattr(editor_review, "duration", None),
-                    "cost": getattr(editor_review, "cost", None),
-                    "model_info": getattr(editor_review, "model_info", None)
-                })
+                await self.progress_callback(
+                    "Editor Review",
+                    {
+                        "status": "completed",
+                        "tokens_used": editor_review.tokens_used,
+                        "duration": getattr(editor_review, "duration", None),
+                        "cost": getattr(editor_review, "cost", None),
+                        "model_info": getattr(editor_review, "model_info", None),
+                    },
+                )
 
             # Step 3: Translator Revision
             log_entries.append(
@@ -314,10 +322,10 @@ class TranslationWorkflow:
 
             # Call progress callback when Step 3 starts
             if self.progress_callback:
-                await self.progress_callback("Translator Revision", {
-                    "status": "started",
-                    "message": "Starting translator revision..."
-                })
+                await self.progress_callback(
+                    "Translator Revision",
+                    {"status": "started", "message": "Starting translator revision..."},
+                )
 
             step_start_time = time.time()
             revised_translation = await self._translator_revision(
@@ -363,13 +371,16 @@ class TranslationWorkflow:
 
             # Call progress callback after Step 3 completion
             if self.progress_callback:
-                await self.progress_callback("Translator Revision", {
-                    "status": "completed",
-                    "tokens_used": revised_translation.tokens_used,
-                    "duration": getattr(revised_translation, "duration", None),
-                    "cost": getattr(revised_translation, "cost", None),
-                    "model_info": getattr(revised_translation, "model_info", None)
-                })
+                await self.progress_callback(
+                    "Translator Revision",
+                    {
+                        "status": "completed",
+                        "tokens_used": revised_translation.tokens_used,
+                        "duration": getattr(revised_translation, "duration", None),
+                        "cost": getattr(revised_translation, "cost", None),
+                        "model_info": getattr(revised_translation, "model_info", None),
+                    },
+                )
 
             # Calculate total cost
             total_cost = self._calculate_total_cost(
@@ -418,10 +429,9 @@ class TranslationWorkflow:
                             failed_step = step_name.replace("_", " ").title()
                             break
 
-                await self.progress_callback(failed_step, {
-                    "status": "failed",
-                    "error": str(e)
-                })
+                await self.progress_callback(
+                    failed_step, {"status": "failed", "error": str(e)}
+                )
 
             if progress_tracker:
                 # Determine which step failed based on current progress

@@ -381,7 +381,9 @@ class VPSWebWorkflowAdapter:
             WorkflowExecutionError: If workflow execution fails
             ConfigurationError: If configuration is invalid
         """
-        logger.info(f"execute_translation_workflow called with poem_id={poem_id}, source_lang={source_lang}, target_lang={target_lang}, workflow_mode={workflow_mode}, synchronous={synchronous}")
+        logger.info(
+            f"execute_translation_workflow called with poem_id={poem_id}, source_lang={source_lang}, target_lang={target_lang}, workflow_mode={workflow_mode}, synchronous={synchronous}"
+        )
 
         # Validate inputs
         if not poem_id:
@@ -436,7 +438,9 @@ class VPSWebWorkflowAdapter:
                 workflow_mode,
             )
         )
-        logger.info(f"Asynchronous workflow task {task_id} with callback has been scheduled.")
+        logger.info(
+            f"Asynchronous workflow task {task_id} with callback has been scheduled."
+        )
 
         return {
             "task_id": task_id,
@@ -480,11 +484,16 @@ class VPSWebWorkflowAdapter:
             if task_id not in app.state.tasks:
                 return True
             current_status = app.state.tasks[task_id]
-            return current_status.status.value == "failed" and "cancelled" in str(current_status.message).lower()
+            return (
+                current_status.status.value == "failed"
+                and "cancelled" in str(current_status.message).lower()
+            )
 
         # Check if task was cancelled before starting
         if is_cancelled():
-            print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before execution started")
+            print(
+                f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before execution started"
+            )
             logger.info(f"Task {task_id} was cancelled before execution started.")
             return
 
@@ -495,20 +504,28 @@ class VPSWebWorkflowAdapter:
             async def progress_callback(step_name: str, details: dict):
                 # Skip updates if task is already completed or failed (including cancelled)
                 current_task_status = app.state.tasks.get(task_id)
-                if not current_task_status or current_task_status.status in ["completed", "failed"]:
+                if not current_task_status or current_task_status.status in [
+                    "completed",
+                    "failed",
+                ]:
                     return
 
                 # Skip progress updates if task was cancelled
-                if current_task_status.status.value == "failed" and "cancelled" in str(current_task_status.message).lower():
-                    print(f"[PROGRESS] Task {task_id} was cancelled, skipping progress updates")
+                if (
+                    current_task_status.status.value == "failed"
+                    and "cancelled" in str(current_task_status.message).lower()
+                ):
+                    print(
+                        f"[PROGRESS] Task {task_id} was cancelled, skipping progress updates"
+                    )
                     return
 
                 with app.state.task_locks[task_id]:
                     # Calculate progress percentage based on step
                     progress_map = {
-                        "Initial Translation": 33,      # 1/3
-                        "Editor Review": 67,            # 2/3 (updated from 66% for mathematical accuracy)
-                        "Translator Revision": 100     # 3/3
+                        "Initial Translation": 33,  # 1/3
+                        "Editor Review": 67,  # 2/3 (updated from 66% for mathematical accuracy)
+                        "Translator Revision": 100,  # 3/3
                     }
 
                     # Update the current step and mark it appropriately
@@ -518,22 +535,24 @@ class VPSWebWorkflowAdapter:
                         current_task_status.update_step(
                             step_name=step_name,
                             step_details={"step_status": "completed", **details},
-                            step_state="completed"
+                            step_state="completed",
                         )
                         # Set progress to the current step's completion level
                         current_task_status.progress = progress_map.get(step_name, 0)
-                        print(f"[PROGRESS] Step '{step_name}' completed - progress: {current_task_status.progress}%")
+                        print(
+                            f"[PROGRESS] Step '{step_name}' completed - progress: {current_task_status.progress}%"
+                        )
                     elif step_state == "failed":
                         current_task_status.update_step(
                             step_name=step_name,
                             step_details={"step_status": "failed", **details},
-                            step_state="failed"
+                            step_state="failed",
                         )
                     else:  # running
                         current_task_status.update_step(
                             step_name=step_name,
                             step_details={"step_status": "running", **details},
-                            step_state="running"
+                            step_state="running",
                         )
                         # For running steps, show progress corresponding to the previous step's completion
                         # This ensures running steps show their task completion progress, not 100%
@@ -548,8 +567,12 @@ class VPSWebWorkflowAdapter:
                             current_task_status.progress = 67
                         else:
                             # Fallback to step-specific progress
-                            current_task_status.progress = progress_map.get(step_name, 0)
-                        print(f"[PROGRESS] Step '{step_name}' running - progress: {current_task_status.progress}%")
+                            current_task_status.progress = progress_map.get(
+                                step_name, 0
+                            )
+                        print(
+                            f"[PROGRESS] Step '{step_name}' running - progress: {current_task_status.progress}%"
+                        )
 
                 # Yield control to the event loop so the SSE stream can send the update
                 await asyncio.sleep(0.01)
@@ -599,7 +622,9 @@ class VPSWebWorkflowAdapter:
                 workflow_mode = WorkflowMode(workflow_mode_str)
             except ValueError:
                 workflow_mode = WorkflowMode.HYBRID  # fallback
-                logger.warning(f"Invalid workflow mode '{workflow_mode_str}', using HYBRID")
+                logger.warning(
+                    f"Invalid workflow mode '{workflow_mode_str}', using HYBRID"
+                )
 
             # Get workflow (recreate configuration)
             await self._load_configuration()
@@ -625,7 +650,9 @@ class VPSWebWorkflowAdapter:
 
             # Check if task was cancelled before executing workflow
             if is_cancelled():
-                print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before workflow execution")
+                print(
+                    f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before workflow execution"
+                )
                 logger.info(f"Task {task_id} was cancelled before workflow execution.")
                 return
 
@@ -634,12 +661,18 @@ class VPSWebWorkflowAdapter:
             print(f"[WORKFLOW] Starting workflow execution for task {task_id}")
 
             try:
-                final_result = await workflow.execute(translation_input, show_progress=False)
+                final_result = await workflow.execute(
+                    translation_input, show_progress=False
+                )
             except Exception as e:
                 # Check if the workflow was cancelled during execution
                 if is_cancelled():
-                    print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED during workflow execution")
-                    logger.info(f"Task {task_id} was cancelled during workflow execution.")
+                    print(
+                        f"[WORKFLOW] ❌ Task {task_id} was CANCELLED during workflow execution"
+                    )
+                    logger.info(
+                        f"Task {task_id} was cancelled during workflow execution."
+                    )
                     return
                 else:
                     # Re-raise the exception if it's not due to cancellation
@@ -647,25 +680,34 @@ class VPSWebWorkflowAdapter:
 
             # Final cancellation check after workflow execution
             if is_cancelled():
-                print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED after workflow execution")
+                print(
+                    f"[WORKFLOW] ❌ Task {task_id} was CANCELLED after workflow execution"
+                )
                 logger.info(f"Task {task_id} was cancelled after workflow execution.")
                 return
 
             print(f"[WORKFLOW] Workflow execution completed for task {task_id}")
 
             with app.state.task_locks[task_id]:
-                task_status.set_completed(result=final_result.to_dict(), message="Workflow completed successfully.")
+                task_status.set_completed(
+                    result=final_result.to_dict(),
+                    message="Workflow completed successfully.",
+                )
                 # Ensure final progress is 100%
                 task_status.progress = 100
-                print(f"[TASK STATUS] Task marked as completed for task {task_id} - progress: 100%")
+                print(
+                    f"[TASK STATUS] Task marked as completed for task {task_id} - progress: 100%"
+                )
 
                 # Ensure all step states are properly set to completed for final UI update
                 task_status.step_states = {
                     "Initial Translation": "completed",
                     "Editor Review": "completed",
-                    "Translator Revision": "completed"
+                    "Translator Revision": "completed",
                 }
-                print(f"[STEP STATES] Final step states updated: all steps marked as completed")
+                print(
+                    f"[STEP STATES] Final step states updated: all steps marked as completed"
+                )
 
             # Save the final result to the database
             print(f"[DB SAVE] Starting database save for task {task_id}")
@@ -674,7 +716,9 @@ class VPSWebWorkflowAdapter:
                 # since workflow tasks are stored in memory, not the database
                 poem_id = translation_input.metadata.get("id")
                 if not poem_id:
-                    print(f"[DB SAVE] ❌ No poem_id found in translation input metadata")
+                    print(
+                        f"[DB SAVE] ❌ No poem_id found in translation input metadata"
+                    )
                     return
 
                 print(f"[DB SAVE] Using poem_id from input: {poem_id}")
@@ -690,8 +734,16 @@ class VPSWebWorkflowAdapter:
                 repository_service = RepositoryWebService(db)
 
                 # Get source and target languages from input and convert to proper format
-                source_lang_raw = translation_input.source_lang.value if hasattr(translation_input.source_lang, 'value') else str(translation_input.source_lang)
-                target_lang_raw = translation_input.target_lang.value if hasattr(translation_input.target_lang, 'value') else str(translation_input.target_lang)
+                source_lang_raw = (
+                    translation_input.source_lang.value
+                    if hasattr(translation_input.source_lang, "value")
+                    else str(translation_input.source_lang)
+                )
+                target_lang_raw = (
+                    translation_input.target_lang.value
+                    if hasattr(translation_input.target_lang, "value")
+                    else str(translation_input.target_lang)
+                )
 
                 # Convert language names to ISO codes using the same mapping as the repository
                 lang_map = {
@@ -704,15 +756,19 @@ class VPSWebWorkflowAdapter:
                     "portuguese": "pt",
                     "korean": "ko",
                     "russian": "ru",
-                    "japanese": "ja"
+                    "japanese": "ja",
                 }
 
                 source_lang = lang_map.get(source_lang_raw.lower(), source_lang_raw)
                 target_lang = lang_map.get(target_lang_raw.lower(), target_lang_raw)
 
-                print(f"[DB SAVE] Language codes converted: {source_lang_raw}->{source_lang}, {target_lang_raw}->{target_lang}")
+                print(
+                    f"[DB SAVE] Language codes converted: {source_lang_raw}->{source_lang}, {target_lang_raw}->{target_lang}"
+                )
 
-                print(f"[DB SAVE] Creating translation with poem_id: {poem_id}, {source_lang}->{target_lang}")
+                print(
+                    f"[DB SAVE] Creating translation with poem_id: {poem_id}, {source_lang}->{target_lang}"
+                )
 
                 # Save translation to database using RepositoryWebService
                 print(f"[DB SAVE] About to create translation...")
@@ -722,12 +778,14 @@ class VPSWebWorkflowAdapter:
 
                 # Create TranslationCreate object with proper schema
                 # The final translation is stored as 'revised_translation' in the mapped data
-                final_translation = translation_data.get('revised_translation', '')
+                final_translation = translation_data.get("revised_translation", "")
                 if not final_translation or len(final_translation.strip()) < 10:
                     # Fallback to initial translation if revised translation is empty
-                    final_translation = translation_data.get('initial_translation', '')
+                    final_translation = translation_data.get("initial_translation", "")
 
-                print(f"[DB SAVE] Final translation length: {len(final_translation)} characters")
+                print(
+                    f"[DB SAVE] Final translation length: {len(final_translation)} characters"
+                )
 
                 translation_create = TranslationCreate(
                     poem_id=poem_id,
@@ -735,29 +793,44 @@ class VPSWebWorkflowAdapter:
                     target_language=target_lang,
                     translated_text=final_translation,
                     translator_type=TranslatorType.AI,  # Use proper enum value
-                    translator_info='qwen-max',  # Use actual model name
-                    quality_rating=translation_data.get('quality_rating', None),  # Fixed field name
-                    metadata=translation_data
+                    translator_info="qwen-max",  # Use actual model name
+                    quality_rating=translation_data.get(
+                        "quality_rating", None
+                    ),  # Fixed field name
+                    metadata=translation_data,
                 )
 
-                print(f"[DB SAVE] Created TranslationCreate object with {len(translation_create.translated_text)} characters")
-                saved_translation = repository_service.create_translation(translation_create)
-                print(f"[DB SAVE] ✅ Translation created with ID: {saved_translation.id}")
+                print(
+                    f"[DB SAVE] Created TranslationCreate object with {len(translation_create.translated_text)} characters"
+                )
+                saved_translation = repository_service.create_translation(
+                    translation_create
+                )
+                print(
+                    f"[DB SAVE] ✅ Translation created with ID: {saved_translation.id}"
+                )
 
                 db.close()
                 print(f"[DB SAVE] Database connection closed")
 
             except Exception as db_error:
-                print(f"[DB SAVE] ❌ Failed to save translation to database: {db_error}")
+                print(
+                    f"[DB SAVE] ❌ Failed to save translation to database: {db_error}"
+                )
                 import traceback
+
                 traceback.print_exc()
                 # Don't fail the task, just log the error
 
         except Exception as e:
-            logger.error(f"Error in callback-based workflow task {task_id}: {e}", exc_info=True)
+            logger.error(
+                f"Error in callback-based workflow task {task_id}: {e}", exc_info=True
+            )
             if task_status:
                 with app.state.task_locks[task_id]:
-                    task_status.set_failed(error=str(e), message="The workflow encountered an error.")
+                    task_status.set_failed(
+                        error=str(e), message="The workflow encountered an error."
+                    )
 
         except Exception as e:
             print(
@@ -1129,8 +1202,12 @@ class VPSWebWorkflowAdapter:
 
         This method creates fresh service instances to avoid session conflicts.
         """
-        print(f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}")
-        logger.info(f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}")
+        print(
+            f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}"
+        )
+        logger.info(
+            f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}"
+        )
 
         # Get task from database
         db_task = repository_service.get_workflow_task(task_id)

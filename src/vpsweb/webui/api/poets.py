@@ -260,10 +260,15 @@ async def get_poems_by_poet(
                 "last_translation_date": (
                     last_translation_date.isoformat() if last_translation_date else None
                 ),
-                "target_languages": [
-                    lang.strip() for lang in (target_languages or "").split(",")
-                    if lang and lang.strip()
-                ] if target_languages else [],
+                "target_languages": (
+                    [
+                        lang.strip()
+                        for lang in (target_languages or "").split(",")
+                        if lang and lang.strip()
+                    ]
+                    if target_languages
+                    else []
+                ),
                 "has_translations": (translation_count or 0) > 0,
             }
             poems.append(poem_info)
