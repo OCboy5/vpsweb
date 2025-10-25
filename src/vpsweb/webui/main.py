@@ -993,11 +993,13 @@ async def cancel_workflow_task(task_id: str):
             )
 
         # Mark task as cancelled
+        print(f"[WORKFLOW] 🚫 CANCELLATION REQUESTED for task {task_id}")
         with app.state.task_locks[task_id]:
             task_status.set_failed(
                 error="Task cancelled by user",
                 message="Task was cancelled by user request",
             )
+        print(f"[WORKFLOW] ✅ Task {task_id} marked as CANCELLED in app.state")
 
         return JSONResponse(
             {

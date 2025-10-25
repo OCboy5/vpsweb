@@ -68,7 +68,12 @@ def get_db() -> Session:
         yield db
     except Exception:
         # Handle any exceptions during database operations
-        db.rollback()
+        try:
+            db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            # This is common with SQLite for read-only operations
+            pass
         raise
     finally:
         try:

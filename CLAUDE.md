@@ -6,221 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
+**Current Status**: v0.3.4 - Repository System Enhancement & Async Database Support
+
 **Tech Stack**: Python, Poetry, FastAPI, SQLAlchemy, Pydantic, AsyncIO, OpenAI-compatible APIs, YAML configuration, Tailwind CSS
 
-# Development Guidelines
-## Philosophy
-### Core Beliefs
-- **Incremental progress over big bangs** - Small changes that compile and pass tests
-- **Learning from existing code** - Study and plan before implementing
-- **Pragmatic over dogmatic** - Adapt to project reality
-- **Clear intent over clever code** - Be boring and obvious
-### Simplicity Means
-- Single responsibility per function/class
-- Avoid premature abstractions
-- No clever tricks, choose the boring solution
-- If you need to explain it, it's too complex
+## Development Decision Making
 
-## Process
-### 1. Planning & Staging
-Use Brainstorming and Debating Guidelines to make non-trivial decisions in the plan.
-Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
-```markdown
-## Stage N: [Name]
-**Goal**: [Specific deliverable]
-**Success Criteria**: [Testable outcomes]
-**Tests**: [Specific test cases]
-**Status**: [Not Started|In Progress|Complete]
-```
-- Update status as you progress
-### 2. Implementation Flow
-1. **Understand** - Study existing patterns in codebase
-2. **Test** - Write test first (red)
-3. **Implement** - Minimal code to pass (green)
-4. **Refactor** - Clean up with tests passing
-5. **Commit** - With clear message linking to plan
-### 3. When Stuck (After 3 Attempts)
-**CRITICAL**: Maximum 3 attempts per issue, then STOP.
-1. **Document what failed**:   
-- What you tried   
-- Specific error messages   
-- Why you think it failed
-2. **Research alternatives**:   
-- Find 2-3 similar implementations   
-- Note different approaches used
-3. **Question fundamentals**:   
-- Is this the right abstraction level?   
-- Can this be split into smaller problems?   
-- Is there a simpler approach entirely?
-4. **Try different angle**:   
-- Different library/framework feature?   
-- Different architectural pattern?   
-- Remove abstraction instead of adding?
-## Technical Standards
-### Architecture Principles
-- **Composition over inheritance**
- - Use dependency injection
-- **Interfaces over singletons**
- - Enable testing and flexibility
-- **Explicit over implicit**
- - Clear data flow and dependencies
-- **Test-driven when possible**
- - Never disable tests, fix them
-### Code Quality
-- **Every commit must**:
-  - Compile successfully
-  - Pass all existing tests
-  - Include tests for new functionality
-  - Follow project formatting/linting
-- **Before committing**:
-  - Run formatters/linters
-  - Self-review changes
-  - Ensure commit message explains "why"
-### Error Handling
-- Fail fast with descriptive messages
-- Include context for debugging
-- Handle errors at appropriate level
-- Never silently swallow exceptions
-## Decision Framework
-When multiple valid approaches exist, choose based on:
-1. **Testability** - Can I easily test this?
-2. **Readability** - Will someone understand this in 6 months?
-3. **Consistency** - Does this match project patterns?
-4. **Simplicity** - Is this the simplest solution that works?
-5. **Reversibility** - How hard to change later?
-## Project Integration
-### Learning the Codebase
-- Find 3 similar features/components
-- Identify common patterns and conventions
-- Use same libraries/utilities when possible
-- Follow existing test patterns
-### Tooling
-- Use project's existing build system
-- Use project's test framework
-- Use project's formatter/linter settings
-- Don't introduce new tools without strong justification
-## Quality Gates
-### Definition of Done
-- [ ] Tests written and passing
-- [ ] Code follows project conventions
-- [ ] No linter/formatter warnings
-- [ ] Commit messages are clear
-- [ ] Implementation matches plan
-- [ ] No TODOs without issue numbers
-### Test Guidelines
-- Test behavior, not implementation
-- One assertion per test when possible
-- Clear test names describing scenario
-- Use existing test utilities/helpers
-- Tests should be deterministic
-## Important Reminders
-**NEVER**:
-- Use `--no-verify` to bypass commit hooks
-- Disable tests instead of fixing them
-- Commit code that doesn't compile
-- Make assumptions - verify with existing code
-**ALWAYS**:
-- Commit working code incrementally
-- Update plan documentation as you go
-- Learn from existing implementations
-- Stop after 3 failed attempts and reassess
-- Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCPtools to resolve library id and get library docs without me having to explicitly ask.
-
-### Brainstorming and Debating Guidelines
-
-#### **Effective Brainstorming Session**
-**Purpose**: Generate diverse approaches before settling on a solution
-
-**Process**:
-1. **Divergent Thinking**: Generate as many approaches as possible without judgment
-2. **Consider Multiple Dimensions**:
-   - Technical approaches (different patterns, libraries, architectures)
-   - Implementation strategies (phased vs. big-bang, monolithic vs. modular)
-   - User experience considerations
-   - Maintenance and scalability implications
-3. **Document All Ideas**: Capture every approach with brief pros/cons
-4. **Encourage Creativity**: Consider unconventional solutions that might reveal new insights
-
-**Brainstorming Output Format**:
-```markdown
-## Brainstorming: [Decision Name]
-
-### Approach 1: [Approach Name]
-- **Description**: Brief description of the approach
-- **Pros**: List of advantages
-- **Cons**: List of disadvantages
-- **Risks**: Potential risks and challenges
-- **Best For**: Situations where this approach excels
-
-### Approach 2: [Alternative Approach]
-- **Description**: Brief description of the approach
-- **Pros**: List of advantages
-- **Cons**: List of disadvantages
-- **Risks**: Potential risks and challenges
-- **Best For**: Situations where this approach excels
-
-### Approach 3: [Another Alternative]
-- ... continue for all approaches considered
-```
-
-#### **Structured Debating Session**
-**Purpose**: Critical evaluation of approaches through systematic comparison
-
-**Process**:
-1. **Establish Criteria**: Define evaluation criteria relevant to the decision
-   - Technical complexity and risk
-   - Implementation time and effort
-   - Maintenance burden
-   - Scalability and performance
-   - Alignment with project goals
-   - User impact
-
-2. **Systematic Comparison**: Compare each approach against all criteria
-3. **Challenge Assumptions**: Question underlying assumptions for each approach
-4. **Identify Hidden Risks**: Look for risks that might not be immediately obvious
-5. **Consider Context**: Evaluate approaches based on specific project constraints
-
-**Debating Output Format**:
-```markdown
-## Debating Session: [Decision Name]
-
-### Evaluation Criteria
-- **Technical Risk**: [Description of what this means for the decision]
-- **Implementation Complexity**: [Description]
-- **Maintenance Impact**: [Description]
-- **Scalability**: [Description]
-- **User Experience**: [Description]
-
-### Approach Comparison Matrix
-| Approach | Technical Risk | Complexity | Maintenance | Scalability | UX | Overall Score |
-|----------|----------------|------------|-------------|-------------|----|--------------|
-| Approach 1 | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | [Score] |
-| Approach 2 | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | High/Medium/Low | [Score] |
-
-### Key Debating Points
-- **Point 1**: [Critical discussion point with resolution]
-- **Point 2**: [Another critical discussion point with resolution]
-- **Point 3**: [Additional point where approaches differ significantly]
-
-### Risk Analysis
-- **Approach 1 Risks**: [Specific risks with mitigation strategies]
-- **Approach 2 Risks**: [Specific risks with mitigation strategies]
-
-### Final Recommendation
-- **Selected Approach**: [Which approach and why]
-- **Key Reasons**: [Top 3 reasons for this choice]
-- **Mitigation Strategy**: [How we'll address the chosen approach's risks]
-```
-
-#### **Integration with Plan Phase**
-**Enhanced Plan Presentation**:
-When presenting plan for user approval, include:
-1. **Brainstorming Summary**: Brief overview of approaches considered
-2. **Key Debating Points**: Most important trade-offs discussed
-3. **Decision Rationale**: Clear explanation of why chosen approach is optimal
-4. **Risk Mitigation**: How identified risks will be addressed
-
-### 2. Decision Classification
+### Decision Classification
 
 **Trivial Decisions** (Direct Implementation):
 - Simple bug fixes with clear solutions
@@ -228,7 +20,7 @@ When presenting plan for user approval, include:
 - Single-file refactorings that don't affect interfaces
 - Configuration value updates
 
-**Non-Trivial Decisions**:
+**Non-Trivial Decisions** (Require Planning):
 - Adding new workflow steps or modes
 - Changing API interfaces or data models
 - Modifying core workflow orchestration
@@ -237,19 +29,190 @@ When presenting plan for user approval, include:
 - Architectural refactoring
 - New feature implementations
 
-### Key Configuration Files
-- `config/default.yaml`: Main workflow configuration
-- `config/models.yaml`: Provider configurations
-- `config/wechat.yaml`: WeChat Official Account integration
-- `config/repository.yaml`: Central Repository and WebUI configurations
+For non-trivial decisions, use TodoWrite to create structured task plans and get approval before implementation.
+
+## Project Structure
+
+### Core Architecture
+
+#### CLI and Core Translation System
+```
+src/vpsweb/
+├── core/                    # Workflow orchestration
+│   ├── workflow.py          # Main 3-step T-E-T workflow
+│   └── executor.py          # Step execution engine
+├── models/                  # Pydantic data models
+│   ├── translation.py       # Translation workflow models
+│   └── config.py           # Configuration models
+├── services/                # External service integrations
+│   ├── llm/               # LLM provider abstractions
+│   │   ├── base.py        # Base provider interface
+│   │   ├── factory.py     # Provider factory
+│   │   └── openai_compatible.py  # OpenAI-compatible provider
+│   ├── parser.py          # XML output parsing
+│   └── prompts.py         # Prompt management
+├── utils/                   # Utilities
+│   ├── config_loader.py   # Configuration loading
+│   ├── storage.py         # File operations
+│   └── logger.py          # Logging configuration
+└── __main__.py             # CLI entry point
+```
+
+#### Web Application and Repository System (v0.3+)
+```
+src/vpsweb/
+├── webui/                   # FastAPI web application
+│   ├── main.py             # FastAPI app entry point with SSE streaming
+│   ├── api/                # REST API routers
+│   │   ├── poems.py        # Poem management endpoints
+│   │   ├── translations.py # Translation management endpoints
+│   │   └── statistics.py   # Statistics and analytics endpoints
+│   ├── templates/          # Jinja2 HTML templates
+│   │   ├── base.html       # Base template with Tailwind CSS
+│   │   ├── dashboard.html  # Main dashboard
+│   │   └── poems/          # Poem management pages
+│   └── static/             # Static assets (CSS, JS)
+├── repository/              # Database layer and services
+│   ├── database.py         # SQLAlchemy async database setup
+│   ├── models.py           # Database ORM models (4-table schema)
+│   │   ├── poems.py        # Poem data model
+│   │   ├── translations.py # Translation data model
+│   │   ├── ai_logs.py      # AI execution logs
+│   │   └── human_notes.py  # Human annotations
+│   ├── service.py          # Repository business logic
+│   └── migrations/         # Alembic database migrations
+└── utils/
+    └── article_generator.py # WeChat article generation
+```
+
+### Key Architectural Patterns
+- **3-Step Workflow**: Initial Translation → Editor Review → Translator Revision
+- **Provider Abstraction**: Factory pattern for LLM provider flexibility
+- **YAML Configuration**: Structured configuration with environment-specific overrides
+- **Async Processing**: Full async/await support throughout the stack
+- **FastAPI + SQLAlchemy 2.0**: Modern async web framework with async ORM
+- **Dual Storage Strategy**: SQLite database for structured data + file system for AI outputs
+- **SSE Streaming**: Real-time workflow progress updates via Server-Sent Events
+- **Modular Routing**: Separate API routers for different domain areas
+
+## Essential Development Commands
+
+### Environment Setup
+```bash
+./scripts/setup.sh                     # Automated environment setup
+poetry install                          # Install dependencies
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"  # Required for src layout
+```
+
+### Database and Server
+```bash
+./scripts/setup-database.sh init       # Initialize database
+./scripts/start.sh                     # Start FastAPI server (localhost:8000)
+./scripts/stop.sh                      # Stop server
+```
+
+### Quality Checks
+```bash
+./dev-check.sh                         # Run all quality checks
+poetry run pytest tests/               # Run tests
+```
+
+### Core Usage
+```bash
+vpsweb translate -i poem.txt -s English -t Chinese -w hybrid  # Translation
+vpsweb generate-article -j translation.json                   # WeChat articles
+```
+
+**Pre-commit validation**: `poetry run black --check src/ tests/ && poetry run pytest tests/`
+
+
+## Project-Specific Conventions
+
+### Output File Organization
+- **Directory**: `outputs/json/` and `outputs/markdown/`
+- **Naming**: `{author}_{title}_{source_target}_{mode}_{date}_{hash}.{format}`
+- **Examples**: `陶渊明_歸園田居_chinese_english_hybrid_20251012_184234_81e865f8.json`
+- **Key Features**: Poet-first naming, no prefixes, log files with "log" suffix
+
+## LLM Provider Integration
+
+### Supported Providers
+- **Tongyi (Alibaba Cloud)**: Production ready, qwen-max models
+- **DeepSeek**: Advanced reasoning, deepseek-reasoner models
+- **OpenAI-Compatible**: Extensible framework for additional providers
+
+### Adding New Providers
+1. Create new provider class inheriting from `BaseLLMProvider`
+2. Implement required methods: `generate()`, `get_provider_name()`
+3. Update `factory.py` to include new provider
+4. Add configuration in `models.yaml`
+5. Test integration with existing workflow
+
+**See [docs/api-patterns.md](docs/api-patterns.md) for detailed integration guidance.**
+
+## Repository System Architecture (v0.3+)
+
+### Database Design
+- **4-Table Schema**: poems → translations → ai_logs → human_notes
+- **Async SQLAlchemy 2.0**: Full async/await ORM with cascade operations
+- **Dual Storage**: SQLite for structured data + file system for AI outputs
+- **File Organization**: Poet-based subdirectory structure
 
 ### Configuration Structure
-- YAML format for readability
-- Environment variable substitution using `${VAR_NAME}` syntax
-- Pydantic model validation
-- Support for workflow modes: reasoning, non_reasoning, hybrid
+- YAML configuration files with environment variable substitution
+- Three workflow modes: reasoning, non_reasoning, hybrid
+- Automatic model classification (reasoning vs non-reasoning)
+- Key files: `config/default.yaml`, `config/models.yaml`, `config/repository.yaml`
 
 ## Quick References
 
 ### Release Management
 🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
+
+**Essential Steps**:
+1. Create backup: `./save-version.sh X.Y.Z`
+2. Update versions in 3 files + documentation
+3. Commit and push to main
+4. Create release: `./push-version.sh X.Y.Z "notes"`
+5. Verify release on GitHub
+
+### Emergency Procedures
+```bash
+# List local backup versions
+git tag -l "*local*"
+
+# Restore specific version
+git checkout v0.2.0-local-2025-10-05
+```
+
+### Key Architectural Patterns
+
+#### FastAPI Web Application (v0.3+)
+- **SSE Streaming**: Real-time workflow progress via Server-Sent Events
+- **Dependency Injection**: Service layer with async database sessions
+- **Modular Routing**: Separate API routers for poems, translations, statistics
+- **Task Tracking**: In-memory task management via FastAPI app.state
+
+#### Async Database Patterns
+- Service layer pattern with dependency injection
+- Async session management with proper cleanup
+- Cascade operations for related data integrity
+
+### Specialized Documentation
+- **WeChat Integration**: [docs/wechat-integration.md](docs/wechat-integration.md)
+- **API Patterns**: [docs/api-patterns.md](docs/api-patterns.md)
+- **Testing**: [docs/testing.md](docs/testing.md)
+- **Future Development**: [docs/future-development.md](docs/future-development.md)
+
+---
+## Important Reminders
+**NEVER**:
+- Claim success before new written code passing tests
+**ALWAYS**:
+- Commit working code incrementally
+- Update plan documentation as you go
+- Learn from existing implementations
+- Stop after 3 failed attempts and reassess
+- Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.
+
+**IMPORTANT**: This guide serves as the canonical reference for Claude Code development on VPSWeb. Focus on project-specific architectural patterns and conventions that aren't discoverable from the code structure itself.

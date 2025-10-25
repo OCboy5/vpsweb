@@ -27,6 +27,7 @@ from vpsweb.utils.language_mapper import get_language_mapper
 
 from .poem_service import PoemService
 from .translation_service import TranslationService
+from ..task_models import TaskStatusEnum
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult
 from vpsweb.repository.database import create_session
@@ -363,23 +364,25 @@ class VPSWebWorkflowAdapter:
         synchronous: bool = False,
     ) -> Dict[str, Any]:
         """
-        Execute VPSWeb translation workflow for a poem.
+        Execute VPSWeb translation workflow for a poem with real-time SSE progress updates.
 
         Args:
             poem_id: ID of the poem to translate
             source_lang: Source language code
             target_lang: Target language code
             workflow_mode: Workflow mode (reasoning, non_reasoning, hybrid)
-            background_tasks: FastAPI BackgroundTasks for async execution
-            synchronous: If True, execute synchronously and return result
+            background_tasks: FastAPI BackgroundTasks (kept for compatibility)
+            synchronous: If True, execute synchronously and return result (not implemented)
 
         Returns:
-            Dictionary with task info or result
+            Dictionary with task info for SSE tracking
 
         Raises:
             WorkflowExecutionError: If workflow execution fails
             ConfigurationError: If configuration is invalid
         """
+        logger.info(f"execute_translation_workflow called with poem_id={poem_id}, source_lang={source_lang}, target_lang={target_lang}, workflow_mode={workflow_mode}, synchronous={synchronous}")
+
         # Validate inputs
         if not poem_id:
             raise WorkflowExecutionError("Poem ID is required")
@@ -402,6 +405,7 @@ class VPSWebWorkflowAdapter:
 
         # Create task ID and initialize in app.state (no database storage for personal use system)
         task_id = str(uuid.uuid4())
+        logger.info(f"Created task ID: {task_id}")
 
         # Import task models for app.state initialization
         from ..task_models import TaskStatus as InMemoryTaskStatus, TaskStatusEnum
@@ -418,36 +422,21 @@ class VPSWebWorkflowAdapter:
         app.state.tasks[task_id] = task_status
         app.state.task_locks[task_id] = threading.Lock()
 
-        # Synchronous execution temporarily removed - focus on background task execution
-        # All translation workflows execute asynchronously for better user experience
+        # Execute workflows asynchronously with real-time progress callbacks
+        # This enables SSE streaming of step-by-step progress updates
 
-        # Add to background tasks using FastAPI BackgroundTasks system
-        if background_tasks:
-            # Use FastAPI BackgroundTasks - this is the correct approach
-            background_tasks.add_task(
-                self._execute_workflow_task_standalone,
+        # Use asyncio.create_task to run the new callback-based async function
+        # This runs the task concurrently on the main event loop, allowing real-time updates.
+        asyncio.create_task(
+            self._execute_workflow_task_with_callback(
                 task_id,
                 poem_id,
                 source_lang,
                 target_lang,
                 workflow_mode,
             )
-            print(
-                f"🚀 [DEBUG] Background task scheduled using STANDALONE approach for task_id: {task_id}"
-            )
-            logger.info(
-                f"Background task scheduled using STANDALONE approach for task_id: {task_id}"
-            )
-        else:
-            # Fallback: Execute as coroutine (this should not happen with proper FastAPI usage)
-            logger.warning(
-                "No background_tasks provided - falling back to direct coroutine execution"
-            )
-            asyncio.create_task(
-                self._execute_workflow_task_standalone(
-                    task_id, poem_id, source_lang, target_lang, workflow_mode
-                )
-            )
+        )
+        logger.info(f"Asynchronous workflow task {task_id} with callback has been scheduled.")
 
         return {
             "task_id": task_id,
@@ -455,7 +444,7 @@ class VPSWebWorkflowAdapter:
             "message": "Translation workflow started",
         }
 
-    def _execute_workflow_task_standalone(
+    async def _execute_workflow_task_with_callback(
         self,
         task_id: str,
         poem_id: str,
@@ -464,9 +453,9 @@ class VPSWebWorkflowAdapter:
         workflow_mode_str: str,
     ) -> None:
         """
-        Standalone background task execution that creates all its own resources.
-        This fixes the FastAPI 0.106.0+ BackgroundTasks issue by being completely self-contained.
-        Now uses FastAPI app.state for in-memory task tracking instead of database.
+        Asynchronous background task that uses a progress callback to provide real-time updates.
+        This method executes the translation workflow step-by-step and updates the task status
+        through the callback mechanism for real-time SSE streaming.
 
         Args:
             task_id: Workflow task ID
@@ -475,392 +464,300 @@ class VPSWebWorkflowAdapter:
             target_lang: Target language code
             workflow_mode_str: Workflow mode as string
         """
-        print(
-            f"🚀 [STANDALONE] Starting standalone task execution for task_id: {task_id}"
-        )
-
-        # Import everything needed to be self-contained
-        from src.vpsweb.repository.database import create_session
-        from src.vpsweb.repository.service import RepositoryWebService
-        from src.vpsweb.repository.schemas import TaskStatus
-        from vpsweb.models.config import WorkflowMode
-        from vpsweb.core.workflow import TranslationWorkflow
-        from vpsweb.models.translation import TranslationInput, Language
-        from ..task_models import TaskStatus as InMemoryTaskStatus, TaskStatusEnum
+        logger.info(f"Starting callback-based workflow task for task_id: {task_id}")
 
         # Get FastAPI app instance for app.state access
-        # Import from main to avoid circular imports
-        import sys
-        import os
-
-        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
         from ..main import app
 
-        try:
-            # Initialize task in app.state
-            task_status = InMemoryTaskStatus(task_id=task_id)
-            app.state.tasks[task_id] = task_status
-            app.state.task_locks[task_id] = threading.Lock()
+        # Get task status from app.state (should already be initialized)
+        task_status = app.state.tasks.get(task_id)
+        if not task_status:
+            logger.error(f"Task {task_id} not found in app.state for async execution.")
+            return
 
-            print(
-                f"✅ [STANDALONE] Task initialized in app.state for task_id: {task_id}"
+        # Define helper function to check if task was cancelled
+        def is_cancelled():
+            if task_id not in app.state.tasks:
+                return True
+            current_status = app.state.tasks[task_id]
+            return current_status.status.value == "failed" and "cancelled" in str(current_status.message).lower()
+
+        # Check if task was cancelled before starting
+        if is_cancelled():
+            print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before execution started")
+            logger.info(f"Task {task_id} was cancelled before execution started.")
+            return
+
+        logger.info(f"✅ [CALLBACK ENTRY] Task status found for task_id: {task_id}")
+
+        try:
+            # Define the async callback function that updates the task state
+            async def progress_callback(step_name: str, details: dict):
+                # Skip updates if task is already completed or failed (including cancelled)
+                current_task_status = app.state.tasks.get(task_id)
+                if not current_task_status or current_task_status.status in ["completed", "failed"]:
+                    return
+
+                # Skip progress updates if task was cancelled
+                if current_task_status.status.value == "failed" and "cancelled" in str(current_task_status.message).lower():
+                    print(f"[PROGRESS] Task {task_id} was cancelled, skipping progress updates")
+                    return
+
+                with app.state.task_locks[task_id]:
+                    # Calculate progress percentage based on step
+                    progress_map = {
+                        "Initial Translation": 33,      # 1/3
+                        "Editor Review": 67,            # 2/3 (updated from 66% for mathematical accuracy)
+                        "Translator Revision": 100     # 3/3
+                    }
+
+                    # Update the current step and mark it appropriately
+                    step_state = details.get("status", "running")
+
+                    if step_state == "completed":
+                        current_task_status.update_step(
+                            step_name=step_name,
+                            step_details={"step_status": "completed", **details},
+                            step_state="completed"
+                        )
+                        # Set progress to the current step's completion level
+                        current_task_status.progress = progress_map.get(step_name, 0)
+                        print(f"[PROGRESS] Step '{step_name}' completed - progress: {current_task_status.progress}%")
+                    elif step_state == "failed":
+                        current_task_status.update_step(
+                            step_name=step_name,
+                            step_details={"step_status": "failed", **details},
+                            step_state="failed"
+                        )
+                    else:  # running
+                        current_task_status.update_step(
+                            step_name=step_name,
+                            step_details={"step_status": "running", **details},
+                            step_state="running"
+                        )
+                        # For running steps, show progress corresponding to the previous step's completion
+                        # This ensures running steps show their task completion progress, not 100%
+                        if step_name == "Initial Translation":
+                            # Initial Translation just started, show 0%
+                            current_task_status.progress = 0
+                        elif step_name == "Editor Review":
+                            # Editor Review is running, show Initial Translation completion (33%)
+                            current_task_status.progress = 33
+                        elif step_name == "Translator Revision":
+                            # Translator Revision is running, show Editor Review completion (67%)
+                            current_task_status.progress = 67
+                        else:
+                            # Fallback to step-specific progress
+                            current_task_status.progress = progress_map.get(step_name, 0)
+                        print(f"[PROGRESS] Step '{step_name}' running - progress: {current_task_status.progress}%")
+
+                # Yield control to the event loop so the SSE stream can send the update
+                await asyncio.sleep(0.01)
+
+            with app.state.task_locks[task_id]:
+                # Set task as running with the first step already initialized
+                task_status.status = TaskStatusEnum.RUNNING
+                task_status.started_at = datetime.now()
+                task_status.current_step = "Initial Translation"
+                task_status.step_details = {"provider": "AI", "step_status": "running"}
+                task_status.step_states = {"Initial Translation": "running"}
+                task_status.message = "Initializing workflow..."
+                task_status.updated_at = datetime.now()
+
+            # Setup workflow (poem retrieval, input creation, etc.)
+            from src.vpsweb.repository.database import create_session
+            from src.vpsweb.repository.service import RepositoryWebService
+            from vpsweb.models.config import WorkflowMode
+            from vpsweb.models.translation import TranslationInput, Language
+
+            db = create_session()
+            poem = RepositoryWebService(db).get_poem(poem_id)
+            db.close()
+
+            if not poem:
+                raise ValueError(f"Poem not found: {poem_id}")
+
+            translation_input = TranslationInput(
+                original_poem=poem.original_text,
+                source_lang=(
+                    Language.CHINESE
+                    if poem.source_language.startswith("zh")
+                    else Language.ENGLISH
+                ),
+                target_lang=(
+                    Language.ENGLISH if target_lang == "en" else Language.CHINESE
+                ),
+                metadata={
+                    "id": poem.id,
+                    "title": poem.poem_title,
+                    "author": poem.poet_name,
+                },
             )
 
-            # Update status to running
-            with app.state.task_locks[task_id]:
-                task_status.set_running("Translation workflow started")
-                print(
-                    f"🔄 [STANDALONE] Status updated to 'running' for task_id: {task_id}"
-                )
-
-            # Create database session for poem retrieval only
-            db = create_session()
+            # Parse workflow mode
             try:
-                repository_service = RepositoryWebService(db)
-                print(
-                    f"✅ [STANDALONE] DB session created for poem retrieval for task_id: {task_id}"
-                )
+                workflow_mode = WorkflowMode(workflow_mode_str)
+            except ValueError:
+                workflow_mode = WorkflowMode.HYBRID  # fallback
+                logger.warning(f"Invalid workflow mode '{workflow_mode_str}', using HYBRID")
 
-                # Retrieve poem data
-                poem = repository_service.get_poem(poem_id)
-                if not poem:
-                    raise ValueError(f"Poem not found: {poem_id}")
-
-                # Create TranslationInput object for the workflow
-                translation_input = TranslationInput(
-                    original_poem=poem.original_text,
-                    source_lang=(
-                        Language.CHINESE
-                        if poem.source_language.startswith("zh")
-                        else Language.ENGLISH
-                    ),
-                    target_lang=(
-                        Language.ENGLISH if target_lang == "en" else Language.CHINESE
-                    ),
-                    metadata={
-                        "id": poem.id,
-                        "title": poem.poem_title,
-                        "author": poem.poet_name,
-                    },
-                )
-
-                print(
-                    f"📄 [STANDALONE] Poem retrieved: {poem.poem_title} for task_id: {task_id}"
-                )
-
-                # Parse workflow mode
-                try:
-                    workflow_mode = WorkflowMode(workflow_mode_str)
-                except ValueError:
-                    workflow_mode = WorkflowMode.HYBRID  # fallback
-                    print(
-                        f"⚠️ [STANDALONE] Invalid workflow mode '{workflow_mode_str}', using HYBRID"
-                    )
-
-                # Get workflow (recreate configuration)
-                asyncio.run(self._load_configuration())
-                system_config = {
-                    "system": {
-                        "preview_lengths": {
-                            "input_preview": 100,
-                            "response_preview": 100,
-                            "editor_preview": 200,
-                        }
+            # Get workflow (recreate configuration)
+            await self._load_configuration()
+            system_config = {
+                "system": {
+                    "preview_lengths": {
+                        "input_preview": 100,
+                        "response_preview": 100,
+                        "editor_preview": 200,
                     }
                 }
+            }
 
-                workflow = TranslationWorkflow(
-                    config=self._workflow_config,
-                    providers_config=self._providers_config,
-                    workflow_mode=workflow_mode,
-                    system_config=system_config,
-                )
-                print(f"✅ [STANDALONE] Workflow created for task_id: {task_id}")
+            workflow = TranslationWorkflow(
+                config=self._workflow_config,
+                providers_config=self._providers_config,
+                workflow_mode=workflow_mode,
+                system_config=system_config,
+            )
 
-                # Execute translation workflow with step progress tracking
-                with app.state.task_locks[task_id]:
-                    task_status.update_step(
-                        step_name="Initial Translation",
-                        step_details={"provider": "AI", "mode": workflow_mode_str},
-                        step_percent=0,
-                        message="Starting initial translation...",
-                        step_state="running",
-                    )
-                    print(
-                        f"📝 [STANDALONE] Step updated to 'Initial Translation' (running) for task_id: {task_id}"
-                    )
+            # CRITICAL: Assign our callback to the workflow instance
+            workflow.progress_callback = progress_callback
 
-                # Update progress during translation execution
-                try:
-                    # Step 1: Initial Translation in progress
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Initial Translation",
-                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "running"},
-                            message="AI is generating initial translation...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 1 started (running) for task_id: {task_id}"
-                        )
+            # Check if task was cancelled before executing workflow
+            if is_cancelled():
+                print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED before workflow execution")
+                logger.info(f"Task {task_id} was cancelled before workflow execution.")
+                return
 
-                    translation_result = asyncio.run(
-                        workflow.execute(translation_input)
-                    )
-                    print(
-                        f"✅ [STANDALONE] Translation completed for task_id: {task_id}"
-                    )
+            # Now, execute the workflow as a single, encapsulated unit
+            # The progress callback will handle real-time SSE updates
+            print(f"[WORKFLOW] Starting workflow execution for task {task_id}")
 
-                    # Step 1 Complete
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Initial Translation",
-                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "completed"},
-                            message="Initial translation completed successfully",
-                            step_state="completed",
-                        )
-                        print(
-                            f"✅ [STANDALONE] Step 1 completed for task_id: {task_id}"
-                        )
+            try:
+                final_result = await workflow.execute(translation_input, show_progress=False)
+            except Exception as e:
+                # Check if the workflow was cancelled during execution
+                if is_cancelled():
+                    print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED during workflow execution")
+                    logger.info(f"Task {task_id} was cancelled during workflow execution.")
+                    return
+                else:
+                    # Re-raise the exception if it's not due to cancellation
+                    raise e
 
-                    # Small delay to ensure SSE detects the completion
-                    time.sleep(0.3)
+            # Final cancellation check after workflow execution
+            if is_cancelled():
+                print(f"[WORKFLOW] ❌ Task {task_id} was CANCELLED after workflow execution")
+                logger.info(f"Task {task_id} was cancelled after workflow execution.")
+                return
 
-                    # Step 2 Begin: Editor Review
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Editor Review",
-                            step_details={
-                                "provider": "Deepseek",
-                                "mode": "reasoning",
-                                "step_status": "running",
-                            },
-                            message="Editor review in progress...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 2 started (running) for task_id: {task_id}"
-                        )
+            print(f"[WORKFLOW] Workflow execution completed for task {task_id}")
 
-                    # Execute Editor Review
-                    editor_result = translation_result  # This would normally be editor review result
-                    print(
-                        f"✅ [STANDALONE] Editor review completed for task_id: {task_id}"
-                    )
+            with app.state.task_locks[task_id]:
+                task_status.set_completed(result=final_result.to_dict(), message="Workflow completed successfully.")
+                # Ensure final progress is 100%
+                task_status.progress = 100
+                print(f"[TASK STATUS] Task marked as completed for task {task_id} - progress: 100%")
 
-                    # Step 2 Complete, Step 3 Begin: Translator Revision
-                    with app.state.task_locks[task_id]:
-                        # Mark Step 2 as completed
-                        task_status.update_step(
-                            step_name="Editor Review",
-                            step_details={
-                                "provider": "Deepseek",
-                                "mode": "reasoning",
-                                "step_status": "completed",
-                            },
-                            message="Editor review completed successfully",
-                            step_state="completed",
-                        )
-
-                    # Small delay to ensure SSE detects Step 2 completion
-                    time.sleep(0.3)
-
-                    # Start Step 3
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translator Revision",
-                            step_details={
-                                "provider": "AI",
-                                "mode": "revision",
-                                "step_status": "running",
-                            },
-                            message="Translator revision in progress...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 2 completed, Step 3 started (running) for task_id: {task_id}"
-                        )
-
-                    # Execute Translator Revision (simulate for now)
-                    final_result = translation_result  # This would normally be revision result
-                    print(
-                        f"✅ [STANDALONE] Translator revision completed for task_id: {task_id}"
-                    )
-
-                    # Step 3 Complete: Mark as completed
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translator Revision",
-                            step_details={
-                                "provider": "AI",
-                                "mode": "revision",
-                                "step_status": "completed",
-                            },
-                            message="Translator revision completed successfully",
-                            step_state="completed",
-                        )
-                        print(
-                            f"✅ [STANDALONE] Step 3 completed for task_id: {task_id}"
-                        )
-
-                    # Update step progress for completed workflow
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translation Complete",
-                            step_details={
-                                "total_tokens": translation_result.total_tokens,
-                                "duration_seconds": translation_result.duration_seconds,
-                                "workflow_id": translation_result.workflow_id,
-                            },
-                            step_percent=100,
-                            message="Translation workflow completed successfully",
-                        )
-                        task_status.set_progress(100, "Translation completed!")
-                        print(
-                            f"✅ [STANDALONE] Final step update for task_id: {task_id}"
-                        )
-
-                except Exception as workflow_error:
-                    print(
-                        f"❌ [STANDALONE] Workflow execution error for task_id: {task_id}: {workflow_error}"
-                    )
-                    # Update error status in app.state
-                    try:
-                        if hasattr(app.state, "tasks") and task_id in app.state.tasks:
-                            with app.state.task_locks[task_id]:
-                                app.state.tasks[task_id].set_failed(
-                                    error=str(workflow_error),
-                                    message=f"Translation workflow failed: {str(workflow_error)}",
-                                )
-                                print(
-                                    f"❌ [STANDALONE] Error status updated in app.state for task_id: {task_id}"
-                                )
-                    except Exception as app_state_error:
-                        print(
-                            f"❌ [STANDALONE] Failed to update app.state error status for task_id {task_id}: {str(app_state_error)}"
-                        )
-                    raise
-
-                # Save result (convert TranslationOutput to JSON-serializable dict)
-                def serialize_model(model):
-                    """Convert Pydantic model to JSON-serializable dict"""
-                    if hasattr(model, "dict"):
-                        data = model.dict()
-                    else:
-                        data = model
-
-                    # Convert datetime objects to ISO strings
-                    def convert_datetimes(obj):
-                        if isinstance(obj, dict):
-                            return {k: convert_datetimes(v) for k, v in obj.items()}
-                        elif isinstance(obj, list):
-                            return [convert_datetimes(item) for item in obj]
-                        elif hasattr(obj, "isoformat"):
-                            return obj.isoformat()
-                        else:
-                            return obj
-
-                    return convert_datetimes(data)
-
-                result_dict = {
-                    "workflow_id": translation_result.workflow_id,
-                    "input": serialize_model(translation_result.input),
-                    "initial_translation": serialize_model(
-                        translation_result.initial_translation
-                    ),
-                    "editor_review": serialize_model(translation_result.editor_review),
-                    "revised_translation": serialize_model(
-                        translation_result.revised_translation
-                    ),
-                    "full_log": translation_result.full_log,
-                    "total_tokens": translation_result.total_tokens,
-                    "duration_seconds": translation_result.duration_seconds,
+                # Ensure all step states are properly set to completed for final UI update
+                task_status.step_states = {
+                    "Initial Translation": "completed",
+                    "Editor Review": "completed",
+                    "Translator Revision": "completed"
                 }
-                # Update status to completed with 100% progress in app.state
-                with app.state.task_locks[task_id]:
-                    task_status.set_completed(
-                        result=result_dict,
-                        message="Translation workflow completed successfully",
-                    )
-                    print(
-                        f"✅ [STANDALONE] Status updated to 'completed' (100%) in app.state for task_id: {task_id}"
-                    )
+                print(f"[STEP STATES] Final step states updated: all steps marked as completed")
 
-                # Save translation result to database
-                try:
-                    from src.vpsweb.repository.schemas import (
-                        TranslationCreate,
-                        TranslatorType,
-                    )
+            # Save the final result to the database
+            print(f"[DB SAVE] Starting database save for task {task_id}")
+            try:
+                # We need to get the poem_id and other details from the original input data
+                # since workflow tasks are stored in memory, not the database
+                poem_id = translation_input.metadata.get("id")
+                if not poem_id:
+                    print(f"[DB SAVE] ❌ No poem_id found in translation input metadata")
+                    return
 
-                    translation_service = db
-                    from src.vpsweb.repository.service import RepositoryWebService
+                print(f"[DB SAVE] Using poem_id from input: {poem_id}")
 
-                    repository_service = RepositoryWebService(translation_service)
+                # Map workflow output to repository format
+                translation_data = self._map_workflow_output_to_repository(
+                    final_result, poem_id, workflow_mode.value
+                )
+                print(f"[DB SAVE] Mapped workflow output to repository format")
 
-                    # Create TranslationCreate schema from result_dict
-                    # Use the revised_translation as the final translated_text, fallback to initial_translation
-                    revised = result_dict.get("revised_translation")
-                    initial = result_dict.get("initial_translation", "")
+                # Create database session and save translation
+                db = create_session()
+                repository_service = RepositoryWebService(db)
 
-                    # Handle case where translation fields might be dictionaries
-                    if isinstance(revised, dict):
-                        # Try different possible keys for translation text
-                        # Based on analysis, the actual text is nested under 'revised_translation' key
-                        final_translation = (
-                            revised.get("revised_translation")  # Nested structure
-                            or revised.get("translation")
-                            or revised.get("text")
-                            or revised.get("content")
-                            or revised.get("result")
-                            or str(revised)
-                        )
-                    elif isinstance(revised, str):
-                        final_translation = revised
-                    else:
-                        final_translation = str(revised) if revised else initial
+                # Get source and target languages from input and convert to proper format
+                source_lang_raw = translation_input.source_lang.value if hasattr(translation_input.source_lang, 'value') else str(translation_input.source_lang)
+                target_lang_raw = translation_input.target_lang.value if hasattr(translation_input.target_lang, 'value') else str(translation_input.target_lang)
 
-                    translation_create = TranslationCreate(
-                        poem_id=poem_id,
-                        translator_type=TranslatorType.AI,
-                        translator_info="AI Workflow",
-                        target_language=target_lang,
-                        translated_text=final_translation,
-                        metadata={
-                            "workflow_mode": workflow_mode_str,
-                            "workflow_id": result_dict.get("workflow_id"),
-                            "total_tokens": result_dict.get("total_tokens", 0),
-                            "duration_seconds": result_dict.get("duration_seconds", 0),
-                            "full_log": result_dict.get("full_log", ""),
-                            "source_content": result_dict.get("input", {}).get(
-                                "content", ""
-                            ),
-                            "initial_translation": result_dict.get(
-                                "initial_translation", ""
-                            ),
-                            "editor_review": result_dict.get("editor_review", ""),
-                            "revised_translation": result_dict.get(
-                                "revised_translation", ""
-                            ),
-                        },
-                    )
+                # Convert language names to ISO codes using the same mapping as the repository
+                lang_map = {
+                    "english": "en",
+                    "chinese": "zh-CN",
+                    "french": "fr",
+                    "spanish": "es",
+                    "german": "de",
+                    "italian": "it",
+                    "portuguese": "pt",
+                    "korean": "ko",
+                    "russian": "ru",
+                    "japanese": "ja"
+                }
 
-                    # Save translation to database
-                    repository_service.create_translation(translation_create)
-                    print(
-                        f"💾 [STANDALONE] Translation result saved to database for task_id: {task_id}"
-                    )
+                source_lang = lang_map.get(source_lang_raw.lower(), source_lang_raw)
+                target_lang = lang_map.get(target_lang_raw.lower(), target_lang_raw)
 
-                except Exception as db_save_error:
-                    print(
-                        f"⚠️ [STANDALONE] Failed to save translation to database for task_id {task_id}: {str(db_save_error)}"
-                    )
-                    # Don't fail the workflow, just log the error since app.state has the result
+                print(f"[DB SAVE] Language codes converted: {source_lang_raw}->{source_lang}, {target_lang_raw}->{target_lang}")
 
-            finally:
-                # Always close the database session
+                print(f"[DB SAVE] Creating translation with poem_id: {poem_id}, {source_lang}->{target_lang}")
+
+                # Save translation to database using RepositoryWebService
+                print(f"[DB SAVE] About to create translation...")
+
+                # Import the required schema classes
+                from vpsweb.repository.schemas import TranslationCreate, TranslatorType
+
+                # Create TranslationCreate object with proper schema
+                # The final translation is stored as 'revised_translation' in the mapped data
+                final_translation = translation_data.get('revised_translation', '')
+                if not final_translation or len(final_translation.strip()) < 10:
+                    # Fallback to initial translation if revised translation is empty
+                    final_translation = translation_data.get('initial_translation', '')
+
+                print(f"[DB SAVE] Final translation length: {len(final_translation)} characters")
+
+                translation_create = TranslationCreate(
+                    poem_id=poem_id,
+                    source_language=source_lang,
+                    target_language=target_lang,
+                    translated_text=final_translation,
+                    translator_type=TranslatorType.AI,  # Use proper enum value
+                    translator_info='qwen-max',  # Use actual model name
+                    quality_rating=translation_data.get('quality_rating', None),  # Fixed field name
+                    metadata=translation_data
+                )
+
+                print(f"[DB SAVE] Created TranslationCreate object with {len(translation_create.translated_text)} characters")
+                saved_translation = repository_service.create_translation(translation_create)
+                print(f"[DB SAVE] ✅ Translation created with ID: {saved_translation.id}")
+
                 db.close()
-                print(f"🔒 [STANDALONE] Database session closed for task_id: {task_id}")
+                print(f"[DB SAVE] Database connection closed")
+
+            except Exception as db_error:
+                print(f"[DB SAVE] ❌ Failed to save translation to database: {db_error}")
+                import traceback
+                traceback.print_exc()
+                # Don't fail the task, just log the error
+
+        except Exception as e:
+            logger.error(f"Error in callback-based workflow task {task_id}: {e}", exc_info=True)
+            if task_status:
+                with app.state.task_locks[task_id]:
+                    task_status.set_failed(error=str(e), message="The workflow encountered an error.")
 
         except Exception as e:
             print(
@@ -1228,22 +1125,13 @@ class VPSWebWorkflowAdapter:
         repository_service: "RepositoryWebService",
     ) -> Dict[str, Any]:
         """
-        Execute the actual workflow task with provided services.
+        Execute workflow task with separate service instances.
 
-        Args:
-            task_id: Unique task identifier
-            poem: Poem data from repository
-            workflow_mode: Workflow mode to use
-            poem_service: Fresh poem service with isolated database session
-            translation_service: Fresh translation service with isolated database session
-            repository_service: Fresh repository service with isolated database session
-
-        Returns:
-            Task result with translation data
-
-        Raises:
-            WorkflowExecutionError: If execution fails
+        This method creates fresh service instances to avoid session conflicts.
         """
+        print(f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}")
+        logger.info(f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}")
+
         # Get task from database
         db_task = repository_service.get_workflow_task(task_id)
         if not db_task:
