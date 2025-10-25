@@ -116,6 +116,12 @@ class RepositoryWebService:
     def delete_poem(self, poem_id: str) -> bool:
         """Delete a poem and all related data"""
         try:
+            # First, delete all related translations manually (cascade delete)
+            translations = self.repo.translations.get_by_poem(poem_id)
+            for translation in translations:
+                self.repo.translations.delete(translation.id)
+
+            # Then delete the poem
             return self.repo.poems.delete(poem_id)
         except Exception as e:
             raise self._handle_error("Failed to delete poem", e)

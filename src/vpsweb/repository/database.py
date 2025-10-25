@@ -5,7 +5,7 @@ SQLite database setup with SQLAlchemy ORM configuration.
 Provides database session management and initialization utilities.
 """
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from sqlalchemy.pool import StaticPool
 from .settings import settings
@@ -21,6 +21,23 @@ engine = create_engine(
     poolclass=StaticPool,  # Use StaticPool for SQLite
     echo=settings.log_level.lower() == "debug",  # Log SQL in debug mode
 )
+
+# Enable foreign key constraints for SQLite connections
+@event.listens_for(engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Enable foreign key constraints for SQLite"""
+    print("🔥 DEBUG: Setting foreign_keys=ON for new connection")
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+# Also ensure foreign keys are enabled on checkout from pool
+@event.listens_for(engine, "checkout")
+def on_checkout(dbapi_connection, connection_record, connection_proxy):
+    """Ensure foreign keys are enabled when checking out from pool"""
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

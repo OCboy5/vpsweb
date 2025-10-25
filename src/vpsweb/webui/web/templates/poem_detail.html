@@ -919,7 +919,21 @@ function startWorkflowPolling() {
     }
 
     // Use Server-Sent Events (SSE) for real-time updates
-    workflowState.eventSource = new EventSource(`/api/v1/workflow/tasks/${workflowState.taskId}/stream`);
+    const sseUrl = `/api/v1/workflow/tasks/${workflowState.taskId}/stream`;
+    console.log('🔗 Connecting to SSE endpoint:', sseUrl);
+
+    workflowState.eventSource = new EventSource(sseUrl);
+
+    // Track connection state
+    workflowState.sseConnected = false;
+    workflowState.sseReconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+
+    workflowState.eventSource.onopen = function(event) {
+        console.log('✅ SSE connection opened');
+        workflowState.sseConnected = true;
+        workflowState.sseReconnectAttempts = 0;
+    };
 
     workflowState.eventSource.addEventListener('status', function(event) {
         try {
@@ -938,10 +952,40 @@ function startWorkflowPolling() {
         }
     });
 
+    // Handle step change events specifically
+    workflowState.eventSource.addEventListener('step_change', function(event) {
+        try {
+            const task = JSON.parse(event.data);
+            console.log('🔄 [Frontend] Received SSE step change update:', task);
+            updateWorkflowUI(task, true); // true = highlight step change
+
+            // Check if workflow is completed
+            if (task.status === 'completed') {
+                handleWorkflowCompletion(task);
+            } else if (task.status === 'failed') {
+                handleWorkflowFailure(task.error_message || 'Workflow failed');
+            }
+        } catch (error) {
+            console.error('Error parsing step change data:', error);
+        }
+    });
+
     workflowState.eventSource.addEventListener('completed', function(event) {
         try {
             const task = JSON.parse(event.data);
+            console.log('🎉 [Frontend] Received completion event:', task);
             handleWorkflowCompletion(task);
+
+            // Mark SSE as complete to prevent reconnection attempts
+            workflowState.sseCompleted = true;
+            workflowState.sseConnected = false;
+
+            // Close SSE connection gracefully
+            if (workflowState.eventSource) {
+                workflowState.eventSource.close();
+                workflowState.eventSource = null;
+                console.log('✅ SSE connection closed after completion');
+            }
         } catch (error) {
             console.error('Error parsing completed event:', error);
         }
@@ -950,22 +994,70 @@ function startWorkflowPolling() {
     workflowState.eventSource.addEventListener('failed', function(event) {
         try {
             const task = JSON.parse(event.data);
+            console.log('❌ [Frontend] Received failed event:', task);
             handleWorkflowFailure(task.error_message || 'Workflow failed');
+
+            // Mark SSE as complete to prevent reconnection attempts
+            workflowState.sseCompleted = true;
+            workflowState.sseConnected = false;
+
+            // Close SSE connection gracefully
+            if (workflowState.eventSource) {
+                workflowState.eventSource.close();
+                workflowState.eventSource = null;
+                console.log('✅ SSE connection closed after failure');
+            }
         } catch (error) {
             console.error('Error parsing failed event:', error);
         }
     });
 
+    // Handle heartbeat events to keep connection monitoring
+    workflowState.eventSource.addEventListener('heartbeat', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('💓 [Frontend] Received heartbeat:', data.timestamp);
+        } catch (error) {
+            console.error('Error parsing heartbeat event:', error);
+        }
+    });
+
     workflowState.eventSource.addEventListener('error', function(event) {
-        console.error('SSE error:', event);
-        // Fallback to polling if SSE fails
-        workflowState.eventSource.close();
-        startFallbackPolling();
+        console.error('❌ SSE error:', event);
+        workflowState.sseConnected = false;
+
+        // Don't try to reconnect if the workflow is already completed
+        if (workflowState.sseCompleted) {
+            console.log('🔌 SSE error after completion, ignoring (workflow already finished)');
+            return;
+        }
+
+        // Close the current SSE connection
+        if (workflowState.eventSource) {
+            workflowState.eventSource.close();
+            workflowState.eventSource = null;
+        }
+
+        // Try to reconnect if we haven't exceeded max attempts
+        if (workflowState.sseReconnectAttempts < maxReconnectAttempts) {
+            workflowState.sseReconnectAttempts++;
+            console.log(`🔄 Attempting SSE reconnection ${workflowState.sseReconnectAttempts}/${maxReconnectAttempts}...`);
+
+            setTimeout(() => {
+                if (workflowState.isRunning && !workflowState.sseCompleted) {
+                    startSSEStreaming();
+                }
+            }, 2000 * workflowState.sseReconnectAttempts); // Exponential backoff
+        } else {
+            console.log('⚠️ Max SSE reconnection attempts reached, falling back to HTTP polling');
+            startFallbackPolling();
+        }
     });
 
     workflowState.eventSource.addEventListener('timeout', function(event) {
         try {
             const data = JSON.parse(event.data);
+            console.log('⏰ [Frontend] Received timeout event:', data);
             showErrorMessage(data.message);
             handleWorkflowFailure('Timeout: Workflow exceeded 10 minute time limit');
         } catch (error) {
@@ -973,32 +1065,79 @@ function startWorkflowPolling() {
         }
     });
 
+    // Handle unexpected connection closure
+    workflowState.eventSource.onerror = function(event) {
+        console.error('🔌 SSE connection error:', event);
+        workflowState.sseConnected = false;
+
+        // The error event listener above will handle reconnection logic
+    };
+
     console.log('🚀 Started SSE streaming for task:', workflowState.taskId);
 }
 
 function startFallbackPolling() {
     console.log('⚠️ Falling back to HTTP polling');
+
+    // Clear any existing polling interval
     if (workflowState.pollInterval) {
         clearInterval(workflowState.pollInterval);
     }
 
-    // Fallback poll every 2 seconds for active tasks
+    // Track polling state
+    workflowState.isPolling = true;
+    workflowState.pollingErrors = 0;
+    const maxPollingErrors = 5;
+
+    // Fallback poll every 1.5 seconds for active tasks (faster than SSE for better responsiveness)
     workflowState.pollInterval = setInterval(async () => {
+        if (!workflowState.isRunning || !workflowState.isPolling) {
+            return;
+        }
+
         try {
             await updateWorkflowStatus();
+            // Reset error counter on successful poll
+            workflowState.pollingErrors = 0;
         } catch (error) {
-            console.error('Error polling workflow status:', error);
+            workflowState.pollingErrors++;
+            console.error(`Error polling workflow status (${workflowState.pollingErrors}/${maxPollingErrors}):`, error);
+
+            // If we get too many polling errors, stop polling
+            if (workflowState.pollingErrors >= maxPollingErrors) {
+                console.error('Max polling errors reached, stopping polling');
+                stopWorkflowPolling();
+                showErrorMessage('Unable to fetch workflow status updates. The workflow may still be running - please refresh the page to check.');
+            }
         }
-    }, 2000);
+    }, 1500);
 
     // Set timeout to stop polling after 10 minutes
-    setTimeout(() => {
+    workflowState.pollingTimeout = setTimeout(() => {
         if (workflowState.isRunning) {
-            clearInterval(workflowState.pollInterval);
+            stopWorkflowPolling();
             showErrorMessage('Translation workflow timed out after 10 minutes.');
             handleWorkflowFailure('Timeout: Workflow exceeded 10 minute time limit');
         }
     }, 10 * 60 * 1000);
+
+    console.log('🔄 Started HTTP fallback polling');
+}
+
+function stopWorkflowPolling() {
+    workflowState.isPolling = false;
+
+    if (workflowState.pollInterval) {
+        clearInterval(workflowState.pollInterval);
+        workflowState.pollInterval = null;
+    }
+
+    if (workflowState.pollingTimeout) {
+        clearTimeout(workflowState.pollingTimeout);
+        workflowState.pollingTimeout = null;
+    }
+
+    console.log('⏹️ Stopped workflow polling');
 }
 
 async function updateWorkflowStatus() {
@@ -1030,22 +1169,10 @@ async function updateWorkflowStatus() {
     }
 }
 
-function updateWorkflowUI(task) {
-    console.log('🎨 [Frontend] Updating UI with task data:', task);
+function updateWorkflowUI(task, isStepChange = false) {
+    console.log('🎨 [Frontend] Updating UI with task data:', task, isStepChange ? '(STEP CHANGE)' : '');
 
-    // Update progress bar with null checks
-    const progressBar = document.getElementById('workflow-progress-bar');
-    const progressPercentage = document.getElementById('workflow-percentage');
-    const percentage = task.progress || task.progress_percentage || 0;
-
-    console.log('📊 [Frontend] Progress percentage:', percentage);
-
-    if (progressBar) {
-        progressBar.style.width = percentage + '%';
-    }
-    if (progressPercentage) {
-        progressPercentage.textContent = percentage + '%';
-    }
+    // No progress bar - focusing on step states instead
 
     // Update enhanced status messages
     const currentStepEl = document.getElementById('workflow-current-step');
@@ -1057,25 +1184,47 @@ function updateWorkflowUI(task) {
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
 
-        // Update current step and details with null checks
-        if (task.current_step) {
-            if (currentStepEl) {
-                currentStepEl.textContent = task.current_step;
+        // Update current step and details with enhanced step information
+        let stepInfo = '';
+        let stepDetailsInfo = '';
+
+        if (task.current_step && task.step_details) {
+            const stepName = task.current_step;
+            const stepStatus = task.step_details.step_status || 'unknown';
+            const provider = task.step_details.provider || 'AI';
+            const mode = task.step_details.mode || 'standard';
+
+            // Enhanced step display with status
+            stepInfo = `${stepName} (${stepStatus})`;
+
+            // Enhanced step details
+            stepDetailsInfo = `${provider} • ${mode}`;
+
+            if (task.step_details.message) {
+                stepDetailsInfo += ` • ${task.step_details.message}`;
+            }
+
+            console.log(`🔄 [Frontend] Step: ${stepInfo} - ${stepDetailsInfo}`);
+
+            // Add visual feedback for step changes
+            if (isStepChange && currentStepEl) {
+                currentStepEl.classList.add('animate-pulse', 'text-blue-600');
+                setTimeout(() => {
+                    currentStepEl.classList.remove('animate-pulse', 'text-blue-600');
+                }, 2000);
             }
         } else {
-            if (currentStepEl) {
-                currentStepEl.textContent = getStepStatusMessage(percentage);
-            }
+            // Fallback to percentage-based step detection
+            stepInfo = getStepStatusMessage(percentage);
+            stepDetailsInfo = getStepStatusMessage(percentage);
         }
 
-        if (task.step_details) {
-            if (stepDetailsEl) {
-                stepDetailsEl.textContent = formatStepDetails(task.step_details);
-            }
-        } else {
-            if (stepDetailsEl) {
-                stepDetailsEl.textContent = getStepStatusMessage(percentage);
-            }
+        if (currentStepEl) {
+            currentStepEl.textContent = stepInfo;
+        }
+
+        if (stepDetailsEl) {
+            stepDetailsEl.textContent = stepDetailsInfo;
         }
 
         if (timing) {
@@ -1086,10 +1235,15 @@ function updateWorkflowUI(task) {
         if (task.step_progress) {
             updateStepProgressDetails(task.step_progress);
         }
+
+        // Update step states if available
+        if (task.step_states) {
+            updateStepStates(task.step_states);
+        }
     }
 
-    // Update step indicators
-    updateStepIndicators(percentage);
+    // Update step indicators based on current step
+    updateStepIndicators(task.current_step);
 }
 
 function getStepStatusMessage(percentage) {
@@ -1165,35 +1319,86 @@ function updateStepProgressDetails(stepProgress) {
     stepProgressList.innerHTML = stepItems;
 }
 
-function updateStepIndicators(percentage) {
+function updateStepIndicators(currentStepName) {
     const steps = [
-        { id: 'step-1', threshold: 0 },
-        { id: 'step-2', threshold: 33 },
-        { id: 'step-3', threshold: 66 }
+        { id: 'step-1', name: 'Initial Translation' },
+        { id: 'step-2', name: 'Editor Review' },
+        { id: 'step-3', name: 'Translator Revision' }
     ];
 
     steps.forEach((step, index) => {
         const indicator = document.getElementById(`${step.id}-indicator`);
         const status = document.getElementById(`${step.id}-status`);
 
-        if (percentage >= step.threshold + 30) {
-            // Step completed
-            indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
-            indicator.querySelector('span').className = 'text-sm font-medium text-white';
-            indicator.querySelector('span').textContent = '✓';
-            status.textContent = 'Completed';
-        } else if (percentage >= step.threshold) {
-            // Step in progress
+        if (!indicator || !status) {
+            return;
+        }
+
+        if (currentStepName === step.name) {
+            // Current step - in progress
             indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center animate-pulse';
             indicator.querySelector('span').className = 'text-sm font-medium text-white';
             indicator.querySelector('span').textContent = index + 1;
             status.textContent = 'In Progress';
+        } else if (
+            (index === 0 && currentStepName === 'Editor Review') ||
+            (index === 1 && currentStepName === 'Translator Revision') ||
+            (index === 2 && currentStepName === 'Translation Complete')
+        ) {
+            // Previous step - completed
+            indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
+            indicator.querySelector('span').className = 'text-sm font-medium text-white';
+            indicator.querySelector('span').textContent = '✓';
+            status.textContent = 'Completed';
         } else {
-            // Step waiting
+            // Future step - waiting
             indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center';
             indicator.querySelector('span').className = 'text-sm font-medium text-gray-600';
             indicator.querySelector('span').textContent = index + 1;
             status.textContent = 'Waiting';
+        }
+    });
+}
+
+function updateStepStates(stepStates) {
+    // Update step states if available from backend
+    if (!stepStates || typeof stepStates !== 'object') {
+        return;
+    }
+
+    console.log('🔄 [Frontend] Updating step states:', stepStates);
+
+    // Update each step indicator based on its state
+    Object.entries(stepStates).forEach(([stepName, state]) => {
+        const stepId = stepName.toLowerCase().replace(/\s+/g, '-');
+        const indicator = document.getElementById(`${stepId}-indicator`);
+        const statusEl = document.getElementById(`${stepId}-status`);
+
+        if (!indicator || !statusEl) {
+            return;
+        }
+
+        const indicatorDiv = indicator.querySelector('div');
+        const indicatorSpan = indicator.querySelector('span');
+
+        if (state === 'completed') {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
+            indicatorSpan.className = 'text-sm font-medium text-white';
+            indicatorSpan.textContent = '✓';
+            statusEl.textContent = 'Completed';
+            statusEl.className = 'text-xs text-green-600 font-medium';
+        } else if (state === 'running') {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center animate-pulse';
+            indicatorSpan.className = 'text-sm font-medium text-white';
+            indicatorSpan.textContent = '⚡';
+            statusEl.textContent = 'In Progress';
+            statusEl.className = 'text-xs text-blue-600 font-medium';
+        } else {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center';
+            indicatorSpan.className = 'text-sm font-medium text-gray-600';
+            indicatorSpan.textContent = stepName.charAt(0).toUpperCase();
+            statusEl.textContent = 'Waiting';
+            statusEl.className = 'text-xs text-gray-500 font-medium';
         }
     });
 }
@@ -1395,10 +1600,7 @@ function resetWorkflowState() {
     }
 
     // Stop polling (fallback)
-    if (workflowState.pollInterval) {
-        clearInterval(workflowState.pollInterval);
-        workflowState.pollInterval = null;
-    }
+    stopWorkflowPolling();
 
     // Reset state
     workflowState.taskId = null;
@@ -1406,17 +1608,32 @@ function resetWorkflowState() {
     workflowState.isRunning = false;
     workflowState.completed = false;
     workflowState.failed = false;
+    workflowState.sseConnected = false;
+    workflowState.sseReconnectAttempts = 0;
+    workflowState.sseCompleted = false;
+    workflowState.isPolling = false;
+    workflowState.pollingErrors = 0;
 }
 
 // Clean up connections when page is unloaded
 window.addEventListener('beforeunload', () => {
+    console.log('🧹 Cleaning up connections before page unload');
+
     // Close SSE connection
     if (workflowState.eventSource) {
         workflowState.eventSource.close();
+        console.log('🔌 Closed SSE connection on page unload');
     }
-    // Clear fallback polling
-    if (workflowState.pollInterval) {
-        clearInterval(workflowState.pollInterval);
+
+    // Stop polling
+    stopWorkflowPolling();
+});
+
+// Also clean up on page visibility changes (user switching tabs)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && workflowState.isRunning) {
+        console.log('👁️ Page hidden, keeping connections active but reducing polling frequency');
+        // Optionally reduce polling frequency when tab is not visible
     }
 });
 

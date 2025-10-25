@@ -312,10 +312,10 @@ class TranslationBase(BaseSchema):
         if not v or len(v.strip()) < 2:
             raise ValueError("Target language code must be at least 2 characters")
 
-        v = v.strip().lower()
+        v = v.strip()
 
-        # Same validation as source_language
-        if not re.match(r"^[a-z]{2}(-[A-Z]{2})?(-[a-z]{3})?$", v):
+        # Enhanced validation: check basic format first
+        if not re.match(r"^[a-z]{2}(-[A-Z]{2})?$", v, re.IGNORECASE):
                 raise ValueError(
                     'Target language code must be in valid format (e.g., "en", "zh-CN")'
                 )
@@ -323,7 +323,9 @@ class TranslationBase(BaseSchema):
         # Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
         if "-" in v and len(v.split("-")) == 2:
             lang, country = v.split("-")
-            v = f"{lang}-{country.upper()}"
+            v = f"{lang.lower()}-{country.upper()}"
+        else:
+            v = v.lower()
 
         return v
 

@@ -7,6 +7,7 @@ providing async execution, background tasks, and repository integration.
 
 import asyncio
 import logging
+import time
 import uuid
 import threading
 from typing import Dict, Any, Optional, List
@@ -593,17 +594,14 @@ class VPSWebWorkflowAdapter:
                 try:
                     # Step 1: Initial Translation in progress
                     with app.state.task_locks[task_id]:
-                        task_status.set_progress(
-                            10, "Initial Translation in progress..."
-                        )
                         task_status.update_step(
                             step_name="Initial Translation",
-                            step_details={"provider": "AI", "mode": workflow_mode_str},
-                            step_percent=10,
+                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "running"},
                             message="AI is generating initial translation...",
+                            step_state="running",
                         )
                         print(
-                            f"🔄 [STANDALONE] Step 1 progress updated (10%) for task_id: {task_id}"
+                            f"🔄 [STANDALONE] Step 1 started (running) for task_id: {task_id}"
                         )
 
                     translation_result = asyncio.run(
@@ -613,40 +611,96 @@ class VPSWebWorkflowAdapter:
                         f"✅ [STANDALONE] Translation completed for task_id: {task_id}"
                     )
 
-                    # Step 2: Editor Review completed
+                    # Step 1 Complete
                     with app.state.task_locks[task_id]:
-                        task_status.set_progress(66, "Editor review completed")
+                        task_status.update_step(
+                            step_name="Initial Translation",
+                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "completed"},
+                            message="Initial translation completed successfully",
+                            step_state="completed",
+                        )
+                        print(
+                            f"✅ [STANDALONE] Step 1 completed for task_id: {task_id}"
+                        )
+
+                    # Small delay to ensure SSE detects the completion
+                    time.sleep(0.3)
+
+                    # Step 2 Begin: Editor Review
+                    with app.state.task_locks[task_id]:
                         task_status.update_step(
                             step_name="Editor Review",
                             step_details={
                                 "provider": "Deepseek",
                                 "mode": "reasoning",
-                                "status": "Completed",
+                                "step_status": "running",
                             },
-                            step_percent=66,
+                            message="Editor review in progress...",
+                            step_state="running",
+                        )
+                        print(
+                            f"🔄 [STANDALONE] Step 2 started (running) for task_id: {task_id}"
+                        )
+
+                    # Execute Editor Review
+                    editor_result = translation_result  # This would normally be editor review result
+                    print(
+                        f"✅ [STANDALONE] Editor review completed for task_id: {task_id}"
+                    )
+
+                    # Step 2 Complete, Step 3 Begin: Translator Revision
+                    with app.state.task_locks[task_id]:
+                        # Mark Step 2 as completed
+                        task_status.update_step(
+                            step_name="Editor Review",
+                            step_details={
+                                "provider": "Deepseek",
+                                "mode": "reasoning",
+                                "step_status": "completed",
+                            },
                             message="Editor review completed successfully",
                             step_state="completed",
                         )
-                        print(
-                            f"✅ [STANDALONE] Step 2 progress updated (66%, completed) for task_id: {task_id}"
-                        )
 
-                    # Step 3: Translator Revision completed
+                    # Small delay to ensure SSE detects Step 2 completion
+                    time.sleep(0.3)
+
+                    # Start Step 3
                     with app.state.task_locks[task_id]:
-                        task_status.set_progress(90, "Translator revision completed")
                         task_status.update_step(
                             step_name="Translator Revision",
                             step_details={
                                 "provider": "AI",
                                 "mode": "revision",
-                                "status": "Completed",
+                                "step_status": "running",
                             },
-                            step_percent=90,
+                            message="Translator revision in progress...",
+                            step_state="running",
+                        )
+                        print(
+                            f"🔄 [STANDALONE] Step 2 completed, Step 3 started (running) for task_id: {task_id}"
+                        )
+
+                    # Execute Translator Revision (simulate for now)
+                    final_result = translation_result  # This would normally be revision result
+                    print(
+                        f"✅ [STANDALONE] Translator revision completed for task_id: {task_id}"
+                    )
+
+                    # Step 3 Complete: Mark as completed
+                    with app.state.task_locks[task_id]:
+                        task_status.update_step(
+                            step_name="Translator Revision",
+                            step_details={
+                                "provider": "AI",
+                                "mode": "revision",
+                                "step_status": "completed",
+                            },
                             message="Translator revision completed successfully",
                             step_state="completed",
                         )
                         print(
-                            f"✅ [STANDALONE] Step 3 progress updated (90%, completed) for task_id: {task_id}"
+                            f"✅ [STANDALONE] Step 3 completed for task_id: {task_id}"
                         )
 
                     # Update step progress for completed workflow

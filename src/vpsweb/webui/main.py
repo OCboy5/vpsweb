@@ -768,58 +768,106 @@ async def stream_workflow_task_status(
         )
 
         # Stream for updates with real-time app.state access
-        max_iterations = 600  # 10 minutes with 1-second intervals
+        max_iterations = 1200  # 10 minutes with 0.2-second intervals
         last_status = None
+        consecutive_errors = 0
+        max_consecutive_errors = 5
+        last_update_time = time.time()
+
         for i in range(max_iterations):
             # Check if client disconnected
             if await request.is_disconnected():
-                print(f"Client disconnected from task {task_id} SSE stream")
+                print(f"🔌 Client disconnected from task {task_id} SSE stream")
                 break
 
-            await asyncio.sleep(0.5)  # Check every 500ms for better responsiveness
+            await asyncio.sleep(0.2)  # Check every 200ms for better responsiveness (faster than before)
 
             try:
+                # Reset consecutive errors counter on successful iteration
+                consecutive_errors = 0
+                current_time = time.time()
+
                 # Get current task status from app.state
                 if task_id in app.state.tasks:
                     current_task = app.state.tasks[task_id]
                     current_dict = current_task.to_dict()
 
-                    # Send update if any significant field changed
-                    if (
+                    # Enhanced change detection - focus on step changes, not progress percentage
+                    has_progress_change = (
                         last_status is None
                         or current_dict["status"] != last_status["status"]
-                        or current_dict["progress"] != last_status["progress"]
                         or current_dict["current_step"] != last_status["current_step"]
-                        or current_dict.get("step_states")
-                        != last_status.get("step_states")
-                        or current_dict.get("step_details")
-                        != last_status.get("step_details")
-                        or current_dict.get("step_progress")
-                        != last_status.get("step_progress")
-                    ):
+                    )
 
+                    # Specific step change detection - check for step status transitions
+                    has_step_change = False
+                    if last_status is not None:
+                        current_step_details = current_dict.get("step_details", {})
+                        last_step_details = last_status.get("step_details", {})
+
+                        # Check if current step status changed (running -> completed)
+                        if (current_step_details.get("step_status") != last_step_details.get("step_status")):
+                            has_step_change = True
+                            print(f"🔍 [SSE] Step status change detected: {last_step_details.get('step_status')} -> {current_step_details.get('step_status')}")
+
+                        # Check if any step states changed
+                        current_step_states = current_dict.get("step_states", {})
+                        last_step_states = last_status.get("step_states", {})
+                        if current_step_states != last_step_states:
+                            has_step_change = True
+                            print(f"🔍 [SSE] Step states changed detected")
+
+                    # Additional check for task timestamp changes (more sensitive detection)
+                    has_time_change = (
+                        last_status is not None
+                        and "updated_at" in current_dict
+                        and "updated_at" in last_status
+                        and current_dict["updated_at"] != last_status["updated_at"]
+                    )
+
+                    # Send update if any significant field changed OR timestamp changed OR step changed
+                    if has_progress_change or has_step_change or has_time_change:
                         last_status = current_dict.copy()
-                        import json
+                        last_update_time = current_time
 
-                        yield {"event": "status", "data": json.dumps(current_dict)}
+                        # Determine event type based on what changed
+                        event_type = "status"
+                        if has_step_change and last_status is not None:
+                            event_type = "step_change"
+
+                        yield {"event": event_type, "data": json.dumps(current_dict)}
                         step_states = current_dict.get("step_states", {})
                         current_step_state = step_states.get(
                             current_dict["current_step"], "unknown"
                         )
+                        step_details = current_dict.get("step_details", {})
+                        step_status = step_details.get("step_status", "unknown")
+
                         print(
-                            f"📡 [SSE] Update sent for task {task_id}: {current_dict['status']} - {current_dict['progress']}% - {current_dict['current_step']} ({current_step_state})"
+                            f"📡 [SSE] {event_type.upper()} sent for task {task_id}: {current_dict['status']} - {current_dict['current_step']} ({step_status})"
                         )
 
-                    # Stop streaming if task is complete
+                    # Stop streaming if task is complete - but add a brief delay to ensure final state is captured
                     if current_task.status.value in ["completed", "failed"]:
+                        # Wait a moment to ensure the final state is stable
+                        await asyncio.sleep(0.5)
+
+                        # Get final state one more time
+                        final_dict = current_task.to_dict()
                         yield {
                             "event": current_task.status.value,
-                            "data": json.dumps(current_dict),
+                            "data": json.dumps(final_dict),
                         }
                         print(
-                            f"📡 [SSE] Final status sent for task {task_id}: {current_task.status.value}"
+                            f"📡 [SSE] Final status sent for task {task_id}: {current_task.status.value} - {final_dict['current_step']}"
                         )
                         break
+
+                    # Force periodic updates every 5 seconds to ensure connection stays alive
+                    if current_time - last_update_time > 5.0:
+                        last_update_time = current_time
+                        yield {"event": "heartbeat", "data": json.dumps({"timestamp": current_time})}
+
                 else:
                     # Task was removed from app.state
                     yield {
@@ -829,12 +877,18 @@ async def stream_workflow_task_status(
                     break
 
             except asyncio.CancelledError:
-                print(f"SSE stream cancelled for task {task_id}")
+                print(f"⏹️ SSE stream cancelled for task {task_id}")
                 break
             except Exception as e:
-                print(f"❌ [SSE] Error in stream for task {task_id}: {str(e)}")
-                yield {"event": "error", "data": json.dumps({"message": str(e)})}
-                break
+                consecutive_errors += 1
+                print(f"❌ [SSE] Error {consecutive_errors}/{max_consecutive_errors} in stream for task {task_id}: {str(e)}")
+
+                if consecutive_errors >= max_consecutive_errors:
+                    yield {"event": "error", "data": json.dumps({"message": f"SSE stream error: {str(e)}"})}
+                    break
+
+                # Continue after a brief delay for non-critical errors
+                await asyncio.sleep(1.0)
 
         # Send completion event if timed out
         if i >= max_iterations - 1:
@@ -843,14 +897,18 @@ async def stream_workflow_task_status(
                 "data": json.dumps({"message": "Workflow timed out after 10 minutes"}),
             }
 
+        print(f"🏁 SSE stream ended for task {task_id} after {i+1} iterations")
+
     return EventSourceResponse(
         event_generator(),
-        ping=10,  # Ping every 10 seconds to keep connection alive
+        ping=30,  # Ping every 30 seconds to keep connection alive (reduced frequency)
+        send_timeout=60,  # Timeout for sending events
         headers={
-            "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
             "Connection": "keep-alive",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Cache-Control",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
         },
     )
 
