@@ -329,50 +329,50 @@ class RepositoryWebService:
         # Base query with poet statistics
         query = (
             self.db.query(
-                self.repo.poems.model.poet_name,
-                func.count(self.repo.poems.model.id).label("poem_count"),
-                func.count(self.repo.translations.model.id).label("translation_count"),
-                func.avg(self.repo.translations.model.quality_rating).label(
+                Poem.poet_name,
+                func.count(Poem.id).label("poem_count"),
+                func.count(Translation.id).label("translation_count"),
+                func.avg(Translation.quality_rating).label(
                     "avg_quality_rating"
                 ),
-                func.max(self.repo.translations.model.created_at).label(
+                func.max(Translation.created_at).label(
                     "last_translation_date"
                 ),
-                func.max(self.repo.poems.model.created_at).label("last_poem_date"),
+                func.max(Poem.created_at).label("last_poem_date"),
             )
             .outerjoin(
-                self.repo.translations.model,
-                self.repo.poems.model.id == self.repo.translations.model.poem_id,
+                Translation,
+                Poem.id == Translation.poem_id,
             )
-            .group_by(self.repo.poems.model.poet_name)
+            .group_by(Poem.poet_name)
         )
 
         # Apply filters
         if search:
-            query = query.filter(self.repo.poems.model.poet_name.ilike(f"%{search}%"))
+            query = query.filter(Poem.poet_name.ilike(f"%{search}%"))
 
         if min_poems is not None:
-            query = query.having(func.count(self.repo.poems.model.id) >= min_poems)
+            query = query.having(func.count(Poem.id) >= min_poems)
 
         if min_translations is not None:
             query = query.having(
-                func.count(self.repo.translations.model.id) >= min_translations
+                func.count(Translation.id) >= min_translations
             )
 
         # Apply sorting
         if sort_by == "name":
-            order_column = self.repo.poems.model.poet_name
+            order_column = Poem.poet_name
         elif sort_by == "poem_count":
-            order_column = func.count(self.repo.poems.model.id)
+            order_column = func.count(Poem.id)
         elif sort_by == "translation_count":
-            order_column = func.count(self.repo.translations.model.id)
+            order_column = func.count(Translation.id)
         elif sort_by == "recent_activity":
             order_column = func.greatest(
-                func.max(self.repo.translations.model.created_at),
-                func.max(self.repo.poems.model.created_at),
+                func.max(Translation.created_at),
+                func.max(Poem.created_at),
             )
         else:
-            order_column = self.repo.poems.model.poet_name
+            order_column = Poem.poet_name
 
         if sort_order.lower() == "desc":
             query = query.order_by(desc(order_column))
@@ -420,39 +420,39 @@ class RepositoryWebService:
         # Base query for poems by poet with translation counts
         query = (
             self.db.query(
-                self.repo.poems.model,
-                func.count(self.repo.translations.model.id).label("translation_count"),
-                func.max(self.repo.translations.model.created_at).label(
+                Poem,
+                func.count(Translation.id).label("translation_count"),
+                func.max(Translation.created_at).label(
                     "last_translation_date"
                 ),
             )
             .outerjoin(
-                self.repo.translations.model,
-                self.repo.poems.model.id == self.repo.translations.model.poem_id,
+                Translation,
+                Poem.id == Translation.poem_id,
             )
-            .filter(self.repo.poems.model.poet_name == poet_name)
-            .group_by(self.repo.poems.model.id)
+            .filter(Poem.poet_name == poet_name)
+            .group_by(Poem.id)
         )
 
         # Apply filters
         if language:
-            query = query.filter(self.repo.poems.model.source_language == language)
+            query = query.filter(Poem.source_language == language)
 
         if has_translations is not None:
             if has_translations:
-                query = query.having(func.count(self.repo.translations.model.id) > 0)
+                query = query.having(func.count(Translation.id) > 0)
             else:
-                query = query.having(func.count(self.repo.translations.model.id) == 0)
+                query = query.having(func.count(Translation.id) == 0)
 
         # Apply sorting
         if sort_by == "title":
-            order_column = self.repo.poems.model.poem_title
+            order_column = Poem.poem_title
         elif sort_by == "created_at":
-            order_column = self.repo.poems.model.created_at
+            order_column = Poem.created_at
         elif sort_by == "translation_count":
-            order_column = func.count(self.repo.translations.model.id)
+            order_column = func.count(Translation.id)
         else:
-            order_column = self.repo.poems.model.poem_title
+            order_column = Poem.poem_title
 
         if sort_order.lower() == "desc":
             query = query.order_by(desc(order_column))
@@ -501,42 +501,42 @@ class RepositoryWebService:
         # Base query for translations by poet
         query = (
             self.db.query(
-                self.repo.translations.model,
-                self.repo.poems.model.poem_title,
-                self.repo.poems.model.source_language,
+                Translation,
+                Poem.poem_title,
+                Poem.source_language,
             )
             .join(
-                self.repo.poems.model,
-                self.repo.translations.model.poem_id == self.repo.poems.model.id,
+                Poem,
+                Translation.poem_id == Poem.id,
             )
-            .filter(self.repo.poems.model.poet_name == poet_name)
+            .filter(Poem.poet_name == poet_name)
         )
 
         # Apply filters
         if target_language:
             query = query.filter(
-                self.repo.translations.model.target_language == target_language
+                Translation.target_language == target_language
             )
 
         if translator_type:
             query = query.filter(
-                self.repo.translations.model.translator_type == translator_type
+                Translation.translator_type == translator_type
             )
 
         if min_quality is not None:
             query = query.filter(
-                self.repo.translations.model.quality_rating >= min_quality
+                Translation.quality_rating >= min_quality
             )
 
         # Apply sorting
         if sort_by == "created_at":
-            order_column = self.repo.translations.model.created_at
+            order_column = Translation.created_at
         elif sort_by == "quality_rating":
-            order_column = self.repo.translations.model.quality_rating
+            order_column = Translation.quality_rating
         elif sort_by == "title":
-            order_column = self.repo.poems.model.poem_title
+            order_column = Poem.poem_title
         else:
-            order_column = self.repo.translations.model.created_at
+            order_column = Translation.created_at
 
         if sort_order.lower() == "desc":
             query = query.order_by(desc(order_column))
@@ -573,9 +573,9 @@ class RepositoryWebService:
     def get_translation_history(self, poem_id: str) -> List[Dict[str, Any]]:
         """Get translation history for a specific poem"""
         translations = (
-            self.db.query(self.repo.translations.model)
-            .filter(self.repo.translations.model.poem_id == poem_id)
-            .order_by(self.repo.translations.model.created_at.desc())
+            self.db.query(Translation)
+            .filter(Translation.poem_id == poem_id)
+            .order_by(Translation.created_at.desc())
             .all()
         )
 
@@ -599,8 +599,8 @@ class RepositoryWebService:
 
         # Check if poet exists
         poet_exists = (
-            self.db.query(self.repo.poems.model)
-            .filter(self.repo.poems.model.poet_name == poet_name)
+            self.db.query(Poem)
+            .filter(Poem.poet_name == poet_name)
             .first()
         )
 
@@ -610,42 +610,42 @@ class RepositoryWebService:
         # Get poem statistics
         poem_stats = (
             self.db.query(
-                func.count(self.repo.poems.model.id).label("total_poems"),
-                func.count(func.distinct(self.repo.poems.model.source_language)).label(
+                func.count(Poem.id).label("total_poems"),
+                func.count(func.distinct(Poem.source_language)).label(
                     "source_languages_count"
                 ),
-                func.min(self.repo.poems.model.created_at).label("first_poem_date"),
-                func.max(self.repo.poems.model.created_at).label("last_poem_date"),
+                func.min(Poem.created_at).label("first_poem_date"),
+                func.max(Poem.created_at).label("last_poem_date"),
             )
-            .filter(self.repo.poems.model.poet_name == poet_name)
+            .filter(Poem.poet_name == poet_name)
             .first()
         )
 
         # Get translation statistics
         translation_stats = (
             self.db.query(
-                func.count(self.repo.translations.model.id).label("total_translations"),
+                func.count(Translation.id).label("total_translations"),
                 func.count(
-                    func.distinct(self.repo.translations.model.target_language)
+                    func.distinct(Translation.target_language)
                 ).label("target_languages_count"),
-                func.avg(self.repo.translations.model.quality_rating).label(
+                func.avg(Translation.quality_rating).label(
                     "avg_quality_rating"
                 ),
                 func.count(
-                    func.distinct(self.repo.translations.model.translator_type)
+                    func.distinct(Translation.translator_type)
                 ).label("translator_types_count"),
-                func.min(self.repo.translations.model.created_at).label(
+                func.min(Translation.created_at).label(
                     "first_translation_date"
                 ),
-                func.max(self.repo.translations.model.created_at).label(
+                func.max(Translation.created_at).label(
                     "last_translation_date"
                 ),
             )
             .join(
-                self.repo.poems.model,
-                self.repo.translations.model.poem_id == self.repo.poems.model.id,
+                Poem,
+                Translation.poem_id == Poem.id,
             )
-            .filter(self.repo.poems.model.poet_name == poet_name)
+            .filter(Poem.poet_name == poet_name)
             .first()
         )
 
