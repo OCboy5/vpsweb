@@ -203,12 +203,42 @@ function displayTranslations() {
 
     emptyEl.classList.add('hidden');
     listEl.classList.remove('hidden');
-    listEl.innerHTML = filteredTranslations.map(translation => createTranslationCard(translation)).join('');
+
+    // Create all translation cards asynchronously
+    createTranslationCards(filteredTranslations).then(cardsHTML => {
+        listEl.innerHTML = cardsHTML;
+    });
 }
 
-function createTranslationCard(translation) {
+// Cache for poem data to avoid multiple API calls
+const poemCache = {};
+
+async function createTranslationCards(translations) {
+    const cards = await Promise.all(translations.map(translation => createTranslationCard(translation)));
+    return cards.join('');
+}
+
+async function createTranslationCard(translation) {
     const createdDate = new Date(translation.created_at).toLocaleString();
     const qualityStars = translation.quality_rating ? '★'.repeat(translation.quality_rating) + '☆'.repeat(5 - translation.quality_rating) : 'Not rated';
+
+    // Get poem information
+    let poemInfo = { title: 'Loading...', poet: 'Loading...' };
+    if (poemCache[translation.poem_id]) {
+        poemInfo = poemCache[translation.poem_id];
+    } else {
+        try {
+            const response = await fetch(`/api/v1/poems/${translation.poem_id}`);
+            if (response.ok) {
+                const poem = await response.json();
+                poemInfo = { title: poem.poem_title, poet: poem.poet_name };
+                poemCache[translation.poem_id] = poemInfo;
+            }
+        } catch (error) {
+            console.error('Failed to fetch poem info:', error);
+            poemInfo = { title: 'Unknown Poem', poet: 'Unknown Poet' };
+        }
+    }
 
     return `
         <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
@@ -225,8 +255,9 @@ function createTranslationCard(translation) {
                             ${qualityStars}
                         </div>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-1">${translation.translator_info}</h4>
-                    <p class="text-sm text-gray-500">${createdDate}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">${poemInfo.title}</h4>
+                    <p class="text-sm text-gray-500 mb-2">${poemInfo.poet}</p>
+                    <p class="text-xs text-gray-400">${createdDate}</p>
                 </div>
                 <div class="flex space-x-2">
                     <a href="/poems/${translation.poem_id}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
