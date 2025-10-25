@@ -316,7 +316,6 @@ class TranslationBase(BaseSchema):
 
         # Same validation as source_language
         if not re.match(r"^[a-z]{2}(-[A-Z]{2})?(-[a-z]{3})?$", v):
-            if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?$", v):
                 raise ValueError(
                     'Target language code must be in valid format (e.g., "en", "zh-CN")'
                 )
