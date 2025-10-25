@@ -172,7 +172,7 @@ async def delete_poem(
         )
 
     try:
-        service.poems.remove(poem_id)
+        service.poems.delete(poem_id)
         return WebAPIResponse(
             success=True,
             message=f"Poem '{existing_poem.poem_title}' deleted successfully",

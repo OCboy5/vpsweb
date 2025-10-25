@@ -6,56 +6,125 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
-**Current Status**: v0.3.1 - Complete Web UI & Repository System Implementation
-
 **Tech Stack**: Python, Poetry, FastAPI, SQLAlchemy, Pydantic, AsyncIO, OpenAI-compatible APIs, YAML configuration, Tailwind CSS
 
-## Core Development Principles
+# Development Guidelines
+## Philosophy
+### Core Beliefs
+- **Incremental progress over big bangs** - Small changes that compile and pass tests
+- **Learning from existing code** - Study and plan before implementing
+- **Pragmatic over dogmatic** - Adapt to project reality
+- **Clear intent over clever code** - Be boring and obvious
+### Simplicity Means
+- Single responsibility per function/class
+- Avoid premature abstractions
+- No clever tricks, choose the boring solution
+- If you need to explain it, it's too complex
 
-### 1. Strategy-Todo-Code-Reflection Process
-
-For any **non-trivial decision** (changes affecting multiple components, architectural decisions, or user-facing features), Claude Code MUST follow this four-step process with explicit approval required between phases:
-
-#### **STRATEGY Phase** - Analysis, Brainstorming, and Planning
-- **1. Current State Analysis**: Analyze current codebase and existing implementation
-- **2. Research Phase**: Research best practices and evaluate trade-offs
-- **3. Brainstorming Session**: Generate multiple approaches and solutions
-  - Explore at least 2-3 different implementation strategies
-  - Consider unconventional and creative approaches
-  - Identify potential risks and benefits of each approach
-- **4. Debating Session**: Critical evaluation and comparison of approaches
-  - Debate pros and cons of each strategy
-  - Challenge assumptions and identify hidden risks
-  - Consider technical debt, maintenance implications, and scalability
-  - Evaluate based on project-specific constraints and goals
-- **5. Strategic Decision**: Select optimal approach with clear rationale
-- **6. Impact Analysis**: Review existing configuration and documentation
-- **7. Implementation Considerations**: Consider impact on version management, testing, and deployment
-- **CRITICAL**: Present complete strategy with brainstorming/debate summary for user approval before proceeding
-
-#### **TODO Phase** - Structured Task Planning
-- **REQUIREMENT**: Must get explicit consensus on strategy before creating TODO list
-- Create comprehensive, ordered task list using TodoWrite tool
-- Break complex changes into small, testable increments
-- Mark one task as `in_progress` at any time, update status immediately upon completion
-- **CRITICAL**: Present TODO list for user approval before proceeding to CODE phase
-
-#### **CODE Phase** - Implementation and Validation
-- **REQUIREMENT**: Must get explicit consensus on TODO list before starting implementation
-- Execute tasks sequentially according to the TODO list
-- Test each increment before proceeding
-- Follow existing code patterns and conventions
-- Ensure CI/CD compliance (Black formatting, tests passing)
-- **CRITICAL**: Update task status and get confirmation on major milestones
-
-#### **REFLECTION Phase** - Analysis and Continuous Improvement
-- **REQUIREMENT**: Optional but recommended for significant non-trivial decisions
-- **Purpose**: Systematic reflection on Strategy-Todo-Code effectiveness
-- **Timing**: Conducted immediately after successful release
-- **Scope**: Analyze decision quality, process effectiveness, and lessons learned
-- **CRITICAL**: Reflections must create actionable insights for future decisions
-
-**See [REFLECTION_SYSTEM.md](REFLECTION_SYSTEM.md) for complete guidance.**
+## Process
+### 1. Planning & Staging
+Use Brainstorming and Debating Guidelines to make non-trivial decisions in the plan.
+Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
+```markdown
+## Stage N: [Name]
+**Goal**: [Specific deliverable]
+**Success Criteria**: [Testable outcomes]
+**Tests**: [Specific test cases]
+**Status**: [Not Started|In Progress|Complete]
+```
+- Update status as you progress
+### 2. Implementation Flow
+1. **Understand** - Study existing patterns in codebase
+2. **Test** - Write test first (red)
+3. **Implement** - Minimal code to pass (green)
+4. **Refactor** - Clean up with tests passing
+5. **Commit** - With clear message linking to plan
+### 3. When Stuck (After 3 Attempts)
+**CRITICAL**: Maximum 3 attempts per issue, then STOP.
+1. **Document what failed**:   
+- What you tried   
+- Specific error messages   
+- Why you think it failed
+2. **Research alternatives**:   
+- Find 2-3 similar implementations   
+- Note different approaches used
+3. **Question fundamentals**:   
+- Is this the right abstraction level?   
+- Can this be split into smaller problems?   
+- Is there a simpler approach entirely?
+4. **Try different angle**:   
+- Different library/framework feature?   
+- Different architectural pattern?   
+- Remove abstraction instead of adding?
+## Technical Standards
+### Architecture Principles
+- **Composition over inheritance**
+ - Use dependency injection
+- **Interfaces over singletons**
+ - Enable testing and flexibility
+- **Explicit over implicit**
+ - Clear data flow and dependencies
+- **Test-driven when possible**
+ - Never disable tests, fix them
+### Code Quality
+- **Every commit must**:
+  - Compile successfully
+  - Pass all existing tests
+  - Include tests for new functionality
+  - Follow project formatting/linting
+- **Before committing**:
+  - Run formatters/linters
+  - Self-review changes
+  - Ensure commit message explains "why"
+### Error Handling
+- Fail fast with descriptive messages
+- Include context for debugging
+- Handle errors at appropriate level
+- Never silently swallow exceptions
+## Decision Framework
+When multiple valid approaches exist, choose based on:
+1. **Testability** - Can I easily test this?
+2. **Readability** - Will someone understand this in 6 months?
+3. **Consistency** - Does this match project patterns?
+4. **Simplicity** - Is this the simplest solution that works?
+5. **Reversibility** - How hard to change later?
+## Project Integration
+### Learning the Codebase
+- Find 3 similar features/components
+- Identify common patterns and conventions
+- Use same libraries/utilities when possible
+- Follow existing test patterns
+### Tooling
+- Use project's existing build system
+- Use project's test framework
+- Use project's formatter/linter settings
+- Don't introduce new tools without strong justification
+## Quality Gates
+### Definition of Done
+- [ ] Tests written and passing
+- [ ] Code follows project conventions
+- [ ] No linter/formatter warnings
+- [ ] Commit messages are clear
+- [ ] Implementation matches plan
+- [ ] No TODOs without issue numbers
+### Test Guidelines
+- Test behavior, not implementation
+- One assertion per test when possible
+- Clear test names describing scenario
+- Use existing test utilities/helpers
+- Tests should be deterministic
+## Important Reminders
+**NEVER**:
+- Use `--no-verify` to bypass commit hooks
+- Disable tests instead of fixing them
+- Commit code that doesn't compile
+- Make assumptions - verify with existing code
+**ALWAYS**:
+- Commit working code incrementally
+- Update plan documentation as you go
+- Learn from existing implementations
+- Stop after 3 failed attempts and reassess
+- Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCPtools to resolve library id and get library docs without me having to explicitly ask.
 
 ### Brainstorming and Debating Guidelines
 
@@ -143,9 +212,9 @@ For any **non-trivial decision** (changes affecting multiple components, archite
 - **Mitigation Strategy**: [How we'll address the chosen approach's risks]
 ```
 
-#### **Integration with Strategy Phase**
-**Enhanced Strategy Presentation**:
-When presenting strategy for user approval, include:
+#### **Integration with Plan Phase**
+**Enhanced Plan Presentation**:
+When presenting plan for user approval, include:
 1. **Brainstorming Summary**: Brief overview of approaches considered
 2. **Key Debating Points**: Most important trade-offs discussed
 3. **Decision Rationale**: Clear explanation of why chosen approach is optimal
@@ -159,7 +228,7 @@ When presenting strategy for user approval, include:
 - Single-file refactorings that don't affect interfaces
 - Configuration value updates
 
-**Non-Trivial Decisions** (Strategy-Todo-Code-Reflection Required):
+**Non-Trivial Decisions**:
 - Adding new workflow steps or modes
 - Changing API interfaces or data models
 - Modifying core workflow orchestration
@@ -168,135 +237,11 @@ When presenting strategy for user approval, include:
 - Architectural refactoring
 - New feature implementations
 
-## Project Structure
-
-### Core Architecture
-```
-src/vpsweb/
-├── core/                    # Workflow orchestration
-│   ├── workflow.py          # Main 3-step T-E-T workflow
-│   └── executor.py          # Step execution engine
-├── models/                  # Pydantic data models
-│   ├── translation.py       # Translation workflow models
-│   └── config.py           # Configuration models
-├── services/                # External service integrations
-│   ├── llm/               # LLM provider abstractions
-│   │   ├── base.py        # Base provider interface
-│   │   ├── factory.py     # Provider factory
-│   │   └── openai_compatible.py  # OpenAI-compatible provider
-│   ├── parser.py          # XML output parsing
-│   └── prompts.py         # Prompt management
-├── utils/                   # Utilities
-│   ├── config_loader.py   # Configuration loading
-│   ├── storage.py         # File operations
-│   └── logger.py          # Logging configuration
-└── __main__.py             # CLI entry point
-```
-
-### Key Architectural Patterns
-- **3-Step Workflow**: Initial Translation → Editor Review → Translator Revision
-- **Provider Abstraction**: Factory pattern for LLM provider flexibility
-- **YAML Configuration**: Structured configuration with environment-specific overrides
-- **Async Processing**: Full async/await support for concurrent operations
-
-## Essential Development Commands
-
-### Environment Setup
-```bash
-# Install dependencies
-poetry install
-
-# Set PYTHONPATH for src layout (required globally)
-export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
-# Add this to your ~/.zshrc for permanent setup
-```
-
-### Quality and Testing
-```bash
-# Run all quality checks
-./dev-check.sh
-
-# Individual tools
-python -m black src/ tests/                    # Format code
-python -m pytest tests/ -v                     # Run tests
-python -m mypy src/ --ignore-missing-imports   # Type checking
-```
-
-### Core Application Usage
-```bash
-# Basic translation
-vpsweb translate -i poem.txt -s English -t Chinese
-
-# With workflow mode
-vpsweb translate -i poem.txt -s English -t Chinese -w hybrid
-
-# Dry run validation
-vpsweb translate -i poem.txt -s English -t Chinese --dry-run
-```
-
-### Version Management
-```bash
-# Create backup before changes
-./save-version.sh X.Y.Z
-
-# Create release
-./push-version.sh X.Y.Z "Release notes"
-```
-
-**Pre-commit validation (MANDATORY)**: `python -m black --check src/ tests/ && python -m pytest tests/`
-
-### Demo Scripts & Tools (v0.3.2+)
-```bash
-# Alembic database migration demonstration
-python scripts/demo_alembic_migrations.py --action demo        # Full demo
-python scripts/demo_alembic_migrations.py --action history      # Show migration history
-python scripts/demo_alembic_migrations.py --action upgrade      # Upgrade database
-python scripts/demo_alembic_migrations.py --action status       # Current status
-
-# Rotating file logging demonstration
-python scripts/demo_rotating_logging.py --mode demo            # Full logging demo
-python scripts/demo_rotating_logging.py --mode status          # Logging status
-python scripts/demo_rotating_logging.py --mode test --count 100 # Generate test logs
-python scripts/demo_rotating_logging.py --mode cleanup --days 7 # Clean old logs
-```
-
-## Development Guidelines
-
-### Code Standards
-- **Formatting**: Black code formatter (line-length: 88)
-- **Type Checking**: Comprehensive type annotations with mypy
-- **Error Handling**: Proper exception handling with custom exceptions
-- **Documentation**: Google/NumPy style docstrings for all public APIs
-- **Testing**: Test coverage for all components
-
-### Output File Organization
-- **Directory**: `outputs/json/` and `outputs/markdown/`
-- **Naming**: `{author}_{title}_{source_target}_{mode}_{date}_{hash}.{format}`
-- **Examples**: `陶渊明_歸園田居_chinese_english_hybrid_20251012_184234_81e865f8.json`
-- **Key Features**: Poet-first naming, no prefixes, log files with "log" suffix
-
-## LLM Provider Integration
-
-### Supported Providers
-- **Tongyi (Alibaba Cloud)**: Production ready, qwen-max models
-- **DeepSeek**: Advanced reasoning, deepseek-reasoner models
-- **OpenAI-Compatible**: Extensible framework for additional providers
-
-### Adding New Providers
-1. Create new provider class inheriting from `BaseLLMProvider`
-2. Implement required methods: `generate()`, `get_provider_name()`
-3. Update `factory.py` to include new provider
-4. Add configuration in `models.yaml`
-5. Test integration with existing workflow
-
-**See [docs/api-patterns.md](docs/api-patterns.md) for detailed integration guidance.**
-
-## Configuration Management
-
 ### Key Configuration Files
 - `config/default.yaml`: Main workflow configuration
 - `config/models.yaml`: Provider configurations
 - `config/wechat.yaml`: WeChat Official Account integration
+- `config/repository.yaml`: Central Repository and WebUI configurations
 
 ### Configuration Structure
 - YAML format for readability
@@ -304,36 +249,7 @@ python scripts/demo_rotating_logging.py --mode cleanup --days 7 # Clean old logs
 - Pydantic model validation
 - Support for workflow modes: reasoning, non_reasoning, hybrid
 
-**See [docs/workflow-modes.md](docs/workflow-modes.md) for workflow mode details.**
-
 ## Quick References
 
 ### Release Management
 🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
-
-**Essential Steps**:
-1. Create backup: `./save-version.sh X.Y.Z`
-2. Update versions in 3 files + documentation
-3. Commit and push to main
-4. Create release: `./push-version.sh X.Y.Z "notes"`
-5. Verify release on GitHub
-
-### Emergency Procedures
-```bash
-# List local backup versions
-git tag -l "*local*"
-
-# Restore specific version
-git checkout v0.2.0-local-2025-10-05
-```
-
-### Specialized Documentation
-- **WeChat Integration**: [docs/wechat-integration.md](docs/wechat-integration.md)
-- **API Patterns**: [docs/api-patterns.md](docs/api-patterns.md)
-- **Testing**: [docs/testing.md](docs/testing.md)
-- **Future Development**: [docs/future-development.md](docs/future-development.md)
-- **Documentation Standards**: [docs/documentation-standards.md](docs/documentation-standards.md)
-
----
-
-**IMPORTANT**: This guide serves as the canonical reference for Claude Code development on VPSWeb. All development activities must adhere to these guidelines, especially the Strategy-Todo-Code-Reflection process for non-trivial decisions.

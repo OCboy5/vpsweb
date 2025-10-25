@@ -119,17 +119,51 @@ class PoemBase(BaseSchema):
     @field_validator("source_language")
     @classmethod
     def validate_language_code(cls, v: str) -> str:
-        """Enhanced language code validation"""
+        """Enhanced language code validation with full language name support"""
         if not v or len(v.strip()) < 2:
             raise ValueError("Language code must be at least 2 characters")
 
         v = v.strip()
 
+        # Language name normalization map - convert full names to ISO codes
+        language_name_map = {
+            "english": "en",
+            "chinese": "zh-CN",
+            "simplified chinese": "zh-CN",
+            "traditional chinese": "zh-TW",
+            "french": "fr",
+            "german": "de",
+            "spanish": "es",
+            "japanese": "ja",
+            "korean": "ko",
+            "russian": "ru",
+            "italian": "it",
+            "portuguese": "pt",
+            "arabic": "ar",
+            "hindi": "hi",
+            "thai": "th",
+            "vietnamese": "vi",
+            "dutch": "nl",
+            "swedish": "sv",
+            "norwegian": "no",
+            "danish": "da",
+            "finnish": "fi",
+            "polish": "pl",
+            "greek": "el",
+            "hebrew": "he",
+            "turkish": "tr",
+        }
+
+        # Convert full language names to ISO codes (case-insensitive)
+        v_lower = v.lower()
+        if v_lower in language_name_map:
+            v = language_name_map[v_lower]
+
         # Validate BCP-47 format (case-insensitive)
         # Accept formats like: en, zh-CN, zh-Hans, en-US
         if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?(-[a-z]{3,4})?$", v, re.IGNORECASE):
             raise ValueError(
-                'Language code must be in valid format (e.g., "en", "zh-CN")'
+                'Language code must be in valid format (e.g., "en", "zh-CN") or recognized language name (e.g., "English", "Chinese")'
             )
 
         # Normalize to lowercase language code and uppercase country code
@@ -287,6 +321,11 @@ class TranslationBase(BaseSchema):
                     'Target language code must be in valid format (e.g., "en", "zh-CN")'
                 )
 
+        # Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
+        if "-" in v and len(v.split("-")) == 2:
+            lang, country = v.split("-")
+            v = f"{lang}-{country.upper()}"
+
         return v
 
     @field_validator("translated_text")
@@ -381,6 +420,97 @@ class TranslationResponse(TranslationBase):
     id: str = Field(..., description="Translation ID (ULID)")
     poem_id: str = Field(..., description="ID of the parent poem")
     created_at: datetime = Field(..., description="Creation timestamp")
+
+    # Computed fields for API compatibility
+    translation_id: str = Field(..., description="Translation ID (same as id)")
+    model_name: Optional[str] = Field(
+        None, description="AI model name used for translation"
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def populate_computed_fields(cls, data):
+        """Populate computed fields from base fields"""
+        # Handle SQLAlchemy model objects
+        if hasattr(data, "id"):
+            # Set translation_id to match id
+            if not hasattr(data, "translation_id") or not data.translation_id:
+                data.translation_id = data.id
+
+            # Normalize language codes
+            if hasattr(data, "target_language") and isinstance(
+                data.target_language, str
+            ):
+                data.target_language = data.target_language.replace("_", "-")
+                # Convert full language names to ISO codes
+                lang_map = {
+                    "english": "en",
+                    "chinese": "zh-CN",
+                    "french": "fr",
+                    "german": "de",
+                    "spanish": "es",
+                    "japanese": "ja",
+                    "korean": "ko",
+                    "russian": "ru",
+                    "italian": "it",
+                    "portuguese": "pt",
+                }
+                if data.target_language.lower() in lang_map:
+                    data.target_language = lang_map[data.target_language.lower()]
+
+            if hasattr(data, "source_language") and isinstance(
+                data.source_language, str
+            ):
+                data.source_language = data.source_language.replace("_", "-")
+                # Convert full language names to ISO codes
+                lang_map = {
+                    "english": "en",
+                    "chinese": "zh-CN",
+                    "french": "fr",
+                    "german": "de",
+                    "spanish": "es",
+                    "japanese": "ja",
+                    "korean": "ko",
+                    "russian": "ru",
+                    "italian": "it",
+                    "portuguese": "pt",
+                }
+                if data.source_language.lower() in lang_map:
+                    data.source_language = lang_map[data.source_language.lower()]
+
+            # Set model_name based on translator_type and translator_info
+            if not hasattr(data, "model_name") or not data.model_name:
+                if hasattr(data, "translator_type") and (
+                    (
+                        hasattr(data.translator_type, "value")
+                        and data.translator_type.value == "ai"
+                    )
+                    or (
+                        isinstance(data.translator_type, str)
+                        and data.translator_type == "ai"
+                    )
+                ):
+                    data.model_name = getattr(data, "translator_info", "AI Model")
+                else:
+                    data.model_name = getattr(data, "translator_info", None)
+
+        # Handle dictionary data
+        elif isinstance(data, dict):
+            # Set translation_id to match id
+            if "id" in data and not data.get("translation_id"):
+                data["translation_id"] = data["id"]
+
+            # Normalize language codes
+            if "target_language" in data and isinstance(data["target_language"], str):
+                data["target_language"] = data["target_language"].replace("_", "-")
+            if "source_language" in data and isinstance(data["source_language"], str):
+                data["source_language"] = data["source_language"].replace("_", "-")
+
+            # Set model_name based on translator_type and translator_info
+            if not data.get("model_name") and data.get("translator_type") == "ai":
+                data["model_name"] = data.get("translator_info", "AI Model")
+
+        return data
 
 
 class TranslationList(BaseSchema):
@@ -643,18 +773,6 @@ class TranslationRequest(BaseSchema):
     )
 
 
-class TranslationResponse(BaseSchema):
-    """Schema for translation workflow response"""
-
-    translation_id: str = Field(..., description="ID of the created translation")
-    translated_text: str = Field(..., description="The translated text")
-    model_name: str = Field(..., description="AI model used")
-    runtime_seconds: Optional[float] = Field(None, description="Translation runtime")
-    token_usage: Optional[Dict[str, Any]] = Field(
-        None, description="Token usage details"
-    )
-
-
 # Comparison schemas
 class ComparisonView(BaseSchema):
     """Schema for comparison view data"""
@@ -701,71 +819,8 @@ class TaskStatus(str, Enum):
     FAILED = "failed"
 
 
-class WorkflowTaskCreate(BaseSchema):
-    """Schema for creating workflow tasks"""
-
-    poem_id: str = Field(..., description="ID of the poem to translate")
-    source_lang: str = Field(
-        ..., min_length=2, max_length=10, description="Source language code"
-    )
-    target_lang: str = Field(
-        ..., min_length=2, max_length=10, description="Target language code"
-    )
-    workflow_mode: WorkflowMode = Field(..., description="Translation workflow mode")
-
-
-class WorkflowTaskUpdate(BaseSchema):
-    """Schema for updating workflow tasks"""
-
-    status: Optional[TaskStatus] = Field(None, description="Task status")
-    progress_percentage: Optional[int] = Field(
-        None, ge=0, le=100, description="Progress percentage (0-100)"
-    )
-    result_json: Optional[str] = Field(None, description="Task result data as JSON")
-    error_message: Optional[str] = Field(
-        None, description="Error message if task failed"
-    )
-    started_at: Optional[datetime] = Field(None, description="Task start time")
-    completed_at: Optional[datetime] = Field(None, description="Task completion time")
-
-
-class WorkflowTaskResponse(BaseSchema):
-    """Schema for workflow task responses"""
-
-    id: str = Field(..., description="Task ID")
-    poem_id: str = Field(..., description="ID of the poem being translated")
-    source_lang: str = Field(..., description="Source language code")
-    target_lang: str = Field(..., description="Target language code")
-    workflow_mode: WorkflowMode = Field(..., description="Translation workflow mode")
-    status: TaskStatus = Field(..., description="Current task status")
-    progress_percentage: int = Field(..., description="Progress percentage (0-100)")
-    result_json: Optional[str] = Field(None, description="Task result data as JSON")
-    error_message: Optional[str] = Field(
-        None, description="Error message if task failed"
-    )
-    started_at: Optional[datetime] = Field(None, description="Task start time")
-    completed_at: Optional[datetime] = Field(None, description="Task completion time")
-    created_at: datetime = Field(..., description="Task creation time")
-    updated_at: datetime = Field(..., description="Last update time")
-
-    # Computed properties
-    is_running: bool = Field(..., description="Whether task is currently running")
-    is_completed: bool = Field(..., description="Whether task has completed")
-    duration_seconds: Optional[int] = Field(
-        None, description="Task duration in seconds"
-    )
-
-
-class WorkflowTaskStatusUpdate(BaseSchema):
-    """Schema for updating task status"""
-
-    status: TaskStatus = Field(..., description="New task status")
-    progress_percentage: Optional[int] = Field(
-        None, ge=0, le=100, description="Progress percentage (0-100)"
-    )
-    error_message: Optional[str] = Field(
-        None, description="Error message if status is failed"
-    )
+# WorkflowTask schemas removed - task tracking now handled by FastAPI app.state
+# for real-time in-memory storage with enhanced step progress reporting
 
 
 class WorkflowTaskResult(BaseSchema):

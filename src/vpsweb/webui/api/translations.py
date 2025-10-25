@@ -69,7 +69,12 @@ async def list_translations(
         target_language=target_language,
         translator_type=translator_type,
     )
-    return translations
+
+    # Convert database models to Pydantic response models
+    # The TranslationResponse schema now handles field population automatically
+    return [
+        TranslationResponse.model_validate(translation) for translation in translations
+    ]
 
 
 @router.post("/", response_model=TranslationResponse)
@@ -110,7 +115,23 @@ async def create_translation(
 
     try:
         translation = service.translations.create(translation_create)
-        return translation
+        # Convert to response format
+        return {
+            "id": translation.id,
+            "poem_id": translation.poem_id,
+            "translator_type": translation.translator_type,
+            "translator_info": translation.translator_info,
+            "target_language": translation.target_language,
+            "translated_text": translation.translated_text,
+            "quality_rating": translation.quality_rating,
+            "created_at": translation.created_at,
+            "translation_id": translation.id,
+            "model_name": (
+                translation.translator_info
+                if translation.translator_type == "ai"
+                else None
+            ),
+        }
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to create translation: {str(e)}"
@@ -135,7 +156,28 @@ async def get_translation(
         raise HTTPException(
             status_code=404, detail=f"Translation with ID '{translation_id}' not found"
         )
-    return translation
+
+    # Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
+    target_language = translation.target_language
+    if "-" in target_language and len(target_language.split("-")) == 2:
+        lang, country = target_language.split("-")
+        target_language = f"{lang}-{country.upper()}"
+
+    # Convert to response format
+    return {
+        "id": translation.id,
+        "poem_id": translation.poem_id,
+        "translator_type": translation.translator_type,
+        "translator_info": translation.translator_info,
+        "target_language": target_language,
+        "translated_text": translation.translated_text,
+        "quality_rating": translation.quality_rating,
+        "created_at": translation.created_at,
+        "translation_id": translation.id,
+        "model_name": (
+            translation.translator_info if translation.translator_type == "ai" else None
+        ),
+    }
 
 
 @router.put("/{translation_id}", response_model=TranslationResponse)
@@ -175,7 +217,23 @@ async def update_translation(
         updated_translation = service.translations.update(
             translation_id, translation_update
         )
-        return updated_translation
+        # Convert to response format
+        return {
+            "id": updated_translation.id,
+            "poem_id": updated_translation.poem_id,
+            "translator_type": updated_translation.translator_type,
+            "translator_info": updated_translation.translator_info,
+            "target_language": updated_translation.target_language,
+            "translated_text": updated_translation.translated_text,
+            "quality_rating": updated_translation.quality_rating,
+            "created_at": updated_translation.created_at,
+            "translation_id": updated_translation.id,
+            "model_name": (
+                updated_translation.translator_info
+                if updated_translation.translator_type == "ai"
+                else None
+            ),
+        }
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to update translation: {str(e)}"
@@ -203,7 +261,7 @@ async def delete_translation(
         )
 
     try:
-        service.translations.remove(translation_id)
+        service.translations.delete(translation_id)
         return WebAPIResponse(success=True, message="Translation deleted successfully")
     except Exception as e:
         raise HTTPException(

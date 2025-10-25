@@ -144,15 +144,21 @@ def upgrade() -> None:
         sa.Column("completed_at", sa.DateTime(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["poem_id"], ["poems.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["poem_id"], ["poems.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_workflow_tasks_id"), "workflow_tasks", ["id"], unique=False)
-    op.create_index("idx_workflow_tasks_poem_id", "workflow_tasks", ["poem_id"], unique=False)
-    op.create_index("idx_workflow_tasks_status", "workflow_tasks", ["status"], unique=False)
-    op.create_index("idx_workflow_tasks_created_at", "workflow_tasks", ["created_at"], unique=False)
+    op.create_index(
+        op.f("ix_workflow_tasks_id"), "workflow_tasks", ["id"], unique=False
+    )
+    op.create_index(
+        "idx_workflow_tasks_poem_id", "workflow_tasks", ["poem_id"], unique=False
+    )
+    op.create_index(
+        "idx_workflow_tasks_status", "workflow_tasks", ["status"], unique=False
+    )
+    op.create_index(
+        "idx_workflow_tasks_created_at", "workflow_tasks", ["created_at"], unique=False
+    )
 
     # ### end Alembic commands ###
 

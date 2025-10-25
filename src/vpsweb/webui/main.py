@@ -6,7 +6,13 @@ Provides web interface and API endpoints for managing poems and translations.
 """
 
 from fastapi import FastAPI, Request, Depends, Form, HTTPException, BackgroundTasks
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import (
+    HTMLResponse,
+    RedirectResponse,
+    JSONResponse,
+    StreamingResponse,
+)
+from sse_starlette import EventSourceResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -14,12 +20,15 @@ from pydantic import BaseModel
 from typing import Optional
 import time
 import logging
+import asyncio
+import json
+import threading
 
 from src.vpsweb.repository.database import init_db, get_db
 from src.vpsweb.repository.models import Poem
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.service import RepositoryWebService
-from .api import poems, translations, statistics
+from .api import poems, translations, statistics, poets
 from .config import settings
 from .services.poem_service import PoemService
 from .services.translation_service import TranslationService
@@ -28,6 +37,7 @@ from .services.vpsweb_adapter import (
     get_vpsweb_adapter,
     WorkflowTimeoutError,
 )
+from .task_models import TaskStatus
 
 
 # Pydantic models for workflow endpoints
@@ -53,6 +63,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Initialize app.state for in-memory task tracking
+app.state.tasks = {}  # task_id -> TaskStatus
+app.state.task_locks = {}  # task_id -> threading.Lock
 
 # Performance monitoring middleware
 logger = logging.getLogger(__name__)
@@ -234,6 +248,7 @@ app.include_router(
     translations.router, prefix="/api/v1/translations", tags=["translations"]
 )
 app.include_router(statistics.router, prefix="/api/v1/statistics", tags=["statistics"])
+app.include_router(poets.router, prefix="/api/v1/poets", tags=["poets"])
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -275,25 +290,28 @@ def get_translation_service(db: Session = Depends(get_db)) -> TranslationService
     return TranslationService(db)
 
 
-async def get_vpsweb_adapter_dependency(
+def get_vpsweb_adapter_dependency(
     poem_service: PoemService = Depends(get_poem_service),
     translation_service: TranslationService = Depends(get_translation_service),
     db: Session = Depends(get_db),
 ) -> VPSWebWorkflowAdapter:
     """Dependency to get VPSWeb workflow adapter instance"""
     repository_service = RepositoryWebService(db)
-    async with get_vpsweb_adapter(
-        poem_service, translation_service, repository_service
-    ) as adapter:
-        yield adapter
+    # Create adapter instance - FastAPI dependencies should be regular functions, not async context managers
+    return VPSWebWorkflowAdapter(
+        poem_service=poem_service,
+        translation_service=translation_service,
+        repository_service=repository_service,
+    )
 
 
 @app.get("/poems", response_class=HTMLResponse)
-async def poems_list(request: Request, db: Session = Depends(get_db)):
+async def poems_list(
+    request: Request, service: RepositoryService = Depends(get_repository_service)
+):
     """
     List all poems with filtering and pagination
     """
-    service = get_repository_service(db)
     poems_list = service.poems.get_multi(skip=0, limit=100)
     return templates.TemplateResponse(
         "poems_list.html",
@@ -313,11 +331,14 @@ async def new_poem_form(request: Request):
 
 
 @app.get("/poems/{poem_id}", response_class=HTMLResponse)
-async def poem_detail(poem_id: str, request: Request, db: Session = Depends(get_db)):
+async def poem_detail(
+    poem_id: str,
+    request: Request,
+    service: RepositoryService = Depends(get_repository_service),
+):
     """
     Display detailed view of a specific poem with translations
     """
-    service = get_repository_service(db)
     poem = service.poems.get_by_id(poem_id)
 
     if not poem:
@@ -382,6 +403,116 @@ async def statistics_page(request: Request, db: Session = Depends(get_db)):
         "statistics.html",
         {"request": request, "stats": stats, "title": "Statistics - VPSWeb Repository"},
     )
+
+
+# Poet Browsing Routes
+@app.get("/poets", response_class=HTMLResponse)
+async def poets_list(
+    request: Request,
+    db: Session = Depends(get_db),
+    search: Optional[str] = None,
+    sort_by: Optional[str] = "name",
+    sort_order: Optional[str] = "asc",
+    min_poems: Optional[int] = None,
+    min_translations: Optional[int] = None,
+):
+    """
+    Display list of all poets with statistics and activity metrics
+    """
+    try:
+        service = RepositoryWebService(db)
+
+        # Get poets data with filters
+        poets_data = service.get_all_poets(
+            skip=0,
+            limit=50,
+            search=search,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            min_poems=min_poems,
+            min_translations=min_translations,
+        )
+
+        return templates.TemplateResponse(
+            "poets_list.html",
+            {
+                "request": request,
+                "poets": poets_data["poets"],
+                "total_count": poets_data["total_count"],
+                "search": search,
+                "sort_by": sort_by,
+                "sort_order": sort_order,
+                "min_poems": min_poems,
+                "min_translations": min_translations,
+                "title": "Poets - VPSWeb Repository",
+            },
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/poets/{poet_name}", response_class=HTMLResponse)
+async def poet_detail(
+    poet_name: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 20,
+    language: Optional[str] = None,
+    has_translations: Optional[bool] = None,
+    sort_by: Optional[str] = "title",
+    sort_order: Optional[str] = "asc",
+):
+    """
+    Display detailed view of a specific poet with their poems and statistics
+    """
+    try:
+        service = RepositoryWebService(db)
+
+        # Get poet statistics
+        stats = service.get_poet_statistics(poet_name)
+
+        # Get poet's poems with filters
+        poems_data = service.get_poems_by_poet(
+            poet_name=poet_name,
+            skip=skip,
+            limit=limit,
+            language=language,
+            has_translations=has_translations,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+
+        # Get poet's recent translations
+        translations_data = service.get_translations_by_poet(
+            poet_name=poet_name,
+            skip=0,
+            limit=5,
+            sort_by="created_at",
+            sort_order="desc",
+        )
+
+        return templates.TemplateResponse(
+            "poet_detail.html",
+            {
+                "request": request,
+                "poet_name": poet_name,
+                "poem_stats": stats["poem_statistics"],
+                "translation_stats": stats["translation_statistics"],
+                "poems": poems_data["poems"],
+                "total_poems": poems_data["total_count"],
+                "recent_translations": translations_data["translations"],
+                "language": language,
+                "has_translations": has_translations,
+                "sort_by": sort_by,
+                "sort_order": sort_order,
+                "title": f"{poet_name} - VPSWeb Repository",
+            },
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api-docs", response_class=HTMLResponse)
@@ -509,21 +640,73 @@ async def validate_translation_workflow(
         )
 
 
+@app.delete("/api/v1/poems/{poem_id}")
+async def delete_poem(poem_id: str, db: Session = Depends(get_db)):
+    """
+    Delete a poem and all its related translations
+
+    This endpoint allows deletion of poems and all associated data including translations.
+    """
+    try:
+        service = get_repository_service(db)
+        success = service.delete_poem(poem_id)
+
+        if success:
+            return JSONResponse(
+                {"success": True, "message": "Poem deleted successfully"},
+                status_code=200,
+            )
+        else:
+            return JSONResponse(
+                {"success": False, "message": "Poem not found"}, status_code=404
+            )
+
+    except Exception as e:
+        return JSONResponse(
+            {"success": False, "message": f"Failed to delete poem: {str(e)}"},
+            status_code=500,
+        )
+
+
+@app.delete("/api/v1/translations/{translation_id}")
+async def delete_translation(translation_id: str, db: Session = Depends(get_db)):
+    """
+    Delete a translation
+
+    This endpoint allows deletion of individual translations while preserving the original poem.
+    """
+    try:
+        service = get_repository_service(db)
+        success = service.delete_translation(translation_id)
+
+        if success:
+            return JSONResponse(
+                {"success": True, "message": "Translation deleted successfully"},
+                status_code=200,
+            )
+        else:
+            return JSONResponse(
+                {"success": False, "message": "Translation not found"}, status_code=404
+            )
+
+    except Exception as e:
+        return JSONResponse(
+            {"success": False, "message": f"Failed to delete translation: {str(e)}"},
+            status_code=500,
+        )
+
+
 @app.get("/api/v1/workflow/tasks/{task_id}")
-async def get_workflow_task_status(
-    task_id: str,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
+async def get_workflow_task_status(task_id: str):
     """
     Get the status of a background translation workflow task
 
     This endpoint allows monitoring of long-running translation workflows
-    that were started with the background processing option.
+    using FastAPI app.state for real-time status tracking.
     """
     try:
-        result = await adapter.get_task_status(task_id)
-
-        if result is None:
+        # Check if task exists in app.state
+        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
             return JSONResponse(
                 {
                     "success": False,
@@ -532,6 +715,10 @@ async def get_workflow_task_status(
                 },
                 status_code=404,
             )
+
+        # Get task status from app.state
+        task_status = app.state.tasks[task_id]
+        result = task_status.to_dict()
 
         return JSONResponse(
             {
@@ -552,22 +739,156 @@ async def get_workflow_task_status(
         )
 
 
-@app.get("/api/v1/workflow/tasks")
-async def list_workflow_tasks(
-    limit: int = 50,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
+@app.get("/api/v1/workflow/tasks/{task_id}/stream")
+async def stream_workflow_task_status(
+    task_id: str,
+    request: Request,
 ):
+    """
+    Stream real-time workflow task progress using Server-Sent Events (SSE)
+
+    This endpoint provides real-time updates for translation workflow progress
+    through FastAPI app.state, eliminating the need for database polling.
+    """
+
+    async def event_generator():
+        import json  # Local import to avoid scoping issues
+
+        # Check if task exists in app.state
+        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
+            yield {"event": "error", "data": json.dumps({"message": "Task not found"})}
+            return
+
+        # Send initial status
+        task_status = app.state.tasks[task_id]
+        initial_status = task_status.to_dict()
+        yield {"event": "status", "data": json.dumps(initial_status)}
+        print(
+            f"📡 [SSE] Initial status sent for task {task_id}: {initial_status['status']} - {initial_status['current_step']}"
+        )
+
+        # Stream for updates with real-time app.state access
+        max_iterations = 600  # 10 minutes with 1-second intervals
+        last_status = None
+        for i in range(max_iterations):
+            # Check if client disconnected
+            if await request.is_disconnected():
+                print(f"Client disconnected from task {task_id} SSE stream")
+                break
+
+            await asyncio.sleep(0.5)  # Check every 500ms for better responsiveness
+
+            try:
+                # Get current task status from app.state
+                if task_id in app.state.tasks:
+                    current_task = app.state.tasks[task_id]
+                    current_dict = current_task.to_dict()
+
+                    # Send update if any significant field changed
+                    if (
+                        last_status is None
+                        or current_dict["status"] != last_status["status"]
+                        or current_dict["progress"] != last_status["progress"]
+                        or current_dict["current_step"] != last_status["current_step"]
+                        or current_dict.get("step_states")
+                        != last_status.get("step_states")
+                        or current_dict.get("step_details")
+                        != last_status.get("step_details")
+                        or current_dict.get("step_progress")
+                        != last_status.get("step_progress")
+                    ):
+
+                        last_status = current_dict.copy()
+                        import json
+
+                        yield {"event": "status", "data": json.dumps(current_dict)}
+                        step_states = current_dict.get("step_states", {})
+                        current_step_state = step_states.get(
+                            current_dict["current_step"], "unknown"
+                        )
+                        print(
+                            f"📡 [SSE] Update sent for task {task_id}: {current_dict['status']} - {current_dict['progress']}% - {current_dict['current_step']} ({current_step_state})"
+                        )
+
+                    # Stop streaming if task is complete
+                    if current_task.status.value in ["completed", "failed"]:
+                        yield {
+                            "event": current_task.status.value,
+                            "data": json.dumps(current_dict),
+                        }
+                        print(
+                            f"📡 [SSE] Final status sent for task {task_id}: {current_task.status.value}"
+                        )
+                        break
+                else:
+                    # Task was removed from app.state
+                    yield {
+                        "event": "error",
+                        "data": json.dumps({"message": "Task disappeared from memory"}),
+                    }
+                    break
+
+            except asyncio.CancelledError:
+                print(f"SSE stream cancelled for task {task_id}")
+                break
+            except Exception as e:
+                print(f"❌ [SSE] Error in stream for task {task_id}: {str(e)}")
+                yield {"event": "error", "data": json.dumps({"message": str(e)})}
+                break
+
+        # Send completion event if timed out
+        if i >= max_iterations - 1:
+            yield {
+                "event": "timeout",
+                "data": json.dumps({"message": "Workflow timed out after 10 minutes"}),
+            }
+
+    return EventSourceResponse(
+        event_generator(),
+        ping=10,  # Ping every 10 seconds to keep connection alive
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Cache-Control",
+        },
+    )
+
+
+@app.get("/api/v1/workflow/tasks")
+async def list_workflow_tasks(limit: int = 50):
     """
     List active and recent background translation workflow tasks
 
-    This endpoint provides a list of recent translation tasks for monitoring
-    and management purposes.
+    This endpoint provides a list of recent translation tasks from app.state
+    for monitoring and management purposes.
     """
     try:
-        result = await adapter.list_active_tasks(limit=limit)
+        # Get tasks from app.state
+        if not hasattr(app.state, "tasks"):
+            return JSONResponse(
+                {
+                    "success": True,
+                    "message": "Tasks retrieved successfully",
+                    "data": {"tasks": []},
+                }
+            )
+
+        # Convert tasks to dict format and sort by creation time (newest first)
+        tasks = []
+        for task_id, task_status in app.state.tasks.items():
+            tasks.append({"task_id": task_id, **task_status.to_dict()})
+
+        # Sort by created_at (newest first) and limit
+        tasks.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        limited_tasks = tasks[:limit]
 
         return JSONResponse(
-            {"success": True, "message": "Tasks retrieved successfully", "data": result}
+            {
+                "success": True,
+                "message": "Tasks retrieved successfully",
+                "data": {"tasks": limited_tasks, "total_count": len(tasks)},
+            }
         )
 
     except Exception as e:
@@ -582,27 +903,42 @@ async def list_workflow_tasks(
 
 
 @app.delete("/api/v1/workflow/tasks/{task_id}")
-async def cancel_workflow_task(
-    task_id: str,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
+async def cancel_workflow_task(task_id: str):
     """
     Cancel a background translation workflow task
 
-    This endpoint allows cancellation of pending or running translation tasks.
-    Completed tasks cannot be cancelled.
+    This endpoint allows cancellation of pending or running translation tasks
+    using FastAPI app.state for task management.
     """
     try:
-        cancelled = await adapter.cancel_task(task_id)
-
-        if not cancelled:
+        # Check if task exists in app.state
+        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
             return JSONResponse(
                 {
                     "success": False,
-                    "message": f"Task not found or cannot be cancelled: {task_id}",
+                    "message": f"Task not found: {task_id}",
                     "data": None,
                 },
                 status_code=404,
+            )
+
+        # Check if task can be cancelled (not completed)
+        task_status = app.state.tasks[task_id]
+        if task_status.status.value in ["completed", "failed"]:
+            return JSONResponse(
+                {
+                    "success": False,
+                    "message": f"Task cannot be cancelled (already {task_status.status.value}): {task_id}",
+                    "data": None,
+                },
+                status_code=404,
+            )
+
+        # Mark task as cancelled
+        with app.state.task_locks[task_id]:
+            task_status.set_failed(
+                error="Task cancelled by user",
+                message="Task was cancelled by user request",
             )
 
         return JSONResponse(
@@ -622,6 +958,18 @@ async def cancel_workflow_task(
             },
             status_code=500,
         )
+
+
+@app.post("/api/v1/workflow/tasks/{task_id}/cancel")
+async def cancel_workflow_task_post(task_id: str):
+    """
+    Cancel a background translation workflow task (POST endpoint for frontend compatibility)
+
+    This endpoint provides the same functionality as the DELETE endpoint but uses POST
+    method with /cancel suffix for frontend compatibility.
+    """
+    # Reuse the DELETE endpoint logic
+    return await cancel_workflow_task(task_id)
 
 
 @app.get("/api/v1/workflow/modes")

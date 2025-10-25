@@ -13,7 +13,11 @@ from .settings import settings
 # Create SQLAlchemy engine with SQLite-specific settings
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False},  # Required for SQLite
+    connect_args={
+        "check_same_thread": False,  # Required for SQLite
+        "timeout": 20,  # Set timeout for database locking
+        "autocommit": False,  # Enable modern transaction control for proper session isolation
+    },
     poolclass=StaticPool,  # Use StaticPool for SQLite
     echo=settings.log_level.lower() == "debug",  # Log SQL in debug mode
 )
@@ -45,8 +49,17 @@ def get_db() -> Session:
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        # Handle any exceptions during database operations
+        db.rollback()
+        raise
     finally:
-        db.close()
+        try:
+            # Close session safely, ignoring rollback errors
+            db.close()
+        except Exception:
+            # Ignore cleanup errors - they don't affect functionality
+            pass
 
 
 def create_session() -> Session:
@@ -68,6 +81,7 @@ def check_db_connection() -> bool:
     """
     try:
         from sqlalchemy import text
+
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return True

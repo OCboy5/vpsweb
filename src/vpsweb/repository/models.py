@@ -5,8 +5,12 @@ SQLAlchemy ORM models for the 4-table database schema.
 Defines Poem, Translation, AILog, and HumanNote models with relationships.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional
+
+# Define UTC+8 timezone
+UTC_PLUS_8 = timezone(timedelta(hours=8))
+
 from sqlalchemy import (
     Column,
     String,
@@ -17,6 +21,7 @@ from sqlalchemy import (
     Integer,
     CheckConstraint,
     Index,
+    Enum,
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -42,14 +47,17 @@ class Poem(Base):
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(UTC_PLUS_8),
         server_default=func.now(),
-        onupdate=datetime.utcnow,
+        onupdate=lambda: datetime.now(UTC_PLUS_8),
     )
 
     # Relationships
@@ -119,9 +127,25 @@ class Translation(Base):
     )
     raw_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
+    # File organization fields for poet-based storage
+    poet_subdirectory: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, index=True
+    )
+    relative_json_path: Mapped[Optional[str]] = mapped_column(
+        String(500), nullable=True
+    )
+    file_category: Mapped[Optional[str]] = mapped_column(
+        Enum("recent", "poet_archive", name="file_category_enum"),
+        nullable=True,
+        index=True,
+    )
+
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
     )
 
     # Relationships
@@ -139,6 +163,17 @@ class Translation(Base):
         Index("idx_translations_type", "translator_type"),
         Index("idx_translations_language", "target_language"),
         Index("idx_translations_created_at", "created_at"),
+        Index("idx_translations_quality_rating", "quality_rating"),
+        Index(
+            "idx_translations_composite",
+            "poem_id",
+            "target_language",
+            "translator_type",
+        ),
+        Index("idx_translations_composite_created", "poem_id", "created_at"),
+        Index("idx_translations_poet_subdir", "poet_subdirectory"),
+        Index("idx_translations_file_category", "file_category"),
+        Index("idx_translations_composite_file", "poet_subdirectory", "file_category"),
         CheckConstraint(
             "translator_type IN ('ai', 'human')", name="ck_translator_type"
         ),
@@ -190,7 +225,10 @@ class AILog(Base):
 
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
     )
 
     # Relationships
@@ -255,7 +293,10 @@ class HumanNote(Base):
 
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
     )
 
     # Relationships
@@ -273,90 +314,5 @@ class HumanNote(Base):
         return f"HumanNote(id={self.id}, translation_id={self.translation_id})"
 
 
-class WorkflowTask(Base):
-    """WorkflowTask model for tracking background translation tasks"""
-
-    __tablename__ = "workflow_tasks"
-
-    # Primary key
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True)  # UUID
-
-    # Core task information
-    poem_id: Mapped[str] = mapped_column(
-        String(26),
-        ForeignKey("poems.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-
-    # Task configuration
-    source_lang: Mapped[str] = mapped_column(String(10), nullable=False)
-    target_lang: Mapped[str] = mapped_column(String(10), nullable=False)
-    workflow_mode: Mapped[str] = mapped_column(
-        String(20), nullable=False
-    )  # reasoning, non_reasoning, hybrid
-
-    # Task status and progress
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default="pending"
-    )  # pending, running, completed, failed
-    progress_percentage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-
-    # Result data (JSON field for flexible result storage)
-    result_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-
-    # Timing information
-    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-
-    # Timestamps
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-        default=datetime.utcnow,
-        server_default=func.now(),
-        onupdate=datetime.utcnow,
-    )
-
-    # Relationships
-    poem: Mapped["Poem"] = relationship("Poem", backref="workflow_tasks")
-
-    # Indexes for better query performance
-    __table_args__ = (
-        Index("idx_workflow_tasks_status", "status"),
-        Index("idx_workflow_tasks_poem_id", "poem_id"),
-        Index("idx_workflow_tasks_created_at", "created_at"),
-        Index("idx_workflow_tasks_workflow_mode", "workflow_mode"),
-        CheckConstraint(
-            "status IN ('pending', 'running', 'completed', 'failed')",
-            name="check_status",
-        ),
-        CheckConstraint(
-            "progress_percentage >= 0 AND progress_percentage <= 100",
-            name="check_progress",
-        ),
-    )
-
-    def __repr__(self) -> str:
-        return f"WorkflowTask(id={self.id}, poem_id={self.poem_id}, status='{self.status}', mode='{self.workflow_mode}')"
-
-    @property
-    def is_running(self) -> bool:
-        """Check if task is currently running"""
-        return self.status == "running"
-
-    @property
-    def is_completed(self) -> bool:
-        """Check if task has completed (successfully or with failure)"""
-        return self.status in ["completed", "failed"]
-
-    @property
-    def duration_seconds(self) -> Optional[int]:
-        """Calculate task duration in seconds"""
-        if self.started_at and self.completed_at:
-            return int((self.completed_at - self.started_at).total_seconds())
-        return None
+# WorkflowTask model removed - task tracking now handled by FastAPI app.state
+# for real-time in-memory storage with enhanced step progress reporting

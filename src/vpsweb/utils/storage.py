@@ -381,6 +381,211 @@ class StorageHandler:
             logger.error(f"Failed to get storage info: {e}")
             raise StorageError(f"Failed to get storage information: {e}")
 
+    # Enhanced Poet-Based Organization Methods
+    def save_translation_with_poet_dir(
+        self,
+        output: TranslationOutput,
+        poet_name: str,
+        workflow_mode: str = None,
+        include_mode_tag: bool = False,
+    ) -> Path:
+        """
+        Save a translation output to a poet-based subdirectory structure.
+
+        Structure: outputs/json/poets/{poet_name}/{filename}.json
+        Also saves latest copy to outputs/json/recent/ for fast access
+
+        Args:
+            output: TranslationOutput instance to save
+            poet_name: Name of the poet for subdirectory organization
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
+
+        Returns:
+            Path to the saved file in poet subdirectory
+
+        Raises:
+            SaveError: If saving fails due to file I/O or serialization issues
+        """
+        try:
+            # Create poet subdirectory structure
+            poets_dir = self.json_dir / "poets"
+            poet_dir = poets_dir / poet_name
+            recent_dir = self.json_dir / "recent"
+
+            # Create directories if they don't exist
+            poets_dir.mkdir(exist_ok=True)
+            poet_dir.mkdir(exist_ok=True)
+            recent_dir.mkdir(exist_ok=True)
+
+            # Generate timestamp and filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            poet, title = extract_poet_and_title(
+                output.input.original_poem, output.input.metadata
+            )
+
+            # Use provided poet_name or extracted poet
+            effective_poet_name = poet_name or poet
+
+            filename = generate_translation_filename(
+                poet=effective_poet_name,
+                title=title,
+                source_lang=output.input.source_lang,
+                target_lang=output.input.target_lang,
+                timestamp=timestamp,
+                workflow_id=output.workflow_id,
+                workflow_mode=workflow_mode,
+                file_format="json",
+                is_log=False,
+            )
+
+            # Save to poet subdirectory
+            poet_file_path = poet_dir / filename
+
+            # Convert to dictionary for JSON serialization
+            output_dict = output.to_dict()
+
+            # Save to poet subdirectory
+            with open(poet_file_path, "w", encoding="utf-8") as f:
+                json.dump(output_dict, f, ensure_ascii=False, indent=2)
+
+            # Also save to recent directory (keep latest 20)
+            recent_filename = f"latest_{output.workflow_id}_{timestamp}.json"
+            recent_file_path = recent_dir / recent_filename
+
+            with open(recent_file_path, "w", encoding="utf-8") as f:
+                json.dump(output_dict, f, ensure_ascii=False, indent=2)
+
+            # Clean up old recent files (keep only 20 most recent)
+            self._cleanup_recent_files(recent_dir, limit=20)
+
+            logger.info(f"Translation saved to poet directory: {poet_file_path}")
+            logger.info(f"Also saved to recent directory: {recent_file_path}")
+
+            return poet_file_path
+
+        except Exception as e:
+            logger.error(f"Failed to save translation with poet directory: {e}")
+            raise SaveError(f"Failed to save translation with poet directory: {e}")
+
+    def get_poet_directories(self) -> List[str]:
+        """
+        Get list of all poet subdirectories.
+
+        Returns:
+            List of poet names that have subdirectories
+
+        Raises:
+            StorageError: If directory listing fails
+        """
+        try:
+            poets_dir = self.json_dir / "poets"
+
+            if not poets_dir.exists():
+                return []
+
+            poet_dirs = []
+            for item in poets_dir.iterdir():
+                if item.is_dir():
+                    poet_dirs.append(item.name)
+
+            return sorted(poet_dirs)
+
+        except Exception as e:
+            logger.error(f"Failed to get poet directories: {e}")
+            raise StorageError(f"Failed to get poet directories: {e}")
+
+    def get_recent_files(self, limit: int = 20) -> List[Path]:
+        """
+        Get list of most recent translation files.
+
+        Args:
+            limit: Maximum number of files to return
+
+        Returns:
+            List of paths to recent files, sorted by modification time
+
+        Raises:
+            StorageError: If file listing fails
+        """
+        try:
+            recent_dir = self.json_dir / "recent"
+
+            if not recent_dir.exists():
+                return []
+
+            files = []
+            for file_path in recent_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            return files[:limit]
+
+        except Exception as e:
+            logger.error(f"Failed to get recent files: {e}")
+            raise StorageError(f"Failed to get recent files: {e}")
+
+    def get_poet_files(self, poet_name: str) -> List[Path]:
+        """
+        Get all translation files for a specific poet.
+
+        Args:
+            poet_name: Name of the poet
+
+        Returns:
+            List of paths to poet's translation files
+
+        Raises:
+            StorageError: If file listing fails
+        """
+        try:
+            poet_dir = self.json_dir / "poets" / poet_name
+
+            if not poet_dir.exists():
+                return []
+
+            files = []
+            for file_path in poet_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            return files
+
+        except Exception as e:
+            logger.error(f"Failed to get poet files for '{poet_name}': {e}")
+            raise StorageError(f"Failed to get poet files for '{poet_name}': {e}")
+
+    def _cleanup_recent_files(self, recent_dir: Path, limit: int = 20):
+        """
+        Clean up recent directory to keep only the specified number of files.
+
+        Args:
+            recent_dir: Path to recent directory
+            limit: Maximum number of files to keep
+        """
+        try:
+            files = []
+            for file_path in recent_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            # Remove excess files
+            for file_path in files[limit:]:
+                file_path.unlink()
+                logger.debug(f"Removed old recent file: {file_path}")
+
+        except Exception as e:
+            logger.warning(f"Failed to cleanup recent files: {e}")
+
     def __repr__(self) -> str:
         """String representation of the storage handler."""
         return f"StorageHandler(output_dir='{self.output_dir}')"

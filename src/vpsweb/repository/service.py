@@ -22,12 +22,10 @@ from .schemas import (
     HumanNoteCreate,
     HumanNoteResponse,
     RepositoryStats,
-    WorkflowTaskCreate,
-    WorkflowTaskResponse,
     TaskStatus,
     WorkflowMode,
 )
-from .models import Poem, Translation, AILog, HumanNote, WorkflowTask
+from .models import Poem, Translation, AILog, HumanNote
 
 
 class RepositoryWebService:
@@ -311,88 +309,367 @@ class RepositoryWebService:
             created_at=note.created_at,
         )
 
-    # Workflow Task Methods
-    def create_workflow_task(
-        self, task_data: WorkflowTaskCreate
-    ) -> WorkflowTaskResponse:
-        """Create a new workflow task"""
-        try:
-            task = self.repo.workflow_tasks.create(task_data)
-            return self._workflow_task_to_response(task)
-        except Exception as e:
-            raise self._handle_error("Failed to create workflow task", e)
+    # Workflow Task Methods removed - task tracking now handled by FastAPI app.state
+    # for real-time in-memory storage with enhanced step progress reporting
 
-    def get_workflow_task(self, task_id: str) -> Optional[WorkflowTaskResponse]:
-        """Get a workflow task by ID"""
-        task = self.repo.workflow_tasks.get(task_id)
-        if task:
-            return self._workflow_task_to_response(task)
-        return None
-
-    def get_workflow_tasks(
+    # Poet-Specific Methods for Enhanced Browsing
+    def get_all_poets(
         self,
-        *,
         skip: int = 0,
-        limit: int = 100,
-        status: Optional[TaskStatus] = None,
-        poem_id: Optional[str] = None,
-    ) -> List[WorkflowTaskResponse]:
-        """Get workflow tasks with optional filtering"""
-        tasks = self.repo.workflow_tasks.get_multi(
-            skip=skip, limit=limit, status=status, poem_id=poem_id
-        )
-        return [self._workflow_task_to_response(task) for task in tasks]
+        limit: int = 50,
+        search: Optional[str] = None,
+        sort_by: str = "name",
+        sort_order: str = "asc",
+        min_poems: Optional[int] = None,
+        min_translations: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Get all poets with statistics and activity metrics"""
+        from sqlalchemy import func, desc
 
-    def update_workflow_task_status(
-        self,
-        task_id: str,
-        status: TaskStatus,
-        progress_percentage: Optional[int] = None,
-        error_message: Optional[str] = None,
-    ) -> Optional[WorkflowTaskResponse]:
-        """Update workflow task status"""
-        try:
-            task = self.repo.workflow_tasks.update_status(
-                task_id, status, progress_percentage, error_message
+        # Base query with poet statistics
+        query = (
+            self.db.query(
+                self.repo.poems.model.poet_name,
+                func.count(self.repo.poems.model.id).label("poem_count"),
+                func.count(self.repo.translations.model.id).label("translation_count"),
+                func.avg(self.repo.translations.model.quality_rating).label(
+                    "avg_quality_rating"
+                ),
+                func.max(self.repo.translations.model.created_at).label(
+                    "last_translation_date"
+                ),
+                func.max(self.repo.poems.model.created_at).label("last_poem_date"),
             )
-            if task:
-                return self._workflow_task_to_response(task)
-            return None
-        except Exception as e:
-            raise self._handle_error("Failed to update workflow task status", e)
-
-    def set_workflow_task_result(
-        self, task_id: str, result_data: Dict[str, Any]
-    ) -> Optional[WorkflowTaskResponse]:
-        """Set workflow task result and mark as completed"""
-        try:
-            task = self.repo.workflow_tasks.set_result(task_id, result_data)
-            if task:
-                return self._workflow_task_to_response(task)
-            return None
-        except Exception as e:
-            raise self._handle_error("Failed to set workflow task result", e)
-
-    def _workflow_task_to_response(self, task: WorkflowTask) -> WorkflowTaskResponse:
-        """Convert workflow task model to response schema"""
-        return WorkflowTaskResponse(
-            id=task.id,
-            poem_id=task.poem_id,
-            source_lang=task.source_lang,
-            target_lang=task.target_lang,
-            workflow_mode=WorkflowMode(task.workflow_mode),
-            status=TaskStatus(task.status),
-            progress_percentage=task.progress_percentage,
-            result_json=task.result_json,
-            error_message=task.error_message,
-            started_at=task.started_at,
-            completed_at=task.completed_at,
-            created_at=task.created_at,
-            updated_at=task.updated_at,
-            is_running=task.is_running,
-            is_completed=task.is_completed,
-            duration_seconds=task.duration_seconds,
+            .outerjoin(
+                self.repo.translations.model,
+                self.repo.poems.model.id == self.repo.translations.model.poem_id,
+            )
+            .group_by(self.repo.poems.model.poet_name)
         )
+
+        # Apply filters
+        if search:
+            query = query.filter(self.repo.poems.model.poet_name.ilike(f"%{search}%"))
+
+        if min_poems is not None:
+            query = query.having(func.count(self.repo.poems.model.id) >= min_poems)
+
+        if min_translations is not None:
+            query = query.having(
+                func.count(self.repo.translations.model.id) >= min_translations
+            )
+
+        # Apply sorting
+        if sort_by == "name":
+            order_column = self.repo.poems.model.poet_name
+        elif sort_by == "poem_count":
+            order_column = func.count(self.repo.poems.model.id)
+        elif sort_by == "translation_count":
+            order_column = func.count(self.repo.translations.model.id)
+        elif sort_by == "recent_activity":
+            order_column = func.greatest(
+                func.max(self.repo.translations.model.created_at),
+                func.max(self.repo.poems.model.created_at),
+            )
+        else:
+            order_column = self.repo.poems.model.poet_name
+
+        if sort_order.lower() == "desc":
+            query = query.order_by(desc(order_column))
+        else:
+            query = query.order_by(order_column)
+
+        # Get total count and apply pagination
+        total_count = query.count()
+        poets_data = query.offset(skip).limit(limit).all()
+
+        return {
+            "poets": [
+                {
+                    "poet_name": row.poet_name,
+                    "poem_count": row.poem_count,
+                    "translation_count": row.translation_count or 0,
+                    "avg_quality_rating": (
+                        float(row.avg_quality_rating)
+                        if row.avg_quality_rating
+                        else None
+                    ),
+                    "last_translation_date": row.last_translation_date,
+                    "last_poem_date": row.last_poem_date,
+                }
+                for row in poets_data
+            ],
+            "total_count": total_count,
+            "skip": skip,
+            "limit": limit,
+        }
+
+    def get_poems_by_poet(
+        self,
+        poet_name: str,
+        skip: int = 0,
+        limit: int = 20,
+        language: Optional[str] = None,
+        has_translations: Optional[bool] = None,
+        sort_by: str = "title",
+        sort_order: str = "asc",
+    ) -> Dict[str, Any]:
+        """Get poems by a specific poet with translation information"""
+        from sqlalchemy import func, desc
+
+        # Base query for poems by poet with translation counts
+        query = (
+            self.db.query(
+                self.repo.poems.model,
+                func.count(self.repo.translations.model.id).label("translation_count"),
+                func.max(self.repo.translations.model.created_at).label(
+                    "last_translation_date"
+                ),
+            )
+            .outerjoin(
+                self.repo.translations.model,
+                self.repo.poems.model.id == self.repo.translations.model.poem_id,
+            )
+            .filter(self.repo.poems.model.poet_name == poet_name)
+            .group_by(self.repo.poems.model.id)
+        )
+
+        # Apply filters
+        if language:
+            query = query.filter(self.repo.poems.model.source_language == language)
+
+        if has_translations is not None:
+            if has_translations:
+                query = query.having(func.count(self.repo.translations.model.id) > 0)
+            else:
+                query = query.having(func.count(self.repo.translations.model.id) == 0)
+
+        # Apply sorting
+        if sort_by == "title":
+            order_column = self.repo.poems.model.poem_title
+        elif sort_by == "created_at":
+            order_column = self.repo.poems.model.created_at
+        elif sort_by == "translation_count":
+            order_column = func.count(self.repo.translations.model.id)
+        else:
+            order_column = self.repo.poems.model.poem_title
+
+        if sort_order.lower() == "desc":
+            query = query.order_by(desc(order_column))
+        else:
+            query = query.order_by(order_column)
+
+        # Get total count and apply pagination
+        total_count = query.count()
+        poems_data = query.offset(skip).limit(limit).all()
+
+        return {
+            "poet_name": poet_name,
+            "poems": [
+                {
+                    "id": poem.id,
+                    "poet_name": poem.poet_name,
+                    "poem_title": poem.poem_title,
+                    "source_language": poem.source_language,
+                    "original_text": poem.original_text,
+                    "created_at": poem.created_at,
+                    "updated_at": poem.updated_at,
+                    "translation_count": translation_count or 0,
+                    "last_translation_date": last_translation_date,
+                }
+                for poem, translation_count, last_translation_date in poems_data
+            ],
+            "total_count": total_count,
+            "skip": skip,
+            "limit": limit,
+        }
+
+    def get_translations_by_poet(
+        self,
+        poet_name: str,
+        skip: int = 0,
+        limit: int = 20,
+        target_language: Optional[str] = None,
+        translator_type: Optional[str] = None,
+        min_quality: Optional[int] = None,
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
+    ) -> Dict[str, Any]:
+        """Get translations by a specific poet with detailed information"""
+        from sqlalchemy import desc
+
+        # Base query for translations by poet
+        query = (
+            self.db.query(
+                self.repo.translations.model,
+                self.repo.poems.model.poem_title,
+                self.repo.poems.model.source_language,
+            )
+            .join(
+                self.repo.poems.model,
+                self.repo.translations.model.poem_id == self.repo.poems.model.id,
+            )
+            .filter(self.repo.poems.model.poet_name == poet_name)
+        )
+
+        # Apply filters
+        if target_language:
+            query = query.filter(
+                self.repo.translations.model.target_language == target_language
+            )
+
+        if translator_type:
+            query = query.filter(
+                self.repo.translations.model.translator_type == translator_type
+            )
+
+        if min_quality is not None:
+            query = query.filter(
+                self.repo.translations.model.quality_rating >= min_quality
+            )
+
+        # Apply sorting
+        if sort_by == "created_at":
+            order_column = self.repo.translations.model.created_at
+        elif sort_by == "quality_rating":
+            order_column = self.repo.translations.model.quality_rating
+        elif sort_by == "title":
+            order_column = self.repo.poems.model.poem_title
+        else:
+            order_column = self.repo.translations.model.created_at
+
+        if sort_order.lower() == "desc":
+            query = query.order_by(desc(order_column))
+        else:
+            query = query.order_by(order_column)
+
+        # Get total count and apply pagination
+        total_count = query.count()
+        translations_data = query.offset(skip).limit(limit).all()
+
+        return {
+            "poet_name": poet_name,
+            "translations": [
+                {
+                    "id": translation.id,
+                    "poem_id": translation.poem_id,
+                    "poem_title": poem_title,
+                    "source_language": source_language,
+                    "target_language": translation.target_language,
+                    "translator_type": translation.translator_type,
+                    "translator_info": translation.translator_info,
+                    "translated_text": translation.translated_text,
+                    "quality_rating": translation.quality_rating,
+                    "created_at": translation.created_at,
+                    "raw_path": translation.raw_path,
+                }
+                for translation, poem_title, source_language in translations_data
+            ],
+            "total_count": total_count,
+            "skip": skip,
+            "limit": limit,
+        }
+
+    def get_translation_history(self, poem_id: str) -> List[Dict[str, Any]]:
+        """Get translation history for a specific poem"""
+        translations = (
+            self.db.query(self.repo.translations.model)
+            .filter(self.repo.translations.model.poem_id == poem_id)
+            .order_by(self.repo.translations.model.created_at.desc())
+            .all()
+        )
+
+        return [
+            {
+                "id": translation.id,
+                "translator_type": translation.translator_type,
+                "translator_info": translation.translator_info,
+                "target_language": translation.target_language,
+                "quality_rating": translation.quality_rating,
+                "created_at": translation.created_at,
+                "has_ai_logs": len(translation.ai_logs) > 0,
+                "has_human_notes": len(translation.human_notes) > 0,
+            }
+            for translation in translations
+        ]
+
+    def get_poet_statistics(self, poet_name: str) -> Dict[str, Any]:
+        """Get comprehensive statistics for a specific poet"""
+        from sqlalchemy import func
+
+        # Check if poet exists
+        poet_exists = (
+            self.db.query(self.repo.poems.model)
+            .filter(self.repo.poems.model.poet_name == poet_name)
+            .first()
+        )
+
+        if not poet_exists:
+            raise ValueError(f"Poet '{poet_name}' not found")
+
+        # Get poem statistics
+        poem_stats = (
+            self.db.query(
+                func.count(self.repo.poems.model.id).label("total_poems"),
+                func.count(func.distinct(self.repo.poems.model.source_language)).label(
+                    "source_languages_count"
+                ),
+                func.min(self.repo.poems.model.created_at).label("first_poem_date"),
+                func.max(self.repo.poems.model.created_at).label("last_poem_date"),
+            )
+            .filter(self.repo.poems.model.poet_name == poet_name)
+            .first()
+        )
+
+        # Get translation statistics
+        translation_stats = (
+            self.db.query(
+                func.count(self.repo.translations.model.id).label("total_translations"),
+                func.count(
+                    func.distinct(self.repo.translations.model.target_language)
+                ).label("target_languages_count"),
+                func.avg(self.repo.translations.model.quality_rating).label(
+                    "avg_quality_rating"
+                ),
+                func.count(
+                    func.distinct(self.repo.translations.model.translator_type)
+                ).label("translator_types_count"),
+                func.min(self.repo.translations.model.created_at).label(
+                    "first_translation_date"
+                ),
+                func.max(self.repo.translations.model.created_at).label(
+                    "last_translation_date"
+                ),
+            )
+            .join(
+                self.repo.poems.model,
+                self.repo.translations.model.poem_id == self.repo.poems.model.id,
+            )
+            .filter(self.repo.poems.model.poet_name == poet_name)
+            .first()
+        )
+
+        return {
+            "poet_name": poet_name,
+            "poem_statistics": {
+                "total_poems": poem_stats.total_poems,
+                "source_languages_count": poem_stats.source_languages_count,
+                "first_poem_date": poem_stats.first_poem_date,
+                "last_poem_date": poem_stats.last_poem_date,
+            },
+            "translation_statistics": {
+                "total_translations": translation_stats.total_translations or 0,
+                "target_languages_count": translation_stats.target_languages_count or 0,
+                "avg_quality_rating": (
+                    float(translation_stats.avg_quality_rating)
+                    if translation_stats.avg_quality_rating
+                    else None
+                ),
+                "translator_types_count": translation_stats.translator_types_count or 0,
+                "first_translation_date": translation_stats.first_translation_date,
+                "last_translation_date": translation_stats.last_translation_date,
+            },
+        }
 
     def _handle_error(self, message: str, error: Exception) -> Exception:
         """Handle and format errors consistently"""

@@ -18,10 +18,11 @@ async def test_database_session_fixture(db_session):
     """Test that the db_session fixture works correctly."""
     # Verify we have a database session
     assert db_session is not None
-    assert hasattr(db_session, 'execute')
+    assert hasattr(db_session, "execute")
 
     # Test basic database operations
     from sqlalchemy import text
+
     result = await db_session.execute(text("SELECT 1"))
     assert result.scalar() == 1
 
@@ -82,7 +83,9 @@ async def test_poem_service_fixture(poem_service, sample_poem):
 
 
 @pytest.mark.asyncio
-async def test_translation_service_fixture(translation_service, sample_poem, sample_translation):
+async def test_translation_service_fixture(
+    translation_service, sample_poem, sample_translation
+):
     """Test that the translation service fixture works."""
     # Verify the translation service was created
     assert translation_service is not None
@@ -120,7 +123,7 @@ async def test_test_context_fixture(test_context):
         poet_name="Context Test Poet",
         poem_title="Context Test Poem",
         source_language="English",
-        original_text="This is a test poem created via context helper."
+        original_text="This is a test poem created via context helper.",
     )
 
     assert poem is not None
@@ -176,6 +179,7 @@ def test_performance_timer_fixture(performance_timer):
     # Test timing
     performance_timer.start()
     import time
+
     time.sleep(0.01)  # 10ms
     performance_timer.stop()
 
@@ -198,15 +202,14 @@ async def test_database_isolation(db_session):
         poet_name="Isolation Test Poet",
         poem_title="Isolation Test Poem",
         source_language="English",
-        original_text="Test poem for isolation verification."
+        original_text="Test poem for isolation verification.",
     )
     db_session.add(poem)
     await db_session.commit()
 
     # Verify the poem exists in this session
     result = await db_session.execute(
-        "SELECT COUNT(*) FROM poems WHERE id = :poem_id",
-        {"poem_id": poem_id}
+        "SELECT COUNT(*) FROM poems WHERE id = :poem_id", {"poem_id": poem_id}
     )
     assert result.scalar() == 1
 
@@ -222,17 +225,14 @@ async def test_database_isolation(db_session):
     async with new_session() as isolated_session:
         # The poem should not be visible in a rolled back session
         result = await isolated_session.execute(
-            "SELECT COUNT(*) FROM poems WHERE id = :poem_id",
-            {"poem_id": poem_id}
+            "SELECT COUNT(*) FROM poems WHERE id = :poem_id", {"poem_id": poem_id}
         )
         # The count should be 0 because changes are rolled back when session exits
         assert result.scalar() == 0
 
 
 @pytest.mark.integration
-async def test_full_workflow_integration(
-    test_client, sample_poem, sample_translation
-):
+async def test_full_workflow_integration(test_client, sample_poem, sample_translation):
     """Test full workflow integration with all fixtures."""
     # Test getting poems via API
     response = test_client.get("/api/v1/poems/")

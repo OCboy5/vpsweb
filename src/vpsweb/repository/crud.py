@@ -7,8 +7,11 @@ AI logs, and human notes with proper error handling and type safety.
 """
 
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import uuid
+
+# Define UTC+8 timezone
+UTC_PLUS_8 = timezone(timedelta(hours=8))
 
 # Import ULID generation utility from v0.3.0 utils
 from vpsweb.utils.ulid_utils import generate_ulid
@@ -17,7 +20,7 @@ from sqlalchemy import select, update, delete, func, and_, or_
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from .models import Poem, Translation, AILog, HumanNote, WorkflowTask
+from .models import Poem, Translation, AILog, HumanNote
 from .schemas import (
     PoemCreate,
     PoemUpdate,
@@ -29,9 +32,6 @@ from .schemas import (
     AILogResponse,
     HumanNoteCreate,
     HumanNoteResponse,
-    WorkflowTaskCreate,
-    WorkflowTaskUpdate,
-    WorkflowTaskResponse,
     TranslatorType,
     WorkflowMode,
     TaskStatus,
@@ -152,7 +152,7 @@ class CRUDPoem:
                 source_language=poem_data.source_language,
                 original_text=poem_data.original_text,
                 metadata_json=poem_data.metadata_json,
-                updated_at=datetime.utcnow(),
+                updated_at=datetime.now(timezone.utc),
             )
         )
 
@@ -455,210 +455,8 @@ class CRUDHumanNote:
         return result.rowcount > 0
 
 
-class CRUDWorkflowTask:
-    """CRUD operations for WorkflowTask model"""
-
-    def __init__(self, db: Session):
-        self.db = db
-
-    def create(self, task_data: WorkflowTaskCreate) -> WorkflowTask:
-        """
-        Create a new workflow task
-
-        Args:
-            task_data: Task creation data
-
-        Returns:
-            Created task object
-
-        Raises:
-            IntegrityError: If task with same ID already exists
-        """
-        # Generate UUID for task ID
-        task_id = str(uuid.uuid4())
-
-        db_task = WorkflowTask(
-            id=task_id,
-            poem_id=task_data.poem_id,
-            source_lang=task_data.source_lang,
-            target_lang=task_data.target_lang,
-            workflow_mode=task_data.workflow_mode.value,
-            status=TaskStatus.PENDING.value,
-            progress_percentage=0,
-        )
-
-        try:
-            self.db.add(db_task)
-            self.db.commit()
-            self.db.refresh(db_task)
-            return db_task
-        except IntegrityError:
-            self.db.rollback()
-            raise
-
-    def get(self, task_id: str) -> Optional[WorkflowTask]:
-        """
-        Get a workflow task by ID
-
-        Args:
-            task_id: Task ID
-
-        Returns:
-            Task object if found, None otherwise
-        """
-        stmt = select(WorkflowTask).where(WorkflowTask.id == task_id)
-        return self.db.execute(stmt).scalar_one_or_none()
-
-    def get_multi(
-        self,
-        *,
-        skip: int = 0,
-        limit: int = 100,
-        status: Optional[TaskStatus] = None,
-        poem_id: Optional[str] = None,
-    ) -> List[WorkflowTask]:
-        """
-        Get multiple workflow tasks with optional filtering
-
-        Args:
-            skip: Number of records to skip
-            limit: Maximum number of records to return
-            status: Filter by task status
-            poem_id: Filter by poem ID
-
-        Returns:
-            List of task objects
-        """
-        stmt = select(WorkflowTask).offset(skip).limit(limit)
-
-        if status:
-            stmt = stmt.where(WorkflowTask.status == status.value)
-        if poem_id:
-            stmt = stmt.where(WorkflowTask.poem_id == poem_id)
-
-        stmt = stmt.order_by(WorkflowTask.created_at.desc())
-
-        return self.db.execute(stmt).scalars().all()
-
-    def update(
-        self, task_id: str, task_data: WorkflowTaskUpdate
-    ) -> Optional[WorkflowTask]:
-        """
-        Update a workflow task
-
-        Args:
-            task_id: Task ID
-            task_data: Update data
-
-        Returns:
-            Updated task object if found, None otherwise
-        """
-        stmt = (
-            update(WorkflowTask)
-            .where(WorkflowTask.id == task_id)
-            .values(**task_data.model_dump(exclude_unset=True))
-            .returning(WorkflowTask)
-        )
-
-        try:
-            result = self.db.execute(stmt)
-            self.db.commit()
-            return result.scalar_one_or_none()
-        except SQLAlchemyError:
-            self.db.rollback()
-            return None
-
-    def update_status(
-        self,
-        task_id: str,
-        status: TaskStatus,
-        progress_percentage: Optional[int] = None,
-        error_message: Optional[str] = None,
-    ) -> Optional[WorkflowTask]:
-        """
-        Update task status with optional progress and error message
-
-        Args:
-            task_id: Task ID
-            status: New status
-            progress_percentage: Progress percentage (0-100)
-            error_message: Error message if status is failed
-
-        Returns:
-            Updated task object if found, None otherwise
-        """
-        update_data = {"status": status.value}
-
-        if progress_percentage is not None:
-            update_data["progress_percentage"] = progress_percentage
-        if error_message is not None:
-            update_data["error_message"] = error_message
-
-        # Set timestamps
-        if status == TaskStatus.RUNNING:
-            update_data["started_at"] = datetime.utcnow()
-        elif status in [TaskStatus.COMPLETED, TaskStatus.FAILED]:
-            update_data["completed_at"] = datetime.utcnow()
-
-        return self.update(task_id, WorkflowTaskUpdate(**update_data))
-
-    def set_result(
-        self, task_id: str, result_data: Dict[str, Any]
-    ) -> Optional[WorkflowTask]:
-        """
-        Set task result and mark as completed
-
-        Args:
-            task_id: Task ID
-            result_data: Result data as dictionary
-
-        Returns:
-            Updated task object if found, None otherwise
-        """
-        import json
-
-        result_json = json.dumps(result_data)
-
-        update_data = WorkflowTaskUpdate(
-            status=TaskStatus.COMPLETED,
-            progress_percentage=100,
-            result_json=result_json,
-            completed_at=datetime.utcnow(),
-        )
-
-        return self.update(task_id, update_data)
-
-    def delete(self, task_id: str) -> bool:
-        """
-        Delete a workflow task
-
-        Args:
-            task_id: Task ID
-
-        Returns:
-            True if deleted, False otherwise
-        """
-        stmt = delete(WorkflowTask).where(WorkflowTask.id == task_id)
-        result = self.db.execute(stmt)
-        self.db.commit()
-        return result.rowcount > 0
-
-    def count(self, *, status: Optional[TaskStatus] = None) -> int:
-        """
-        Count workflow tasks with optional filtering
-
-        Args:
-            status: Filter by task status
-
-        Returns:
-            Number of tasks
-        """
-        stmt = select(func.count(WorkflowTask.id))
-
-        if status:
-            stmt = stmt.where(WorkflowTask.status == status.value)
-
-        return self.db.execute(stmt).scalar()
+# CRUDWorkflowTask class removed - task tracking now handled by FastAPI app.state
+# for real-time in-memory storage with enhanced step progress reporting
 
 
 # Repository service that combines all CRUD operations
@@ -671,7 +469,7 @@ class RepositoryService:
         self.translations = CRUDTranslation(db)
         self.ai_logs = CRUDAILog(db)
         self.human_notes = CRUDHumanNote(db)
-        self.workflow_tasks = CRUDWorkflowTask(db)
+        # workflow_tasks removed - now using FastAPI app.state for task tracking
 
     def get_repository_stats(self) -> Dict[str, Any]:
         """Get comprehensive repository statistics"""
