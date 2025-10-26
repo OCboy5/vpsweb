@@ -148,6 +148,13 @@ class TranslationWorkflow:
                 }
                 progress_tracker.start_step("initial_translation", model_info)
 
+            # Call progress callback when Step 1 starts
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Initial Translation",
+                    {"status": "started", "message": "Starting initial translation..."},
+                )
+
             step_start_time = time.time()
             initial_translation = await self._initial_translation(input_data)
             step_duration = time.time() - step_start_time
@@ -195,18 +202,7 @@ class TranslationWorkflow:
                     },
                 )
 
-            # Call progress callback when Step 1 starts
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Initial Translation",
-                    {"status": "started", "message": "Starting initial translation..."},
-                )
-
-            step_start_time = time.time()
-            initial_translation = await self._initial_translation(input_data)
-            step_duration = time.time() - step_start_time
-            initial_translation.duration = step_duration
-
+  
             # Call progress callback after Step 1 completion
             if self.progress_callback:
                 await self.progress_callback(

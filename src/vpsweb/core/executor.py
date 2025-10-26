@@ -185,16 +185,6 @@ class StepExecutor:
                 template_name, input_data
             )
 
-            # DEBUG: Log the rendered prompts for troubleshooting
-            logger.info(f"=== {step_name.upper()} PROMPT DEBUG ===")
-            logger.info(f"Step: {step_name}")
-            logger.info(f"Template: {template_name}")
-            logger.info(f"Input Variables: {list(input_data.keys())}")
-            logger.info(f"System Prompt:\n{system_prompt}")
-            logger.info(f"User Prompt Length: {len(user_prompt)} characters")
-            logger.info(f"User Prompt:\n{user_prompt}")
-            logger.info(f"=== END {step_name.upper()} PROMPT DEBUG ===")
-
             return system_prompt, user_prompt
 
         except (TemplateLoadError, TemplateVariableError) as e:

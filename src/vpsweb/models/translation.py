@@ -272,7 +272,6 @@ class TranslationOutput(BaseModel):
     revised_translation: RevisedTranslation = Field(
         ..., description="Final revised translation with notes"
     )
-    full_log: str = Field(..., description="Complete workflow log including all steps")
     total_tokens: int = Field(
         ..., ge=0, description="Total tokens used across all workflow steps"
     )
@@ -287,17 +286,6 @@ class TranslationOutput(BaseModel):
         None, ge=0.0, description="Total cost in RMB for the entire workflow"
     )
 
-    def get_congregated_output(self) -> Dict[str, Any]:
-        """Generate the final congregation format matching vpts.yml template."""
-        return {
-            "original_poem": self.input.original_poem,
-            "initial_translation": self.initial_translation.initial_translation,
-            "initial_translation_notes": self.initial_translation.initial_translation_notes,
-            "editor_suggestions": self.editor_review.editor_suggestions,
-            "revised_translation": self.revised_translation.revised_translation,
-            "revised_translation_notes": self.revised_translation.revised_translation_notes,
-        }
-
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with proper serialization."""
         return {
@@ -306,10 +294,8 @@ class TranslationOutput(BaseModel):
             "initial_translation": self.initial_translation.to_dict(),
             "editor_review": self.editor_review.to_dict(),
             "revised_translation": self.revised_translation.to_dict(),
-            "full_log": self.full_log,
             "total_tokens": self.total_tokens,
             "duration_seconds": self.duration_seconds,
-            "congregated_output": self.get_congregated_output(),
         }
 
     @classmethod
@@ -325,7 +311,6 @@ class TranslationOutput(BaseModel):
             revised_translation=RevisedTranslation.from_dict(
                 data["revised_translation"]
             ),
-            full_log=data["full_log"],
             total_tokens=data["total_tokens"],
             duration_seconds=data["duration_seconds"],
         )

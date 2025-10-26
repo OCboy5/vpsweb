@@ -92,15 +92,4 @@ wechat_translation_notes:
       max_tokens: 8192
       timeout: 60
 
-  # Legacy settings (deprecated, use models configuration above)
-  temperature:
-    reasoning: 0.1
-    non_reasoning: 0.3
-
-  max_tokens:
-    reasoning: 8192
-    non_reasoning: 8192
-
-  timeout:
-    reasoning: 180
-    non_reasoning: 60
+  

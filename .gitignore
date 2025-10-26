@@ -138,6 +138,9 @@ tests/fixtures/sample_poems/copyrighted_*
 cache/
 tmp/
 temp/
+backups/
+examples/
+docs/
 
 # Security and audit files
 bandit-report.json

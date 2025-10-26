@@ -68,8 +68,8 @@ Scripts available in repo:
 
 ## 2) Standard Release Flow (recommended path)
 
-⚠️ **IMPORTANT**: Local backup should be created in Step 1.1 (before making changes)
-- If you missed Step 1.1, create backup now: `./save-version.sh X.Y.Z`
+⚠️ **IMPORTANT**: Local backup should be created in Step 1.7 
+- If you missed Step 1.7, create backup now: `./save-version.sh X.Y.Z`
 
 1) Create the official GitHub release (tag + release)
 ```bash
@@ -224,32 +224,9 @@ git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"
 # Open Actions and Releases pages to confirm
 ```
 
-## 9) Release Checklist (Print this for reference)
 
-```
-□ 1.1 Create local backup: ./save-version.sh X.Y.Z
-□ 1.2 Update version in pyproject.toml
-□ 1.3 Update version in src/vpsweb/__init__.py
-□ 1.4 Update version in src/vpsweb/__main__.py
-□ 1.5 Verify version consistency: grep -R 'X.Y.Z' src/ pyproject.toml
-□ 1.6 Update CHANGELOG.md with release notes
-□ 1.7 Update README.md (version badge + status section)
-□ 1.8 Update STATUS.md (version + executive summary + features)
-□ 1.9 Update other docs if needed (CLAUDE.md, DEVELOPMENT.md)
-□ 1.10 Check code formatting: python -m black --check src/ tests/
-□ 1.11 Fix formatting if needed: python -m black src/ tests/
-□ 1.12 Run tests if possible: pytest -q
-□ 1.13 Commit all changes to main
-□ 1.14 Push to main branch
-□ 2.1 Create GitHub release: ./push-version.sh X.Y.Z "release notes"
-□ 3.1 Verify release exists: gh release view vX.Y.Z
-□ 3.2 Verify tag exists on remote
-□ 3.3 Open GitHub Actions page to check CI
-```
 
----
-
-## 10) Notes and Best Practices
+## 9) Notes and Best Practices
 
 - Keep releases atomic: ensure main is up to date and green before tagging.
 - Prefer ./push-version.sh as the single source of truth for releases; use ./save-version.sh as a safety net before major changes.

@@ -5,7 +5,6 @@ This module provides utilities to export translation results and logs
 to well-formatted markdown files.
 """
 
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional

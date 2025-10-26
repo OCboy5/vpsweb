@@ -7,9 +7,7 @@ logic from docs/vpts.yml.
 """
 
 import re
-import json
 from typing import Dict, Any, List, Optional, Union
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
