@@ -44,6 +44,14 @@ class CRUDPoem:
     def __init__(self, db: Session):
         self.db = db
 
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
     def create(self, poem_data: PoemCreate) -> Poem:
         """
         Create a new poem
@@ -75,10 +83,10 @@ class CRUDPoem:
             self.db.refresh(db_poem)
             return db_poem
         except IntegrityError:
-            self.db.rollback()
+            self._safe_rollback()
             raise
         except SQLAlchemyError as e:
-            self.db.rollback()
+            self._safe_rollback()
             raise e
 
     def get_by_id(self, poem_id: str) -> Optional[Poem]:
@@ -201,6 +209,14 @@ class CRUDTranslation:
     def __init__(self, db: Session):
         self.db = db
 
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
     def create(self, translation_data: TranslationCreate) -> Translation:
         """
         Create a new translation
@@ -221,6 +237,8 @@ class CRUDTranslation:
             translator_info=translation_data.translator_info,
             target_language=translation_data.target_language,
             translated_text=translation_data.translated_text,
+            translated_poem_title=translation_data.translated_poem_title,  # 🎯 CRITICAL FIX: Add translated poem title
+            translated_poet_name=translation_data.translated_poet_name,  # 🎯 CRITICAL FIX: Add translated poet name
             quality_rating=translation_data.quality_rating,
             raw_path=translation_data.raw_path,
         )
@@ -231,10 +249,10 @@ class CRUDTranslation:
             self.db.refresh(db_translation)
             return db_translation
         except IntegrityError:
-            self.db.rollback()
+            self._safe_rollback()
             raise
         except SQLAlchemyError as e:
-            self.db.rollback()
+            self._safe_rollback()
             raise e
 
     def get_by_id(self, translation_id: str) -> Optional[Translation]:
@@ -337,6 +355,14 @@ class CRUDAILog:
     def __init__(self, db: Session):
         self.db = db
 
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
     def create(self, ai_log_data: AILogCreate) -> AILog:
         """Create a new AI log entry"""
         # Generate ULID for time-sortable unique ID
@@ -359,10 +385,10 @@ class CRUDAILog:
             self.db.refresh(db_ai_log)
             return db_ai_log
         except IntegrityError:
-            self.db.rollback()
+            self._safe_rollback()
             raise
         except SQLAlchemyError as e:
-            self.db.rollback()
+            self._safe_rollback()
             raise e
 
     def get_by_id(self, ai_log_id: str) -> Optional[AILog]:
@@ -408,6 +434,14 @@ class CRUDHumanNote:
     def __init__(self, db: Session):
         self.db = db
 
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
     def create(self, note_data: HumanNoteCreate) -> HumanNote:
         """Create a new human note"""
         # Generate ULID for time-sortable unique ID
@@ -425,10 +459,10 @@ class CRUDHumanNote:
             self.db.refresh(db_note)
             return db_note
         except IntegrityError:
-            self.db.rollback()
+            self._safe_rollback()
             raise
         except SQLAlchemyError as e:
-            self.db.rollback()
+            self._safe_rollback()
             raise e
 
     def get_by_id(self, note_id: str) -> Optional[HumanNote]:

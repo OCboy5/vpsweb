@@ -110,6 +110,10 @@ async def create_translation(
         translator_info=translation_data.translator_name or "Anonymous",
         target_language=translation_data.target_language,
         translated_text=translation_data.translated_text,
+        translated_poem_title=translation_data.translated_poem_title
+        or "",  # 🎯 Add for consistency (typically empty for human translations)
+        translated_poet_name=translation_data.translated_poet_name
+        or "",  # 🎯 Add for consistency (typically empty for human translations)
         quality_rating=translation_data.quality_rating,
     )
 
@@ -171,7 +175,10 @@ async def get_translation(
         "translator_info": translation.translator_info,
         "target_language": target_language,
         "translated_text": translation.translated_text,
+        "translated_poem_title": translation.translated_poem_title,
+        "translated_poet_name": translation.translated_poet_name,
         "quality_rating": translation.quality_rating,
+        "raw_path": translation.raw_path,
         "created_at": translation.created_at,
         "translation_id": translation.id,
         "model_name": (

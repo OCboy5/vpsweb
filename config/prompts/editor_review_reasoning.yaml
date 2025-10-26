@@ -14,6 +14,16 @@ user: |
   Analyze the original poem, the translation, and translator's notes with a fresh, critical perspective.
   Consider the translator's rationale (especially the opening line) but evaluate independently.
 
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <TRANSLATED_POEM_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </TRANSLATED_POEM_INFO>
+
   <SOURCE_TEXT>
   {{ original_poem }}
   </SOURCE_TEXT>

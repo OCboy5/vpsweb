@@ -195,13 +195,14 @@ class OutputParser:
     @staticmethod
     def parse_initial_translation_xml(xml_string: str) -> Dict[str, str]:
         """
-        Parse initial translation XML specifically (from vpts.yml extract logic).
+        Parse initial translation XML specifically with support for translated titles and poet names.
 
         Args:
             xml_string: XML string from initial translation step
 
         Returns:
-            Dictionary with 'initial_translation' and 'initial_translation_notes'
+            Dictionary with 'initial_translation', 'initial_translation_notes',
+            'translated_poem_title', and 'translated_poet_name'
 
         Raises:
             XMLParsingError: If parsing fails or expected tags are missing
@@ -209,11 +210,21 @@ class OutputParser:
         try:
             parsed_data = OutputParser.parse_xml(xml_string)
 
-            # Extract specific fields (matching vpts.yml logic)
-            initial_translation = str(parsed_data.get("initial_translation", ""))
+            # Handle nested structure - check if we have a 'translation' wrapper
+            if "translation" in parsed_data:
+                content = parsed_data["translation"]
+            else:
+                content = parsed_data
+
+            # Extract specific fields (updated to include translated title and poet name)
+            initial_translation = str(content.get("initial_translation", ""))
             initial_translation_notes = str(
-                parsed_data.get("initial_translation_notes", "")
+                content.get("initial_translation_notes", "")
             )
+            translated_poem_title = str(
+                content.get("translated_poem_title", "")
+            ).strip()
+            translated_poet_name = str(content.get("translated_poet_name", "")).strip()
 
             if not initial_translation:
                 raise XMLParsingError(
@@ -223,9 +234,13 @@ class OutputParser:
             result = {
                 "initial_translation": initial_translation,
                 "initial_translation_notes": initial_translation_notes,
+                "translated_poem_title": translated_poem_title,
+                "translated_poet_name": translated_poet_name,
             }
 
-            logger.debug(f"Successfully parsed initial translation XML")
+            logger.debug(
+                f"Successfully parsed initial translation XML with {len([k for k, v in result.items() if v])} fields"
+            )
             return result
 
         except KeyError as e:
@@ -238,13 +253,14 @@ class OutputParser:
     @staticmethod
     def parse_revised_translation_xml(xml_string: str) -> Dict[str, str]:
         """
-        Parse revised translation XML specifically.
+        Parse revised translation XML specifically with support for refined translated titles and poet names.
 
         Args:
             xml_string: XML string from translator revision step
 
         Returns:
-            Dictionary with 'revised_translation' and 'revised_translation_notes'
+            Dictionary with 'revised_translation', 'revised_translation_notes',
+            'refined_translated_poem_title', and 'refined_translated_poet_name'
 
         Raises:
             XMLParsingError: If parsing fails or expected tags are missing
@@ -252,11 +268,17 @@ class OutputParser:
         try:
             parsed_data = OutputParser.parse_xml(xml_string)
 
-            # Extract specific fields
+            # Extract specific fields (updated to include refined translated title and poet name)
             revised_translation = str(parsed_data.get("revised_translation", ""))
             revised_translation_notes = str(
                 parsed_data.get("revised_translation_notes", "")
             )
+            refined_translated_poem_title = str(
+                parsed_data.get("refined_translated_poem_title", "")
+            ).strip()
+            refined_translated_poet_name = str(
+                parsed_data.get("refined_translated_poet_name", "")
+            ).strip()
 
             if not revised_translation:
                 raise XMLParsingError(
@@ -266,9 +288,13 @@ class OutputParser:
             result = {
                 "revised_translation": revised_translation,
                 "revised_translation_notes": revised_translation_notes,
+                "refined_translated_poem_title": refined_translated_poem_title,
+                "refined_translated_poet_name": refined_translated_poet_name,
             }
 
-            logger.debug(f"Successfully parsed revised translation XML")
+            logger.debug(
+                f"Successfully parsed revised translation XML with {len([k for k, v in result.items() if v])} fields"
+            )
             return result
 
         except KeyError as e:

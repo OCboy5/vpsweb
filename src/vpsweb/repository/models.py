@@ -119,6 +119,14 @@ class Translation(Base):
     target_language: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     translated_text: Mapped[str] = mapped_column(Text, nullable=False)
 
+    # Translated title and poet name metadata
+    translated_poem_title: Mapped[Optional[str]] = mapped_column(
+        String(500), nullable=True, index=False
+    )
+    translated_poet_name: Mapped[Optional[str]] = mapped_column(
+        String(200), nullable=True, index=False
+    )
+
     # Optional fields
     quality_rating: Mapped[Optional[int]] = mapped_column(
         Integer,

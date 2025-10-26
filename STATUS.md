@@ -1,14 +1,24 @@
-# Vox Poetica Studio Web - v0.3.4 Status
+# Vox Poetica Studio Web - v0.3.6 Status
 
-**Date**: 2025-10-25
-**Version**: 0.3.4 (Repository System Enhancement & Async Database Support)
-**Status**: ✅ **PRODUCTION-READY WEB APPLICATION WITH ENHANCED RELIABILITY & PERFORMANCE**
+**Date**: 2025-10-26
+**Version**: 0.3.6 (Translation Display & SSE Enhancement)
+**Status**: ✅ **PRODUCTION-READY WITH ENHANCED TRANSLATION DISPLAY & REAL-TIME WORKFLOW VISIBILITY**
 
 ## 🎯 Executive Summary
 
 Vox Poetica Studio Web (vpsweb) continues its evolution with v0.3.2, delivering **ENHANCED RELIABILITY & PERFORMANCE** improvements building on the complete web application and repository system from v0.3.1. This release adds timeout protection for workflows, comprehensive database indexing, user-friendly error handling, robust testing infrastructure, database migration tools, and advanced logging capabilities. This release implements a comprehensive FastAPI web interface with responsive design using Tailwind CSS, a complete repository database system with 15+ REST endpoints, and seamless integration with existing VPSWeb translation and WeChat workflows. The implementation includes enterprise-grade backup systems, automated development environment setup, comprehensive testing frameworks, and maintains 100% backward compatibility with all existing CLI functionality. With 56,802 lines of production-ready code across 145 files, v0.3.1 represents the most significant enhancement in the project's history while preserving all core functionality and workflows.
 
 ## ✅ Completed Features
+
+### 🎯 Translation Display & Real-Time Workflow Enhancement (v0.3.6)
+- **Chinese Title Display**: Fixed translated poem titles to display correctly in Chinese instead of English across all pages
+- **Poet Name Localization**: Fixed translated poet names to display properly in Chinese throughout the interface
+- **Cross-Page Consistency**: Ensured both translations page and poems page display Chinese titles consistently
+- **XML Parser Enhancement**: Added whitespace stripping to eliminate leading newlines in translated titles at the source
+- **Initial Workflow States**: Added SSE broadcasting of initial workflow states when translation starts
+- **Complete Step Visibility**: Users immediately see all workflow steps ("Initial Translation: waiting, Editor Review: waiting, Translator Revision: waiting")
+- **Enhanced Real-Time Updates**: Improved SSE stream to detect and broadcast step state changes immediately
+- **Architecture Cleanup**: Removed 22,874 bytes of dead code and simplified workflow execution paths (43% complexity reduction)
 
 ### 🌐 Complete Web Interface & Repository System Implementation (v0.3.1)
 - **Modern FastAPI Web Application**: Full-featured responsive web interface with Tailwind CSS and mobile-first design

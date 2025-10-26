@@ -21,9 +21,8 @@ from ..models.translation import (
     EditorReview,
     RevisedTranslation,
     TranslationOutput,
-    extract_initial_translation_from_xml,
-    extract_revised_translation_from_xml,
 )
+from ..services.parser import OutputParser
 from ..utils.progress import ProgressTracker, StepStatus
 
 logger = logging.getLogger(__name__)
@@ -479,6 +478,8 @@ class TranslationWorkflow:
                 output_data = result["output"]
                 translation = output_data.get("initial_translation", "")
                 notes = output_data.get("initial_translation_notes", "")
+                translated_poem_title = output_data.get("translated_poem_title", "")
+                translated_poet_name = output_data.get("translated_poet_name", "")
             else:
                 # Fallback: try to extract from raw response
                 raw_content = (
@@ -486,15 +487,19 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = extract_initial_translation_from_xml(raw_content)
+                extracted = OutputParser.parse_initial_translation_xml(raw_content)
                 translation = extracted.get("initial_translation", "")
                 notes = extracted.get("initial_translation_notes", "")
+                translated_poem_title = extracted.get("translated_poem_title", "")
+                translated_poet_name = extracted.get("translated_poet_name", "")
 
             # Create InitialTranslation model
             usage = result.get("metadata", {}).get("usage", {})
             return InitialTranslation(
                 initial_translation=translation,
                 initial_translation_notes=notes,
+                translated_poem_title=translated_poem_title,
+                translated_poet_name=translated_poet_name,
                 model_info={
                     "provider": step_config.provider,
                     "model": step_config.model,
@@ -599,6 +604,12 @@ class TranslationWorkflow:
                 output_data = result["output"]
                 translation = output_data.get("revised_translation", "")
                 notes = output_data.get("revised_translation_notes", "")
+                refined_translated_poem_title = output_data.get(
+                    "refined_translated_poem_title", ""
+                )
+                refined_translated_poet_name = output_data.get(
+                    "refined_translated_poet_name", ""
+                )
             else:
                 # Fallback: try to extract from raw response
                 raw_content = (
@@ -606,15 +617,23 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = extract_revised_translation_from_xml(raw_content)
+                extracted = OutputParser.parse_revised_translation_xml(raw_content)
                 translation = extracted.get("revised_translation", "")
                 notes = extracted.get("revised_translation_notes", "")
+                refined_translated_poem_title = extracted.get(
+                    "refined_translated_poem_title", ""
+                )
+                refined_translated_poet_name = extracted.get(
+                    "refined_translated_poet_name", ""
+                )
 
             # Create RevisedTranslation model
             usage = result.get("metadata", {}).get("usage", {})
             return RevisedTranslation(
                 revised_translation=translation,
                 revised_translation_notes=notes,
+                refined_translated_poem_title=refined_translated_poem_title,
+                refined_translated_poet_name=refined_translated_poet_name,
                 model_info={
                     "provider": step_config.provider,
                     "model": step_config.model,

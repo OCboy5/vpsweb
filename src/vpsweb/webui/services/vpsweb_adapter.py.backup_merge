@@ -26,8 +26,7 @@ from vpsweb.utils.storage import StorageHandler
 from vpsweb.utils.language_mapper import get_language_mapper
 
 from .poem_service import PoemService
-
-# TranslationService removed - dead code (not used in current codebase)
+from .translation_service import TranslationService
 from ..task_models import TaskStatusEnum
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult
@@ -85,6 +84,7 @@ class VPSWebWorkflowAdapter:
     def __init__(
         self,
         poem_service: PoemService,
+        translation_service: TranslationService,
         repository_service: RepositoryWebService,
         config_path: Optional[str] = None,
     ):
@@ -93,13 +93,14 @@ class VPSWebWorkflowAdapter:
 
         Args:
             poem_service: Repository poem service
+            translation_service: Repository translation service
             repository_service: Repository service for database operations
             config_path: Optional custom config directory path
         """
         self.poem_service = poem_service
+        self.translation_service = translation_service
         self.repository_service = repository_service
         self.config_path = config_path
-        # TranslationService removed - dead code (not used in current codebase)
 
         # Initialize StorageHandler for JSON file saving (CLI-compatible)
         self.storage_handler = StorageHandler()
@@ -290,18 +291,10 @@ class VPSWebWorkflowAdapter:
         """
         # Debug: Log the workflow output fields
         logger.info(f"🔍 [MAPPING DEBUG] Mapping workflow output to repository format")
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poem_title: '{workflow_output.initial_translation.translated_poem_title}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poet_name: '{workflow_output.initial_translation.translated_poet_name}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poem_title: '{workflow_output.revised_translation.refined_translated_poem_title}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poet_name: '{workflow_output.revised_translation.refined_translated_poet_name}'"
-        )
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poem_title: '{workflow_output.initial_translation.translated_poem_title}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poet_name: '{workflow_output.initial_translation.translated_poet_name}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poem_title: '{workflow_output.revised_translation.refined_translated_poem_title}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poet_name: '{workflow_output.revised_translation.refined_translated_poet_name}'")
 
         result = {
             "poem_id": poem_id,
@@ -339,20 +332,13 @@ class VPSWebWorkflowAdapter:
         }
 
         # Debug: Log what we're putting in the result
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['translated_poem_title']: '{result.get('translated_poem_title', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['translated_poet_name']: '{result.get('translated_poet_name', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['refined_translated_poem_title']: '{result.get('refined_translated_poem_title', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['refined_translated_poet_name']: '{result.get('refined_translated_poet_name', 'MISSING')}'"
-        )
+        logger.info(f"🔍 [MAPPING DEBUG] Result['translated_poem_title']: '{result.get('translated_poem_title', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['translated_poet_name']: '{result.get('translated_poet_name', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['refined_translated_poem_title']: '{result.get('refined_translated_poem_title', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['refined_translated_poet_name']: '{result.get('refined_translated_poet_name', 'MISSING')}'")
 
         return result
+
 
     async def execute_translation_workflow(
         self,
@@ -423,26 +409,6 @@ class VPSWebWorkflowAdapter:
         task_status = InMemoryTaskStatus(task_id=task_id)
         app.state.tasks[task_id] = task_status
         app.state.task_locks[task_id] = threading.Lock()
-
-        # Set initial workflow step states to "waiting"
-        task_status.update_step(
-            step_name="Initial Translation",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        task_status.update_step(
-            step_name="Editor Review",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        task_status.update_step(
-            step_name="Translator Revision",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        print(
-            f"[PROGRESS] Initial workflow states set: Initial Translation: 'waiting', Editor Review: 'waiting', Translator Revision: 'waiting'"
-        )
 
         # Execute workflows asynchronously with real-time progress callbacks
         # This enables SSE streaming of step-by-step progress updates
@@ -812,14 +778,8 @@ class VPSWebWorkflowAdapter:
                     source_language=source_lang,
                     target_language=target_lang,
                     translated_text=final_translation,
-                    translated_poem_title=(
-                        translation_data.get("refined_translated_poem_title")
-                        or translation_data.get("translated_poem_title", "")
-                    ).strip(),
-                    translated_poet_name=(
-                        translation_data.get("refined_translated_poet_name")
-                        or translation_data.get("translated_poet_name", "")
-                    ).strip(),
+                    translated_poem_title=translation_data.get("refined_translated_poem_title") or translation_data.get("translated_poem_title", ""),
+                    translated_poet_name=translation_data.get("refined_translated_poet_name") or translation_data.get("translated_poet_name", ""),
                     translator_type=TranslatorType.AI,  # Use proper enum value
                     translator_info="qwen-max",  # Use actual model name
                     quality_rating=translation_data.get(
@@ -839,24 +799,18 @@ class VPSWebWorkflowAdapter:
                 )
 
                 # Save JSON file using poet-based storage (CLI-compatible)
-                print(
-                    f"[DB SAVE] 📁 [STEP 9.5] Saving JSON file with poet-based storage"
-                )
+                print(f"[DB SAVE] 📁 [STEP 9.5] Saving JSON file with poet-based storage")
                 try:
                     # Use the same poet-based storage as CLI workflow
                     json_path = self.storage_handler.save_translation_with_poet_dir(
                         output=final_result,
                         poet_name=translation_input.metadata.get("author", "Unknown"),
                         workflow_mode=workflow_mode.value,
-                        include_mode_tag=True,
+                        include_mode_tag=True
                     )
-                    print(
-                        f"[DB SAVE] ✅ [STEP 9.5 SUCCESS] JSON file saved to poet directory: {json_path}"
-                    )
+                    print(f"[DB SAVE] ✅ [STEP 9.5 SUCCESS] JSON file saved to poet directory: {json_path}")
                 except Exception as json_error:
-                    print(
-                        f"[DB SAVE] ⚠️ [STEP 9.5 WARNING] Failed to save JSON file: {json_error}"
-                    )
+                    print(f"[DB SAVE] ⚠️ [STEP 9.5 WARNING] Failed to save JSON file: {json_error}")
                     # Continue execution - database save was successful
 
                 db.close()
@@ -927,6 +881,7 @@ class VPSWebWorkflowAdapter:
 
 async def get_vpsweb_adapter(
     poem_service: PoemService,
+    translation_service: TranslationService,
     repository_service: RepositoryWebService,
     config_path: Optional[str] = None,
 ):
@@ -935,6 +890,7 @@ async def get_vpsweb_adapter(
 
     Args:
         poem_service: Repository poem service
+        translation_service: Repository translation service
         repository_service: Repository service for database operations
         config_path: Optional config directory path
 

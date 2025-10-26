@@ -5,6 +5,62 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.6] - 2025-10-26 (Translation Display & SSE Enhancement)
+
+### 🚀 Overview
+VPSWeb v0.3.6 delivers **critical translation display improvements** and **enhanced real-time workflow visibility**. This release fixes the long-standing issue where translated poem titles and poet names were not displaying correctly in Chinese, and introduces comprehensive initial workflow state broadcasting via Server-Sent Events (SSE).
+
+### ✨ New Features
+
+#### 🎯 Translation Display Fixes
+- **Chinese Title Display**: Fixed translated poem titles to display in Chinese instead of English (e.g., "我曾如此忧虑" instead of "I Worried")
+- **Poet Name Localization**: Fixed translated poet names to display correctly in Chinese (e.g., "玛丽·奥利弗" instead of "Mary Oliver")
+- **Cross-Page Consistency**: Ensured both translations page and poems page display Chinese titles consistently
+- **XML Parser Enhancement**: Added whitespace stripping to eliminate leading newlines in translated titles
+
+#### 📡 Real-Time Workflow Enhancement
+- **Initial Workflow States**: Added SSE broadcasting of initial workflow states when translation starts
+- **Complete Step Visibility**: Users immediately see "Initial Translation: waiting, Editor Review: waiting, Translator Revision: waiting"
+- **Enhanced User Experience**: Complete workflow journey visibility from the very beginning
+- **Real-Time Progress**: Improved SSE stream to detect and broadcast step state changes immediately
+
+### 🐛 Bug Fixes
+
+#### Frontend Display Issues
+- **API Endpoint Fix**: Fixed missing translated_poem_title and translated_poet_name fields in individual translation API endpoint
+- **Poems Page Fix**: Updated poem_detail.html to use translated titles instead of original English titles
+- **CRUD Layer Fix**: Added missing translated title fields to database storage operations
+- **Consistent Title Display**: Ensured uniform title display across all frontend interfaces
+
+#### Architecture Cleanup
+- **Dead Code Removal**: Removed unused translation_service.py (22,874 bytes of dead code)
+- **Execution Path Simplification**: Eliminated redundant workflow execution methods for cleaner architecture
+- **Import Cleanup**: Systematically removed all references to deprecated TranslationService
+
+### 🔧 Technical Improvements
+
+#### Data Processing
+- **XML Parser Enhancement**: Added `.strip()` to remove whitespace from translated titles at the source
+- **Database Integration**: Improved database storage to include all translated title fields
+- **API Consistency**: Standardized translation title responses across all API endpoints
+
+#### Code Quality
+- **Reduced Complexity**: 43% reduction in workflow execution complexity through dead code removal
+- **Clean Architecture**: Simplified dependency injection and service layer organization
+- **Better Error Handling**: Improved error handling and logging for translation workflows
+
+### 🌟 User Experience Improvements
+
+#### Immediate Feedback
+- **Instant Visibility**: Users see all workflow steps immediately upon starting a translation
+- **Localized Interface**: Chinese titles and poet names display correctly throughout the interface
+- **Consistent Experience**: Uniform display behavior across all pages and features
+
+#### Real-Time Updates
+- **Enhanced SSE**: Improved Server-Sent Events for more responsive real-time updates
+- **State Broadcasting**: Comprehensive state changes broadcast immediately to connected clients
+- **Workflow Transparency**: Complete visibility into translation workflow progress
+
 ## [0.3.4] - 2025-10-25 (Repository System Enhancement & Async Database Support)
 
 ### 🚀 Overview

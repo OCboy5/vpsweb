@@ -66,7 +66,9 @@ def mock_llm_response_valid_xml():
     """Fixture providing a valid XML response from LLM."""
     return """<translation>
 <initial_translation>雾来了，踏着猫的细步。</initial_translation>
-<explanation>This translation captures the imagery of the fog moving quietly like a cat.</explanation>
+<initial_translation_notes>This translation captures the imagery of the fog moving quietly like a cat.</initial_translation_notes>
+<translated_poem_title>雾</translated_poem_title>
+<translated_poet_name>卡尔·桑德堡</translated_poet_name>
 </translation>"""
 
 
@@ -100,10 +102,10 @@ def mock_llm_response_editor_review():
 @pytest.fixture
 def mock_llm_response_revised_translation():
     """Fixture providing a valid revised translation response."""
-    return """<revised_translation>
-<revised_translation>雾来了，踏着猫儿轻盈的脚步。</revised_translation>
-<explanation>Added poetic language and improved rhythm while maintaining original meaning.</explanation>
-</revised_translation>"""
+    return """<revised_translation>雾来了，踏着猫儿轻盈的脚步。</revised_translation>
+<revised_translation_notes>Added poetic language and improved rhythm while maintaining original meaning.</revised_translation_notes>
+<refined_translated_poem_title>雾</refined_translated_poem_title>
+<refined_translated_poet_name>卡尔·桑德堡</refined_translated_poet_name>"""
 
 
 @pytest.fixture
@@ -216,25 +218,43 @@ def sample_workflow_config():
 @pytest.fixture
 def sample_translation_output():
     """Fixture providing a sample TranslationOutput for testing."""
+    from datetime import datetime
+
     return TranslationOutput(
         workflow_id="test-workflow-123",
-        original_poem="The fog comes on little cat feet.",
-        source_lang="English",
-        target_lang="Chinese",
+        input=TranslationInput(
+            original_poem="The fog comes on little cat feet.",
+            source_lang="English",
+            target_lang="Chinese",
+            metadata={"poet_name": "Carl Sandburg", "poem_title": "Fog"},
+        ),
         initial_translation=InitialTranslation(
             initial_translation="雾来了，踏着猫的细步。",
-            explanation="Literal translation capturing the imagery",
+            initial_translation_notes="Literal translation capturing the imagery",
+            translated_poem_title="雾",
+            translated_poet_name="卡尔·桑德堡",
+            model_info={"provider": "test", "model": "test-model"},
+            tokens_used=500,
+            timestamp=datetime.now(),
         ),
         editor_review=EditorReview(
-            text="1. Consider using more poetic language\n2. Improve rhythm",
-            summary="Good literal translation but needs refinement",
+            editor_suggestions="1. Consider using more poetic language\n2. Improve rhythm\n\nOverall assessment: Good literal translation but needs refinement",
+            model_info={"provider": "test", "model": "test-model"},
+            tokens_used=300,
+            timestamp=datetime.now(),
         ),
         revised_translation=RevisedTranslation(
             revised_translation="雾来了，踏着猫儿轻盈的脚步。",
-            explanation="Added poetic language and improved rhythm",
+            revised_translation_notes="Added poetic language and improved rhythm",
+            refined_translated_poem_title="雾",
+            refined_translated_poet_name="卡尔·桑德堡",
+            model_info={"provider": "test", "model": "test-model"},
+            tokens_used=450,
+            timestamp=datetime.now(),
         ),
-        duration_seconds=15.5,
+        full_log="Test workflow log",
         total_tokens=1250,
+        duration_seconds=15.5,
     )
 
 
@@ -317,14 +337,16 @@ Overall assessment: Good literal translation but needs poetic refinement to capt
 
 
 @pytest.fixture
-def mock_llm_response_revised_translation():
-    """Mock LLM response for translator revision step."""
+def mock_llm_response_revised_translation_api():
+    """Mock LLM API response for translator revision step."""
     return {
         "choices": [
             {
                 "message": {
                     "content": """<revised_translation>雾来了，踏着猫儿轻盈的脚步。</revised_translation>
-<revised_translation_notes>Based on the editor's suggestions, I refined the translation to use more poetic language. Changed "猫的细步" to "猫儿轻盈的脚步" to better capture the gentle, graceful movement. The revised version maintains the original meaning while enhancing the poetic quality and rhythm.</revised_translation_notes>"""
+<revised_translation_notes>Based on the editor's suggestions, I refined the translation to use more poetic language. Changed "猫的细步" to "猫儿轻盈的脚步" to better capture the gentle, graceful movement. The revised version maintains the original meaning while enhancing the poetic quality and rhythm.</revised_translation_notes>
+<refined_translated_poem_title>雾</refined_translated_poem_title>
+<refined_translated_poet_name>卡尔·桑德堡</refined_translated_poet_name>"""
                 }
             }
         ]
@@ -353,7 +375,7 @@ def mock_llm_factory_integration(mocker):
         responses = [
             mock_llm_response_initial_translation(),
             mock_llm_response_editor_review(),
-            mock_llm_response_revised_translation(),
+            mock_llm_response_revised_translation_api(),
         ]
         return MockLLM(responses)
 
@@ -433,7 +455,6 @@ from vpsweb.repository.models import Base
 from vpsweb.repository.crud import RepositoryService
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.webui.services.poem_service import PoemService
-from vpsweb.webui.services.translation_service import TranslationService
 from vpsweb.webui.main import app
 from vpsweb.utils.logger import get_logger
 
@@ -567,18 +588,6 @@ def poem_service(repository_service: RepositoryService) -> PoemService:
     return PoemService(repository_service)
 
 
-@pytest.fixture
-def translation_service(repository_service: RepositoryService) -> TranslationService:
-    """
-    Create a translation service for testing.
-
-    Args:
-        repository_service: Repository service instance
-
-    Returns:
-        TranslationService: Translation service instance
-    """
-    return TranslationService(repository_service=repository_service)
 
 
 # Sample data fixtures for database testing

@@ -18,6 +18,16 @@ user: |
 
   Materials:
 
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <INITIAL_TRANSLATION_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </INITIAL_TRANSLATION_INFO>
+
   <SOURCE_TEXT>
   {{ original_poem }}
   </SOURCE_TEXT>
@@ -30,7 +40,15 @@ user: |
   {{ editor_suggestions }}
   </EXPERT_SUGGESTIONS>
 
-  Deliverables (output these two blocks only):
+  Deliverables (output these four blocks only):
+
+  <refined_translated_poem_title>
+  [Refined version of the translated poem title, or confirm the initial translation if it's already excellent]
+  </refined_translated_poem_title>
+
+  <refined_translated_poet_name>
+  [Refined version of the translated poet name, or confirm the initial translation if it's already excellent]
+  </refined_translated_poet_name>
 
   <revised_translation>
   [Final Revised Translation]

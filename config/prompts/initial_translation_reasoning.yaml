@@ -19,6 +19,11 @@ user: |
   Your task is to produce a high-quality translation from {{ source_lang }} to {{ target_lang }}.
   The source text is provided below, delimited by XML tags:
 
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
   <SOURCE_TEXT>
   {{ original_poem }}
   </SOURCE_TEXT>
@@ -55,10 +60,23 @@ user: |
   9) Revision & Refinement:
      - Read aloud internally; ensure consistency in tone, register, and formatting.
 
-  Deliverables (output only these two blocks; no extra text or code fences):
+  CRITICAL OUTPUT REQUIREMENTS:
+  - You MUST output exactly FOUR XML sections, no exceptions
+  - Each section MUST have opening and closing tags
+  - Do NOT add any text before or after the XML sections
+  - Do NOT wrap XML in code fences or add any explanations outside the tags
+  - Replace the bracketed text with your actual content
+
+  <translated_poem_title>
+  [The poem title translated into {{ target_lang }}, maintaining cultural appropriateness and poetic quality]
+  </translated_poem_title>
+
+  <translated_poet_name>
+  [The poet's name translated or appropriately rendered into {{ target_lang }}, following cultural conventions]
+  </translated_poet_name>
 
   <initial_translation>
-  [Final Translation: include poem title and poet's name at top; do NOT include analysis or drafts]
+  [Final Translation: the translated poem text only; do NOT include title, poet name, analysis or drafts]
   </initial_translation>
 
   <initial_translation_notes>

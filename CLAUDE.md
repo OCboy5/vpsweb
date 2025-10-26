@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
 
-**Current Status**: v0.3.4 - Repository System Enhancement & Async Database Support
+**Current Status**: v0.3.6 - Translation Display & SSE Enhancement
 
 **Tech Stack**: Python, Poetry, FastAPI, SQLAlchemy, Pydantic, AsyncIO, OpenAI-compatible APIs, YAML configuration, Tailwind CSS
 
@@ -207,7 +207,7 @@ git checkout v0.2.0-local-2025-10-05
 ---
 ## Important Reminders
 **NEVER**:
-- Claim success before new written code passing tests
+- Announce success before new written code passing all tests
 **ALWAYS**:
 - Commit working code incrementally
 - Update plan documentation as you go

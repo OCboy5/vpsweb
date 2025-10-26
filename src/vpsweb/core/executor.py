@@ -267,14 +267,23 @@ class StepExecutor:
     ) -> Dict[str, Any]:
         """Parse LLM output and validate required fields."""
         try:
-            # Parse XML content
-            parsed_data = OutputParser.parse_xml(llm_content)
+            # Use specific parsers for workflow steps that need them
+            if step_name == "initial_translation":
+                logger.info(f"Using specific parser for {step_name}")
+                parsed_data = OutputParser.parse_initial_translation_xml(llm_content)
+            elif step_name == "translator_revision":
+                logger.info(f"Using specific parser for {step_name}")
+                parsed_data = OutputParser.parse_revised_translation_xml(llm_content)
+            else:
+                # Use generic XML parser for other steps
+                logger.info(f"Using generic parser for {step_name}")
+                parsed_data = OutputParser.parse_xml(llm_content)
 
-            if not parsed_data:
-                logger.warning(
-                    f"No XML tags found in LLM response, treating as plain text"
-                )
-                parsed_data = {"content": llm_content.strip()}
+                if not parsed_data:
+                    logger.warning(
+                        f"No XML tags found in LLM response, treating as plain text"
+                    )
+                    parsed_data = {"content": llm_content.strip()}
 
             # Validate required fields if specified
             if config.required_fields:
@@ -285,6 +294,22 @@ class StepExecutor:
             logger.info(f"=== {step_name.upper()} PARSED OUTPUT DEBUG ===")
             logger.info(f"Step: {step_name}")
             logger.info(f"Parsed Data Keys: {list(parsed_data.keys())}")
+            if step_name in ["initial_translation", "translator_revision"]:
+                # Log specific translated title fields for these steps
+                if step_name == "initial_translation":
+                    logger.info(
+                        f"translated_poem_title: '{parsed_data.get('translated_poem_title', 'MISSING')}'"
+                    )
+                    logger.info(
+                        f"translated_poet_name: '{parsed_data.get('translated_poet_name', 'MISSING')}'"
+                    )
+                elif step_name == "translator_revision":
+                    logger.info(
+                        f"refined_translated_poem_title: '{parsed_data.get('refined_translated_poem_title', 'MISSING')}'"
+                    )
+                    logger.info(
+                        f"refined_translated_poet_name: '{parsed_data.get('refined_translated_poet_name', 'MISSING')}'"
+                    )
             logger.info(f"Full Parsed Data:\n{parsed_data}")
             logger.info(f"=== END {step_name.upper()} PARSED OUTPUT DEBUG ===")
 
@@ -347,10 +372,24 @@ class StepExecutor:
         Returns:
             Execution result with initial translation
         """
+        # Extract poem title and poet name from metadata
+        poem_title = (
+            translation_input.metadata.get("title", "Untitled")
+            if translation_input.metadata
+            else "Untitled"
+        )
+        poet_name = (
+            translation_input.metadata.get("author", "Unknown")
+            if translation_input.metadata
+            else "Unknown"
+        )
+
         input_data = {
             "original_poem": translation_input.original_poem,
             "source_lang": translation_input.source_lang,
             "target_lang": translation_input.target_lang,
+            "poem_title": poem_title,
+            "poet_name": poet_name,
         }
 
         return await self.execute_step("initial_translation", input_data, config)
@@ -372,10 +411,26 @@ class StepExecutor:
         Returns:
             Execution result with editor suggestions
         """
+        # Extract poem title and poet name from metadata
+        poem_title = (
+            translation_input.metadata.get("title", "Untitled")
+            if translation_input.metadata
+            else "Untitled"
+        )
+        poet_name = (
+            translation_input.metadata.get("author", "Unknown")
+            if translation_input.metadata
+            else "Unknown"
+        )
+
         input_data = {
             "original_poem": translation_input.original_poem,
             "source_lang": translation_input.source_lang,
             "target_lang": translation_input.target_lang,
+            "poem_title": poem_title,
+            "poet_name": poet_name,
+            "translated_poem_title": initial_translation.translated_poem_title,
+            "translated_poet_name": initial_translation.translated_poet_name,
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
         }
@@ -401,10 +456,26 @@ class StepExecutor:
         Returns:
             Execution result with revised translation
         """
+        # Extract poem title and poet name from metadata
+        poem_title = (
+            translation_input.metadata.get("title", "Untitled")
+            if translation_input.metadata
+            else "Untitled"
+        )
+        poet_name = (
+            translation_input.metadata.get("author", "Unknown")
+            if translation_input.metadata
+            else "Unknown"
+        )
+
         input_data = {
             "original_poem": translation_input.original_poem,
             "source_lang": translation_input.source_lang,
             "target_lang": translation_input.target_lang,
+            "poem_title": poem_title,
+            "poet_name": poet_name,
+            "translated_poem_title": initial_translation.translated_poem_title,
+            "translated_poet_name": initial_translation.translated_poet_name,
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
             "editor_suggestions": editor_review.editor_suggestions,

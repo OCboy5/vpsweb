@@ -631,8 +631,8 @@ function createTranslationCard(translation) {
                             ${qualityStars}
                         </div>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-1">${window.poemTitle}</h4>
-                    <p class="text-sm text-gray-500 mb-2">${window.poetName}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">${translation.translated_poem_title || window.poemTitle}</h4>
+                    <p class="text-sm text-gray-500 mb-2">${translation.translated_poet_name || window.poetName}</p>
                     <p class="text-xs text-gray-400">${createdDate}</p>
                 </div>
                 <div class="flex space-x-2">

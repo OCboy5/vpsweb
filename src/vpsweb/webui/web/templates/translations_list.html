@@ -180,7 +180,9 @@ function displayTranslations() {
             const searchLower = currentFilters.search.toLowerCase();
             if (!translation.translated_text.toLowerCase().includes(searchLower) &&
                 !translation.translator_info.toLowerCase().includes(searchLower) &&
-                !translation.target_language.toLowerCase().includes(searchLower)) {
+                !translation.target_language.toLowerCase().includes(searchLower) &&
+                !(translation.translated_poem_title && translation.translated_poem_title.toLowerCase().includes(searchLower)) &&
+                !(translation.translated_poet_name && translation.translated_poet_name.toLowerCase().includes(searchLower))) {
                 return false;
             }
         }
@@ -233,12 +235,22 @@ async function createTranslationCard(translation) {
                 const poem = await response.json();
                 poemInfo = { title: poem.poem_title, poet: poem.poet_name };
                 poemCache[translation.poem_id] = poemInfo;
+            } else if (response.status === 404) {
+                // Poem not found - this happens for orphaned translations
+                console.warn(`Poem not found for ID: ${translation.poem_id}`);
+                poemInfo = { title: 'Poem Not Found', poet: 'Unknown Poet' };
+            } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
         } catch (error) {
             console.error('Failed to fetch poem info:', error);
             poemInfo = { title: 'Unknown Poem', poet: 'Unknown Poet' };
         }
     }
+
+    // Use translated title/poet name when available, otherwise fall back to original
+    const displayTitle = translation.translated_poem_title || poemInfo.title;
+    const displayPoet = translation.translated_poet_name || poemInfo.poet;
 
     return `
         <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
@@ -255,8 +267,8 @@ async function createTranslationCard(translation) {
                             ${qualityStars}
                         </div>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-1">${poemInfo.title}</h4>
-                    <p class="text-sm text-gray-500 mb-2">${poemInfo.poet}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">${displayTitle}</h4>
+                    <p class="text-sm text-gray-500 mb-2">${displayPoet}</p>
                     <p class="text-xs text-gray-400">${createdDate}</p>
                 </div>
                 <div class="flex space-x-2">

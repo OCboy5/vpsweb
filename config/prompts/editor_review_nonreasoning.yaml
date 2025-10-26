@@ -19,6 +19,16 @@ user: |
 
   The source text, the initial translation and the translator's notes are provided below, delimited by XML tags:
 
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <TRANSLATED_POEM_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </TRANSLATED_POEM_INFO>
+
   <SOURCE_TEXT>
   {{ original_poem }}
   </SOURCE_TEXT>

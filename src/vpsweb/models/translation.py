@@ -81,6 +81,12 @@ class InitialTranslation(BaseModel):
         ...,
         description="Translator's explanation of translation choices (200-300 words)",
     )
+    translated_poem_title: str = Field(
+        ..., description="The translated poem title in target language"
+    )
+    translated_poet_name: str = Field(
+        ..., description="The translated poet name in target language"
+    )
     timestamp: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp when translation was created",
@@ -199,6 +205,12 @@ class RevisedTranslation(BaseModel):
     revised_translation: str = Field(..., description="The final revised translation")
     revised_translation_notes: str = Field(
         ..., description="Explanation of key changes and decisions (200-300 words)"
+    )
+    refined_translated_poem_title: str = Field(
+        ..., description="The refined translated poem title in target language"
+    )
+    refined_translated_poet_name: str = Field(
+        ..., description="The refined translated poet name in target language"
     )
     timestamp: datetime = Field(
         default_factory=datetime.now, description="Timestamp when revision was created"
@@ -335,54 +347,3 @@ class TranslationOutput(BaseModel):
             return cls.from_dict(data)
         else:
             raise ValueError(f"Unsupported format: {format}")
-
-
-# Helper functions for XML parsing (matching the vpts.yml code nodes)
-def extract_initial_translation_from_xml(xml_response: str) -> Dict[str, str]:
-    """Extract initial translation and notes from XML response (matching vpts.yml code)."""
-    import re
-
-    # Remove whitespace between tags
-    xml_response = re.sub(r"\s+(<|>)", r"\1", xml_response.strip())
-
-    # Find all tags and their contents
-    pattern = r"<(\w+)>(.*?)</\1>"
-    matches = re.findall(pattern, xml_response, re.DOTALL)
-
-    result = {}
-    for tag, content in matches:
-        # Recursively parse nested tags
-        if re.search(r"<\w+>", content):
-            result[tag] = extract_initial_translation_from_xml(content)
-        else:
-            result[tag] = content.strip()
-
-    return {
-        "initial_translation": str(result.get("initial_translation", "")),
-        "initial_translation_notes": str(result.get("initial_translation_notes", "")),
-    }
-
-
-def extract_revised_translation_from_xml(xml_response: str) -> Dict[str, str]:
-    """Extract revised translation and notes from XML response (matching vpts.yml code)."""
-    import re
-
-    # Remove whitespace between tags
-    xml_response = re.sub(r"\s+(<|>)", r"\1", xml_response.strip())
-
-    # Find all tags and their contents
-    pattern = r"<(\w+)>(.*?)</\1>"
-    matches = re.findall(pattern, xml_response, re.DOTALL)
-
-    result = {}
-    for tag, content in matches:
-        # Recursively parse nested tags
-        if re.search(r"<\w+>", content):
-            result[tag] = extract_revised_translation_from_xml(content)
-        else:
-            result[tag] = content.strip()
-
-    return {
-        "revised_translation": str(result.get("revised_translation", "")),
-        "revised_translation_notes": str(result.get("revised_translation_notes", "")),
-    }

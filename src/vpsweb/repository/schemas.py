@@ -276,6 +276,18 @@ class TranslationBase(BaseSchema):
             "Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain."
         ],
     )
+    translated_poem_title: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Translated poem title in target language",
+        examples=["Drinking Wine Under the Southern Mountain", "饮酒南山下"],
+    )
+    translated_poet_name: Optional[str] = Field(
+        None,
+        max_length=200,
+        description="Translated poet name in target language",
+        examples=["Tao Yuanming", "陶渊明"],
+    )
     quality_rating: Optional[int] = Field(
         None, ge=1, le=5, description="Quality rating (1=Poor, 5=Excellent)"
     )

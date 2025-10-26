@@ -16,9 +16,8 @@ from src.vpsweb.models.translation import (
     RevisedTranslation,
     TranslationOutput,
     Language,
-    extract_initial_translation_from_xml,
-    extract_revised_translation_from_xml,
 )
+from src.vpsweb.services.parser import OutputParser
 from src.vpsweb.models.config import (
     WorkflowConfig,
     StepConfig,
@@ -477,36 +476,43 @@ class TestHelperFunctions:
 
     def test_extract_initial_translation_from_xml(self, mock_llm_response_valid_xml):
         """Test XML extraction helper function."""
-        result = extract_initial_translation_from_xml(mock_llm_response_valid_xml)
+        result = OutputParser.parse_initial_translation_xml(mock_llm_response_valid_xml)
 
         assert "initial_translation" in result
         assert "initial_translation_notes" in result
+        assert "translated_poem_title" in result
+        assert "translated_poet_name" in result
         assert result["initial_translation"] == "雾来了，踏着猫的细步。"
+        assert result["translated_poem_title"] == "雾"
+        assert result["translated_poet_name"] == "卡尔·桑德堡"
 
     def test_extract_revised_translation_from_xml(
         self, mock_llm_response_revised_translation
     ):
         """Test revised translation XML extraction helper function."""
-        result = extract_revised_translation_from_xml(
+        result = OutputParser.parse_revised_translation_xml(
             mock_llm_response_revised_translation
         )
 
         assert "revised_translation" in result
         assert "revised_translation_notes" in result
+        assert "refined_translated_poem_title" in result
+        assert "refined_translated_poet_name" in result
         assert result["revised_translation"] == "雾来了，踏着猫儿轻盈的脚步。"
+        assert result["refined_translated_poem_title"] == "雾"
+        assert result["refined_translated_poet_name"] == "卡尔·桑德堡"
 
     def test_extract_functions_with_invalid_xml(self):
         """Test extraction functions with invalid XML."""
+        from src.vpsweb.services.parser import XMLParsingError
+
         invalid_xml = "This is not valid XML"
 
-        # Should handle gracefully and return empty strings
-        result1 = extract_initial_translation_from_xml(invalid_xml)
-        result2 = extract_revised_translation_from_xml(invalid_xml)
-
-        assert result1["initial_translation"] == ""
-        assert result1["initial_translation_notes"] == ""
-        assert result2["revised_translation"] == ""
-        assert result2["revised_translation_notes"] == ""
+        # Should raise XMLParsingError for invalid XML
+        with pytest.raises(XMLParsingError):
+            OutputParser.parse_initial_translation_xml(invalid_xml)
+        with pytest.raises(XMLParsingError):
+            OutputParser.parse_revised_translation_xml(invalid_xml)
 
 
 class TestModelSerialization:

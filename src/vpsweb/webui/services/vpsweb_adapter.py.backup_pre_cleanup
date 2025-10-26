@@ -26,8 +26,7 @@ from vpsweb.utils.storage import StorageHandler
 from vpsweb.utils.language_mapper import get_language_mapper
 
 from .poem_service import PoemService
-
-# TranslationService removed - dead code (not used in current codebase)
+from .translation_service import TranslationService
 from ..task_models import TaskStatusEnum
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult
@@ -85,6 +84,7 @@ class VPSWebWorkflowAdapter:
     def __init__(
         self,
         poem_service: PoemService,
+        translation_service: TranslationService,
         repository_service: RepositoryWebService,
         config_path: Optional[str] = None,
     ):
@@ -93,13 +93,14 @@ class VPSWebWorkflowAdapter:
 
         Args:
             poem_service: Repository poem service
+            translation_service: Repository translation service
             repository_service: Repository service for database operations
             config_path: Optional custom config directory path
         """
         self.poem_service = poem_service
+        self.translation_service = translation_service
         self.repository_service = repository_service
         self.config_path = config_path
-        # TranslationService removed - dead code (not used in current codebase)
 
         # Initialize StorageHandler for JSON file saving (CLI-compatible)
         self.storage_handler = StorageHandler()
@@ -290,18 +291,10 @@ class VPSWebWorkflowAdapter:
         """
         # Debug: Log the workflow output fields
         logger.info(f"🔍 [MAPPING DEBUG] Mapping workflow output to repository format")
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poem_title: '{workflow_output.initial_translation.translated_poem_title}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poet_name: '{workflow_output.initial_translation.translated_poet_name}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poem_title: '{workflow_output.revised_translation.refined_translated_poem_title}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poet_name: '{workflow_output.revised_translation.refined_translated_poet_name}'"
-        )
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poem_title: '{workflow_output.initial_translation.translated_poem_title}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.initial_translation.translated_poet_name: '{workflow_output.initial_translation.translated_poet_name}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poem_title: '{workflow_output.revised_translation.refined_translated_poem_title}'")
+        logger.info(f"🔍 [MAPPING DEBUG] workflow_output.revised_translation.refined_translated_poet_name: '{workflow_output.revised_translation.refined_translated_poet_name}'")
 
         result = {
             "poem_id": poem_id,
@@ -339,20 +332,49 @@ class VPSWebWorkflowAdapter:
         }
 
         # Debug: Log what we're putting in the result
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['translated_poem_title']: '{result.get('translated_poem_title', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['translated_poet_name']: '{result.get('translated_poet_name', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['refined_translated_poem_title']: '{result.get('refined_translated_poem_title', 'MISSING')}'"
-        )
-        logger.info(
-            f"🔍 [MAPPING DEBUG] Result['refined_translated_poet_name']: '{result.get('refined_translated_poet_name', 'MISSING')}'"
-        )
+        logger.info(f"🔍 [MAPPING DEBUG] Result['translated_poem_title']: '{result.get('translated_poem_title', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['translated_poet_name']: '{result.get('translated_poet_name', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['refined_translated_poem_title']: '{result.get('refined_translated_poem_title', 'MISSING')}'")
+        logger.info(f"🔍 [MAPPING DEBUG] Result['refined_translated_poet_name']: '{result.get('refined_translated_poet_name', 'MISSING')}'")
 
         return result
+
+    async def _execute_workflow_with_timeout(
+        self,
+        workflow: TranslationWorkflow,
+        input_data: TranslationInput,
+        timeout: int = DEFAULT_WORKFLOW_TIMEOUT,
+    ) -> TranslationOutput:
+        """
+        Execute VPSWeb workflow with timeout protection.
+
+        Args:
+            workflow: VPSWeb workflow instance
+            input_data: Translation input data
+            timeout: Timeout in seconds
+
+        Returns:
+            TranslationOutput: Workflow execution result
+
+        Raises:
+            WorkflowTimeoutError: If workflow execution times out
+            ConfigurationError: If workflow configuration is invalid
+        """
+        try:
+            logger.info(f"Executing workflow with {timeout}s timeout")
+            workflow_output = await asyncio.wait_for(
+                workflow.execute(input_data, show_progress=False), timeout=timeout
+            )
+            logger.info("Workflow execution completed successfully")
+            return workflow_output
+        except asyncio.TimeoutError:
+            logger.error(f"Workflow execution timed out after {timeout}s")
+            raise WorkflowTimeoutError(
+                f"Translation workflow timed out after {timeout} seconds."
+            )
+        except Exception as e:
+            logger.error(f"Workflow execution failed: {e}")
+            raise ConfigurationError(f"Workflow execution failed: {e}")
 
     async def execute_translation_workflow(
         self,
@@ -423,26 +445,6 @@ class VPSWebWorkflowAdapter:
         task_status = InMemoryTaskStatus(task_id=task_id)
         app.state.tasks[task_id] = task_status
         app.state.task_locks[task_id] = threading.Lock()
-
-        # Set initial workflow step states to "waiting"
-        task_status.update_step(
-            step_name="Initial Translation",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        task_status.update_step(
-            step_name="Editor Review",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        task_status.update_step(
-            step_name="Translator Revision",
-            step_details={"step_status": "waiting"},
-            step_state="waiting",
-        )
-        print(
-            f"[PROGRESS] Initial workflow states set: Initial Translation: 'waiting', Editor Review: 'waiting', Translator Revision: 'waiting'"
-        )
 
         # Execute workflows asynchronously with real-time progress callbacks
         # This enables SSE streaming of step-by-step progress updates
@@ -812,14 +814,8 @@ class VPSWebWorkflowAdapter:
                     source_language=source_lang,
                     target_language=target_lang,
                     translated_text=final_translation,
-                    translated_poem_title=(
-                        translation_data.get("refined_translated_poem_title")
-                        or translation_data.get("translated_poem_title", "")
-                    ).strip(),
-                    translated_poet_name=(
-                        translation_data.get("refined_translated_poet_name")
-                        or translation_data.get("translated_poet_name", "")
-                    ).strip(),
+                    translated_poem_title=translation_data.get("refined_translated_poem_title") or translation_data.get("translated_poem_title", ""),
+                    translated_poet_name=translation_data.get("refined_translated_poet_name") or translation_data.get("translated_poet_name", ""),
                     translator_type=TranslatorType.AI,  # Use proper enum value
                     translator_info="qwen-max",  # Use actual model name
                     quality_rating=translation_data.get(
@@ -839,24 +835,18 @@ class VPSWebWorkflowAdapter:
                 )
 
                 # Save JSON file using poet-based storage (CLI-compatible)
-                print(
-                    f"[DB SAVE] 📁 [STEP 9.5] Saving JSON file with poet-based storage"
-                )
+                print(f"[DB SAVE] 📁 [STEP 9.5] Saving JSON file with poet-based storage")
                 try:
                     # Use the same poet-based storage as CLI workflow
                     json_path = self.storage_handler.save_translation_with_poet_dir(
                         output=final_result,
                         poet_name=translation_input.metadata.get("author", "Unknown"),
                         workflow_mode=workflow_mode.value,
-                        include_mode_tag=True,
+                        include_mode_tag=True
                     )
-                    print(
-                        f"[DB SAVE] ✅ [STEP 9.5 SUCCESS] JSON file saved to poet directory: {json_path}"
-                    )
+                    print(f"[DB SAVE] ✅ [STEP 9.5 SUCCESS] JSON file saved to poet directory: {json_path}")
                 except Exception as json_error:
-                    print(
-                        f"[DB SAVE] ⚠️ [STEP 9.5 WARNING] Failed to save JSON file: {json_error}"
-                    )
+                    print(f"[DB SAVE] ⚠️ [STEP 9.5 WARNING] Failed to save JSON file: {json_error}")
                     # Continue execution - database save was successful
 
                 db.close()
@@ -924,9 +914,672 @@ class VPSWebWorkflowAdapter:
                     f"❌ [STANDALONE] Failed to update database error status for task_id {task_id}: {str(update_error)}"
                 )
 
+    def _execute_workflow_task_with_new_session(
+        self, task_id: str, poem: Dict[str, Any], workflow_mode: WorkflowMode
+    ) -> Dict[str, Any]:
+        """
+        Execute workflow task in background with separate database connection.
 
+        This prevents SQLite transaction conflicts by creating a completely separate
+        database connection for the background task execution.
+
+        Note: This is a synchronous function for FastAPI BackgroundTasks compatibility.
+        It uses asyncio.run() to execute async operations internally.
+        """
+        print(f"🌱 [BACKGROUND ENTRY] BACKGROUND TASK STARTING for task_id: {task_id}")
+        logger.info(f"Starting background task execution for task_id: {task_id}")
+
+        # Create async function to run the actual workflow
+        async def _run_async_workflow():
+            # Create a separate database engine for background task with WAL mode and NullPool
+            from vpsweb.repository.settings import settings
+            from sqlalchemy import create_engine, text
+            from sqlalchemy.orm import sessionmaker
+            from sqlalchemy.pool import NullPool
+            import time
+            import random
+
+            # Extract database file path and add WAL mode parameters
+            db_url = settings.database_url
+            if "sqlite:///" in db_url:
+                # Remove existing parameters and add WAL mode for better concurrent access
+                base_db_url = db_url.split("?")[0] if "?" in db_url else db_url
+                wal_db_url = (
+                    base_db_url + "?timeout=30&mode=rw&cache=shared&journal_mode=WAL"
+                )
+            else:
+                wal_db_url = db_url
+
+            # Use NullPool to prevent connection sharing issues in background tasks
+            # Each database operation gets a fresh connection, avoiding locks
+            background_engine = create_engine(
+                wal_db_url,
+                connect_args={"check_same_thread": False, "timeout": 30},
+                poolclass=NullPool,  # Critical: No pooling for background tasks
+                echo=False,
+            )
+
+            # Enable WAL mode and optimize for concurrent access
+            with background_engine.connect() as conn:
+                conn.execute(
+                    text("PRAGMA journal_mode=WAL")
+                )  # Enable Write-Ahead Logging
+                conn.execute(
+                    text("PRAGMA synchronous=NORMAL")
+                )  # Balance safety/performance
+                conn.execute(text("PRAGMA busy_timeout=30000"))  # 30 seconds timeout
+                conn.execute(
+                    text("PRAGMA foreign_keys=ON")
+                )  # Enable foreign key constraints
+                conn.execute(
+                    text("PRAGMA temp_store=MEMORY")
+                )  # Use memory for temp tables
+                conn.execute(
+                    text("PRAGMA mmap_size=268435456")
+                )  # 256MB memory-mapped I/O
+                conn.commit()
+
+            BackgroundSessionLocal = sessionmaker(
+                autocommit=False, autoflush=False, bind=background_engine
+            )
+            db = BackgroundSessionLocal()
+            logger.info(f"Created separate database connection for background task")
+
+            # Add retry mechanism for database operations
+            def retry_database_operation(max_retries=3, base_delay=0.1):
+                def decorator(func):
+                    def wrapper(*args, **kwargs):
+                        for attempt in range(max_retries):
+                            try:
+                                return func(*args, **kwargs)
+                            except Exception as e:
+                                if (
+                                    "database is locked" in str(e).lower()
+                                    and attempt < max_retries - 1
+                                ):
+                                    # Exponential backoff with jitter
+                                    delay = base_delay * (
+                                        2**attempt
+                                    ) + random.uniform(0, 0.1)
+                                    logger.warning(
+                                        f"Database locked on attempt {attempt + 1}, retrying in {delay:.2f}s"
+                                    )
+                                    time.sleep(delay)
+                                else:
+                                    raise
+
+                    return wrapper
+
+                return decorator
+
+            # Apply retry to critical database operations
+            original_commit = db.commit
+            original_flush = db.flush
+
+            @retry_database_operation(max_retries=3, base_delay=0.2)
+            def safe_commit():
+                original_commit()
+
+            @retry_database_operation(max_retries=2, base_delay=0.1)
+            def safe_flush():
+                original_flush()
+
+            # Replace methods with retry wrappers
+            db.commit = safe_commit
+            db.flush = safe_flush
+
+            try:
+                # Create new services with fresh database session
+                poem_service = PoemService(db)
+                translation_service = TranslationService(db)
+                repository_service = RepositoryWebService(db)
+
+                # Execute workflow with fresh services
+                return await self._execute_workflow_task_with_services(
+                    task_id,
+                    poem,
+                    workflow_mode,
+                    poem_service,
+                    translation_service,
+                    repository_service,
+                )
+
+            except Exception as e:
+                logger.error(f"Background workflow task {task_id} failed: {e}")
+                # Update task status to failed
+                try:
+                    repository_service.update_workflow_task_status(
+                        task_id, TaskStatus.FAILED, error_message=str(e)
+                    )
+                except:
+                    logger.error(f"Failed to update task status to failed: {e}")
+                raise
+            finally:
+                # Always close database session and engine
+                try:
+                    db.close()
+                    background_engine.dispose()
+                except:
+                    pass
+
+        # Execute the async workflow using asyncio.run()
+        return asyncio.run(_run_async_workflow())
+
+    async def _execute_workflow_task(
+        self, task_id: str, poem: Dict[str, Any], workflow_mode: WorkflowMode
+    ) -> Dict[str, Any]:
+        """
+        Execute the actual workflow task.
+
+        Args:
+            task_id: Unique task identifier
+            poem: Poem data from repository
+            workflow_mode: Workflow mode to use
+
+        Returns:
+            Task result with translation data
+
+        Raises:
+            WorkflowExecutionError: If execution fails
+        """
+        logger.info(
+            f"🚀 [STEP 1] Starting background workflow task execution for task_id: {task_id}"
+        )
+
+        # Get task from database
+        logger.info(f"🔍 [STEP 2] Retrieving task from database for task_id: {task_id}")
+        db_task = self.repository_service.get_workflow_task(task_id)
+        if not db_task:
+            logger.error(f"❌ [STEP 2 FAILED] Task not found in database: {task_id}")
+            raise WorkflowExecutionError(f"Task not found: {task_id}")
+
+        logger.info(
+            f"✅ [STEP 2 SUCCESS] Task retrieved from database: poem_id={db_task.poem_id}, status={db_task.status}"
+        )
+
+        try:
+            # Update task status in database
+            logger.info(
+                f"🔄 [STEP 3] Updating task status to RUNNING for task_id: {task_id}"
+            )
+            self.repository_service.update_workflow_task_status(
+                task_id, TaskStatus.RUNNING, progress_percentage=0
+            )
+            logger.info(
+                f"✅ [STEP 3 SUCCESS] Task status updated to RUNNING for task_id: {task_id}"
+            )
+
+            logger.info(
+                f"📝 [STEP 4] Starting translation workflow task {task_id} for poem {db_task.poem_id}"
+            )
+
+            # Create workflow
+            logger.info(
+                f"⚙️ [STEP 5] Creating workflow instance for mode: {workflow_mode.value}"
+            )
+            workflow = await self._create_workflow(workflow_mode)
+            logger.info(f"✅ [STEP 5 SUCCESS] Workflow instance created")
+
+            # Prepare input
+            logger.info(f"📋 [STEP 6] Preparing workflow input data")
+            input_data = self._map_repository_to_workflow_input(
+                poem, db_task.source_lang, db_task.target_lang
+            )
+            logger.info(
+                f"✅ [STEP 6 SUCCESS] Workflow input prepared: {len(input_data)} fields"
+            )
+
+            # Execute workflow with timeout protection
+            logger.info(
+                f"🔄 [STEP 7] Executing VPSWeb translation workflow in {workflow_mode.value} mode (timeout: {DEFAULT_WORKFLOW_TIMEOUT}s)"
+            )
+            workflow_output = await self._execute_workflow_with_timeout(
+                workflow, input_data, timeout=DEFAULT_WORKFLOW_TIMEOUT
+            )
+            logger.info(f"✅ [STEP 7 SUCCESS] Workflow execution completed")
+
+            # Map output to repository format
+            logger.info(f"📊 [STEP 8] Mapping workflow output to repository format")
+            translation_data = self._map_workflow_output_to_repository(
+                workflow_output, db_task.poem_id, db_task.workflow_mode
+            )
+            logger.info(f"✅ [STEP 8 SUCCESS] Output mapping completed")
+
+            # Save to repository
+            logger.info(f"💾 [STEP 9] Saving translation results to repository")
+            saved_translation = await self.translation_service.create_translation(
+                poem_id=db_task.poem_id,
+                source_lang=db_task.source_lang,
+                target_lang=db_task.target_lang,
+                workflow_mode=db_task.workflow_mode,
+                translation_data=translation_data,
+            )
+            logger.info(
+                f"✅ [STEP 9 SUCCESS] Translation saved with ID: {saved_translation['id']}"
+            )
+
+            # Save JSON file using poet-based storage (CLI-compatible)
+            logger.info(f"📁 [STEP 9.5] Saving JSON file with poet-based storage")
+            try:
+                # Get poet name from the original poem (use same method as CLI)
+                poem = await self.poem_service.get_poem_by_id(db_task.poem_id)
+                poet_name = poem["poet_name"] if poem else "Unknown"
+
+                # Use the same poet-based storage as CLI workflow
+                json_path = self.storage_handler.save_translation_with_poet_dir(
+                    output=workflow_output,
+                    poet_name=poet_name,
+                    workflow_mode=db_task.workflow_mode,
+                    include_mode_tag=True
+                )
+                logger.info(f"✅ [STEP 9.5 SUCCESS] JSON file saved to poet directory: {json_path}")
+            except Exception as e:
+                logger.error(f"⚠️ [STEP 9.5 WARNING] Failed to save JSON file: {e}")
+                # Continue execution - database save was successful
+
+            # Update task with result in database
+            logger.info(f"🏁 [STEP 10] Updating task with final results")
+            result_data = {
+                "translation_id": saved_translation["id"],
+                "total_tokens": workflow_output.total_tokens,
+                "duration_seconds": workflow_output.duration_seconds,
+                "total_cost": workflow_output.total_cost,
+            }
+            repository_service.set_workflow_task_result(task_id, result_data)
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.COMPLETED, progress_percentage=100
+            )
+            logger.info(f"✅ [STEP 10 SUCCESS] Task marked as completed")
+
+            logger.info(
+                f"🎉 [WORKFLOW COMPLETE] Translation workflow task {task_id} completed successfully"
+            )
+
+            return {
+                "task_id": task_id,
+                "status": TaskStatus.COMPLETED,
+                "translation_id": saved_translation["id"],
+                "total_tokens": workflow_output.total_tokens,
+                "duration_seconds": workflow_output.duration_seconds,
+                "total_cost": workflow_output.total_cost,
+                "message": "Translation completed successfully",
+            }
+
+        except WorkflowTimeoutError as e:
+            logger.error(
+                f"⏰ [TIMEOUT ERROR] VPSWeb workflow timed out for task {task_id}: {e}"
+            )
+            # Update task status in database
+            logger.error(f"🔴 [FAILED] Updating task status to FAILED due to timeout")
+            self.repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+
+            raise WorkflowExecutionError(f"Workflow execution timed out: {e}")
+
+        except WorkflowError as e:
+            logger.error(
+                f"❌ [WORKFLOW ERROR] VPSWeb workflow failed for task {task_id}: {e}"
+            )
+            # Update task status in database
+            logger.error(
+                f"🔴 [FAILED] Updating task status to FAILED due to workflow error"
+            )
+            self.repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+
+            raise WorkflowExecutionError(f"Workflow execution failed: {e}")
+
+        except Exception as e:
+            logger.error(
+                f"💥 [UNEXPECTED ERROR] Task {task_id} failed with unexpected error: {e}"
+            )
+            logger.error(
+                f"🔴 [FAILED] Updating task status to FAILED due to unexpected error"
+            )
+            logger.error(f"Unexpected error in workflow task {task_id}: {e}")
+            # Update task status in database
+            self.repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+
+            raise WorkflowExecutionError(f"Unexpected error: {e}")
+
+    async def _execute_workflow_task_with_services(
+        self,
+        task_id: str,
+        poem: Dict[str, Any],
+        workflow_mode: WorkflowMode,
+        poem_service: "PoemService",
+        translation_service: "TranslationService",
+        repository_service: "RepositoryWebService",
+    ) -> Dict[str, Any]:
+        """
+        Execute workflow task with separate service instances.
+
+        This method creates fresh service instances to avoid session conflicts.
+        """
+        print(
+            f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}"
+        )
+        logger.info(
+            f"🔧 [SERVICES ENTRY] _execute_workflow_task_with_services called for task_id: {task_id}"
+        )
+
+        # Get task from database
+        db_task = repository_service.get_workflow_task(task_id)
+        if not db_task:
+            raise WorkflowExecutionError(f"Task not found: {task_id}")
+
+        try:
+            # Update task status in database
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.RUNNING, progress_percentage=0
+            )
+
+            logger.info(
+                f"Starting translation workflow task {task_id} for poem {db_task.poem_id}"
+            )
+
+            # Create workflow
+            workflow = await self._create_workflow(workflow_mode)
+
+            # Prepare input
+            input_data = self._map_repository_to_workflow_input(
+                poem, db_task.source_lang, db_task.target_lang
+            )
+
+            # Execute workflow with timeout protection
+            logger.info(
+                f"Executing VPSWeb translation workflow in {workflow_mode.value} mode"
+            )
+            workflow_output = await self._execute_workflow_with_timeout(
+                workflow, input_data, timeout=DEFAULT_WORKFLOW_TIMEOUT
+            )
+
+            # Map output to repository format
+            translation_data = self._map_workflow_output_to_repository(
+                workflow_output, db_task.poem_id, db_task.workflow_mode
+            )
+
+            # Save to repository using fresh translation service
+            logger.info(f"Saving translation results to repository")
+            # Filter translation_data to only include valid fields for create_translation
+            filtered_translation_data = {
+                k: v
+                for k, v in translation_data.items()
+                if k
+                not in [
+                    "workflow_id",
+                    "poem_id",
+                    "source_lang",
+                    "target_lang",
+                    "workflow_mode",
+                ]
+            }
+            saved_translation = await translation_service.create_translation(
+                poem_id=translation_data["poem_id"],
+                source_lang=translation_data["source_lang"],
+                target_lang=translation_data["target_lang"],
+                workflow_mode=translation_data["workflow_mode"],
+                translation_data=filtered_translation_data,
+            )
+            logger.info(f"✅ Translation saved to database with ID: {saved_translation['id']}")
+
+            # Save JSON file using poet-based storage (CLI-compatible)
+            logger.info(f"📁 Saving JSON file with poet-based storage")
+            try:
+                # Get poet name from the original poem (use same method as CLI)
+                poem = await self.poem_service.get_poem_by_id(translation_data["poem_id"])
+                poet_name = poem["poet_name"] if poem else "Unknown"
+
+                # Use the same poet-based storage as CLI workflow
+                json_path = self.storage_handler.save_translation_with_poet_dir(
+                    output=workflow_output,
+                    poet_name=poet_name,
+                    workflow_mode=translation_data["workflow_mode"],
+                    include_mode_tag=True
+                )
+                logger.info(f"✅ JSON file saved to poet directory: {json_path}")
+            except Exception as e:
+                logger.error(f"⚠️ Failed to save JSON file: {e}")
+                # Continue execution - database save was successful
+
+            # Update task status in database using fresh repository service
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.COMPLETED, progress_percentage=100
+            )
+
+            logger.info(f"Translation workflow task {task_id} completed successfully")
+
+            return {
+                "task_id": task_id,
+                "status": TaskStatus.COMPLETED,
+                "translation_id": saved_translation["id"],
+                "total_tokens": workflow_output.total_tokens,
+                "duration_seconds": workflow_output.duration_seconds,
+                "total_cost": workflow_output.total_cost,
+                "message": "Translation completed successfully",
+            }
+
+        except WorkflowTimeoutError as e:
+            logger.error(f"VPSWeb workflow timed out for task {task_id}: {e}")
+            # Update task status in database
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+            raise WorkflowExecutionError(f"Workflow execution timed out: {e}")
+
+        except WorkflowError as e:
+            logger.error(f"VPSWeb workflow failed for task {task_id}: {e}")
+            # Update task status in database
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+            raise WorkflowExecutionError(f"Workflow execution failed: {e}")
+
+        except Exception as e:
+            logger.error(f"Unexpected error in workflow task {task_id}: {e}")
+            # Update task status in database
+            repository_service.update_workflow_task_status(
+                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
+            )
+            raise WorkflowExecutionError(f"Unexpected error: {e}")
+
+    # Note: Task cleanup is now handled by database - no need for manual cleanup
+
+    async def get_task_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get the status of a background task.
+
+        Args:
+            task_id: Task identifier
+
+        Returns:
+            Task status information or None if not found
+        """
+        # Get task from database
+        db_task = self.repository_service.get_workflow_task(task_id)
+        if not db_task:
+            return None
+
+        return {
+            "task_id": db_task.id,
+            "status": db_task.status.value,
+            "poem_id": db_task.poem_id,
+            "source_lang": db_task.source_lang,
+            "target_lang": db_task.target_lang,
+            "workflow_mode": db_task.workflow_mode.value,
+            "created_at": (
+                db_task.created_at.isoformat() if db_task.created_at else None
+            ),
+            "started_at": (
+                db_task.started_at.isoformat() if db_task.started_at else None
+            ),
+            "completed_at": (
+                db_task.completed_at.isoformat() if db_task.completed_at else None
+            ),
+            "progress_percentage": db_task.progress_percentage,
+            "error": db_task.error_message,
+            "result": db_task.result_json,
+        }
+
+    async def list_active_tasks(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        List active background tasks.
+
+        Args:
+            limit: Maximum number of tasks to return
+
+        Returns:
+            List of task information
+        """
+        # Get tasks from database
+        db_tasks = self.repository_service.get_workflow_tasks(limit=limit)
+
+        return [
+            {
+                "task_id": task.id,
+                "status": task.status.value,
+                "poem_id": task.poem_id,
+                "source_lang": task.source_lang,
+                "target_lang": task.target_lang,
+                "workflow_mode": task.workflow_mode.value,
+                "created_at": task.created_at.isoformat() if task.created_at else None,
+                "started_at": task.started_at.isoformat() if task.started_at else None,
+                "completed_at": (
+                    task.completed_at.isoformat() if task.completed_at else None
+                ),
+                "error": task.error_message,
+            }
+            for task in db_tasks
+        ]
+
+    async def cancel_task(self, task_id: str) -> bool:
+        """
+        Cancel a background task (mark as failed).
+
+        Args:
+            task_id: Task identifier
+
+        Returns:
+            True if task was cancelled, False if not found
+        """
+        # Get task from database
+        db_task = self.repository_service.get_workflow_task(task_id)
+        if not db_task:
+            return False
+
+        if db_task.status in [TaskStatus.PENDING, TaskStatus.RUNNING]:
+            # Update task status in database
+            self.repository_service.update_workflow_task_status(
+                task_id,
+                TaskStatus.FAILED,
+                progress_percentage=0,
+                error_message="Task cancelled by user",
+            )
+
+            logger.info(f"Task {task_id} cancelled by user")
+            return True
+
+        return False
+
+    async def get_workflow_modes(self) -> List[Dict[str, str]]:
+        """
+        Get available workflow modes.
+
+        Returns:
+            List of available workflow modes with descriptions
+        """
+        return [
+            {
+                "value": "hybrid",
+                "label": "Hybrid",
+                "description": "Balanced approach with reasoning for review steps",
+            },
+            {
+                "value": "reasoning",
+                "label": "Reasoning",
+                "description": "Highest quality with detailed reasoning for all steps",
+            },
+            {
+                "value": "non_reasoning",
+                "label": "Non-Reasoning",
+                "description": "Fast and cost-effective for standard translations",
+            },
+        ]
+
+    async def validate_workflow_input(
+        self, poem_id: str, source_lang: str, target_lang: str, workflow_mode: str
+    ) -> Dict[str, Any]:
+        """
+        Validate workflow input without executing.
+
+        Args:
+            poem_id: ID of the poem to translate
+            source_lang: Source language code
+            target_lang: Target language code
+            workflow_mode: Workflow mode to validate
+
+        Returns:
+            Validation result
+        """
+        try:
+            # Check if poem exists
+            poem = await self.poem_service.get_poem(poem_id)
+            if not poem:
+                return {"valid": False, "errors": [f"Poem not found: {poem_id}"]}
+
+            # Validate languages
+            if source_lang == target_lang:
+                return {
+                    "valid": False,
+                    "errors": ["Source and target languages must be different"],
+                }
+
+            # Validate workflow mode
+            try:
+                WorkflowMode(workflow_mode)
+            except ValueError:
+                return {
+                    "valid": False,
+                    "errors": [f"Invalid workflow mode: {workflow_mode}"],
+                }
+
+            # Validate poem content
+            if not poem.get("content") or len(poem["content"].strip()) < 10:
+                return {
+                    "valid": False,
+                    "errors": ["Poem content is too short or empty"],
+                }
+
+            # Try to load configuration
+            await self._load_configuration()
+
+            return {
+                "valid": True,
+                "message": "Validation passed",
+                "poem_preview": (
+                    poem["content"][:100] + "..."
+                    if len(poem["content"]) > 100
+                    else poem["content"]
+                ),
+                "workflow_info": {
+                    "workflow": self._workflow_config.name,
+                    "version": self._workflow_config.version,
+                    "providers": list(self._providers_config.providers.keys()),
+                },
+            }
+
+        except Exception as e:
+            return {"valid": False, "errors": [f"Validation error: {e}"]}
+
+
+@asynccontextmanager
 async def get_vpsweb_adapter(
     poem_service: PoemService,
+    translation_service: TranslationService,
     repository_service: RepositoryWebService,
     config_path: Optional[str] = None,
 ):
@@ -935,6 +1588,7 @@ async def get_vpsweb_adapter(
 
     Args:
         poem_service: Repository poem service
+        translation_service: Repository translation service
         repository_service: Repository service for database operations
         config_path: Optional config directory path
 

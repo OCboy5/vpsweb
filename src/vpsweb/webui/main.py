@@ -31,7 +31,8 @@ from src.vpsweb.repository.service import RepositoryWebService
 from .api import poems, translations, statistics, poets
 from .config import settings
 from .services.poem_service import PoemService
-from .services.translation_service import TranslationService
+
+# TranslationService removed - dead code (not used in current codebase)
 from .services.vpsweb_adapter import (
     VPSWebWorkflowAdapter,
     get_vpsweb_adapter,
@@ -285,24 +286,20 @@ def get_poem_service(db: Session = Depends(get_db)) -> PoemService:
     return PoemService(db)
 
 
-def get_translation_service(db: Session = Depends(get_db)) -> TranslationService:
-    """Dependency to get translation service instance"""
-    return TranslationService(db)
-
-
 def get_vpsweb_adapter_dependency(
     poem_service: PoemService = Depends(get_poem_service),
-    translation_service: TranslationService = Depends(get_translation_service),
     db: Session = Depends(get_db),
 ) -> VPSWebWorkflowAdapter:
     """Dependency to get VPSWeb workflow adapter instance"""
     repository_service = RepositoryWebService(db)
+    # TranslationService removed - dead code (not used in current codebase)
     # Create adapter instance - FastAPI dependencies should be regular functions, not async context managers
     return VPSWebWorkflowAdapter(
         poem_service=poem_service,
-        translation_service=translation_service,
         repository_service=repository_service,
+        config_path=None,  # Use default config path
     )
+    # TranslationService removed - dead code (not used in current codebase)
 
 
 @app.get("/poems", response_class=HTMLResponse)
