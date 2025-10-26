@@ -765,7 +765,7 @@ async def stream_workflow_task_status(
         )
 
         # Stream for updates with real-time app.state access
-        max_iterations = 1200  # 10 minutes with 0.2-second intervals
+        max_iterations = 3000  # 10 minutes with 0.2-second intervals (600 / 0.2 = 3000)
         last_status = None
         consecutive_errors = 0
         max_consecutive_errors = 5
