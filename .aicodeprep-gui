@@ -20,7 +20,7 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
+outputs/json/poets/Ted Hughes/Ted Hughes_september_english_chinese_non_reasoning_20251026_220340_9d8f1b2e.json
 src/vpsweb/core/workflow.py
-src/vpsweb/webui/main.py
-src/vpsweb/webui/web/templates/poet_detail.html
-src/vpsweb/webui/services/vpsweb_adapter.py
+src/vpsweb/utils/storage.py
+src/vpsweb/models/translation.py

@@ -183,12 +183,8 @@ class EditorReview(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with ISO format timestamp."""
-        data = {
-            "editor_suggestions": self.editor_suggestions,
-            "timestamp": self.timestamp.isoformat(),
-            "model_info": self.model_info,
-            "tokens_used": self.tokens_used,
-        }
+        data = self.model_dump()
+        data["timestamp"] = self.timestamp.isoformat()
         return data
 
     @classmethod

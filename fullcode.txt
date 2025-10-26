@@ -1,3 +1,66 @@
+outputs/json/poets/Ted Hughes/Ted Hughes_september_english_chinese_non_reasoning_20251026_220340_9d8f1b2e.json:
+<code>
+{
+  "workflow_id": "08e6b68c-dfe8-4f86-959e-c0c09d8f1b2e",
+  "input": {
+    "original_poem": "We sit late, watching the dark slowly unfold:\nNo clock counts this.\nWhen kisses are repeated and the arms hold\nThere is no telling where time is.\n\nIt is midsummer: the leaves hang big and still:\nBehind the eye a star,\nUnder the silk of the wrist a sea, tell\nTime is nowhere.\n\nWe stand; leaves have not timed the summer.\nNo clock now needs\nTell we have only what we remember:\nMinutes uproaring with our heads\n\nLike an unfortunate King's and his Queen's\nWhen the senseless mob rules;\nAnd quietly the trees casting their crowns\nInto the pools.",
+    "source_lang": "English",
+    "target_lang": "Chinese",
+    "metadata": {
+      "id": "01K8GD5CA6GMD6BV80QE4B237J",
+      "title": "September",
+      "author": "Ted Hughes"
+    }
+  },
+  "initial_translation": {
+    "initial_translation": "\n我们坐到深夜，凝望黑暗缓缓展开：\n没有时钟为此计数；\n当亲吻一再重复，双臂紧紧相拥，\n便无从知晓时光去向。\n\n这是仲夏：树叶硕大而静止：\n眼眸深处有一颗星，\n腕脉丝绸之下藏着一片海，诉说\n时间已不复存在。\n\n我们起身；落叶未曾标记夏日的流逝。\n此刻无需钟表提醒：\n我们仅拥有记忆中的片刻——\n那些如国王与王后般不幸的瞬间，\n\n当愚昧的暴民掌权；\n而树木悄然将王冠卸下，\n投入池中。",
+    "initial_translation_notes": "\n本诗《九月》出自英国诗人特德·休斯（Ted Hughes）之手，其诗风以原始力量、自然意象与心理深度著称。他常以自然景物为载体，揭示人类情感与时间的神秘流动。本诗虽题为“September”，但内容却指向“midsummer”（仲夏），这看似矛盾的命名实则暗示时间感知的错位与主观性——或许“九月”在此并非实指，而是象征季节转折、情感沉淀的临界点。因此，我保留“九月”为题，既尊重原题形式，又赋予其中文语境下的诗意张力：九月在中国文化中亦常与秋思、离别、回忆相联，恰好呼应诗中对记忆与时间消逝的沉思。\n\n在翻译过程中，我面临如下挑战与抉择：\n\n1. **开篇句的多重解读与节奏处理**  \n原文：“We sit late, watching the dark slowly unfold: / No clock counts this.”  \n我曾尝试三种译法：\n- 我们坐至深夜，看黑暗徐徐铺展：/ 没有钟表为此计时。\n- 我们久久静坐，目送夜色渐次展开：/ 此刻不在钟表刻度之上。\n- 我们坐到深夜，凝望黑暗缓缓展开：/ 没有时钟为此计数。\n\n最终选择第三版，因其在节奏上更贴近原文的平缓陈述，动词“凝望”较“目送”更显专注，“缓缓展开”对应“slowly unfold”具画面感，“没有时钟为此计数”以“计数”呼应“counts”，比“计时”更具文学性与抽象意味。\n\n2. **时间主题的哲学性表达**  \n诗中反复强调时间的消隐（“There is no telling where time is”, “Time is nowhere”），这并非物理时间的消失，而是情感沉浸中时间感知的断裂。中文“时间已不复存在”较直译“时间无处可寻”更富诗意，且与下文“无需钟表提醒”形成逻辑递进。\n\n3. **意象的保留与文化适配**  \n“Behind the eye a star, / Under the silk of the wrist a sea” 是典型的休斯式超现实身体意象。我译为“眼眸深处有一颗星，/ 腕脉丝绸之下藏着一片海”，保留“星”与“海”的象征（内在光芒与潜意识之深），并以“腕脉丝绸”传达“silk of the wrist”中肌肤细腻如丝的触感，同时暗示血脉流动，与“海”形成生命律动的隐喻。\n\n4. **结尾的历史隐喻与意象转化**  \n“Like an unfortunate King's and his Queen's / When the senseless mob rules” 引用欧洲历史中君主被暴民推翻的悲剧场景，象征美好事物在混乱中陨落。中文若直译“暴民”易带政治敏感，故以“愚昧的暴民”适度弱化情绪，保留“国王与王后”的文化通识性，并通过“不幸的瞬间”将具体历史事件升华为普遍情感体验。\n\n5. **形式与节奏的调适**  \n原诗为自由体，无固定格律，但句式长短交错，富有内在节奏。中文翻译采用四字、五字、七字句混合，模拟其呼吸感。如“树木悄然将王冠卸下，/ 投入池中”，以“卸下”对应“casting”，赋予树木拟人化的庄严感，“王冠”呼应“crowns”，将落叶比作君王退位，延续诗中王权隐喻，增强悲剧美感。\n\n6. **文化本质的保留与诗意再创造**  \n全诗核心是“记忆即存在”——“we have only what we remember”。此句我译为“我们仅拥有记忆中的片刻”，以“片刻”呼应前文“Minutes uproaring”，将喧嚣的瞬间与静默的回忆并置，强化情感对比。虽中文无时态变化，但通过“已不复存在”“未曾标记”等表达，传达时间流逝的不可逆。\n\n综上，本译文力求在忠实原意的基础上，重现休斯诗中那种静谧而深邃的时空感，使中文读者既能感知其自然意象的质感，亦能体会其哲思的重量。",
+    "translated_poem_title": "九月",
+    "translated_poet_name": "特德·休斯",
+    "timestamp": "2025-10-26T22:02:17.716124",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.7"
+    },
+    "tokens_used": 2286,
+    "prompt_tokens": 1142,
+    "completion_tokens": 1144,
+    "duration": 48.306323289871216,
+    "cost": 0.0032015999999999998
+  },
+  "editor_review": {
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"九月\" by 特德·休斯:\n1. Line 1: “我们坐到深夜，凝望黑暗缓缓展开：/ 没有时钟为此计数” — “坐到深夜”隐含“从某时坐至深夜”，而原文“we sit late”更中性，仅强调“坐得很晚”，未必指从傍晚开始。此外，“计数”虽呼应“counts”，但“count”在此更宜理解为“衡量”或“记录”，而非数学意义上的“计数”。建议改为“没有时钟能衡量此刻”，以更准确传达“时间无法被量化”的哲思。示例：“我们久久坐着，凝望黑暗缓缓展开：/ 没有时钟能衡量此刻”。\n2. Line 3–4: “当亲吻一再重复，双臂紧紧相拥，/ 便无从知晓时光去向” — “双臂紧紧相拥”语义略显重复（“相拥”已含“双臂”动作），且“一再重复”稍显口语化，未能完全体现“repeated”在诗中那种近乎仪式性的累积感。建议调整为“当吻一次次落下，双臂环抱不离，/ 时光的去向便无从辨认”，增强节奏与诗意密度，同时“落下”呼应“kisses”作为名词的具象化。\n3. Stanza 2, Line 1: “这是仲夏：树叶硕大而静止” — “硕大”虽达意，但偏重“大”而弱化“饱满、繁茂”的质感，“big”在此更强调生命力的充盈。建议用“浓密”或“丰盈”替代，如“树叶丰盈而静止”，以更贴合midsummer的生态意象与视觉张力。\n4. Stanza 2, Lines 2–4: “眼眸深处有一颗星，/ 腕脉丝绸之下藏着一片海，诉说/ 时间已不复存在” — “腕脉丝绸”为创造性译法，但“腕脉”易被误解为医学术语，且“丝绸”前置造成“丝绸之下藏着海”的空间错乱（原句“under the silk of the wrist”意为“在如丝般柔滑的手腕肌肤之下”）。建议调整为“腕间丝绸下藏着一片海”，或更流畅地处理为“眼底有星闪烁，/ 腕肤如丝，其下暗涌成海”，既保留意象又理顺逻辑，增强诗意连贯性。\n5. Stanza 3, Line 1: “我们起身；落叶未曾标记夏日的流逝” — 原文“Leaves have not timed the summer”中“leaves”指当下仍在枝头的叶子，并非“落叶”。“落叶”一词误导读者以为秋天已至，与“midsummer”矛盾。此为严重误译。应改为“树叶未曾为夏日计时”或“绿叶未尝标记夏日的流转”，以忠实原意并维持时间错位的哲学张力。\n6. Stanza 3, Line 3: “我们仅拥有记忆中的片刻——” — “片刻”对应“minutes”，但“minutes uproaring”强调的是“喧嚣、激烈、充满张力的瞬间”，而“片刻”在中文中偏中性甚至微小。建议用“那些喧腾的瞬间”或“那些轰鸣的时刻”，以保留“uproaring”的听觉与情感强度。示例：“我们仅拥有的，是记忆中轰鸣的时刻——”。\n7. Stanza 3, Lines 4–5: “那些如国王与王后般不幸的瞬间，/ 当愚昧的暴民掌权” — “如国王与王后般不幸的瞬间”结构冗长，且“如……般”削弱了比喻的直接性。原文“Like an unfortunate King's and his Queen's”是明喻，修饰“minutes”，宜更紧凑处理。建议改为“如那不幸君王与王后的时刻，/ 暴民愚昧，执掌朝纲”，增强历史画面感与节奏力度。“掌权”改为“执掌朝纲”或“当道”，更具文言诗意，契合“国王与王后”的古典语境。\n8. Final Couplet: “而树木悄然将王冠卸下，/ 投入池中” — “卸下”略显主动，而“casting”更偏向“抛掷、洒落”的自然动作，带有被动与宿命感。建议用“抛落”或“洒下”以增强动态与悲怆感。示例：“而树木静静将王冠抛落，/ 沉入池中”，“沉入”比“投入”更具终结感，呼应“crowns”作为生命象征的陨落。\n9. Punctuation and Line Breaks: 全诗使用中文冒号与句号，但原诗为自由体，标点服务于呼吸与停顿，非语法完整。建议在“缓缓展开：”后保留冒号以延续张力，但“诉说/ 时间已不复存在”中“诉说”后宜加逗号或破折号，否则语义断裂。可改为“诉说，/ 时间已不复存在”或“诉说——/ 时间已不复存在”，以增强语气停顿与抒情层次。\n10. Title: “九月” — 虽译者注解释其象征意义，但读者初读易产生季节错乱（诗中明确为midsummer）。建议加副标题或注释，如“九月（仲夏）”，或在译者序中说明，以避免误解。若坚持单标题，可考虑“九月：仲夏”以平衡形式与信息。\n\nConclude with a brief overall assessment (2-3 sentences) of the translation's current quality and its potential for improvement.\n该译文整体忠实于原诗的情感基调与哲学意蕴，语言富有诗意，尤其在意象转化与节奏把控上展现了高度的文学自觉。然个别关键意象存在误读（如“落叶”），部分措辞可进一步精炼以增强准确性与表现力。经适度修订后，有望成为兼具学术严谨性与艺术感染力的经典译本。",
+    "timestamp": "2025-10-26T22:03:00.742411",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.3"
+    },
+    "tokens_used": 3630
+  },
+  "revised_translation": {
+    "revised_translation": "\n我们久久坐着，凝望黑暗缓缓展开：\n没有时钟能衡量此刻；\n当吻一次次落下，双臂环抱不离，\n时光的去向便无从辨认。\n\n这是仲夏：树叶丰盈而静止：\n眼底有星闪烁，\n腕肤如丝，其下暗涌成海——\n诉说，时间已不复存在。\n\n我们起身；绿叶未尝标记夏日的流转。\n此刻无需钟表提醒：\n我们仅拥有的，是记忆中轰鸣的时刻——\n如那不幸君王与王后的瞬间，\n\n暴民愚昧，执掌朝纲；\n而树木静静将王冠抛落，\n沉入池中。",
+    "revised_translation_notes": "\n1. Major revisions and the reasoning behind them:\n\n- Line 1: Revised “我们坐到深夜” to “我们久久坐着” to better reflect the neutral, durational sense of “we sit late” without implying a temporal starting point. Changed “没有时钟为此计数” to “没有时钟能衡量此刻”， aligning with the expert suggestion that “count” here implies “measure” rather than “count numerically,” enhancing the philosophical tone.\n\n- Lines 3–4: Replaced “亲吻一再重复，双臂紧紧相拥” with “当吻一次次落下，双臂环抱不离”， improving poetic rhythm and avoiding redundancy (“双臂相拥” is tautological). “落下” gives “kisses” a more vivid, physical presence, echoing the original’s concrete noun usage.\n\n- Stanza 2, Line 1: Changed “硕大” to “丰盈”， capturing the lush, vital quality of “big and still” leaves in midsummer, as suggested. “丰盈” conveys fullness of life, not just size.\n\n- Lines 2–4 of Stanza 2: Revised “腕脉丝绸之下藏着一片海” to “腕肤如丝，其下暗涌成海”， resolving the spatial confusion and medical connotation of “腕脉.” The new phrasing clarifies that the silk refers to the skin’s texture. Added em dash after “海” and comma after “诉说” to enhance pause and lyrical flow, per suggestion 9.\n\n- Stanza 3, Line 1: Corrected “落叶未曾标记夏日的流逝” to “绿叶未尝标记夏日的流转”， fixing a critical error. “落叶” wrongly implies autumn; original “leaves” are still on the trees. “绿叶” preserves the midsummer setting, and “流转” adds poetic nuance to “timed.”\n\n- Line 3: Changed “记忆中的片刻” to “记忆中轰鸣的时刻”， replacing the neutral “片刻” with “轰鸣的时刻” to reflect the emotional and auditory intensity of “minutes uproaring.” “轰鸣” captures the chaos and volume implied.\n\n- Lines 4–5: Revised “那些如国王与王后般不幸的瞬间” to “如那不幸君王与王后的瞬间”， tightening syntax and enhancing poetic diction. “君王与王后” sounds more regal than “国王与王后.” “暴民愚昧，执掌朝纲” replaces “当愚昧的暴民掌权,” using classical phrasing (“执掌朝纲”) to match the royal metaphor and elevate tone.\n\n- Final Couplet: Changed “卸下” to “抛落” and “投入” to “沉入,” per suggestion 8. “抛落” conveys the involuntary, fated motion of “casting,” while “沉入” adds weight and finality, reinforcing the image of crowns (symbolizing life, authority) descending into water as a quiet elegy.\n\n- Title: Adopted “九月（仲夏）” to resolve the seasonal dissonance. Though “September” may carry symbolic weight (e.g., transition, memory), the poem’s imagery is unmistakably midsummer. The parenthetical clarifies without sacrificing poetic ambiguity.\n\n2. Expert suggestions not implemented:\n\n- None. All ten expert suggestions were evaluated and either directly implemented or refined for greater poetic precision. The only deviation is in phrasing execution (e.g., “腕肤如丝” instead of “腕间丝绸下”), but the intent and correction are fully honored.\n\n3. Balancing original essence and Chinese effectiveness:\n\nThe revision preserves Hughes’ contemplative, almost mystical tone, where time dissolves in intimacy and nature. The philosophical core—time as unmeasurable, memory as both refuge and chaos—is maintained. Poetic devices like metaphor (“star behind the eye,” “sea under the wrist”) are rendered with clarity and lyrical grace in Chinese, avoiding over-literalism while respecting their symbolic depth. Rhythm is balanced between natural speech and poetic cadence, with line breaks mirroring the original’s pauses.\n\n4. Challenges and resolutions:\n\n- The phrase “under the silk of the wrist” posed a syntactic and imagistic challenge. Direct translation risked absurdity (“丝绸之下” implying fabric). Resolved by rephrasing as “腕肤如丝，其下暗涌成海,” using simile to clarify and enrich.\n\n- “Minutes uproaring with our heads” is syntactically ambiguous in English. Interpreted as “moments filled with the roaring within our minds,” hence “轰鸣的时刻” — emphasizing internal tumult.\n\n- Maintaining the free verse form while ensuring Chinese poetic fluency required careful lineation. Punctuation (em dash, comma) was used strategically to guide breath and emphasis without violating Chinese norms.\n\nThe revised translation achieves greater accuracy, poetic resonance, and philosophical clarity, transforming a strong initial effort into a more authoritative and moving rendition.",
+    "refined_translated_poem_title": "九月（仲夏）",
+    "refined_translated_poet_name": "特德·休斯",
+    "timestamp": "2025-10-26T22:03:40.793716",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.2"
+    },
+    "tokens_used": 3740,
+    "prompt_tokens": 2489,
+    "completion_tokens": 1251,
+    "duration": 40.02924585342407,
+    "cost": 0.004493199999999999
+  },
+  "total_tokens": 9656,
+  "duration_seconds": 131.40507912635803
+}
+</code>
+
 src/vpsweb/core/workflow.py:
 <code>
 """
@@ -10,7 +73,7 @@ that coordinates the complete poetry translation process following the vpts.yml 
 import time
 import logging
 import uuid
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable, Awaitable
 from datetime import datetime
 
 from ..services.llm.factory import LLMFactory
@@ -23,9 +86,8 @@ from ..models.translation import (
     EditorReview,
     RevisedTranslation,
     TranslationOutput,
-    extract_initial_translation_from_xml,
-    extract_revised_translation_from_xml,
 )
+from ..services.parser import OutputParser
 from ..utils.progress import ProgressTracker, StepStatus
 
 logger = logging.getLogger(__name__)
@@ -83,6 +145,11 @@ class TranslationWorkflow:
         self.llm_factory = LLMFactory(providers_config)
         self.prompt_service = PromptService()
         self.step_executor = StepExecutor(self.llm_factory, self.prompt_service)
+
+        # Initialize progress callback (optional)
+        self.progress_callback: Optional[
+            Callable[[str, Dict[str, Any]], Awaitable[None]]
+        ] = None
 
         # Get the appropriate workflow steps for the mode
         self.workflow_steps = config.get_workflow_steps(workflow_mode)
@@ -146,6 +213,13 @@ class TranslationWorkflow:
                 }
                 progress_tracker.start_step("initial_translation", model_info)
 
+            # Call progress callback when Step 1 starts
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Initial Translation",
+                    {"status": "started", "message": "Starting initial translation..."},
+                )
+
             step_start_time = time.time()
             initial_translation = await self._initial_translation(input_data)
             step_duration = time.time() - step_start_time
@@ -193,6 +267,20 @@ class TranslationWorkflow:
                     },
                 )
 
+  
+            # Call progress callback after Step 1 completion
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Initial Translation",
+                    {
+                        "status": "completed",
+                        "tokens_used": initial_translation.tokens_used,
+                        "duration": getattr(initial_translation, "duration", None),
+                        "cost": getattr(initial_translation, "cost", None),
+                        "model_info": getattr(initial_translation, "model_info", None),
+                    },
+                )
+
             # Step 2: Editor Review
             log_entries.append(
                 f"\n=== STEP 2: EDITOR REVIEW ({self.workflow_mode.value.upper()} MODE) ==="
@@ -210,6 +298,13 @@ class TranslationWorkflow:
                     "temperature": str(step_config.temperature),
                 }
                 progress_tracker.start_step("editor_review", model_info)
+
+            # Call progress callback when Step 2 starts
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Editor Review",
+                    {"status": "started", "message": "Starting editor review..."},
+                )
 
             step_start_time = time.time()
             editor_review = await self._editor_review(input_data, initial_translation)
@@ -258,6 +353,19 @@ class TranslationWorkflow:
                     },
                 )
 
+            # Call progress callback after Step 2 completion
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Editor Review",
+                    {
+                        "status": "completed",
+                        "tokens_used": editor_review.tokens_used,
+                        "duration": getattr(editor_review, "duration", None),
+                        "cost": getattr(editor_review, "cost", None),
+                        "model_info": getattr(editor_review, "model_info", None),
+                    },
+                )
+
             # Step 3: Translator Revision
             log_entries.append(
                 f"\n=== STEP 3: TRANSLATOR REVISION ({self.workflow_mode.value.upper()} MODE) ==="
@@ -271,6 +379,13 @@ class TranslationWorkflow:
                     "temperature": str(step_config.temperature),
                 }
                 progress_tracker.start_step("translator_revision", model_info)
+
+            # Call progress callback when Step 3 starts
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Translator Revision",
+                    {"status": "started", "message": "Starting translator revision..."},
+                )
 
             step_start_time = time.time()
             revised_translation = await self._translator_revision(
@@ -314,6 +429,19 @@ class TranslationWorkflow:
                     },
                 )
 
+            # Call progress callback after Step 3 completion
+            if self.progress_callback:
+                await self.progress_callback(
+                    "Translator Revision",
+                    {
+                        "status": "completed",
+                        "tokens_used": revised_translation.tokens_used,
+                        "duration": getattr(revised_translation, "duration", None),
+                        "cost": getattr(revised_translation, "cost", None),
+                        "model_info": getattr(revised_translation, "model_info", None),
+                    },
+                )
+
             # Calculate total cost
             total_cost = self._calculate_total_cost(
                 initial_translation, editor_review, revised_translation
@@ -350,6 +478,21 @@ class TranslationWorkflow:
             )
 
         except Exception as e:
+            # Call progress callback on workflow failure
+            if self.progress_callback:
+                # Try to determine which step failed
+                failed_step = "Unknown"
+                if progress_tracker:
+                    for step_name in reversed(progress_tracker.step_order):
+                        step = progress_tracker.steps[step_name]
+                        if step.status == StepStatus.IN_PROGRESS:
+                            failed_step = step_name.replace("_", " ").title()
+                            break
+
+                await self.progress_callback(
+                    failed_step, {"status": "failed", "error": str(e)}
+                )
+
             if progress_tracker:
                 # Determine which step failed based on current progress
                 for step_name in reversed(progress_tracker.step_order):
@@ -396,6 +539,8 @@ class TranslationWorkflow:
                 output_data = result["output"]
                 translation = output_data.get("initial_translation", "")
                 notes = output_data.get("initial_translation_notes", "")
+                translated_poem_title = output_data.get("translated_poem_title", "")
+                translated_poet_name = output_data.get("translated_poet_name", "")
             else:
                 # Fallback: try to extract from raw response
                 raw_content = (
@@ -403,15 +548,19 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = extract_initial_translation_from_xml(raw_content)
+                extracted = OutputParser.parse_initial_translation_xml(raw_content)
                 translation = extracted.get("initial_translation", "")
                 notes = extracted.get("initial_translation_notes", "")
+                translated_poem_title = extracted.get("translated_poem_title", "")
+                translated_poet_name = extracted.get("translated_poet_name", "")
 
             # Create InitialTranslation model
             usage = result.get("metadata", {}).get("usage", {})
             return InitialTranslation(
                 initial_translation=translation,
                 initial_translation_notes=notes,
+                translated_poem_title=translated_poem_title,
+                translated_poet_name=translated_poet_name,
                 model_info={
                     "provider": step_config.provider,
                     "model": step_config.model,
@@ -516,6 +665,12 @@ class TranslationWorkflow:
                 output_data = result["output"]
                 translation = output_data.get("revised_translation", "")
                 notes = output_data.get("revised_translation_notes", "")
+                refined_translated_poem_title = output_data.get(
+                    "refined_translated_poem_title", ""
+                )
+                refined_translated_poet_name = output_data.get(
+                    "refined_translated_poet_name", ""
+                )
             else:
                 # Fallback: try to extract from raw response
                 raw_content = (
@@ -523,15 +678,23 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = extract_revised_translation_from_xml(raw_content)
+                extracted = OutputParser.parse_revised_translation_xml(raw_content)
                 translation = extracted.get("revised_translation", "")
                 notes = extracted.get("revised_translation_notes", "")
+                refined_translated_poem_title = extracted.get(
+                    "refined_translated_poem_title", ""
+                )
+                refined_translated_poet_name = extracted.get(
+                    "refined_translated_poet_name", ""
+                )
 
             # Create RevisedTranslation model
             usage = result.get("metadata", {}).get("usage", {})
             return RevisedTranslation(
                 revised_translation=translation,
                 revised_translation_notes=notes,
+                refined_translated_poem_title=refined_translated_poem_title,
+                refined_translated_poet_name=refined_translated_poet_name,
                 model_info={
                     "provider": step_config.provider,
                     "model": step_config.model,
@@ -591,7 +754,6 @@ class TranslationWorkflow:
             initial_translation=initial_translation,
             editor_review=editor_review,
             revised_translation=revised_translation,
-            full_log=full_log,
             total_tokens=total_tokens,
             duration_seconds=duration,
             workflow_mode=self.workflow_mode.value,
@@ -643,3072 +805,941 @@ class TranslationWorkflow:
 
 </code>
 
-src/vpsweb/webui/web/templates/poet_detail.html:
-<code>
-{% extends 'base.html' %}
-{% block title %}{{ poet_name }} - VPSWeb Repository{% endblock %}
-
-{% block content %}
-<div class="px-4 py-6">
-    <!-- Breadcrumb -->
-    <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-            <li class="inline-flex items-center">
-                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
-                    Dashboard
-                </a>
-            </li>
-            <li class="inline-flex items-center">
-                <a href="/poets" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
-                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="ml-1">Poets</span>
-                </a>
-            </li>
-            <li aria-current="page">
-                <div class="flex items-center">
-                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ poet_name }}</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
-
-    <!-- Poet Header -->
-    <div class="bg-white shadow rounded-lg mb-6">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ poet_name }}</h1>
-                    <p class="mt-1 text-gray-600">Poetry collection and translations</p>
-                </div>
-                <div class="flex space-x-3">
-                    <a href="/poems/new?poet={{ poet_name }}"
-                       class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Add Poem
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="px-6 py-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Poems Count -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Total Poems</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ poem_stats.total_poems }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Translations Count -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Translations</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ translation_stats.total_translations }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Source Languages -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Source Languages</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ poem_stats.source_languages_count }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Target Languages -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Target Languages</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ translation_stats.target_languages_count }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filters for Poems -->
-    <div class="bg-white shadow rounded-lg mb-6">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Filter Poems</h2>
-        </div>
-        <div class="px-6 py-4">
-            <form method="GET" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Source Language</label>
-                        <select id="language" name="language"
-                                class="w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                            <option value="">All Languages</option>
-                            <!-- Add language options dynamically if needed -->
-                        </select>
-                    </div>
-                    <div>
-                        <label for="has_translations" class="block text-sm font-medium text-gray-700 mb-2">Translation Status</label>
-                        <select id="has_translations" name="has_translations"
-                                class="w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                            <option value="">All Poems</option>
-                            <option value="true" {% if has_translations == 'true' %}selected{% endif %}>With Translations</option>
-                            <option value="false" {% if has_translations == 'false' %}selected{% endif %}>Without Translations</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                        <select id="sort_by" name="sort_by"
-                                class="w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                            <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
-                            <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Date Created</option>
-                            <option value="translation_count" {% if sort_by == 'translation_count' %}selected{% endif %}>Translation Count</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">Order</label>
-                        <select id="sort_order" name="sort_order"
-                                class="w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
-                            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="resetFilters()"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Reset
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        Apply Filters
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Poems List -->
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">
-                Poems ({{ total_poems }} total)
-            </h2>
-        </div>
-        <div class="divide-y divide-gray-200">
-            {% if poems %}
-                {% for poem in poems %}
-                <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-medium text-gray-900 mb-1">
-                                <a href="/poems/{{ poem.id }}" class="hover:text-primary-600">
-                                    {{ poem.poem_title }}
-                                </a>
-                            </h3>
-                            <p class="text-sm text-gray-600 mb-2">
-                                Language: {{ poem.source_language }}
-                            </p>
-                            <p class="text-sm text-gray-500 line-clamp-2">
-                                {{ poem.original_text[:150] }}{% if poem.original_text|length > 150 %}...{% endif %}
-                            </p>
-
-                            <!-- Translation Status -->
-                            <div class="mt-2 flex items-center space-x-4 text-sm">
-                                <div class="flex items-center">
-                                    {% if poem.translation_count > 0 %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        {{ poem.translation_count }} translation{{ 's' if poem.translation_count != 1 else '' }}
-                                    </span>
-                                    {% else %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        No translations
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <div class="text-gray-500">
-                                    Created: {{ poem.created_at.strftime('%Y-%m-%d') }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="ml-6 flex-shrink-0">
-                            <div class="flex space-x-2">
-                                <a href="/poems/{{ poem.id }}"
-                                   class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                    View
-                                </a>
-                                {% if poem.translation_count > 0 %}
-                                <a href="/poems/{{ poem.id }}/compare"
-                                   class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                    Compare
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-            <!-- Empty State -->
-            <div class="px-6 py-12 text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">No poems found</h3>
-                <p class="mt-1 text-sm text-gray-500">
-                    {% if language or has_translations %}
-                    Try adjusting your filters.
-                    {% else %}
-                    Get started by adding poems for {{ poet_name }}.
-                    {% endif %}
-                </p>
-                <div class="mt-6">
-                    <a href="/poems/new?poet={{ poet_name }}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Add Poem
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Recent Translations -->
-    {% if recent_translations %}
-    <div class="mt-6 bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Recent Translations</h2>
-        </div>
-        <div class="px-6 py-4">
-            <div class="space-y-3">
-                {% for translation in recent_translations %}
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div class="flex-1">
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ translation.poem_title }}
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            {{ translation.source_language }} → {{ translation.target_language }}
-                            {% if translation.translator_info %}
-                                • {{ translation.translator_info }}
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        {% if translation.quality_rating %}
-                        <div class="flex items-center">
-                            {% for i in range(5) %}
-                            {% if i < translation.quality_rating %}
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            {% else %}
-                            <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        <div class="text-xs text-gray-500">
-                            {{ translation.created_at.strftime('%Y-%m-%d') }}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="mt-4 text-center">
-                <a href="/translations?poet={{ poet_name }}"
-                   class="text-sm text-primary-600 hover:text-primary-800 font-medium">
-                    View all translations →
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
-
-<script>
-function resetFilters() {
-    window.location.href = '/poets/{{ poet_name }}';
-}
-</script>
-{% endblock %}
-</code>
-
-src/vpsweb/webui/services/vpsweb_adapter.py:
+src/vpsweb/utils/storage.py:
 <code>
 """
-VPSWeb Workflow Adapter for Web Interface Integration
+Storage Handler for Vox Poetica Studio Web.
 
-This service layer bridges the existing VPSWeb translation workflow with the web interface,
-providing async execution, background tasks, and repository integration.
+This module provides file-based storage for translation outputs with proper
+serialization/deserialization of Pydantic models and comprehensive error handling.
 """
 
-import asyncio
-import logging
-import time
-import uuid
-import threading
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
-from contextlib import asynccontextmanager
-
-from fastapi import BackgroundTasks
-import os
-
-from vpsweb.core.workflow import TranslationWorkflow, WorkflowError, StepExecutionError
-from vpsweb.models.translation import TranslationInput, TranslationOutput
-from vpsweb.models.config import WorkflowMode
-from vpsweb.utils.config_loader import load_config
-from vpsweb.utils.logger import get_logger
-from vpsweb.utils.storage import StorageHandler
-from vpsweb.utils.language_mapper import get_language_mapper
-
-from .poem_service import PoemService
-from .translation_service import TranslationService
-from vpsweb.repository.service import RepositoryWebService
-from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult
-from vpsweb.repository.database import create_session
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
-
-logger = get_logger(__name__)
-
-# P0.1: Timeout configuration for workflow execution
-DEFAULT_WORKFLOW_TIMEOUT = int(
-    os.getenv("VPSWEB_WORKFLOW_TIMEOUT", "600")
-)  # 10 minutes default
-MAX_WORKFLOW_TIMEOUT = int(
-    os.getenv("VPSWEB_MAX_WORKFLOW_TIMEOUT", "1800")
-)  # 30 minutes maximum
-
-
-class VPSWebIntegrationError(Exception):
-    """Base exception for VPSWeb integration errors."""
-
-    pass
-
-
-class WorkflowExecutionError(VPSWebIntegrationError):
-    """Raised when workflow execution fails."""
-
-    pass
-
-
-class ConfigurationError(VPSWebIntegrationError):
-    """Raised when configuration loading fails."""
-
-    pass
-
-
-class WorkflowTimeoutError(VPSWebIntegrationError):
-    """Raised when workflow execution times out."""
-
-    pass
-
-
-class VPSWebWorkflowAdapter:
-    """
-    Adapter service that integrates VPSWeb translation workflow with the web interface.
-
-    This service provides:
-    - Async workflow execution with background tasks
-    - Repository integration for storing results
-    - Error handling and logging
-    - Status tracking for long-running tasks
-    """
-
-    def __init__(
-        self,
-        poem_service: PoemService,
-        translation_service: TranslationService,
-        repository_service: RepositoryWebService,
-        config_path: Optional[str] = None,
-    ):
-        """
-        Initialize the VPSWeb workflow adapter.
-
-        Args:
-            poem_service: Repository poem service
-            translation_service: Repository translation service
-            repository_service: Repository service for database operations
-            config_path: Optional custom config directory path
-        """
-        self.poem_service = poem_service
-        self.translation_service = translation_service
-        self.repository_service = repository_service
-        self.config_path = config_path
-
-        # Note: No longer using in-memory _active_tasks
-        # Task tracking is now handled by the database via repository_service.workflow_tasks
-
-        # Lazy-loaded configuration and workflow
-        self._config = None
-        self._workflow_config = None
-        self._providers_config = None
-
-        # Language mapper for ISO code conversion
-        self.language_mapper = get_language_mapper()
-
-        logger.info("VPSWebWorkflowAdapter initialized")
-
-    def _convert_language_code(self, lang_code: str) -> str:
-        """
-        Convert ISO language code to display name for VPSWeb workflow.
-
-        Args:
-            lang_code: ISO language code (e.g., 'en', 'zh-CN')
-
-        Returns:
-            Display name (e.g., 'English', 'Chinese')
-        """
-        display_name = self.language_mapper.get_language_name(lang_code)
-        if display_name:
-            return display_name
-
-        # Fallback mapping for common codes
-        fallback_mapping = {
-            "en": "English",
-            "zh": "Chinese",
-            "zh-CN": "Chinese",
-            "zh-TW": "Chinese",
-            "ja": "Japanese",
-            "ko": "Korean",
-            "fr": "French",
-            "de": "German",
-            "es": "Spanish",
-            "ru": "Russian",
-            "ar": "Arabic",
-            "hi": "Hindi",
-            "pl": "Polish",
-        }
-
-        return fallback_mapping.get(lang_code, lang_code.title())
-
-    async def _load_configuration(self):
-        """
-        Load VPSWeb configuration lazily.
-
-        Raises:
-            ConfigurationError: If configuration loading fails
-        """
-        if self._config is None:
-            try:
-                logger.info("Loading VPSWeb configuration...")
-                self._config = load_config(self.config_path)
-                self._workflow_config = self._config.main.workflow
-                self._providers_config = self._config.providers
-
-                logger.info(
-                    f"Loaded workflow: {self._workflow_config.name} v{self._workflow_config.version}"
-                )
-                logger.info(
-                    f"Available providers: {list(self._providers_config.providers.keys())}"
-                )
-
-            except Exception as e:
-                logger.error(f"Failed to load VPSWeb configuration: {e}")
-                raise ConfigurationError(f"Configuration loading failed: {e}")
-
-    async def _create_workflow(
-        self, workflow_mode: WorkflowMode = WorkflowMode.HYBRID
-    ) -> TranslationWorkflow:
-        """
-        Create a new workflow instance.
-
-        Args:
-            workflow_mode: Workflow mode to use
-
-        Returns:
-            Initialized workflow instance
-
-        Raises:
-            ConfigurationError: If workflow creation fails
-        """
-        await self._load_configuration()
-
-        try:
-            # Create a minimal system config for the adapter
-            system_config = {
-                "system": {
-                    "preview_lengths": {
-                        "input_preview": 100,
-                        "response_preview": 100,
-                        "editor_preview": 200,
-                    }
-                }
-            }
-
-            workflow = TranslationWorkflow(
-                config=self._workflow_config,
-                providers_config=self._providers_config,
-                workflow_mode=workflow_mode,
-                system_config=system_config,
-            )
-            return workflow
-
-        except Exception as e:
-            logger.error(f"Failed to create workflow: {e}")
-            raise ConfigurationError(f"Workflow creation failed: {e}")
-
-    def _map_iso_to_display_language(self, iso_code: str) -> str:
-        """
-        Map ISO language codes to display names expected by VPSWeb TranslationInput.
-
-        Args:
-            iso_code: ISO language code (e.g., 'en', 'zh-CN')
-
-        Returns:
-            Display language name (e.g., 'English', 'Chinese')
-        """
-        language_mapping = {
-            "en": "English",
-            "en-US": "English",
-            "en-GB": "English",
-            "zh": "Chinese",
-            "zh-CN": "Chinese",
-            "zh-TW": "Chinese",
-            "zh-HK": "Chinese",
-            "es": "Spanish",
-            "es-ES": "Spanish",
-            "es-MX": "Spanish",
-            "fr": "French",
-            "fr-FR": "French",
-            "de": "German",
-            "de-DE": "German",
-            "ja": "Japanese",
-            "ja-JP": "Japanese",
-            "ru": "Russian",
-            "ru-RU": "Russian",
-            "pl": "Polish",
-            "pl-PL": "Polish",
-            "ar": "Arabic",
-            "ar-SA": "Arabic",
-        }
-
-        # Return the mapped language or default to English if not found
-        return language_mapping.get(iso_code, "English")
-
-    def _map_repository_to_workflow_input(
-        self, poem_data: Dict[str, Any], source_lang: str, target_lang: str
-    ) -> TranslationInput:
-        """
-        Map repository poem data to VPSWeb TranslationInput.
-
-        Args:
-            poem_data: Poem data from repository
-            source_lang: Source language code
-            target_lang: Target language code
-
-        Returns:
-            TranslationInput for VPSWeb workflow
-        """
-        return TranslationInput(
-            original_poem=poem_data["content"],
-            source_lang=self._convert_language_code(source_lang),
-            target_lang=self._convert_language_code(target_lang),
-        )
-
-    def _map_workflow_output_to_repository(
-        self, workflow_output: TranslationOutput, poem_id: str, workflow_mode: str
-    ) -> Dict[str, Any]:
-        """
-        Map VPSWeb TranslationOutput to repository translation format.
-
-        Args:
-            workflow_output: Output from VPSWeb workflow
-            poem_id: ID of the source poem
-            workflow_mode: Workflow mode used
-
-        Returns:
-            Dictionary format for repository storage
-        """
-        return {
-            "poem_id": poem_id,
-            "workflow_mode": workflow_mode,
-            "source_lang": workflow_output.input.source_lang,
-            "target_lang": workflow_output.input.target_lang,
-            # Workflow steps
-            "initial_translation": workflow_output.initial_translation.initial_translation,
-            "initial_translation_notes": workflow_output.initial_translation.initial_translation_notes,
-            "editor_suggestions": workflow_output.editor_review.editor_suggestions,
-            "revised_translation": workflow_output.revised_translation.revised_translation,
-            "revised_translation_notes": workflow_output.revised_translation.revised_translation_notes,
-            # Metadata
-            "total_tokens": workflow_output.total_tokens,
-            "duration_seconds": workflow_output.duration_seconds,
-            "total_cost": workflow_output.total_cost,
-            "full_log": workflow_output.full_log,
-            # Step-specific metadata
-            "initial_model_info": workflow_output.initial_translation.model_info,
-            "editor_model_info": workflow_output.editor_review.model_info,
-            "revision_model_info": workflow_output.revised_translation.model_info,
-            # Step-specific metrics
-            "initial_tokens": workflow_output.initial_translation.tokens_used,
-            "editor_tokens": workflow_output.editor_review.tokens_used,
-            "revision_tokens": workflow_output.revised_translation.tokens_used,
-            "initial_cost": getattr(workflow_output.initial_translation, "cost", None),
-            "editor_cost": getattr(workflow_output.editor_review, "cost", None),
-            "revision_cost": getattr(workflow_output.revised_translation, "cost", None),
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        }
-
-    async def _execute_workflow_with_timeout(
-        self,
-        workflow: TranslationWorkflow,
-        input_data: TranslationInput,
-        timeout: int = DEFAULT_WORKFLOW_TIMEOUT,
-    ) -> TranslationOutput:
-        """
-        Execute VPSWeb workflow with timeout protection.
-
-        Args:
-            workflow: VPSWeb workflow instance
-            input_data: Translation input data
-            timeout: Timeout in seconds
-
-        Returns:
-            TranslationOutput: Workflow execution result
-
-        Raises:
-            WorkflowTimeoutError: If workflow execution times out
-            ConfigurationError: If workflow configuration is invalid
-        """
-        try:
-            logger.info(f"Executing workflow with {timeout}s timeout")
-            workflow_output = await asyncio.wait_for(
-                workflow.execute(input_data, show_progress=False), timeout=timeout
-            )
-            logger.info("Workflow execution completed successfully")
-            return workflow_output
-        except asyncio.TimeoutError:
-            logger.error(f"Workflow execution timed out after {timeout}s")
-            raise WorkflowTimeoutError(
-                f"Translation workflow timed out after {timeout} seconds."
-            )
-        except Exception as e:
-            logger.error(f"Workflow execution failed: {e}")
-            raise ConfigurationError(f"Workflow execution failed: {e}")
-
-    async def execute_translation_workflow(
-        self,
-        poem_id: str,
-        source_lang: str,
-        target_lang: str,
-        workflow_mode: str = "hybrid",
-        background_tasks: Optional[BackgroundTasks] = None,
-        synchronous: bool = False,
-    ) -> Dict[str, Any]:
-        """
-        Execute VPSWeb translation workflow for a poem.
-
-        Args:
-            poem_id: ID of the poem to translate
-            source_lang: Source language code
-            target_lang: Target language code
-            workflow_mode: Workflow mode (reasoning, non_reasoning, hybrid)
-            background_tasks: FastAPI BackgroundTasks for async execution
-            synchronous: If True, execute synchronously and return result
-
-        Returns:
-            Dictionary with task info or result
-
-        Raises:
-            WorkflowExecutionError: If workflow execution fails
-            ConfigurationError: If configuration is invalid
-        """
-        # Validate inputs
-        if not poem_id:
-            raise WorkflowExecutionError("Poem ID is required")
-
-        if source_lang == target_lang:
-            raise WorkflowExecutionError(
-                "Source and target languages must be different"
-            )
-
-        # Validate workflow mode
-        try:
-            workflow_mode_enum = WorkflowMode(workflow_mode)
-        except ValueError:
-            raise WorkflowExecutionError(f"Invalid workflow mode: {workflow_mode}")
-
-        # Retrieve poem from repository
-        poem = await self.poem_service.get_poem(poem_id)
-        if not poem:
-            raise WorkflowExecutionError(f"Poem not found: {poem_id}")
-
-        # Create task ID and initialize in app.state (no database storage for personal use system)
-        task_id = str(uuid.uuid4())
-
-        # Import task models for app.state initialization
-        from ..task_models import TaskStatus as InMemoryTaskStatus, TaskStatusEnum
-
-        # Get FastAPI app instance for app.state access
-        import sys
-        import os
-
-        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-        from ..main import app
-
-        # Initialize task in app.state
-        task_status = InMemoryTaskStatus(task_id=task_id)
-        app.state.tasks[task_id] = task_status
-        app.state.task_locks[task_id] = threading.Lock()
-
-        # Synchronous execution temporarily removed - focus on background task execution
-        # All translation workflows execute asynchronously for better user experience
-
-        # Add to background tasks using FastAPI BackgroundTasks system
-        if background_tasks:
-            # Use FastAPI BackgroundTasks - this is the correct approach
-            background_tasks.add_task(
-                self._execute_workflow_task_standalone,
-                task_id,
-                poem_id,
-                source_lang,
-                target_lang,
-                workflow_mode,
-            )
-            print(
-                f"🚀 [DEBUG] Background task scheduled using STANDALONE approach for task_id: {task_id}"
-            )
-            logger.info(
-                f"Background task scheduled using STANDALONE approach for task_id: {task_id}"
-            )
-        else:
-            # Fallback: Execute as coroutine (this should not happen with proper FastAPI usage)
-            logger.warning(
-                "No background_tasks provided - falling back to direct coroutine execution"
-            )
-            asyncio.create_task(
-                self._execute_workflow_task_standalone(
-                    task_id, poem_id, source_lang, target_lang, workflow_mode
-                )
-            )
-
-        return {
-            "task_id": task_id,
-            "status": TaskStatusEnum.PENDING,
-            "message": "Translation workflow started",
-        }
-
-    def _execute_workflow_task_standalone(
-        self,
-        task_id: str,
-        poem_id: str,
-        source_lang: str,
-        target_lang: str,
-        workflow_mode_str: str,
-    ) -> None:
-        """
-        Standalone background task execution that creates all its own resources.
-        This fixes the FastAPI 0.106.0+ BackgroundTasks issue by being completely self-contained.
-        Now uses FastAPI app.state for in-memory task tracking instead of database.
-
-        Args:
-            task_id: Workflow task ID
-            poem_id: Poem ID to retrieve
-            source_lang: Source language code
-            target_lang: Target language code
-            workflow_mode_str: Workflow mode as string
-        """
-        print(
-            f"🚀 [STANDALONE] Starting standalone task execution for task_id: {task_id}"
-        )
-
-        # Import everything needed to be self-contained
-        from src.vpsweb.repository.database import create_session
-        from src.vpsweb.repository.service import RepositoryWebService
-        from src.vpsweb.repository.schemas import TaskStatus
-        from vpsweb.models.config import WorkflowMode
-        from vpsweb.core.workflow import TranslationWorkflow
-        from vpsweb.models.translation import TranslationInput, Language
-        from ..task_models import TaskStatus as InMemoryTaskStatus, TaskStatusEnum
-
-        # Get FastAPI app instance for app.state access
-        # Import from main to avoid circular imports
-        import sys
-        import os
-
-        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-        from ..main import app
-
-        try:
-            # Initialize task in app.state
-            task_status = InMemoryTaskStatus(task_id=task_id)
-            app.state.tasks[task_id] = task_status
-            app.state.task_locks[task_id] = threading.Lock()
-
-            print(
-                f"✅ [STANDALONE] Task initialized in app.state for task_id: {task_id}"
-            )
-
-            # Update status to running
-            with app.state.task_locks[task_id]:
-                task_status.set_running("Translation workflow started")
-                print(
-                    f"🔄 [STANDALONE] Status updated to 'running' for task_id: {task_id}"
-                )
-
-            # Create database session for poem retrieval only
-            db = create_session()
-            try:
-                repository_service = RepositoryWebService(db)
-                print(
-                    f"✅ [STANDALONE] DB session created for poem retrieval for task_id: {task_id}"
-                )
-
-                # Retrieve poem data
-                poem = repository_service.get_poem(poem_id)
-                if not poem:
-                    raise ValueError(f"Poem not found: {poem_id}")
-
-                # Create TranslationInput object for the workflow
-                translation_input = TranslationInput(
-                    original_poem=poem.original_text,
-                    source_lang=(
-                        Language.CHINESE
-                        if poem.source_language.startswith("zh")
-                        else Language.ENGLISH
-                    ),
-                    target_lang=(
-                        Language.ENGLISH if target_lang == "en" else Language.CHINESE
-                    ),
-                    metadata={
-                        "id": poem.id,
-                        "title": poem.poem_title,
-                        "author": poem.poet_name,
-                    },
-                )
-
-                print(
-                    f"📄 [STANDALONE] Poem retrieved: {poem.poem_title} for task_id: {task_id}"
-                )
-
-                # Parse workflow mode
-                try:
-                    workflow_mode = WorkflowMode(workflow_mode_str)
-                except ValueError:
-                    workflow_mode = WorkflowMode.HYBRID  # fallback
-                    print(
-                        f"⚠️ [STANDALONE] Invalid workflow mode '{workflow_mode_str}', using HYBRID"
-                    )
-
-                # Get workflow (recreate configuration)
-                asyncio.run(self._load_configuration())
-                system_config = {
-                    "system": {
-                        "preview_lengths": {
-                            "input_preview": 100,
-                            "response_preview": 100,
-                            "editor_preview": 200,
-                        }
-                    }
-                }
-
-                workflow = TranslationWorkflow(
-                    config=self._workflow_config,
-                    providers_config=self._providers_config,
-                    workflow_mode=workflow_mode,
-                    system_config=system_config,
-                )
-                print(f"✅ [STANDALONE] Workflow created for task_id: {task_id}")
-
-                # Execute translation workflow with step progress tracking
-                with app.state.task_locks[task_id]:
-                    task_status.update_step(
-                        step_name="Initial Translation",
-                        step_details={"provider": "AI", "mode": workflow_mode_str},
-                        step_percent=0,
-                        message="Starting initial translation...",
-                        step_state="running",
-                    )
-                    print(
-                        f"📝 [STANDALONE] Step updated to 'Initial Translation' (running) for task_id: {task_id}"
-                    )
-
-                # Update progress during translation execution
-                try:
-                    # Step 1: Initial Translation in progress
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Initial Translation",
-                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "running"},
-                            message="AI is generating initial translation...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 1 started (running) for task_id: {task_id}"
-                        )
-
-                    translation_result = asyncio.run(
-                        workflow.execute(translation_input)
-                    )
-                    print(
-                        f"✅ [STANDALONE] Translation completed for task_id: {task_id}"
-                    )
-
-                    # Step 1 Complete
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Initial Translation",
-                            step_details={"provider": "AI", "mode": workflow_mode_str, "step_status": "completed"},
-                            message="Initial translation completed successfully",
-                            step_state="completed",
-                        )
-                        print(
-                            f"✅ [STANDALONE] Step 1 completed for task_id: {task_id}"
-                        )
-
-                    # Small delay to ensure SSE detects the completion
-                    time.sleep(0.3)
-
-                    # Step 2 Begin: Editor Review
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Editor Review",
-                            step_details={
-                                "provider": "Deepseek",
-                                "mode": "reasoning",
-                                "step_status": "running",
-                            },
-                            message="Editor review in progress...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 2 started (running) for task_id: {task_id}"
-                        )
-
-                    # Execute Editor Review
-                    editor_result = translation_result  # This would normally be editor review result
-                    print(
-                        f"✅ [STANDALONE] Editor review completed for task_id: {task_id}"
-                    )
-
-                    # Step 2 Complete, Step 3 Begin: Translator Revision
-                    with app.state.task_locks[task_id]:
-                        # Mark Step 2 as completed
-                        task_status.update_step(
-                            step_name="Editor Review",
-                            step_details={
-                                "provider": "Deepseek",
-                                "mode": "reasoning",
-                                "step_status": "completed",
-                            },
-                            message="Editor review completed successfully",
-                            step_state="completed",
-                        )
-
-                    # Small delay to ensure SSE detects Step 2 completion
-                    time.sleep(0.3)
-
-                    # Start Step 3
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translator Revision",
-                            step_details={
-                                "provider": "AI",
-                                "mode": "revision",
-                                "step_status": "running",
-                            },
-                            message="Translator revision in progress...",
-                            step_state="running",
-                        )
-                        print(
-                            f"🔄 [STANDALONE] Step 2 completed, Step 3 started (running) for task_id: {task_id}"
-                        )
-
-                    # Execute Translator Revision (simulate for now)
-                    final_result = translation_result  # This would normally be revision result
-                    print(
-                        f"✅ [STANDALONE] Translator revision completed for task_id: {task_id}"
-                    )
-
-                    # Step 3 Complete: Mark as completed
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translator Revision",
-                            step_details={
-                                "provider": "AI",
-                                "mode": "revision",
-                                "step_status": "completed",
-                            },
-                            message="Translator revision completed successfully",
-                            step_state="completed",
-                        )
-                        print(
-                            f"✅ [STANDALONE] Step 3 completed for task_id: {task_id}"
-                        )
-
-                    # Update step progress for completed workflow
-                    with app.state.task_locks[task_id]:
-                        task_status.update_step(
-                            step_name="Translation Complete",
-                            step_details={
-                                "total_tokens": translation_result.total_tokens,
-                                "duration_seconds": translation_result.duration_seconds,
-                                "workflow_id": translation_result.workflow_id,
-                            },
-                            step_percent=100,
-                            message="Translation workflow completed successfully",
-                        )
-                        task_status.set_progress(100, "Translation completed!")
-                        print(
-                            f"✅ [STANDALONE] Final step update for task_id: {task_id}"
-                        )
-
-                except Exception as workflow_error:
-                    print(
-                        f"❌ [STANDALONE] Workflow execution error for task_id: {task_id}: {workflow_error}"
-                    )
-                    # Update error status in app.state
-                    try:
-                        if hasattr(app.state, "tasks") and task_id in app.state.tasks:
-                            with app.state.task_locks[task_id]:
-                                app.state.tasks[task_id].set_failed(
-                                    error=str(workflow_error),
-                                    message=f"Translation workflow failed: {str(workflow_error)}",
-                                )
-                                print(
-                                    f"❌ [STANDALONE] Error status updated in app.state for task_id: {task_id}"
-                                )
-                    except Exception as app_state_error:
-                        print(
-                            f"❌ [STANDALONE] Failed to update app.state error status for task_id {task_id}: {str(app_state_error)}"
-                        )
-                    raise
-
-                # Save result (convert TranslationOutput to JSON-serializable dict)
-                def serialize_model(model):
-                    """Convert Pydantic model to JSON-serializable dict"""
-                    if hasattr(model, "dict"):
-                        data = model.dict()
-                    else:
-                        data = model
-
-                    # Convert datetime objects to ISO strings
-                    def convert_datetimes(obj):
-                        if isinstance(obj, dict):
-                            return {k: convert_datetimes(v) for k, v in obj.items()}
-                        elif isinstance(obj, list):
-                            return [convert_datetimes(item) for item in obj]
-                        elif hasattr(obj, "isoformat"):
-                            return obj.isoformat()
-                        else:
-                            return obj
-
-                    return convert_datetimes(data)
-
-                result_dict = {
-                    "workflow_id": translation_result.workflow_id,
-                    "input": serialize_model(translation_result.input),
-                    "initial_translation": serialize_model(
-                        translation_result.initial_translation
-                    ),
-                    "editor_review": serialize_model(translation_result.editor_review),
-                    "revised_translation": serialize_model(
-                        translation_result.revised_translation
-                    ),
-                    "full_log": translation_result.full_log,
-                    "total_tokens": translation_result.total_tokens,
-                    "duration_seconds": translation_result.duration_seconds,
-                }
-                # Update status to completed with 100% progress in app.state
-                with app.state.task_locks[task_id]:
-                    task_status.set_completed(
-                        result=result_dict,
-                        message="Translation workflow completed successfully",
-                    )
-                    print(
-                        f"✅ [STANDALONE] Status updated to 'completed' (100%) in app.state for task_id: {task_id}"
-                    )
-
-                # Save translation result to database
-                try:
-                    from src.vpsweb.repository.schemas import (
-                        TranslationCreate,
-                        TranslatorType,
-                    )
-
-                    translation_service = db
-                    from src.vpsweb.repository.service import RepositoryWebService
-
-                    repository_service = RepositoryWebService(translation_service)
-
-                    # Create TranslationCreate schema from result_dict
-                    # Use the revised_translation as the final translated_text, fallback to initial_translation
-                    revised = result_dict.get("revised_translation")
-                    initial = result_dict.get("initial_translation", "")
-
-                    # Handle case where translation fields might be dictionaries
-                    if isinstance(revised, dict):
-                        # Try different possible keys for translation text
-                        # Based on analysis, the actual text is nested under 'revised_translation' key
-                        final_translation = (
-                            revised.get("revised_translation")  # Nested structure
-                            or revised.get("translation")
-                            or revised.get("text")
-                            or revised.get("content")
-                            or revised.get("result")
-                            or str(revised)
-                        )
-                    elif isinstance(revised, str):
-                        final_translation = revised
-                    else:
-                        final_translation = str(revised) if revised else initial
-
-                    translation_create = TranslationCreate(
-                        poem_id=poem_id,
-                        translator_type=TranslatorType.AI,
-                        translator_info="AI Workflow",
-                        target_language=target_lang,
-                        translated_text=final_translation,
-                        metadata={
-                            "workflow_mode": workflow_mode_str,
-                            "workflow_id": result_dict.get("workflow_id"),
-                            "total_tokens": result_dict.get("total_tokens", 0),
-                            "duration_seconds": result_dict.get("duration_seconds", 0),
-                            "full_log": result_dict.get("full_log", ""),
-                            "source_content": result_dict.get("input", {}).get(
-                                "content", ""
-                            ),
-                            "initial_translation": result_dict.get(
-                                "initial_translation", ""
-                            ),
-                            "editor_review": result_dict.get("editor_review", ""),
-                            "revised_translation": result_dict.get(
-                                "revised_translation", ""
-                            ),
-                        },
-                    )
-
-                    # Save translation to database
-                    repository_service.create_translation(translation_create)
-                    print(
-                        f"💾 [STANDALONE] Translation result saved to database for task_id: {task_id}"
-                    )
-
-                except Exception as db_save_error:
-                    print(
-                        f"⚠️ [STANDALONE] Failed to save translation to database for task_id {task_id}: {str(db_save_error)}"
-                    )
-                    # Don't fail the workflow, just log the error since app.state has the result
-
-            finally:
-                # Always close the database session
-                db.close()
-                print(f"🔒 [STANDALONE] Database session closed for task_id: {task_id}")
-
-        except Exception as e:
-            print(
-                f"❌ [STANDALONE] Error in standalone task for task_id {task_id}: {str(e)}"
-            )
-            import traceback
-
-            traceback.print_exc()
-
-            # Update error status in app.state
-            try:
-                if hasattr(app.state, "tasks") and task_id in app.state.tasks:
-                    with app.state.task_locks[task_id]:
-                        app.state.tasks[task_id].set_failed(
-                            error=str(e),
-                            message=f"Translation workflow failed: {str(e)}",
-                        )
-                        print(
-                            f"❌ [STANDALONE] Error status updated in app.state for task_id: {task_id}"
-                        )
-            except Exception as app_state_error:
-                print(
-                    f"❌ [STANDALONE] Failed to update app.state error status for task_id {task_id}: {str(app_state_error)}"
-                )
-
-            # Also try to update error status in database for logging
-            try:
-                error_db = create_session()
-                try:
-                    error_repository_service = RepositoryWebService(error_db)
-                    error_repository_service.update_workflow_task_status(
-                        task_id, TaskStatus.FAILED, error_message=str(e)
-                    )
-                    error_db.commit()
-                    print(
-                        f"❌ [STANDALONE] Error status updated in database for task_id: {task_id}"
-                    )
-                finally:
-                    error_db.close()
-            except Exception as update_error:
-                print(
-                    f"❌ [STANDALONE] Failed to update database error status for task_id {task_id}: {str(update_error)}"
-                )
-
-    def _execute_workflow_task_with_new_session(
-        self, task_id: str, poem: Dict[str, Any], workflow_mode: WorkflowMode
-    ) -> Dict[str, Any]:
-        """
-        Execute workflow task in background with separate database connection.
-
-        This prevents SQLite transaction conflicts by creating a completely separate
-        database connection for the background task execution.
-
-        Note: This is a synchronous function for FastAPI BackgroundTasks compatibility.
-        It uses asyncio.run() to execute async operations internally.
-        """
-        print(f"🌱 [BACKGROUND ENTRY] BACKGROUND TASK STARTING for task_id: {task_id}")
-        logger.info(f"Starting background task execution for task_id: {task_id}")
-
-        # Create async function to run the actual workflow
-        async def _run_async_workflow():
-            # Create a separate database engine for background task with WAL mode and NullPool
-            from vpsweb.repository.settings import settings
-            from sqlalchemy import create_engine, text
-            from sqlalchemy.orm import sessionmaker
-            from sqlalchemy.pool import NullPool
-            import time
-            import random
-
-            # Extract database file path and add WAL mode parameters
-            db_url = settings.database_url
-            if "sqlite:///" in db_url:
-                # Remove existing parameters and add WAL mode for better concurrent access
-                base_db_url = db_url.split("?")[0] if "?" in db_url else db_url
-                wal_db_url = (
-                    base_db_url + "?timeout=30&mode=rw&cache=shared&journal_mode=WAL"
-                )
-            else:
-                wal_db_url = db_url
-
-            # Use NullPool to prevent connection sharing issues in background tasks
-            # Each database operation gets a fresh connection, avoiding locks
-            background_engine = create_engine(
-                wal_db_url,
-                connect_args={"check_same_thread": False, "timeout": 30},
-                poolclass=NullPool,  # Critical: No pooling for background tasks
-                echo=False,
-            )
-
-            # Enable WAL mode and optimize for concurrent access
-            with background_engine.connect() as conn:
-                conn.execute(
-                    text("PRAGMA journal_mode=WAL")
-                )  # Enable Write-Ahead Logging
-                conn.execute(
-                    text("PRAGMA synchronous=NORMAL")
-                )  # Balance safety/performance
-                conn.execute(text("PRAGMA busy_timeout=30000"))  # 30 seconds timeout
-                conn.execute(
-                    text("PRAGMA foreign_keys=ON")
-                )  # Enable foreign key constraints
-                conn.execute(
-                    text("PRAGMA temp_store=MEMORY")
-                )  # Use memory for temp tables
-                conn.execute(
-                    text("PRAGMA mmap_size=268435456")
-                )  # 256MB memory-mapped I/O
-                conn.commit()
-
-            BackgroundSessionLocal = sessionmaker(
-                autocommit=False, autoflush=False, bind=background_engine
-            )
-            db = BackgroundSessionLocal()
-            logger.info(f"Created separate database connection for background task")
-
-            # Add retry mechanism for database operations
-            def retry_database_operation(max_retries=3, base_delay=0.1):
-                def decorator(func):
-                    def wrapper(*args, **kwargs):
-                        for attempt in range(max_retries):
-                            try:
-                                return func(*args, **kwargs)
-                            except Exception as e:
-                                if (
-                                    "database is locked" in str(e).lower()
-                                    and attempt < max_retries - 1
-                                ):
-                                    # Exponential backoff with jitter
-                                    delay = base_delay * (
-                                        2**attempt
-                                    ) + random.uniform(0, 0.1)
-                                    logger.warning(
-                                        f"Database locked on attempt {attempt + 1}, retrying in {delay:.2f}s"
-                                    )
-                                    time.sleep(delay)
-                                else:
-                                    raise
-
-                    return wrapper
-
-                return decorator
-
-            # Apply retry to critical database operations
-            original_commit = db.commit
-            original_flush = db.flush
-
-            @retry_database_operation(max_retries=3, base_delay=0.2)
-            def safe_commit():
-                original_commit()
-
-            @retry_database_operation(max_retries=2, base_delay=0.1)
-            def safe_flush():
-                original_flush()
-
-            # Replace methods with retry wrappers
-            db.commit = safe_commit
-            db.flush = safe_flush
-
-            try:
-                # Create new services with fresh database session
-                poem_service = PoemService(db)
-                translation_service = TranslationService(db)
-                repository_service = RepositoryWebService(db)
-
-                # Execute workflow with fresh services
-                return await self._execute_workflow_task_with_services(
-                    task_id,
-                    poem,
-                    workflow_mode,
-                    poem_service,
-                    translation_service,
-                    repository_service,
-                )
-
-            except Exception as e:
-                logger.error(f"Background workflow task {task_id} failed: {e}")
-                # Update task status to failed
-                try:
-                    repository_service.update_workflow_task_status(
-                        task_id, TaskStatus.FAILED, error_message=str(e)
-                    )
-                except:
-                    logger.error(f"Failed to update task status to failed: {e}")
-                raise
-            finally:
-                # Always close database session and engine
-                try:
-                    db.close()
-                    background_engine.dispose()
-                except:
-                    pass
-
-        # Execute the async workflow using asyncio.run()
-        return asyncio.run(_run_async_workflow())
-
-    async def _execute_workflow_task(
-        self, task_id: str, poem: Dict[str, Any], workflow_mode: WorkflowMode
-    ) -> Dict[str, Any]:
-        """
-        Execute the actual workflow task.
-
-        Args:
-            task_id: Unique task identifier
-            poem: Poem data from repository
-            workflow_mode: Workflow mode to use
-
-        Returns:
-            Task result with translation data
-
-        Raises:
-            WorkflowExecutionError: If execution fails
-        """
-        logger.info(
-            f"🚀 [STEP 1] Starting background workflow task execution for task_id: {task_id}"
-        )
-
-        # Get task from database
-        logger.info(f"🔍 [STEP 2] Retrieving task from database for task_id: {task_id}")
-        db_task = self.repository_service.get_workflow_task(task_id)
-        if not db_task:
-            logger.error(f"❌ [STEP 2 FAILED] Task not found in database: {task_id}")
-            raise WorkflowExecutionError(f"Task not found: {task_id}")
-
-        logger.info(
-            f"✅ [STEP 2 SUCCESS] Task retrieved from database: poem_id={db_task.poem_id}, status={db_task.status}"
-        )
-
-        try:
-            # Update task status in database
-            logger.info(
-                f"🔄 [STEP 3] Updating task status to RUNNING for task_id: {task_id}"
-            )
-            self.repository_service.update_workflow_task_status(
-                task_id, TaskStatus.RUNNING, progress_percentage=0
-            )
-            logger.info(
-                f"✅ [STEP 3 SUCCESS] Task status updated to RUNNING for task_id: {task_id}"
-            )
-
-            logger.info(
-                f"📝 [STEP 4] Starting translation workflow task {task_id} for poem {db_task.poem_id}"
-            )
-
-            # Create workflow
-            logger.info(
-                f"⚙️ [STEP 5] Creating workflow instance for mode: {workflow_mode.value}"
-            )
-            workflow = await self._create_workflow(workflow_mode)
-            logger.info(f"✅ [STEP 5 SUCCESS] Workflow instance created")
-
-            # Prepare input
-            logger.info(f"📋 [STEP 6] Preparing workflow input data")
-            input_data = self._map_repository_to_workflow_input(
-                poem, db_task.source_lang, db_task.target_lang
-            )
-            logger.info(
-                f"✅ [STEP 6 SUCCESS] Workflow input prepared: {len(input_data)} fields"
-            )
-
-            # Execute workflow with timeout protection
-            logger.info(
-                f"🔄 [STEP 7] Executing VPSWeb translation workflow in {workflow_mode.value} mode (timeout: {DEFAULT_WORKFLOW_TIMEOUT}s)"
-            )
-            workflow_output = await self._execute_workflow_with_timeout(
-                workflow, input_data, timeout=DEFAULT_WORKFLOW_TIMEOUT
-            )
-            logger.info(f"✅ [STEP 7 SUCCESS] Workflow execution completed")
-
-            # Map output to repository format
-            logger.info(f"📊 [STEP 8] Mapping workflow output to repository format")
-            translation_data = self._map_workflow_output_to_repository(
-                workflow_output, db_task.poem_id, db_task.workflow_mode
-            )
-            logger.info(f"✅ [STEP 8 SUCCESS] Output mapping completed")
-
-            # Save to repository
-            logger.info(f"💾 [STEP 9] Saving translation results to repository")
-            saved_translation = await self.translation_service.create_translation(
-                poem_id=db_task.poem_id,
-                source_lang=db_task.source_lang,
-                target_lang=db_task.target_lang,
-                workflow_mode=db_task.workflow_mode,
-                translation_data=translation_data,
-            )
-            logger.info(
-                f"✅ [STEP 9 SUCCESS] Translation saved with ID: {saved_translation['id']}"
-            )
-
-            # Update task with result in database
-            logger.info(f"🏁 [STEP 10] Updating task with final results")
-            result_data = {
-                "translation_id": saved_translation["id"],
-                "total_tokens": workflow_output.total_tokens,
-                "duration_seconds": workflow_output.duration_seconds,
-                "total_cost": workflow_output.total_cost,
-            }
-            repository_service.set_workflow_task_result(task_id, result_data)
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.COMPLETED, progress_percentage=100
-            )
-            logger.info(f"✅ [STEP 10 SUCCESS] Task marked as completed")
-
-            logger.info(
-                f"🎉 [WORKFLOW COMPLETE] Translation workflow task {task_id} completed successfully"
-            )
-
-            return {
-                "task_id": task_id,
-                "status": TaskStatus.COMPLETED,
-                "translation_id": saved_translation["id"],
-                "total_tokens": workflow_output.total_tokens,
-                "duration_seconds": workflow_output.duration_seconds,
-                "total_cost": workflow_output.total_cost,
-                "message": "Translation completed successfully",
-            }
-
-        except WorkflowTimeoutError as e:
-            logger.error(
-                f"⏰ [TIMEOUT ERROR] VPSWeb workflow timed out for task {task_id}: {e}"
-            )
-            # Update task status in database
-            logger.error(f"🔴 [FAILED] Updating task status to FAILED due to timeout")
-            self.repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-
-            raise WorkflowExecutionError(f"Workflow execution timed out: {e}")
-
-        except WorkflowError as e:
-            logger.error(
-                f"❌ [WORKFLOW ERROR] VPSWeb workflow failed for task {task_id}: {e}"
-            )
-            # Update task status in database
-            logger.error(
-                f"🔴 [FAILED] Updating task status to FAILED due to workflow error"
-            )
-            self.repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-
-            raise WorkflowExecutionError(f"Workflow execution failed: {e}")
-
-        except Exception as e:
-            logger.error(
-                f"💥 [UNEXPECTED ERROR] Task {task_id} failed with unexpected error: {e}"
-            )
-            logger.error(
-                f"🔴 [FAILED] Updating task status to FAILED due to unexpected error"
-            )
-            logger.error(f"Unexpected error in workflow task {task_id}: {e}")
-            # Update task status in database
-            self.repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-
-            raise WorkflowExecutionError(f"Unexpected error: {e}")
-
-    async def _execute_workflow_task_with_services(
-        self,
-        task_id: str,
-        poem: Dict[str, Any],
-        workflow_mode: WorkflowMode,
-        poem_service: "PoemService",
-        translation_service: "TranslationService",
-        repository_service: "RepositoryWebService",
-    ) -> Dict[str, Any]:
-        """
-        Execute the actual workflow task with provided services.
-
-        Args:
-            task_id: Unique task identifier
-            poem: Poem data from repository
-            workflow_mode: Workflow mode to use
-            poem_service: Fresh poem service with isolated database session
-            translation_service: Fresh translation service with isolated database session
-            repository_service: Fresh repository service with isolated database session
-
-        Returns:
-            Task result with translation data
-
-        Raises:
-            WorkflowExecutionError: If execution fails
-        """
-        # Get task from database
-        db_task = repository_service.get_workflow_task(task_id)
-        if not db_task:
-            raise WorkflowExecutionError(f"Task not found: {task_id}")
-
-        try:
-            # Update task status in database
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.RUNNING, progress_percentage=0
-            )
-
-            logger.info(
-                f"Starting translation workflow task {task_id} for poem {db_task.poem_id}"
-            )
-
-            # Create workflow
-            workflow = await self._create_workflow(workflow_mode)
-
-            # Prepare input
-            input_data = self._map_repository_to_workflow_input(
-                poem, db_task.source_lang, db_task.target_lang
-            )
-
-            # Execute workflow with timeout protection
-            logger.info(
-                f"Executing VPSWeb translation workflow in {workflow_mode.value} mode"
-            )
-            workflow_output = await self._execute_workflow_with_timeout(
-                workflow, input_data, timeout=DEFAULT_WORKFLOW_TIMEOUT
-            )
-
-            # Map output to repository format
-            translation_data = self._map_workflow_output_to_repository(
-                workflow_output, db_task.poem_id, db_task.workflow_mode
-            )
-
-            # Save to repository using fresh translation service
-            logger.info(f"Saving translation results to repository")
-            # Filter translation_data to only include valid fields for create_translation
-            filtered_translation_data = {
-                k: v
-                for k, v in translation_data.items()
-                if k
-                not in [
-                    "workflow_id",
-                    "poem_id",
-                    "source_lang",
-                    "target_lang",
-                    "workflow_mode",
-                ]
-            }
-            saved_translation = await translation_service.create_translation(
-                poem_id=translation_data["poem_id"],
-                source_lang=translation_data["source_lang"],
-                target_lang=translation_data["target_lang"],
-                workflow_mode=translation_data["workflow_mode"],
-                translation_data=filtered_translation_data,
-            )
-
-            # Update task status in database using fresh repository service
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.COMPLETED, progress_percentage=100
-            )
-
-            logger.info(f"Translation workflow task {task_id} completed successfully")
-
-            return {
-                "task_id": task_id,
-                "status": TaskStatus.COMPLETED,
-                "translation_id": saved_translation["id"],
-                "total_tokens": workflow_output.total_tokens,
-                "duration_seconds": workflow_output.duration_seconds,
-                "total_cost": workflow_output.total_cost,
-                "message": "Translation completed successfully",
-            }
-
-        except WorkflowTimeoutError as e:
-            logger.error(f"VPSWeb workflow timed out for task {task_id}: {e}")
-            # Update task status in database
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-            raise WorkflowExecutionError(f"Workflow execution timed out: {e}")
-
-        except WorkflowError as e:
-            logger.error(f"VPSWeb workflow failed for task {task_id}: {e}")
-            # Update task status in database
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-            raise WorkflowExecutionError(f"Workflow execution failed: {e}")
-
-        except Exception as e:
-            logger.error(f"Unexpected error in workflow task {task_id}: {e}")
-            # Update task status in database
-            repository_service.update_workflow_task_status(
-                task_id, TaskStatus.FAILED, progress_percentage=0, error_message=str(e)
-            )
-            raise WorkflowExecutionError(f"Unexpected error: {e}")
-
-    # Note: Task cleanup is now handled by database - no need for manual cleanup
-
-    async def get_task_status(self, task_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get the status of a background task.
-
-        Args:
-            task_id: Task identifier
-
-        Returns:
-            Task status information or None if not found
-        """
-        # Get task from database
-        db_task = self.repository_service.get_workflow_task(task_id)
-        if not db_task:
-            return None
-
-        return {
-            "task_id": db_task.id,
-            "status": db_task.status.value,
-            "poem_id": db_task.poem_id,
-            "source_lang": db_task.source_lang,
-            "target_lang": db_task.target_lang,
-            "workflow_mode": db_task.workflow_mode.value,
-            "created_at": (
-                db_task.created_at.isoformat() if db_task.created_at else None
-            ),
-            "started_at": (
-                db_task.started_at.isoformat() if db_task.started_at else None
-            ),
-            "completed_at": (
-                db_task.completed_at.isoformat() if db_task.completed_at else None
-            ),
-            "progress_percentage": db_task.progress_percentage,
-            "error": db_task.error_message,
-            "result": db_task.result_json,
-        }
-
-    async def list_active_tasks(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """
-        List active background tasks.
-
-        Args:
-            limit: Maximum number of tasks to return
-
-        Returns:
-            List of task information
-        """
-        # Get tasks from database
-        db_tasks = self.repository_service.get_workflow_tasks(limit=limit)
-
-        return [
-            {
-                "task_id": task.id,
-                "status": task.status.value,
-                "poem_id": task.poem_id,
-                "source_lang": task.source_lang,
-                "target_lang": task.target_lang,
-                "workflow_mode": task.workflow_mode.value,
-                "created_at": task.created_at.isoformat() if task.created_at else None,
-                "started_at": task.started_at.isoformat() if task.started_at else None,
-                "completed_at": (
-                    task.completed_at.isoformat() if task.completed_at else None
-                ),
-                "error": task.error_message,
-            }
-            for task in db_tasks
-        ]
-
-    async def cancel_task(self, task_id: str) -> bool:
-        """
-        Cancel a background task (mark as failed).
-
-        Args:
-            task_id: Task identifier
-
-        Returns:
-            True if task was cancelled, False if not found
-        """
-        # Get task from database
-        db_task = self.repository_service.get_workflow_task(task_id)
-        if not db_task:
-            return False
-
-        if db_task.status in [TaskStatus.PENDING, TaskStatus.RUNNING]:
-            # Update task status in database
-            self.repository_service.update_workflow_task_status(
-                task_id,
-                TaskStatus.FAILED,
-                progress_percentage=0,
-                error_message="Task cancelled by user",
-            )
-
-            logger.info(f"Task {task_id} cancelled by user")
-            return True
-
-        return False
-
-    async def get_workflow_modes(self) -> List[Dict[str, str]]:
-        """
-        Get available workflow modes.
-
-        Returns:
-            List of available workflow modes with descriptions
-        """
-        return [
-            {
-                "value": "hybrid",
-                "label": "Hybrid",
-                "description": "Balanced approach with reasoning for review steps",
-            },
-            {
-                "value": "reasoning",
-                "label": "Reasoning",
-                "description": "Highest quality with detailed reasoning for all steps",
-            },
-            {
-                "value": "non_reasoning",
-                "label": "Non-Reasoning",
-                "description": "Fast and cost-effective for standard translations",
-            },
-        ]
-
-    async def validate_workflow_input(
-        self, poem_id: str, source_lang: str, target_lang: str, workflow_mode: str
-    ) -> Dict[str, Any]:
-        """
-        Validate workflow input without executing.
-
-        Args:
-            poem_id: ID of the poem to translate
-            source_lang: Source language code
-            target_lang: Target language code
-            workflow_mode: Workflow mode to validate
-
-        Returns:
-            Validation result
-        """
-        try:
-            # Check if poem exists
-            poem = await self.poem_service.get_poem(poem_id)
-            if not poem:
-                return {"valid": False, "errors": [f"Poem not found: {poem_id}"]}
-
-            # Validate languages
-            if source_lang == target_lang:
-                return {
-                    "valid": False,
-                    "errors": ["Source and target languages must be different"],
-                }
-
-            # Validate workflow mode
-            try:
-                WorkflowMode(workflow_mode)
-            except ValueError:
-                return {
-                    "valid": False,
-                    "errors": [f"Invalid workflow mode: {workflow_mode}"],
-                }
-
-            # Validate poem content
-            if not poem.get("content") or len(poem["content"].strip()) < 10:
-                return {
-                    "valid": False,
-                    "errors": ["Poem content is too short or empty"],
-                }
-
-            # Try to load configuration
-            await self._load_configuration()
-
-            return {
-                "valid": True,
-                "message": "Validation passed",
-                "poem_preview": (
-                    poem["content"][:100] + "..."
-                    if len(poem["content"]) > 100
-                    else poem["content"]
-                ),
-                "workflow_info": {
-                    "workflow": self._workflow_config.name,
-                    "version": self._workflow_config.version,
-                    "providers": list(self._providers_config.providers.keys()),
-                },
-            }
-
-        except Exception as e:
-            return {"valid": False, "errors": [f"Validation error: {e}"]}
-
-
-@asynccontextmanager
-async def get_vpsweb_adapter(
-    poem_service: PoemService,
-    translation_service: TranslationService,
-    repository_service: RepositoryWebService,
-    config_path: Optional[str] = None,
-):
-    """
-    Context manager for VPSWeb adapter instance.
-
-    Args:
-        poem_service: Repository poem service
-        translation_service: Repository translation service
-        repository_service: Repository service for database operations
-        config_path: Optional config directory path
-
-    Yields:
-        VPSWebWorkflowAdapter instance
-    """
-    adapter = VPSWebWorkflowAdapter(
-        poem_service=poem_service,
-        translation_service=translation_service,
-        repository_service=repository_service,
-        config_path=config_path,
-    )
-
-    try:
-        yield adapter
-    finally:
-        # Cleanup if needed
-        pass
-
-</code>
-
-src/vpsweb/webui/main.py:
-<code>
-"""
-VPSWeb Repository Web UI - FastAPI Application v0.3.2
-
-Main FastAPI application entrypoint for the poetry translation repository.
-Provides web interface and API endpoints for managing poems and translations.
-"""
-
-from fastapi import FastAPI, Request, Depends, Form, HTTPException, BackgroundTasks
-from fastapi.responses import (
-    HTMLResponse,
-    RedirectResponse,
-    JSONResponse,
-    StreamingResponse,
-)
-from sse_starlette import EventSourceResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import Optional
-import time
-import logging
-import asyncio
 import json
-import threading
+import logging
+from pathlib import Path
+from typing import List, Optional, Dict
+from datetime import datetime
 
-from src.vpsweb.repository.database import init_db, get_db
-from src.vpsweb.repository.models import Poem
-from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.service import RepositoryWebService
-from .api import poems, translations, statistics, poets
-from .config import settings
-from .services.poem_service import PoemService
-from .services.translation_service import TranslationService
-from .services.vpsweb_adapter import (
-    VPSWebWorkflowAdapter,
-    get_vpsweb_adapter,
-    WorkflowTimeoutError,
-)
-from .task_models import TaskStatus
-
-
-# Pydantic models for workflow endpoints
-class TranslationRequest(BaseModel):
-    poem_id: str
-    source_lang: str
-    target_lang: str
-    workflow_mode: str = "hybrid"
-
-
-class TranslationValidationRequest(BaseModel):
-    poem_id: str
-    source_lang: str
-    target_lang: str
-    workflow_mode: str = "hybrid"
-
-
-# Create FastAPI application instance
-app = FastAPI(
-    title="VPSWeb Repository v0.3.1",
-    description="Local poetry translation repository with AI integration",
-    version="0.3.1",
-    docs_url="/docs",
-    redoc_url="/redoc",
+from ..models.translation import TranslationOutput
+from .markdown_export import MarkdownExporter
+from .filename_utils import (
+    extract_poet_and_title,
+    generate_translation_filename,
 )
 
-# Initialize app.state for in-memory task tracking
-app.state.tasks = {}  # task_id -> TaskStatus
-app.state.task_locks = {}  # task_id -> threading.Lock
-
-# Performance monitoring middleware
 logger = logging.getLogger(__name__)
 
 
-@app.middleware("http")
-async def performance_monitoring_middleware(request: Request, call_next):
-    """Monitor API performance and log slow requests"""
-    start_time = time.time()
+class StorageError(Exception):
+    """Base exception for storage operations."""
 
-    # Process the request
-    response = await call_next(request)
+    pass
 
-    # Calculate processing time
-    process_time = (time.time() - start_time) * 1000  # Convert to milliseconds
 
-    # Add performance headers
-    response.headers["X-Process-Time"] = f"{process_time:.2f}ms"
+class SaveError(StorageError):
+    """Raised when saving a translation fails."""
 
-    # Log performance for monitoring
-    log_level = logging.INFO
-    if process_time > 1000:  # > 1 second
-        log_level = logging.WARNING
-    elif process_time > 500:  # > 500ms
-        log_level = logging.INFO
+    pass
 
-    logger.log(
-        log_level,
-        f"{request.method} {request.url.path} - {response.status_code} - {process_time:.2f}ms",
+
+class LoadError(StorageError):
+    """Raised when loading a translation fails."""
+
+    pass
+
+
+class StorageHandler:
+    """
+    Handles storage operations for translation outputs.
+
+    Provides methods for saving, loading, and listing translation outputs
+    with proper file naming, JSON serialization, and error handling.
+    """
+
+    def __init__(self, output_dir: str = "outputs"):
+        """
+        Initialize the storage handler.
+
+        Args:
+            output_dir: Directory where translation files will be stored.
+                       Will be created if it doesn't exist.
+
+        Raises:
+            StorageError: If the output directory cannot be created
+        """
+        self.output_dir = Path(output_dir)
+        self.json_dir = self.output_dir / "json"
+
+        try:
+            # Create output directories if they don't exist
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self.json_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(
+                f"Storage handler initialized with output directory: {self.output_dir.absolute()}"
+            )
+            logger.info(f"JSON files will be stored in: {self.json_dir.absolute()}")
+
+            # Initialize markdown exporter
+            self.markdown_exporter = MarkdownExporter(output_dir)
+
+        except Exception as e:
+            logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
+            raise StorageError(
+                f"Could not create output directory '{self.output_dir}': {e}"
+            )
+
+    def save_translation(
+        self,
+        output: TranslationOutput,
+        workflow_mode: str = None,
+        include_mode_tag: bool = False,
+    ) -> Path:
+        """
+        Save a translation output to a timestamped JSON file.
+
+        Args:
+            output: TranslationOutput instance to save
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
+
+        Returns:
+            Path to the saved file
+
+        Raises:
+            SaveError: If saving fails due to file I/O or serialization issues
+        """
+        try:
+            # Generate timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # Extract poet and title information
+            poet, title = extract_poet_and_title(
+                output.input.original_poem, output.input.metadata
+            )
+
+            # Generate new descriptive filename
+            filename = generate_translation_filename(
+                poet=poet,
+                title=title,
+                source_lang=output.input.source_lang,
+                target_lang=output.input.target_lang,
+                timestamp=timestamp,
+                workflow_id=output.workflow_id,
+                workflow_mode=workflow_mode,
+                file_format="json",
+                is_log=False,
+            )
+
+            file_path = self.json_dir / filename
+
+            # Convert to dictionary for JSON serialization
+            output_dict = output.to_dict()
+
+            # Save as formatted JSON
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(output_dict, f, ensure_ascii=False, indent=2)
+
+            logger.info(f"Translation saved to: {file_path}")
+            logger.debug(
+                f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}"
+            )
+            logger.info(f"Generated filename with poet '{poet}' and title '{title}'")
+
+            return file_path
+
+        except Exception as e:
+            logger.error(
+                f"JSON serialization failed for workflow {output.workflow_id}: {e}"
+            )
+            raise SaveError(f"Failed to serialize translation output: {e}")
+        except IOError as e:
+            logger.error(f"File I/O error while saving translation: {e}")
+            raise SaveError(f"Failed to write translation file: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error while saving translation: {e}")
+            raise SaveError(f"Failed to save translation: {e}")
+
+    def load_translation(self, file_path: Path) -> TranslationOutput:
+        """
+        Load a translation output from a JSON file.
+
+        Args:
+            file_path: Path to the translation JSON file
+
+        Returns:
+            TranslationOutput instance
+
+        Raises:
+            LoadError: If loading fails due to file I/O, JSON parsing, or validation issues
+        """
+        try:
+            # Validate file exists and is readable
+            if not file_path.exists():
+                raise LoadError(f"Translation file not found: {file_path}")
+
+            if not file_path.is_file():
+                raise LoadError(f"Path is not a file: {file_path}")
+
+            # Load JSON data
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            # Parse into TranslationOutput model
+            translation_output = TranslationOutput.from_dict(data)
+
+            logger.info(f"Translation loaded from: {file_path}")
+            logger.debug(f"Workflow ID: {translation_output.workflow_id}")
+
+            return translation_output
+
+        except Exception as e:
+            logger.error(f"JSON parsing failed for file {file_path}: {e}")
+            raise LoadError(f"Invalid JSON format in translation file: {e}")
+        except KeyError as e:
+            logger.error(f"Missing required field in translation file {file_path}: {e}")
+            raise LoadError(f"Translation file missing required field: {e}")
+        except ValueError as e:
+            logger.error(f"Data validation failed for file {file_path}: {e}")
+            raise LoadError(f"Translation data validation failed: {e}")
+        except IOError as e:
+            logger.error(f"File I/O error while loading translation: {e}")
+            raise LoadError(f"Failed to read translation file: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error while loading translation: {e}")
+            raise LoadError(f"Failed to load translation: {e}")
+
+    def list_translations(self) -> List[Path]:
+        """
+        List all translation files in the JSON subdirectory.
+
+        Returns:
+            List of Path objects for all translation JSON files
+
+        Raises:
+            StorageError: If directory listing fails
+        """
+        try:
+            # Find all JSON files in json subdirectory
+            # Support both new naming (poet-led) and legacy naming (translation_-prefixed)
+            translation_files = list(self.json_dir.glob("*.json"))
+
+            # Sort by modification time (newest first)
+            translation_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            logger.debug(
+                f"Found {len(translation_files)} translation files in {self.json_dir}"
+            )
+
+            return translation_files
+
+        except Exception as e:
+            logger.error(f"Failed to list translation files in {self.json_dir}: {e}")
+            raise StorageError(f"Failed to list translation files: {e}")
+
+    def get_translation_by_id(self, workflow_id: str) -> Optional[TranslationOutput]:
+        """
+        Find and load a translation by workflow ID.
+
+        Args:
+            workflow_id: The workflow ID to search for
+
+        Returns:
+            TranslationOutput if found, None otherwise
+
+        Raises:
+            StorageError: If search operation fails
+        """
+        try:
+            translation_files = self.list_translations()
+
+            for file_path in translation_files:
+                try:
+                    translation = self.load_translation(file_path)
+                    if translation.workflow_id == workflow_id:
+                        logger.info(
+                            f"Found translation with workflow ID: {workflow_id}"
+                        )
+                        return translation
+                except LoadError:
+                    # Skip files that can't be loaded
+                    continue
+
+            logger.debug(f"No translation found with workflow ID: {workflow_id}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Failed to search for translation with ID {workflow_id}: {e}")
+            raise StorageError(f"Failed to search for translation: {e}")
+
+    def delete_translation(self, file_path: Path) -> bool:
+        """
+        Delete a translation file.
+
+        Args:
+            file_path: Path to the translation file to delete
+
+        Returns:
+            True if deletion was successful, False otherwise
+
+        Raises:
+            StorageError: If deletion fails
+        """
+        try:
+            # Ensure the file is within our output directory for safety
+            if not file_path.is_relative_to(self.output_dir):
+                logger.warning(
+                    f"Attempted to delete file outside output directory: {file_path}"
+                )
+                return False
+
+            if file_path.exists() and file_path.is_file():
+                file_path.unlink()
+                logger.info(f"Translation file deleted: {file_path}")
+                return True
+            else:
+                logger.warning(f"Translation file not found for deletion: {file_path}")
+                return False
+
+        except Exception as e:
+            logger.error(f"Failed to delete translation file {file_path}: {e}")
+            raise StorageError(f"Failed to delete translation file: {e}")
+
+    def save_translation_with_markdown(
+        self,
+        output: TranslationOutput,
+        workflow_mode: str = None,
+        include_mode_tag: bool = False,
+    ) -> Dict[str, Path]:
+        """
+        Save a translation output to both JSON and markdown files.
+
+        Args:
+            output: TranslationOutput instance to save
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
+
+        Returns:
+            Dictionary with paths to saved files:
+            {
+                'json': Path to JSON file,
+                'markdown_final': Path to final translation markdown,
+                'markdown_log': Path to full log markdown
+            }
+
+        Raises:
+            SaveError: If saving fails due to file I/O or serialization issues
+        """
+        try:
+            # Save JSON file (existing functionality)
+            json_path = self.save_translation(output, workflow_mode, include_mode_tag)
+
+            # Save markdown files (new functionality)
+            markdown_paths = self.markdown_exporter.export_both(output)
+
+            result = {
+                "json": json_path,
+                "markdown_final": Path(markdown_paths["final_translation"]),
+                "markdown_log": Path(markdown_paths["full_log"]),
+            }
+
+            logger.info(f"Translation saved to multiple formats:")
+            logger.info(f"  JSON: {result['json']}")
+            logger.info(f"  Markdown (final): {result['markdown_final']}")
+            logger.info(f"  Markdown (log): {result['markdown_log']}")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Failed to save translation with markdown: {e}")
+            raise SaveError(f"Failed to save translation with markdown: {e}")
+
+    def get_storage_info(self) -> dict:
+        """
+        Get information about the storage directory.
+
+        Returns:
+            Dictionary with storage statistics
+
+        Raises:
+            StorageError: If statistics collection fails
+        """
+        try:
+            translation_files = self.list_translations()
+            total_size = sum(
+                file_path.stat().st_size for file_path in translation_files
+            )
+
+            return {
+                "output_directory": str(self.output_dir.absolute()),
+                "total_files": len(translation_files),
+                "total_size_bytes": total_size,
+                "total_size_mb": round(total_size / (1024 * 1024), 2),
+                "oldest_file": (
+                    min(translation_files, key=lambda x: x.stat().st_mtime).name
+                    if translation_files
+                    else None
+                ),
+                "newest_file": (
+                    max(translation_files, key=lambda x: x.stat().st_mtime).name
+                    if translation_files
+                    else None
+                ),
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to get storage info: {e}")
+            raise StorageError(f"Failed to get storage information: {e}")
+
+    # Enhanced Poet-Based Organization Methods
+    def save_translation_with_poet_dir(
+        self,
+        output: TranslationOutput,
+        poet_name: str,
+        workflow_mode: str = None,
+        include_mode_tag: bool = False,
+    ) -> Path:
+        """
+        Save a translation output to a poet-based subdirectory structure.
+
+        Structure: outputs/json/poets/{poet_name}/{filename}.json
+        Also saves latest copy to outputs/json/recent/ for fast access
+
+        Args:
+            output: TranslationOutput instance to save
+            poet_name: Name of the poet for subdirectory organization
+            workflow_mode: Workflow mode used for the translation
+            include_mode_tag: Whether to include workflow mode in filename
+
+        Returns:
+            Path to the saved file in poet subdirectory
+
+        Raises:
+            SaveError: If saving fails due to file I/O or serialization issues
+        """
+        try:
+            # Create poet subdirectory structure
+            poets_dir = self.json_dir / "poets"
+            poet_dir = poets_dir / poet_name
+            recent_dir = self.json_dir / "recent"
+
+            # Create directories if they don't exist
+            poets_dir.mkdir(exist_ok=True)
+            poet_dir.mkdir(exist_ok=True)
+            recent_dir.mkdir(exist_ok=True)
+
+            # Generate timestamp and filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            poet, title = extract_poet_and_title(
+                output.input.original_poem, output.input.metadata
+            )
+
+            # Use provided poet_name or extracted poet
+            effective_poet_name = poet_name or poet
+
+            filename = generate_translation_filename(
+                poet=effective_poet_name,
+                title=title,
+                source_lang=output.input.source_lang,
+                target_lang=output.input.target_lang,
+                timestamp=timestamp,
+                workflow_id=output.workflow_id,
+                workflow_mode=workflow_mode,
+                file_format="json",
+                is_log=False,
+            )
+
+            # Save to poet subdirectory
+            poet_file_path = poet_dir / filename
+
+            # Convert to dictionary for JSON serialization
+            output_dict = output.to_dict()
+
+            # Save to poet subdirectory
+            with open(poet_file_path, "w", encoding="utf-8") as f:
+                json.dump(output_dict, f, ensure_ascii=False, indent=2)
+
+            # Also save to recent directory (keep latest 20)
+            recent_filename = f"latest_{output.workflow_id}_{timestamp}.json"
+            recent_file_path = recent_dir / recent_filename
+
+            with open(recent_file_path, "w", encoding="utf-8") as f:
+                json.dump(output_dict, f, ensure_ascii=False, indent=2)
+
+            # Clean up old recent files (keep only 20 most recent)
+            self._cleanup_recent_files(recent_dir, limit=20)
+
+            logger.info(f"Translation saved to poet directory: {poet_file_path}")
+            logger.info(f"Also saved to recent directory: {recent_file_path}")
+
+            return poet_file_path
+
+        except Exception as e:
+            logger.error(f"Failed to save translation with poet directory: {e}")
+            raise SaveError(f"Failed to save translation with poet directory: {e}")
+
+    def get_poet_directories(self) -> List[str]:
+        """
+        Get list of all poet subdirectories.
+
+        Returns:
+            List of poet names that have subdirectories
+
+        Raises:
+            StorageError: If directory listing fails
+        """
+        try:
+            poets_dir = self.json_dir / "poets"
+
+            if not poets_dir.exists():
+                return []
+
+            poet_dirs = []
+            for item in poets_dir.iterdir():
+                if item.is_dir():
+                    poet_dirs.append(item.name)
+
+            return sorted(poet_dirs)
+
+        except Exception as e:
+            logger.error(f"Failed to get poet directories: {e}")
+            raise StorageError(f"Failed to get poet directories: {e}")
+
+    def get_recent_files(self, limit: int = 20) -> List[Path]:
+        """
+        Get list of most recent translation files.
+
+        Args:
+            limit: Maximum number of files to return
+
+        Returns:
+            List of paths to recent files, sorted by modification time
+
+        Raises:
+            StorageError: If file listing fails
+        """
+        try:
+            recent_dir = self.json_dir / "recent"
+
+            if not recent_dir.exists():
+                return []
+
+            files = []
+            for file_path in recent_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            return files[:limit]
+
+        except Exception as e:
+            logger.error(f"Failed to get recent files: {e}")
+            raise StorageError(f"Failed to get recent files: {e}")
+
+    def get_poet_files(self, poet_name: str) -> List[Path]:
+        """
+        Get all translation files for a specific poet.
+
+        Args:
+            poet_name: Name of the poet
+
+        Returns:
+            List of paths to poet's translation files
+
+        Raises:
+            StorageError: If file listing fails
+        """
+        try:
+            poet_dir = self.json_dir / "poets" / poet_name
+
+            if not poet_dir.exists():
+                return []
+
+            files = []
+            for file_path in poet_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            return files
+
+        except Exception as e:
+            logger.error(f"Failed to get poet files for '{poet_name}': {e}")
+            raise StorageError(f"Failed to get poet files for '{poet_name}': {e}")
+
+    def _cleanup_recent_files(self, recent_dir: Path, limit: int = 20):
+        """
+        Clean up recent directory to keep only the specified number of files.
+
+        Args:
+            recent_dir: Path to recent directory
+            limit: Maximum number of files to keep
+        """
+        try:
+            files = []
+            for file_path in recent_dir.glob("*.json"):
+                if file_path.is_file():
+                    files.append(file_path)
+
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+            # Remove excess files
+            for file_path in files[limit:]:
+                file_path.unlink()
+                logger.debug(f"Removed old recent file: {file_path}")
+
+        except Exception as e:
+            logger.warning(f"Failed to cleanup recent files: {e}")
+
+    def __repr__(self) -> str:
+        """String representation of the storage handler."""
+        return f"StorageHandler(output_dir='{self.output_dir}')"
+
+</code>
+
+src/vpsweb/models/translation.py:
+<code>
+"""
+Translation data models for Vox Poetica Studio Web.
+
+This module contains Pydantic models for the complete translation workflow,
+matching the exact structure specified in vpts.yml.
+"""
+
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from datetime import datetime
+from enum import Enum
+import json
+
+
+class Language(str, Enum):
+    """Supported languages for translation."""
+
+    ENGLISH = "English"
+    CHINESE = "Chinese"
+    POLISH = "Polish"
+
+
+class TranslationInput(BaseModel):
+    """Input for translation workflow, matching vpts.yml specification."""
+
+    original_poem: str = Field(
+        ...,
+        min_length=1,
+        max_length=2000,  # From vpts.yml: max_length: 2000
+        description="Original poem text for translation",
+    )
+    source_lang: Language = Field(
+        ..., description="Source language (English, Chinese, or Polish)"
+    )
+    target_lang: Language = Field(
+        ..., description="Target language (English or Chinese only)"
+    )
+    metadata: Optional[Dict[str, Any]] = Field(
+        None, description="Additional metadata about the poem (author, title, etc.)"
     )
 
-    return response
+    @field_validator("source_lang", "target_lang")
+    @classmethod
+    def validate_languages(cls, v):
+        """Validate language choices against vpts.yml specification."""
+        return v
+
+    @field_validator("target_lang")
+    @classmethod
+    def validate_target_language(cls, v, info):
+        """Ensure target language is only English or Chinese (from vpts.yml)."""
+        if v not in [Language.ENGLISH, Language.CHINESE]:
+            raise ValueError("Target language must be either English or Chinese")
+        return v
+
+    @field_validator("target_lang")
+    @classmethod
+    def validate_source_target_distinct(cls, v, info):
+        """Ensure source and target languages are different."""
+        if "source_lang" in info.data and v == info.data["source_lang"]:
+            raise ValueError("Source and target languages must be different")
+        return v
+
+    model_config = ConfigDict(use_enum_values=True)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return self.model_dump()
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TranslationInput":
+        """Create from dictionary."""
+        return cls(**data)
 
 
-# Global exception handler for improved error handling
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions with appropriate response format"""
+class InitialTranslation(BaseModel):
+    """Output from initial translation step with XML structure from vpts.yml."""
 
-    # Check if this is a web request (browser request) - prefers HTML
-    accept_header = request.headers.get("accept", "")
-    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
+    initial_translation: str = Field(..., description="The translated poem text")
+    initial_translation_notes: str = Field(
+        ...,
+        description="Translator's explanation of translation choices (200-300 words)",
+    )
+    translated_poem_title: str = Field(
+        ..., description="The translated poem title in target language"
+    )
+    translated_poet_name: str = Field(
+        ..., description="The translated poet name in target language"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.now,
+        description="Timestamp when translation was created",
+    )
+    model_info: Dict[str, str] = Field(
+        ..., description="Model provider and version information"
+    )
+    tokens_used: int = Field(
+        ..., ge=0, description="Number of tokens used for this translation"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of input tokens used for this translation"
+    )
+    completion_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of output tokens used for this translation"
+    )
+    duration: Optional[float] = Field(
+        None, ge=0.0, description="Time taken for initial translation in seconds"
+    )
+    cost: Optional[float] = Field(
+        None, ge=0.0, description="Cost in RMB for this translation step"
+    )
 
-    if is_web_request and exc.status_code in [404, 403, 401, 422]:
-        # Return HTML error page for common HTTP errors in web interface
-        template_context = {
-            "request": request,
-            "error_details": f"{request.method} {request.url.path}",
-            "error_id": f"HTTP{exc.status_code}-{int(time.time()) % 10000:04d}",
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+    @field_validator("initial_translation_notes")
+    @classmethod
+    def validate_notes_length(cls, v):
+        """Validate notes length matches vpts.yml specification (200-300 words)."""
+        # Note: Removed warning for shorter notes during development
+        return v
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with ISO format timestamp."""
+        data = self.model_dump()
+        data["timestamp"] = self.timestamp.isoformat()
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "InitialTranslation":
+        """Create from dictionary, parsing ISO timestamp."""
+        if "timestamp" in data and isinstance(data["timestamp"], str):
+            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+        return cls(**data)
+
+
+class EditorReview(BaseModel):
+    """Output from editor review step with structured suggestions from vpts.yml."""
+
+    editor_suggestions: str = Field(
+        default="", description="Structured editor suggestions extracted from XML"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.now, description="Timestamp when review was created"
+    )
+    model_info: Dict[str, str] = Field(
+        ..., description="Model provider and version information"
+    )
+    tokens_used: int = Field(
+        ..., ge=0, description="Number of tokens used for this review"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of input tokens used for this review"
+    )
+    completion_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of output tokens used for this review"
+    )
+    duration: Optional[float] = Field(
+        None, ge=0.0, description="Time taken for editor review in seconds"
+    )
+    cost: Optional[float] = Field(
+        None, ge=0.0, description="Cost in RMB for this editor review step"
+    )
+
+    def get_suggestions_list(self) -> List[str]:
+        """Extract numbered suggestions from the editor's text."""
+        import re
+
+        text_to_search = self.editor_suggestions
+        # Look for numbered suggestions like "1. [suggestion text]"
+        suggestions = re.findall(r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE)
+        return [suggestion[1].strip() for suggestion in suggestions]
+
+    def get_overall_assessment(self) -> str:
+        """Extract the overall assessment from the editor's text."""
+        import re
+
+        text_to_search = self.editor_suggestions
+        # Look for the overall assessment after the suggestions
+        assessment_match = re.search(
+            r"overall assessment:?\s*(.+)", text_to_search, re.IGNORECASE | re.DOTALL
+        )
+        if assessment_match:
+            return assessment_match.group(1).strip()
+        return ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with ISO format timestamp."""
+        data = {
+            "editor_suggestions": self.editor_suggestions,
+            "timestamp": self.timestamp.isoformat(),
+            "model_info": self.model_info,
+            "tokens_used": self.tokens_used,
+        }
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "EditorReview":
+        """Create from dictionary, parsing ISO timestamp."""
+        if "timestamp" in data and isinstance(data["timestamp"], str):
+            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+        return cls(**data)
+
+
+class RevisedTranslation(BaseModel):
+    """Output from translator revision step with XML structure from vpts.yml."""
+
+    revised_translation: str = Field(..., description="The final revised translation")
+    revised_translation_notes: str = Field(
+        ..., description="Explanation of key changes and decisions (200-300 words)"
+    )
+    refined_translated_poem_title: str = Field(
+        ..., description="The refined translated poem title in target language"
+    )
+    refined_translated_poet_name: str = Field(
+        ..., description="The refined translated poet name in target language"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.now, description="Timestamp when revision was created"
+    )
+    model_info: Dict[str, str] = Field(
+        ..., description="Model provider and version information"
+    )
+    tokens_used: int = Field(
+        ..., ge=0, description="Number of tokens used for this revision"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of input tokens used for this revision"
+    )
+    completion_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of output tokens used for this revision"
+    )
+    duration: Optional[float] = Field(
+        None, ge=0.0, description="Time taken for translator revision in seconds"
+    )
+    cost: Optional[float] = Field(
+        None, ge=0.0, description="Cost in RMB for this translator revision step"
+    )
+
+    @field_validator("revised_translation_notes")
+    @classmethod
+    def validate_revision_notes_length(cls, v):
+        """Validate notes length matches vpts.yml specification (200-300 words)."""
+        word_count = len(v.split())
+        # Allow any length of revision notes without warning
+        return v
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with ISO format timestamp."""
+        data = self.model_dump()
+        data["timestamp"] = self.timestamp.isoformat()
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RevisedTranslation":
+        """Create from dictionary, parsing ISO timestamp."""
+        if "timestamp" in data and isinstance(data["timestamp"], str):
+            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+        return cls(**data)
+
+
+class TranslationOutput(BaseModel):
+    """Complete workflow output matching the vpts.yml congregation format."""
+
+    workflow_id: str = Field(
+        ..., description="Unique identifier for this translation workflow"
+    )
+    input: TranslationInput = Field(..., description="Original input to the workflow")
+    initial_translation: InitialTranslation = Field(
+        ..., description="Initial translation with notes"
+    )
+    editor_review: EditorReview = Field(
+        ..., description="Editor's detailed suggestions and feedback"
+    )
+    revised_translation: RevisedTranslation = Field(
+        ..., description="Final revised translation with notes"
+    )
+    total_tokens: int = Field(
+        ..., ge=0, description="Total tokens used across all workflow steps"
+    )
+    duration_seconds: float = Field(
+        ..., ge=0.0, description="Total workflow execution time in seconds"
+    )
+    workflow_mode: Optional[str] = Field(
+        None,
+        description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)",
+    )
+    total_cost: Optional[float] = Field(
+        None, ge=0.0, description="Total cost in RMB for the entire workflow"
+    )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with proper serialization."""
+        return {
+            "workflow_id": self.workflow_id,
+            "input": self.input.to_dict(),
+            "initial_translation": self.initial_translation.to_dict(),
+            "editor_review": self.editor_review.to_dict(),
+            "revised_translation": self.revised_translation.to_dict(),
+            "total_tokens": self.total_tokens,
+            "duration_seconds": self.duration_seconds,
         }
 
-        if exc.status_code == 404:
-            return templates.TemplateResponse(
-                "404.html", template_context, status_code=404
-            )
-        elif exc.status_code == 403:
-            template_context["error_details"] = (
-                "You don't have permission to access this resource."
-            )
-            return templates.TemplateResponse(
-                "403.html", template_context, status_code=403
-            )
-        elif exc.status_code == 401:
-            template_context["error_details"] = (
-                "Authentication required to access this resource."
-            )
-            return templates.TemplateResponse(
-                "403.html", template_context, status_code=401
-            )
-        elif exc.status_code == 422:
-            template_context["error_details"] = f"Validation error: {exc.detail}"
-            return templates.TemplateResponse(
-                "422.html", template_context, status_code=422
-            )
-
-    # Return JSON response for API requests
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "success": False,
-            "message": exc.detail,
-            "data": None,
-            "error_code": exc.status_code,
-            "timestamp": time.time(),
-        },
-    )
-
-
-@app.exception_handler(WorkflowTimeoutError)
-async def workflow_timeout_handler(request: Request, exc: WorkflowTimeoutError):
-    """Handle workflow timeout errors with user-friendly response"""
-
-    # Check if this is a web request (browser request) - prefers HTML
-    accept_header = request.headers.get("accept", "")
-    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
-
-    if is_web_request:
-        # Return HTML error page for web interface using existing 404 template
-        template_context = {
-            "request": request,
-            "error_details": "The translation workflow is taking longer than expected. This could be due to high demand or system load. Please try again in a few minutes, or consider using a simpler workflow mode.",
-            "error_id": f"TIMEOUT-{int(time.time()) % 10000:04d}",
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-        return templates.TemplateResponse("404.html", template_context, status_code=408)
-
-    # Return JSON response for API requests
-    return JSONResponse(
-        status_code=408,
-        content={
-            "success": False,
-            "message": f"Translation workflow timed out. {str(exc)}",
-            "data": None,
-            "error_code": "WORKFLOW_TIMEOUT",
-            "error_type": "timeout",
-            "timestamp": time.time(),
-            "retry_suggested": True,
-        },
-    )
-
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    """Handle unexpected exceptions with appropriate response format"""
-
-    # Generate unique error ID for tracking
-    error_id = f"ERR-{int(time.time() * 1000)}"
-
-    # Log the error with details
-    logger.error(
-        f"Unexpected error {error_id} in {request.method} {request.url.path}: {exc}",
-        exc_info=True,
-    )
-
-    # Check if this is a web request (browser request) - prefers HTML
-    accept_header = request.headers.get("accept", "")
-    is_web_request = "text/html" in accept_header or request.url.path.startswith("/")
-
-    if is_web_request:
-        # Return HTML error page for web interface
-        template_context = {
-            "request": request,
-            "error_details": (
-                str(exc) if settings.debug else "An unexpected error occurred."
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TranslationOutput":
+        """Create from dictionary with proper deserialization."""
+        return cls(
+            workflow_id=data["workflow_id"],
+            input=TranslationInput.from_dict(data["input"]),
+            initial_translation=InitialTranslation.from_dict(
+                data["initial_translation"]
             ),
-            "error_id": error_id,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "show_debug": settings.debug,  # Only show debug info in development
-        }
-
-        return templates.TemplateResponse("500.html", template_context, status_code=500)
-
-    # Return JSON response for API requests
-    return JSONResponse(
-        status_code=500,
-        content={
-            "success": False,
-            "message": "Internal server error. Please try again later.",
-            "data": None,
-            "error_code": 500,
-            "timestamp": time.time(),
-            "error_id": error_id,
-        },
-    )
-
-
-# Mount static files directory
-app.mount(
-    "/static", StaticFiles(directory="src/vpsweb/webui/web/static"), name="static"
-)
-
-# Setup Jinja2 templates
-templates = Jinja2Templates(directory="src/vpsweb/webui/web/templates")
-
-# Include API routers
-app.include_router(poems.router, prefix="/api/v1/poems", tags=["poems"])
-app.include_router(
-    translations.router, prefix="/api/v1/translations", tags=["translations"]
-)
-app.include_router(statistics.router, prefix="/api/v1/statistics", tags=["statistics"])
-app.include_router(poets.router, prefix="/api/v1/poets", tags=["poets"])
-
-
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request, db: Session = Depends(get_db)):
-    """
-    Dashboard - List all poems in the repository
-    """
-    poems_list = db.query(Poem).order_by(Poem.created_at.desc()).all()
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "poems": poems_list,
-            "title": "VPSWeb Repository - Dashboard",
-        },
-    )
-
-
-@app.get("/health")
-async def health_check():
-    """
-    Health check endpoint for monitoring
-    """
-    return {"status": "healthy", "version": "0.3.1"}
-
-
-def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
-    """Dependency to get repository service instance"""
-    return RepositoryService(db)
-
-
-def get_poem_service(db: Session = Depends(get_db)) -> PoemService:
-    """Dependency to get poem service instance"""
-    return PoemService(db)
-
-
-def get_translation_service(db: Session = Depends(get_db)) -> TranslationService:
-    """Dependency to get translation service instance"""
-    return TranslationService(db)
-
-
-def get_vpsweb_adapter_dependency(
-    poem_service: PoemService = Depends(get_poem_service),
-    translation_service: TranslationService = Depends(get_translation_service),
-    db: Session = Depends(get_db),
-) -> VPSWebWorkflowAdapter:
-    """Dependency to get VPSWeb workflow adapter instance"""
-    repository_service = RepositoryWebService(db)
-    # Create adapter instance - FastAPI dependencies should be regular functions, not async context managers
-    return VPSWebWorkflowAdapter(
-        poem_service=poem_service,
-        translation_service=translation_service,
-        repository_service=repository_service,
-    )
-
-
-@app.get("/poems", response_class=HTMLResponse)
-async def poems_list(
-    request: Request, service: RepositoryService = Depends(get_repository_service)
-):
-    """
-    List all poems with filtering and pagination
-    """
-    poems_list = service.poems.get_multi(skip=0, limit=100)
-    return templates.TemplateResponse(
-        "poems_list.html",
-        {"request": request, "poems": poems_list, "title": "Poems - VPSWeb Repository"},
-    )
-
-
-@app.get("/poems/new", response_class=HTMLResponse)
-async def new_poem_form(request: Request):
-    """
-    Display form to create a new poem
-    """
-    return templates.TemplateResponse(
-        "poem_new.html",
-        {"request": request, "title": "Add New Poem - VPSWeb Repository"},
-    )
-
-
-@app.get("/poems/{poem_id}", response_class=HTMLResponse)
-async def poem_detail(
-    poem_id: str,
-    request: Request,
-    service: RepositoryService = Depends(get_repository_service),
-):
-    """
-    Display detailed view of a specific poem with translations
-    """
-    poem = service.poems.get_by_id(poem_id)
-
-    if not poem:
-        raise HTTPException(status_code=404, detail="Poem not found")
-
-    return templates.TemplateResponse(
-        "poem_detail.html",
-        {
-            "request": request,
-            "poem": poem,
-            "title": f"{poem.poem_title} - VPSWeb Repository",
-        },
-    )
-
-
-@app.get("/poems/{poem_id}/compare", response_class=HTMLResponse)
-async def poem_compare(poem_id: str, request: Request, db: Session = Depends(get_db)):
-    """
-    Display comparison view for translations of a specific poem
-    """
-    service = get_repository_service(db)
-    poem = service.poems.get_by_id(poem_id)
-
-    if not poem:
-        raise HTTPException(status_code=404, detail="Poem not found")
-
-    return templates.TemplateResponse(
-        "poem_compare.html",
-        {
-            "request": request,
-            "poem": poem,
-            "title": f"Compare Translations - {poem.poem_title} - VPSWeb Repository",
-        },
-    )
-
-
-@app.get("/translations", response_class=HTMLResponse)
-async def translations_list(request: Request, db: Session = Depends(get_db)):
-    """
-    List all translations with filtering options
-    """
-    service = get_repository_service(db)
-    translations_list = service.translations.get_multi(skip=0, limit=100)
-    return templates.TemplateResponse(
-        "translations_list.html",
-        {
-            "request": request,
-            "translations": translations_list,
-            "title": "Translations - VPSWeb Repository",
-        },
-    )
-
-
-@app.get("/statistics", response_class=HTMLResponse)
-async def statistics_page(request: Request, db: Session = Depends(get_db)):
-    """
-    Display repository statistics and analytics
-    """
-    service = get_repository_service(db)
-    stats = service.get_repository_stats()
-    return templates.TemplateResponse(
-        "statistics.html",
-        {"request": request, "stats": stats, "title": "Statistics - VPSWeb Repository"},
-    )
-
-
-# Poet Browsing Routes
-@app.get("/poets", response_class=HTMLResponse)
-async def poets_list(
-    request: Request,
-    db: Session = Depends(get_db),
-    search: Optional[str] = None,
-    sort_by: Optional[str] = "name",
-    sort_order: Optional[str] = "asc",
-    min_poems: Optional[int] = None,
-    min_translations: Optional[int] = None,
-):
-    """
-    Display list of all poets with statistics and activity metrics
-    """
-    try:
-        service = RepositoryWebService(db)
-
-        # Get poets data with filters
-        poets_data = service.get_all_poets(
-            skip=0,
-            limit=50,
-            search=search,
-            sort_by=sort_by,
-            sort_order=sort_order,
-            min_poems=min_poems,
-            min_translations=min_translations,
+            editor_review=EditorReview.from_dict(data["editor_review"]),
+            revised_translation=RevisedTranslation.from_dict(
+                data["revised_translation"]
+            ),
+            total_tokens=data["total_tokens"],
+            duration_seconds=data["duration_seconds"],
         )
 
-        return templates.TemplateResponse(
-            "poets_list.html",
-            {
-                "request": request,
-                "poets": poets_data["poets"],
-                "total_count": poets_data["total_count"],
-                "search": search,
-                "sort_by": sort_by,
-                "sort_order": sort_order,
-                "min_poems": min_poems,
-                "min_translations": min_translations,
-                "title": "Poets - VPSWeb Repository",
-            },
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/poets/{poet_name}", response_class=HTMLResponse)
-async def poet_detail(
-    poet_name: str,
-    request: Request,
-    db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 20,
-    language: Optional[str] = None,
-    has_translations: Optional[bool] = None,
-    sort_by: Optional[str] = "title",
-    sort_order: Optional[str] = "asc",
-):
-    """
-    Display detailed view of a specific poet with their poems and statistics
-    """
-    try:
-        service = RepositoryWebService(db)
-
-        # Get poet statistics
-        stats = service.get_poet_statistics(poet_name)
-
-        # Get poet's poems with filters
-        poems_data = service.get_poems_by_poet(
-            poet_name=poet_name,
-            skip=skip,
-            limit=limit,
-            language=language,
-            has_translations=has_translations,
-            sort_by=sort_by,
-            sort_order=sort_order,
-        )
-
-        # Get poet's recent translations
-        translations_data = service.get_translations_by_poet(
-            poet_name=poet_name,
-            skip=0,
-            limit=5,
-            sort_by="created_at",
-            sort_order="desc",
-        )
-
-        return templates.TemplateResponse(
-            "poet_detail.html",
-            {
-                "request": request,
-                "poet_name": poet_name,
-                "poem_stats": stats["poem_statistics"],
-                "translation_stats": stats["translation_statistics"],
-                "poems": poems_data["poems"],
-                "total_poems": poems_data["total_count"],
-                "recent_translations": translations_data["translations"],
-                "language": language,
-                "has_translations": has_translations,
-                "sort_by": sort_by,
-                "sort_order": sort_order,
-                "title": f"{poet_name} - VPSWeb Repository",
-            },
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api-docs", response_class=HTMLResponse)
-async def api_documentation(request: Request):
-    """
-    Display API documentation page
-    """
-    return templates.TemplateResponse(
-        "api_docs.html",
-        {"request": request, "title": "API Documentation - VPSWeb Repository"},
-    )
-
-
-# Workflow Integration API Endpoints
-
-
-@app.post("/api/v1/workflow/translate")
-async def start_translation_workflow(
-    request: TranslationRequest,
-    background_tasks: BackgroundTasks,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
-    """
-    Start a new translation workflow using VPSWeb engine
-
-    This endpoint integrates the existing VPSWeb translation workflow with the web interface,
-    allowing users to execute high-quality poetry translations with background processing.
-    """
-    try:
-        result = await adapter.execute_translation_workflow(
-            poem_id=request.poem_id,
-            source_lang=request.source_lang,
-            target_lang=request.target_lang,
-            workflow_mode=request.workflow_mode,
-            background_tasks=background_tasks,
-            synchronous=False,
-        )
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Translation workflow started successfully",
-                "data": result,
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Failed to start translation workflow: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.post("/api/v1/workflow/translate/sync")
-async def execute_translation_workflow_sync(
-    request: TranslationRequest,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
-    """
-    Execute a translation workflow synchronously and return the result
-
-    This endpoint executes the VPSWeb translation workflow synchronously and returns
-    the complete translation result. May take significant time for complex poems.
-    """
-    try:
-        result = await adapter.execute_translation_workflow(
-            poem_id=request.poem_id,
-            source_lang=request.source_lang,
-            target_lang=request.target_lang,
-            workflow_mode=request.workflow_mode,
-            background_tasks=None,
-            synchronous=True,
-        )
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Translation workflow completed successfully",
-                "data": result,
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Translation workflow failed: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.post("/api/v1/workflow/validate")
-async def validate_translation_workflow(
-    request: TranslationValidationRequest,
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
-    """
-    Validate translation workflow input without executing
-
-    This endpoint validates the translation request parameters and checks if the
-    VPSWeb configuration is properly set up for execution.
-    """
-    try:
-        result = await adapter.validate_workflow_input(
-            poem_id=request.poem_id,
-            source_lang=request.source_lang,
-            target_lang=request.target_lang,
-            workflow_mode=request.workflow_mode,
-        )
-
-        return JSONResponse(
-            {"success": True, "message": "Validation completed", "data": result}
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {"success": False, "message": f"Validation failed: {str(e)}", "data": None},
-            status_code=500,
-        )
-
-
-@app.delete("/api/v1/poems/{poem_id}")
-async def delete_poem(poem_id: str, db: Session = Depends(get_db)):
-    """
-    Delete a poem and all its related translations
-
-    This endpoint allows deletion of poems and all associated data including translations.
-    """
-    try:
-        service = get_repository_service(db)
-        success = service.delete_poem(poem_id)
-
-        if success:
-            return JSONResponse(
-                {"success": True, "message": "Poem deleted successfully"},
-                status_code=200,
-            )
+    def save_to_file(self, filepath: str, format: str = "json") -> None:
+        """Save the translation output to a file."""
+        if format.lower() == "json":
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
         else:
-            return JSONResponse(
-                {"success": False, "message": "Poem not found"}, status_code=404
-            )
+            raise ValueError(f"Unsupported format: {format}")
 
-    except Exception as e:
-        return JSONResponse(
-            {"success": False, "message": f"Failed to delete poem: {str(e)}"},
-            status_code=500,
-        )
-
-
-@app.delete("/api/v1/translations/{translation_id}")
-async def delete_translation(translation_id: str, db: Session = Depends(get_db)):
-    """
-    Delete a translation
-
-    This endpoint allows deletion of individual translations while preserving the original poem.
-    """
-    try:
-        service = get_repository_service(db)
-        success = service.delete_translation(translation_id)
-
-        if success:
-            return JSONResponse(
-                {"success": True, "message": "Translation deleted successfully"},
-                status_code=200,
-            )
+    @classmethod
+    def load_from_file(cls, filepath: str, format: str = "json") -> "TranslationOutput":
+        """Load translation output from a file."""
+        if format.lower() == "json":
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return cls.from_dict(data)
         else:
-            return JSONResponse(
-                {"success": False, "message": "Translation not found"}, status_code=404
-            )
-
-    except Exception as e:
-        return JSONResponse(
-            {"success": False, "message": f"Failed to delete translation: {str(e)}"},
-            status_code=500,
-        )
-
-
-@app.get("/api/v1/workflow/tasks/{task_id}")
-async def get_workflow_task_status(task_id: str):
-    """
-    Get the status of a background translation workflow task
-
-    This endpoint allows monitoring of long-running translation workflows
-    using FastAPI app.state for real-time status tracking.
-    """
-    try:
-        # Check if task exists in app.state
-        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
-            return JSONResponse(
-                {
-                    "success": False,
-                    "message": f"Task not found: {task_id}",
-                    "data": None,
-                },
-                status_code=404,
-            )
-
-        # Get task status from app.state
-        task_status = app.state.tasks[task_id]
-        result = task_status.to_dict()
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Task status retrieved successfully",
-                "data": result,
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Failed to get task status: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.get("/api/v1/workflow/tasks/{task_id}/stream")
-async def stream_workflow_task_status(
-    task_id: str,
-    request: Request,
-):
-    """
-    Stream real-time workflow task progress using Server-Sent Events (SSE)
-
-    This endpoint provides real-time updates for translation workflow progress
-    through FastAPI app.state, eliminating the need for database polling.
-    """
-
-    async def event_generator():
-        import json  # Local import to avoid scoping issues
-
-        # Check if task exists in app.state
-        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
-            yield {"event": "error", "data": json.dumps({"message": "Task not found"})}
-            return
-
-        # Send initial status
-        task_status = app.state.tasks[task_id]
-        initial_status = task_status.to_dict()
-        yield {"event": "status", "data": json.dumps(initial_status)}
-        print(
-            f"📡 [SSE] Initial status sent for task {task_id}: {initial_status['status']} - {initial_status['current_step']}"
-        )
-
-        # Stream for updates with real-time app.state access
-        max_iterations = 1200  # 10 minutes with 0.2-second intervals
-        last_status = None
-        consecutive_errors = 0
-        max_consecutive_errors = 5
-        last_update_time = time.time()
-
-        for i in range(max_iterations):
-            # Check if client disconnected
-            if await request.is_disconnected():
-                print(f"🔌 Client disconnected from task {task_id} SSE stream")
-                break
-
-            await asyncio.sleep(0.2)  # Check every 200ms for better responsiveness (faster than before)
-
-            try:
-                # Reset consecutive errors counter on successful iteration
-                consecutive_errors = 0
-                current_time = time.time()
-
-                # Get current task status from app.state
-                if task_id in app.state.tasks:
-                    current_task = app.state.tasks[task_id]
-                    current_dict = current_task.to_dict()
-
-                    # Enhanced change detection - focus on step changes, not progress percentage
-                    has_progress_change = (
-                        last_status is None
-                        or current_dict["status"] != last_status["status"]
-                        or current_dict["current_step"] != last_status["current_step"]
-                    )
-
-                    # Specific step change detection - check for step status transitions
-                    has_step_change = False
-                    if last_status is not None:
-                        current_step_details = current_dict.get("step_details", {})
-                        last_step_details = last_status.get("step_details", {})
-
-                        # Check if current step status changed (running -> completed)
-                        if (current_step_details.get("step_status") != last_step_details.get("step_status")):
-                            has_step_change = True
-                            print(f"🔍 [SSE] Step status change detected: {last_step_details.get('step_status')} -> {current_step_details.get('step_status')}")
-
-                        # Check if any step states changed
-                        current_step_states = current_dict.get("step_states", {})
-                        last_step_states = last_status.get("step_states", {})
-                        if current_step_states != last_step_states:
-                            has_step_change = True
-                            print(f"🔍 [SSE] Step states changed detected")
-
-                    # Additional check for task timestamp changes (more sensitive detection)
-                    has_time_change = (
-                        last_status is not None
-                        and "updated_at" in current_dict
-                        and "updated_at" in last_status
-                        and current_dict["updated_at"] != last_status["updated_at"]
-                    )
-
-                    # Send update if any significant field changed OR timestamp changed OR step changed
-                    if has_progress_change or has_step_change or has_time_change:
-                        last_status = current_dict.copy()
-                        last_update_time = current_time
-
-                        # Determine event type based on what changed
-                        event_type = "status"
-                        if has_step_change and last_status is not None:
-                            event_type = "step_change"
-
-                        yield {"event": event_type, "data": json.dumps(current_dict)}
-                        step_states = current_dict.get("step_states", {})
-                        current_step_state = step_states.get(
-                            current_dict["current_step"], "unknown"
-                        )
-                        step_details = current_dict.get("step_details", {})
-                        step_status = step_details.get("step_status", "unknown")
-
-                        print(
-                            f"📡 [SSE] {event_type.upper()} sent for task {task_id}: {current_dict['status']} - {current_dict['current_step']} ({step_status})"
-                        )
-
-                    # Stop streaming if task is complete - but add a brief delay to ensure final state is captured
-                    if current_task.status.value in ["completed", "failed"]:
-                        # Wait a moment to ensure the final state is stable
-                        await asyncio.sleep(0.5)
-
-                        # Get final state one more time
-                        final_dict = current_task.to_dict()
-                        yield {
-                            "event": current_task.status.value,
-                            "data": json.dumps(final_dict),
-                        }
-                        print(
-                            f"📡 [SSE] Final status sent for task {task_id}: {current_task.status.value} - {final_dict['current_step']}"
-                        )
-                        break
-
-                    # Force periodic updates every 5 seconds to ensure connection stays alive
-                    if current_time - last_update_time > 5.0:
-                        last_update_time = current_time
-                        yield {"event": "heartbeat", "data": json.dumps({"timestamp": current_time})}
-
-                else:
-                    # Task was removed from app.state
-                    yield {
-                        "event": "error",
-                        "data": json.dumps({"message": "Task disappeared from memory"}),
-                    }
-                    break
-
-            except asyncio.CancelledError:
-                print(f"⏹️ SSE stream cancelled for task {task_id}")
-                break
-            except Exception as e:
-                consecutive_errors += 1
-                print(f"❌ [SSE] Error {consecutive_errors}/{max_consecutive_errors} in stream for task {task_id}: {str(e)}")
-
-                if consecutive_errors >= max_consecutive_errors:
-                    yield {"event": "error", "data": json.dumps({"message": f"SSE stream error: {str(e)}"})}
-                    break
-
-                # Continue after a brief delay for non-critical errors
-                await asyncio.sleep(1.0)
-
-        # Send completion event if timed out
-        if i >= max_iterations - 1:
-            yield {
-                "event": "timeout",
-                "data": json.dumps({"message": "Workflow timed out after 10 minutes"}),
-            }
-
-        print(f"🏁 SSE stream ended for task {task_id} after {i+1} iterations")
-
-    return EventSourceResponse(
-        event_generator(),
-        ping=30,  # Ping every 30 seconds to keep connection alive (reduced frequency)
-        send_timeout=60,  # Timeout for sending events
-        headers={
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Cache-Control",
-            "X-Accel-Buffering": "no",  # Disable nginx buffering
-        },
-    )
-
-
-@app.get("/api/v1/workflow/tasks")
-async def list_workflow_tasks(limit: int = 50):
-    """
-    List active and recent background translation workflow tasks
-
-    This endpoint provides a list of recent translation tasks from app.state
-    for monitoring and management purposes.
-    """
-    try:
-        # Get tasks from app.state
-        if not hasattr(app.state, "tasks"):
-            return JSONResponse(
-                {
-                    "success": True,
-                    "message": "Tasks retrieved successfully",
-                    "data": {"tasks": []},
-                }
-            )
-
-        # Convert tasks to dict format and sort by creation time (newest first)
-        tasks = []
-        for task_id, task_status in app.state.tasks.items():
-            tasks.append({"task_id": task_id, **task_status.to_dict()})
-
-        # Sort by created_at (newest first) and limit
-        tasks.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-        limited_tasks = tasks[:limit]
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Tasks retrieved successfully",
-                "data": {"tasks": limited_tasks, "total_count": len(tasks)},
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Failed to list tasks: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.delete("/api/v1/workflow/tasks/{task_id}")
-async def cancel_workflow_task(task_id: str):
-    """
-    Cancel a background translation workflow task
-
-    This endpoint allows cancellation of pending or running translation tasks
-    using FastAPI app.state for task management.
-    """
-    try:
-        # Check if task exists in app.state
-        if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
-            return JSONResponse(
-                {
-                    "success": False,
-                    "message": f"Task not found: {task_id}",
-                    "data": None,
-                },
-                status_code=404,
-            )
-
-        # Check if task can be cancelled (not completed)
-        task_status = app.state.tasks[task_id]
-        if task_status.status.value in ["completed", "failed"]:
-            return JSONResponse(
-                {
-                    "success": False,
-                    "message": f"Task cannot be cancelled (already {task_status.status.value}): {task_id}",
-                    "data": None,
-                },
-                status_code=404,
-            )
-
-        # Mark task as cancelled
-        with app.state.task_locks[task_id]:
-            task_status.set_failed(
-                error="Task cancelled by user",
-                message="Task was cancelled by user request",
-            )
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Task cancelled successfully",
-                "data": {"task_id": task_id},
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Failed to cancel task: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.post("/api/v1/workflow/tasks/{task_id}/cancel")
-async def cancel_workflow_task_post(task_id: str):
-    """
-    Cancel a background translation workflow task (POST endpoint for frontend compatibility)
-
-    This endpoint provides the same functionality as the DELETE endpoint but uses POST
-    method with /cancel suffix for frontend compatibility.
-    """
-    # Reuse the DELETE endpoint logic
-    return await cancel_workflow_task(task_id)
-
-
-@app.get("/api/v1/workflow/modes")
-async def get_workflow_modes(
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter_dependency),
-):
-    """
-    Get available VPSWeb workflow modes
-
-    This endpoint returns information about available translation workflow modes
-    and their characteristics.
-    """
-    try:
-        result = await adapter.get_workflow_modes()
-
-        return JSONResponse(
-            {
-                "success": True,
-                "message": "Workflow modes retrieved successfully",
-                "data": result,
-            }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "success": False,
-                "message": f"Failed to get workflow modes: {str(e)}",
-                "data": None,
-            },
-            status_code=500,
-        )
-
-
-@app.on_event("startup")
-async def startup_event():
-    """
-    Initialize database on application startup
-    """
-    # P0.3: Add startup guard for public binding
-    import os
-
-    # Check if host is set to bind to all interfaces (0.0.0.0)
-    if settings.host == "0.0.0.0":
-        # Only allow public binding if explicitly authorized
-        allow_public = os.getenv("VPSWEB_ALLOW_PUBLIC", "").lower() in (
-            "true",
-            "1",
-            "yes",
-        )
-
-        if not allow_public:
-            print("❌ SECURITY WARNING: Refusing to bind to 0.0.0.0 (public interface)")
-            print("   VPSWeb is designed for local use only by default.")
-            print("   To enable public binding, set VPSWEB_ALLOW_PUBLIC=true")
-            print("   Use uvicorn --host 127.0.0.1 for local access only")
-            import sys
-
-            sys.exit(1)
-        else:
-            print("⚠️  WARNING: Binding to public interface (0.0.0.0)")
-            print("   Ensure you understand the security implications.")
-            print("   This application is designed for local use.")
-
-    print("✅ Security check passed - local-only mode by default")
-
-    init_db()
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    print("🚀 Starting VPSWeb Repository v0.3.1...")
-    print(f"📍 Local URL: http://{settings.host}:{settings.port}")
-    print(f"📚 API Docs: http://{settings.host}:{settings.port}/docs")
-
-    uvicorn.run(
-        "main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=settings.reload,
-        log_level=settings.log_level.lower(),
-    )
+            raise ValueError(f"Unsupported format: {format}")
 
 </code>
 
 
 
-I've included everything. these are the main python scripts and frontend html related to this SSE issue.
-The following is the frontend console log of SSE messages it receives:
-Workflow started with task ID: 03eb0a75-487e-4bdf-8ad5-d74833e4c16c
-01K8CHN1SMDWNPK9AZ77XFRFT5:1049 🔗 Connecting to SSE endpoint: /api/v1/workflow/tasks/03eb0a75-487e-4bdf-8ad5-d74833e4c16c/stream
-01K8CHN1SMDWNPK9AZ77XFRFT5:1202 🚀 Started SSE streaming for task: 03eb0a75-487e-4bdf-8ad5-d74833e4c16c
-01K8CHN1SMDWNPK9AZ77XFRFT5:1059 ✅ SSE connection opened
-01K8CHN1SMDWNPK9AZ77XFRFT5:1067 📡 [Frontend] Received SSE status update: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1299 🎨 [Frontend] Updating UI with task data: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …} 
-01K8CHN1SMDWNPK9AZ77XFRFT5:1333 🔄 [Frontend] Step: Initial Translation (running) - AI • non_reasoning
-01K8CHN1SMDWNPK9AZ77XFRFT5:1495 🔄 [Frontend] Updating step states: {Initial Translation: 'running', Editor Review: 'waiting', Translator Revision: 'waiting'}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1067 📡 [Frontend] Received SSE status update: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1299 🎨 [Frontend] Updating UI with task data: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …} 
-01K8CHN1SMDWNPK9AZ77XFRFT5:1333 🔄 [Frontend] Step: Initial Translation (running) - AI • non_reasoning
-01K8CHN1SMDWNPK9AZ77XFRFT5:1495 🔄 [Frontend] Updating step states: {Initial Translation: 'running', Editor Review: 'waiting', Translator Revision: 'waiting'}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364039.5474691
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364044.59486
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364049.6411462
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364054.687074
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364059.729116
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364064.774831
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364069.820541
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364074.862336
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364079.908521
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364084.9537978
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364090.0011818
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364095.0479481
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364100.095472
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364105.137495
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364110.1857028
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364115.2327812
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364120.2800949
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364125.324422
-01K8CHN1SMDWNPK9AZ77XFRFT5:1761 👁️ Page hidden, keeping connections active but reducing polling frequency
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364130.372902
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364135.416886
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364140.458519
-01K8CHN1SMDWNPK9AZ77XFRFT5:1145 💓 [Frontend] Received heartbeat: 1761364145.5064902
-01K8CHN1SMDWNPK9AZ77XFRFT5:1085 🔄 [Frontend] Received SSE step change update: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1299 🎨 [Frontend] Updating UI with task data: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Initial Translation', step_details: {…}, …} (STEP CHANGE)
-01K8CHN1SMDWNPK9AZ77XFRFT5:1333 🔄 [Frontend] Step: Initial Translation (completed) - AI • non_reasoning
-01K8CHN1SMDWNPK9AZ77XFRFT5:1495 🔄 [Frontend] Updating step states: {Initial Translation: 'completed', Editor Review: 'waiting', Translator Revision: 'waiting'}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1067 📡 [Frontend] Received SSE status update: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Editor Review', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1299 🎨 [Frontend] Updating UI with task data: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'running', progress: 0, current_step: 'Editor Review', step_details: {…}, …} 
-01K8CHN1SMDWNPK9AZ77XFRFT5:1333 🔄 [Frontend] Step: Editor Review (completed) - Deepseek • reasoning
-01K8CHN1SMDWNPK9AZ77XFRFT5:1495 🔄 [Frontend] Updating step states: {Initial Translation: 'completed', Editor Review: 'completed', Translator Revision: 'waiting'}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1085 🔄 [Frontend] Received SSE step change update: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'completed', progress: 100, current_step: 'Translation Complete', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1299 🎨 [Frontend] Updating UI with task data: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'completed', progress: 100, current_step: 'Translation Complete', step_details: {…}, …} (STEP CHANGE)
-01K8CHN1SMDWNPK9AZ77XFRFT5:1533 Workflow completed: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'completed', progress: 100, current_step: 'Translation Complete', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1102 🎉 [Frontend] Received completion event: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'completed', progress: 100, current_step: 'Translation Complete', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1533 Workflow completed: {task_id: '03eb0a75-487e-4bdf-8ad5-d74833e4c16c', status: 'completed', progress: 100, current_step: 'Translation Complete', step_details: {…}, …}
-01K8CHN1SMDWNPK9AZ77XFRFT5:1113 ✅ SSE connection closed after completion
+the translation results are in the .json file. one issue is that in "editor_review" json structure, it only has "tokens_used": 3630, but no "prompt_tokens","completion_tokens", "duration", and "cost", as for "initial_translation" and "revised_translation". I include here 3 python scripts implementing the logic.
