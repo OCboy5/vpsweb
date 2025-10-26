@@ -689,7 +689,6 @@ class TranslationWorkflow:
             initial_translation=initial_translation,
             editor_review=editor_review,
             revised_translation=revised_translation,
-            full_log=full_log,
             total_tokens=total_tokens,
             duration_seconds=duration,
             workflow_mode=self.workflow_mode.value,

@@ -322,7 +322,6 @@ class VPSWebWorkflowAdapter:
             "total_tokens": workflow_output.total_tokens,
             "duration_seconds": workflow_output.duration_seconds,
             "total_cost": workflow_output.total_cost,
-            "full_log": workflow_output.full_log,
             # Step-specific metadata
             "initial_model_info": workflow_output.initial_translation.model_info,
             "editor_model_info": workflow_output.editor_review.model_info,
