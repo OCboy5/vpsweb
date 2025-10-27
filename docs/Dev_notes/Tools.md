@@ -5,13 +5,24 @@ Tools
 2.
 
 
+build a translation notes page, 1 notes always belong to 1 translation
+
+
+
+let's start to design our strategy and blueprint to create a "Translation Notes" page that can display the ai_log&translation_step_results of each ai translation in an elegant way. 
+1. in this page, we should display the original poem, the initial translation, initial translation notes, editors notes, revised translation and revised translation notes, with metadata of each step.
+2. I'd like the user to have the opportunity to view the evolvement of a poem translation in the T-E-T workflow.
+3. we should also keep the style of the page consistent with the current style of the WebUI 
+4. think very hard
+
+1.show "Translation Notes" button in translation only if there's a note related to this translation
+
+
 微信公众号
 Appid: wxf92f7edea2893dfc
 Appsecret: 8db8f2224fe70e75eb9e12bb83569819
 公众号密码：Uv_36fihG38BagT
 access_token: 
-
-
 
 
 Commands:

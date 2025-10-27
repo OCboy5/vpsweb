@@ -179,6 +179,24 @@ class TranslationCard(WebUIBase):
     )
 
 
+class PoemTranslationWithWorkflow(WebUIBase):
+    """Schema for poem translations with workflow step indicators"""
+
+    translation_id: str = Field(..., description="Translation ID")
+    translator_info: str = Field(..., description="Translator information")
+    target_language: str = Field(..., description="Target language")
+    translation_type: str = Field(..., description="Translation type (ai/human)")
+    has_workflow_steps: bool = Field(
+        ..., description="Whether translation has workflow steps"
+    )
+    workflow_step_count: int = Field(..., description="Number of workflow steps")
+    created_at: datetime = Field(..., description="Creation timestamp")
+    quality_rating: Optional[int] = Field(None, description="Quality rating")
+    performance_summary: Optional[dict] = Field(
+        None, description="Performance metrics summary"
+    )
+
+
 class PoemCard(WebUIBase):
     """Schema for poem card display"""
 

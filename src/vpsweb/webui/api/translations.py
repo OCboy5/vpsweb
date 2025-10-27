@@ -71,11 +71,15 @@ async def list_translations(
         translator_type=translator_type,
     )
 
-    # Convert database models to Pydantic response models
-    # The TranslationResponse schema now handles field population automatically
-    return [
-        TranslationResponse.model_validate(translation) for translation in translations
-    ]
+    # Convert database models to Pydantic response models with workflow fields
+    result = []
+    for translation in translations:
+        # Convert to dict first - now the schema handles workflow fields automatically
+        translation_dict = TranslationResponse.model_validate(translation).model_dump()
+
+        result.append(translation_dict)
+
+    return result
 
 
 @router.post("/", response_model=TranslationResponse)

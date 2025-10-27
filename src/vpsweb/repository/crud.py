@@ -710,6 +710,9 @@ class RepositoryService:
     def get_repository_stats(self) -> Dict[str, Any]:
         """Get comprehensive repository statistics"""
         return {
+            "total_poets": self.db.execute(
+                select(func.count(func.distinct(Poem.poet_name)))
+            ).scalar(),
             "total_poems": self.poems.count(),
             "total_translations": self.translations.count(),
             "ai_translations": self.db.execute(

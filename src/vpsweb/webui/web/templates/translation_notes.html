@@ -1,0 +1,658 @@
+{% extends 'base.html' %}
+{% block title %}Translation Notes - {{ poem.poem_title }} - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        Poems
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems/{{ poem.id }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        {{ poem.poem_title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Translation Notes</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Translation Notes</h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Follow the complete T-E-T (Translator→Editor→Translator) workflow evolution
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <div class="text-sm font-medium text-gray-900">{{ poem.poet_name }}</div>
+                    <div class="text-xs text-gray-500">{{ poem.source_language }} → {{ translation.target_language }}</div>
+                </div>
+                {% if translation.translator_type.lower() == 'ai' %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    AI Translation
+                </span>
+                {% else %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Human Translation
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Original Poem (Hero Section) -->
+    <section id="original-poem" class="mb-12">
+        <div class="step-header flex items-center justify-between mb-6">
+            <div class="step-title">
+                <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                    <div class="w-8 h-8 mr-3 rounded-full bg-gray-100 flex items-center justify-center">
+                        <span class="text-sm font-medium text-gray-700">0</span>
+                    </div>
+                    Original Poem
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">Source text in {{ poem.source_language }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-lg p-8 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ poem.poem_title }}</h2>
+                    <p class="text-sm text-gray-500">by {{ poem.poet_name }}</p>
+                </div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 8 5z"/>
+                    </svg>
+                    <span>{{ poem.source_language }}</span>
+                </div>
+            </div>
+            <div class="poetry-text text-gray-800 max-w-4xl mx-auto text-left">{{ poem.original_text | strip_leading_spaces | safe }}</div>
+        </div>
+    </section>
+
+  
+    <!-- Workflow Steps Container -->
+    <div id="workflow-steps" class="space-y-8 max-w-5xl mx-auto">
+        {% if translation.translator_type.lower() == 'ai' and workflow_steps %}
+            <!-- Get workflow steps by filtering the steps list -->
+            {% set initial_step = workflow_steps | selectattr('step_type', 'equalto', 'initial_translation') | first %}
+            {% set editor_step = workflow_steps | selectattr('step_type', 'equalto', 'editor_review') | first %}
+            {% set revised_step = workflow_steps | selectattr('step_type', 'equalto', 'revised_translation') | first %}
+
+            <!-- Step 1: Initial Translation -->
+            {% if initial_step %}
+            <section id="step-initial-translation" class="workflow-step-card mb-12">
+                <div class="step-header flex items-center justify-between mb-6">
+                    <div class="step-title">
+                        <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                            <div class="w-8 h-8 mr-3 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-sm font-medium text-blue-700">1</span>
+                            </div>
+                            Initial Translation
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">First draft created by AI translator</p>
+                    </div>
+                    <div class="step-metrics flex space-x-4 text-sm">
+                        {% if initial_step.tokens_used %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                            </svg>
+                            {{ initial_step.tokens_used }} tokens
+                        </div>
+                        {% endif %}
+                        {% if initial_step.duration_seconds %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ "%.1f"|format(initial_step.duration_seconds) }}s
+                        </div>
+                        {% endif %}
+                        {% if initial_step.cost %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3-2-1.343-2-3-2zm0 8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v2m0-6h.01M16 13h.01"/>
+                            </svg>
+                            ¥{{ "%.6f"|format(initial_step.cost) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-8 border border-gray-100">
+                    <div class="mb-6">
+                        {% if initial_step.translated_title %}
+                        <h2 class="text-2xl font-bold text-gray-900">{{ initial_step.translated_title }}</h2>
+                        {% else %}
+                        <h2 class="text-2xl font-bold text-gray-900">Initial Translation</h2>
+                        {% endif %}
+                        {% if initial_step.translated_poet_name %}
+                        <p class="text-sm text-gray-500">by {{ initial_step.translated_poet_name }}</p>
+                        {% else %}
+                        <p class="text-sm text-gray-500">Initial Translation</p>
+                        {% endif %}
+                    </div>
+                    <div class="poetry-text text-gray-800 max-w-4xl mx-auto text-left">{{ initial_step.content | strip_leading_spaces | safe }}</div>
+                </div>
+
+                <!-- Translator Notes -->
+                {% if initial_step.notes %}
+                <div class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Translator's Notes</h4>
+                    <div class="text-sm text-gray-700 leading-relaxed notes-content">
+                        {{ initial_step.notes | safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+            {% endif %}
+
+            <!-- Step 2: Editor Review -->
+            {% if editor_step %}
+            <section id="step-editor-review" class="workflow-step-card mb-12">
+                <div class="step-header flex items-center justify-between mb-6">
+                    <div class="step-title">
+                        <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                            <div class="w-8 h-8 mr-3 rounded-full bg-orange-100 flex items-center justify-center">
+                                <span class="text-sm font-medium text-orange-700">2</span>
+                            </div>
+                            Editor Review
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">Quality assessment and improvement suggestions</p>
+                    </div>
+                    <div class="step-metrics flex space-x-4 text-sm">
+                        {% if editor_step.tokens_used %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                            </svg>
+                            {{ editor_step.tokens_used }} tokens
+                        </div>
+                        {% endif %}
+                        {% if editor_step.duration_seconds %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ "%.1f"|format(editor_step.duration_seconds) }}s
+                        </div>
+                        {% endif %}
+                        {% if editor_step.cost %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3-2-1.343-2-3-2zm0 8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v2m0-6h.01M16 13h.01"/>
+                            </svg>
+                            ¥{{ "%.6f"|format(editor_step.cost) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="p-6 bg-orange-50 rounded-lg border border-orange-200">
+                    <div class="text-sm text-gray-700 leading-relaxed notes-content">
+                        {{ editor_step.content | strip_leading_spaces | safe }}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Step 3: Revised Translation -->
+            {% if revised_step %}
+            <section id="step-revised-translation" class="workflow-step-card mb-12">
+                <div class="step-header flex items-center justify-between mb-6">
+                    <div class="step-title">
+                        <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                            <div class="w-8 h-8 mr-3 rounded-full bg-green-100 flex items-center justify-center">
+                                <span class="text-sm font-medium text-green-700">3</span>
+                            </div>
+                            Final Translation
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">Polished translation incorporating editor feedback</p>
+                    </div>
+                    <div class="step-metrics flex space-x-4 text-sm">
+                        {% if revised_step.tokens_used %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                            </svg>
+                            {{ revised_step.tokens_used }} tokens
+                        </div>
+                        {% endif %}
+                        {% if revised_step.duration_seconds %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ "%.1f"|format(revised_step.duration_seconds) }}s
+                        </div>
+                        {% endif %}
+                        {% if revised_step.cost %}
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3-2-1.343-2-3-2zm0 8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v2m0-6h.01M16 13h.01"/>
+                            </svg>
+                            ¥{{ "%.6f"|format(revised_step.cost) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-8 border border-gray-100">
+                    <div class="mb-6">
+                        {% if revised_step.translated_title %}
+                        <h2 class="text-2xl font-bold text-gray-900">{{ revised_step.translated_title }}</h2>
+                        {% else %}
+                        <h2 class="text-2xl font-bold text-gray-900">Final Translation</h2>
+                        {% endif %}
+                        {% if revised_step.translated_poet_name %}
+                        <p class="text-sm text-gray-500">by {{ revised_step.translated_poet_name }}</p>
+                        {% else %}
+                        <p class="text-sm text-gray-500">Final Translation</p>
+                        {% endif %}
+                    </div>
+                    <div class="poetry-text text-gray-800 max-w-4xl mx-auto text-left">{{ revised_step.content | strip_leading_spaces | safe }}</div>
+                </div>
+
+                <!-- Revision Notes -->
+                {% if revised_step.notes %}
+                <div class="mt-6 p-6 bg-green-50 rounded-lg border border-green-200">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Revision Notes</h4>
+                    <div class="text-sm text-green-800 leading-relaxed notes-content">
+                        {{ revised_step.notes | safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+            {% endif %}
+
+        {% else %}
+            <!-- Human Translation or No Workflow Data -->
+            <section class="bg-white shadow-lg rounded-lg p-8 border border-gray-100">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        {% if translation.translator_type.lower() == 'human' %}
+                        Human Translation
+                        {% else %}
+                        Workflow Details Not Available
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        {% if translation.translator_type.lower() == 'human' %}
+                        This is a human translation created by {{ translation.translator_info }}.
+                        Detailed workflow steps are only available for AI translations.
+                        {% else %}
+                        Detailed workflow steps are not available for this translation.
+                        This might be due to the translation being created before workflow tracking was implemented.
+                        {% endif %}
+                    </p>
+                    <div class="mt-6">
+                        <a href="/poems/{{ poem.id }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Back to Poem
+                        </a>
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+
+    <!-- Performance Summary (AI Translations Only) -->
+    {% if translation.translator_type.lower() == 'ai' and workflow_data and workflow_data.total_tokens %}
+    <aside class="mt-12 max-w-5xl mx-auto">
+        <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Performance Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-primary-600">{{ workflow_data.total_tokens or 0 }}</div>
+                    <div class="text-sm text-gray-600">Total Tokens</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">¥{{ "%.2f"|format(workflow_data.total_cost or 0) }}</div>
+                    <div class="text-sm text-gray-600">Total Cost</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ "%.1f"|format(workflow_data.total_duration or 0) }}s</div>
+                    <div class="text-sm text-gray-600">Total Time</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">{{ workflow_steps|length or 0 }}</div>
+                    <div class="text-sm text-gray-600">Workflow Steps</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    {% endif %}
+</div>
+
+<script>
+// Translation Notes Page JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProgressNavigation();
+    initializeScrollTracking();
+    initializeKeyboardNavigation();
+    initializeDeepLinking();
+});
+
+// Progress Navigation
+function initializeProgressNavigation() {
+    // Update progress bar based on scroll position
+    window.addEventListener('scroll', updateProgressNavigation);
+
+    // Initialize progress bar
+    updateProgressNavigation();
+}
+
+function updateProgressNavigation() {
+    const workflowSteps = document.querySelectorAll('.workflow-step-card');
+    const progressBar = document.getElementById('workflow-progress-bar');
+    const stepIndicators = document.querySelectorAll('.step-indicator');
+
+    if (workflowSteps.length === 0 || !progressBar) return;
+
+    const scrollPosition = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // Calculate progress
+    const progress = Math.min((scrollPosition / (documentHeight - windowHeight)) * 100, 100);
+    progressBar.style.width = `${progress}%`;
+
+    // Update active step indicator
+    workflowSteps.forEach((step, index) => {
+        const rect = step.getBoundingClientRect();
+        if (rect.top <= 100 && rect.bottom > 100) {
+            updateActiveStep(index + 1);
+        }
+    });
+}
+
+function updateActiveStep(activeStep) {
+    const indicators = [
+        document.getElementById('step-1-indicator'),
+        document.getElementById('step-2-indicator'),
+        document.getElementById('step-3-indicator')
+    ];
+
+    indicators.forEach((indicator, index) => {
+        if (indicator) {
+            const stepNum = index + 1;
+            const isActive = stepNum === activeStep;
+            const isCompleted = stepNum < activeStep;
+
+            // Reset classes
+            indicator.className = 'w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center transition-colors';
+
+            if (isCompleted) {
+                indicator.classList.add('bg-green-100');
+                indicator.querySelector('span').className = 'text-sm font-medium text-green-700';
+            } else if (isActive) {
+                indicator.classList.add('bg-primary-600');
+                indicator.querySelector('span').className = 'text-sm font-medium text-white';
+            } else {
+                // Default styling (waiting state)
+                if (stepNum === 1) {
+                    indicator.classList.add('bg-blue-100');
+                    indicator.querySelector('span').className = 'text-sm font-medium text-blue-700';
+                } else if (stepNum === 2) {
+                    indicator.classList.add('bg-orange-100');
+                    indicator.querySelector('span').className = 'text-sm font-medium text-orange-700';
+                } else {
+                    indicator.classList.add('bg-gray-200');
+                    indicator.querySelector('span').className = 'text-sm font-medium text-gray-600';
+                }
+            }
+        }
+    });
+}
+
+// Step Navigation
+function navigateToStep(stepType) {
+    const stepElement = document.getElementById(`step-${stepType}`);
+    if (stepElement) {
+        const headerOffset = 100; // Account for sticky header
+        const elementPosition = stepElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Expandable Notes
+function toggleNotes(stepType) {
+    const notesContent = document.getElementById(`notes-content-${stepType}`);
+    const toggleButton = document.getElementById(`notes-toggle-${stepType}`);
+    const toggleIcon = document.getElementById(`notes-icon-${stepType}`);
+
+    if (!notesContent || !toggleButton || !toggleIcon) return;
+
+    if (notesContent.classList.contains('hidden')) {
+        // Expand notes
+        notesContent.classList.remove('hidden');
+        notesContent.style.maxHeight = '0px';
+        notesContent.style.overflow = 'hidden';
+        notesContent.style.opacity = '0';
+
+        // Animate expansion
+        requestAnimationFrame(() => {
+            notesContent.style.transition = 'max-height 0.3s ease-out, opacity 0.3s ease-out';
+            notesContent.style.maxHeight = notesContent.scrollHeight + 'px';
+            notesContent.style.opacity = '1';
+        });
+
+        toggleIcon.style.transform = 'rotate(180deg)';
+
+        // Update button text to reflect current state
+        if (stepType === 'initial-translation') {
+            toggleButton.innerHTML = `
+                <svg class="w-4 h-4 mr-2 transform transition-transform" id="notes-icon-${stepType}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                Hide Translator's Notes
+            `;
+        } else if (stepType === 'revised-translation') {
+            toggleButton.innerHTML = `
+                <svg class="w-4 h-4 mr-2 transform transition-transform" id="notes-icon-${stepType}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                Hide Evolution Notes
+            `;
+        }
+    } else {
+        // Collapse notes
+        notesContent.style.maxHeight = '0px';
+        notesContent.style.opacity = '0';
+
+        setTimeout(() => {
+            notesContent.classList.add('hidden');
+            notesContent.style.maxHeight = '';
+            notesContent.style.opacity = '';
+        }, 300);
+
+        toggleIcon.style.transform = 'rotate(0deg)';
+
+        // Reset button text
+        if (stepType === 'initial-translation') {
+            toggleButton.innerHTML = `
+                <svg class="w-4 h-4 mr-2 transform transition-transform" id="notes-icon-${stepType}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                View Translator's Notes
+            `;
+        } else if (stepType === 'revised-translation') {
+            toggleButton.innerHTML = `
+                <svg class="w-4 h-4 mr-2 transform transition-transform" id="notes-icon-${stepType}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                View Evolution Notes
+            `;
+        }
+    }
+}
+
+// Scroll Tracking
+function initializeScrollTracking() {
+    let ticking = false;
+
+    function updateScrollState() {
+        updateProgressNavigation();
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(updateScrollState);
+            ticking = true;
+        }
+    });
+}
+
+// Keyboard Navigation
+function initializeKeyboardNavigation() {
+    document.addEventListener('keydown', function(e) {
+        switch(e.key) {
+            case 'ArrowDown':
+                if (e.altKey) {
+                    e.preventDefault();
+                    navigateToNextStep();
+                }
+                break;
+            case 'ArrowUp':
+                if (e.altKey) {
+                    e.preventDefault();
+                    navigateToPreviousStep();
+                }
+                break;
+            case 'Home':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateToStep('original-poem');
+                }
+                break;
+            case 'End':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateToStep('revised-translation');
+                }
+                break;
+        }
+    });
+}
+
+function navigateToNextStep() {
+    const steps = ['initial-translation', 'editor-review', 'revised-translation'];
+    const currentStep = getCurrentStep();
+
+    if (currentStep && steps.indexOf(currentStep) < steps.length - 1) {
+        const nextStepIndex = steps.indexOf(currentStep) + 1;
+        navigateToStep(steps[nextStepIndex]);
+    }
+}
+
+function navigateToPreviousStep() {
+    const steps = ['initial-translation', 'editor-review', 'revised-translation'];
+    const currentStep = getCurrentStep();
+
+    if (currentStep && steps.indexOf(currentStep) > 0) {
+        const prevStepIndex = steps.indexOf(currentStep) - 1;
+        navigateToStep(steps[prevStepIndex]);
+    }
+}
+
+function getCurrentStep() {
+    const workflowSteps = document.querySelectorAll('.workflow-step-card');
+
+    for (let i = 0; i < workflowSteps.length; i++) {
+        const rect = workflowSteps[i].getBoundingClientRect();
+        if (rect.top <= 100 && rect.bottom > 100) {
+            const stepId = workflowSteps[i].id;
+            return stepId.replace('step-', '');
+        }
+    }
+    return null;
+}
+
+// Deep Linking
+function initializeDeepLinking() {
+    // Handle URL hash fragments for direct step linking
+    const hash = window.location.hash.substring(1);
+    if (hash && hash.startsWith('step-')) {
+        const stepType = hash.replace('step-', '');
+        setTimeout(() => navigateToStep(stepType), 100);
+    }
+
+    // Update URL when navigating between steps
+    function updateURL(stepType) {
+        const newURL = `${window.location.pathname}#step-${stepType}`;
+        window.history.replaceState(null, '', newURL);
+    }
+
+    // Update URL on step navigation (this would need to be integrated with navigateToStep)
+    const originalNavigateToStep = navigateToStep;
+    navigateToStep = function(stepType) {
+        originalNavigateToStep(stepType);
+        updateURL(stepType);
+    };
+}
+
+// Print-friendly functionality
+function initializePrintStyles() {
+    const printStyles = `
+        <style>
+            @media print {
+                .no-print { display: none !important; }
+                .workflow-step-card { break-inside: avoid; margin-bottom: 1rem !important; }
+                .notes-content { display: block !important; max-height: none !important; }
+                body { font-size: 12pt; }
+                .step-header { margin-bottom: 1rem !important; }
+                .workflow-progress { display: none !important; }
+            }
+        </style>
+    `;
+    document.head.insertAdjacentHTML('beforeend', printStyles);
+}
+
+// Initialize print styles
+initializePrintStyles();
+</script>
+{% endblock %}

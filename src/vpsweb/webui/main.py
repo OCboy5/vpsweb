@@ -23,6 +23,7 @@ import logging
 import asyncio
 import json
 import threading
+import httpx
 
 from src.vpsweb.repository.database import init_db, get_db
 from src.vpsweb.repository.models import Poem
@@ -243,6 +244,18 @@ app.mount(
 # Setup Jinja2 templates
 templates = Jinja2Templates(directory="src/vpsweb/webui/web/templates")
 
+
+# Add custom Jinja2 filters
+def strip_leading_spaces(text):
+    """Remove leading whitespace only from the beginning of text (first line)"""
+    if not text:
+        return text
+    # Remove only leading whitespace from the very beginning, preserving internal formatting
+    return text.lstrip()
+
+
+templates.env.filters["strip_leading_spaces"] = strip_leading_spaces
+
 # Include API routers
 app.include_router(poems.router, prefix="/api/v1/poems", tags=["poems"])
 app.include_router(
@@ -368,6 +381,80 @@ async def poem_compare(poem_id: str, request: Request, db: Session = Depends(get
             "request": request,
             "poem": poem,
             "title": f"Compare Translations - {poem.poem_title} - VPSWeb Repository",
+        },
+    )
+
+
+@app.get("/translations/{translation_id}/notes", response_class=HTMLResponse)
+async def translation_notes(
+    translation_id: str, request: Request, db: Session = Depends(get_db)
+):
+    """
+    Display translation notes with detailed T-E-T workflow steps
+    """
+    service = get_repository_service(db)
+
+    # Get translation and poem information
+    translation = service.translations.get_by_id(translation_id)
+    if not translation:
+        raise HTTPException(status_code=404, detail="Translation not found")
+
+    poem = service.poems.get_by_id(translation.poem_id)
+    if not poem:
+        raise HTTPException(status_code=404, detail="Poem not found")
+
+    # Get workflow data for AI translations
+    workflow_data = None
+    workflow_steps = None
+    if translation.translator_type.lower() == "ai" and translation.has_workflow_steps:
+        try:
+            # Make internal requests to workflow endpoints
+            async with httpx.AsyncClient() as client:
+                # Get workflow summary
+                summary_response = await client.get(
+                    f"http://localhost:8000/api/v1/translations/{translation_id}/workflow-summary",
+                    timeout=10.0,
+                )
+                if summary_response.status_code == 200:
+                    workflow_data = summary_response.json()
+
+                # Get workflow steps
+                steps_response = await client.get(
+                    f"http://localhost:8000/api/v1/translations/{translation_id}/workflow-steps",
+                    timeout=10.0,
+                )
+                if steps_response.status_code == 200:
+                    workflow_steps = steps_response.json()
+                    # Parse model_info JSON strings for each step
+                    import json
+
+                    for step in workflow_steps:
+                        if step.get("model_info") and isinstance(
+                            step["model_info"], str
+                        ):
+                            try:
+                                step["parsed_model_info"] = json.loads(
+                                    step["model_info"]
+                                )
+                            except json.JSONDecodeError:
+                                step["parsed_model_info"] = {}
+        except Exception as e:
+            # Log error but don't fail the page load
+            logging.warning(
+                f"Failed to load workflow data for translation {translation_id}: {e}"
+            )
+            workflow_data = None
+            workflow_steps = None
+
+    return templates.TemplateResponse(
+        "translation_notes.html",
+        {
+            "request": request,
+            "poem": poem,
+            "translation": translation,
+            "workflow_data": workflow_data,
+            "workflow_steps": workflow_steps,
+            "title": f"Translation Notes - {poem.poem_title} - VPSWeb Repository",
         },
     )
 

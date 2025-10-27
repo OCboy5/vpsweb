@@ -217,6 +217,11 @@ class Translation(Base):
         return len(self.workflow_steps)
 
     @property
+    def has_translation_notes(self) -> bool:
+        """Check if this translation has AI logs (translation notes)"""
+        return len(self.ai_logs) > 0
+
+    @property
     def total_tokens_used(self) -> Optional[int]:
         """Get total tokens used across all workflow steps"""
         return sum(step.tokens_used or 0 for step in self.workflow_steps)

@@ -19,6 +19,7 @@ engine = create_engine(
         "autocommit": False,  # Enable modern transaction control for proper session isolation
     },
     poolclass=StaticPool,  # Use StaticPool for SQLite
+    pool_reset_on_return=None,  # Disable pool reset to avoid SQLite rollback issues
     echo=settings.log_level.lower() == "debug",  # Log SQL in debug mode
 )
 

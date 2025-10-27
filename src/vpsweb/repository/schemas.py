@@ -440,21 +440,38 @@ class TranslationResponse(TranslationBase):
         None, description="AI model name used for translation"
     )
 
+    # Workflow step fields
+    has_workflow_steps: bool = Field(
+        False, description="Whether translation has workflow steps"
+    )
+    workflow_step_count: int = Field(0, description="Number of workflow steps")
+    has_translation_notes: bool = Field(
+        False, description="Whether translation has AI logs (translation notes)"
+    )
+
     @model_validator(mode="before")
     @classmethod
     def populate_computed_fields(cls, data):
         """Populate computed fields from base fields"""
         # Handle SQLAlchemy model objects
         if hasattr(data, "id"):
+            # Create a copy of the data as a dict to avoid property assignment issues
+            if hasattr(data, "__dict__"):
+                # Convert SQLAlchemy model to dict
+                data_dict = {}
+                for key, value in data.__dict__.items():
+                    if not key.startswith("_"):
+                        data_dict[key] = value
+            else:
+                data_dict = data
+
             # Set translation_id to match id
-            if not hasattr(data, "translation_id") or not data.translation_id:
-                data.translation_id = data.id
+            if not data_dict.get("translation_id"):
+                data_dict["translation_id"] = data_dict["id"]
 
             # Normalize language codes
-            if hasattr(data, "target_language") and isinstance(
-                data.target_language, str
-            ):
-                data.target_language = data.target_language.replace("_", "-")
+            if data_dict.get("target_language"):
+                target_lang = data_dict["target_language"].replace("_", "-")
                 # Convert full language names to ISO codes
                 lang_map = {
                     "english": "en",
@@ -468,13 +485,12 @@ class TranslationResponse(TranslationBase):
                     "italian": "it",
                     "portuguese": "pt",
                 }
-                if data.target_language.lower() in lang_map:
-                    data.target_language = lang_map[data.target_language.lower()]
+                if target_lang.lower() in lang_map:
+                    target_lang = lang_map[target_lang.lower()]
+                data_dict["target_language"] = target_lang
 
-            if hasattr(data, "source_language") and isinstance(
-                data.source_language, str
-            ):
-                data.source_language = data.source_language.replace("_", "-")
+            if data_dict.get("source_language"):
+                source_lang = data_dict["source_language"].replace("_", "-")
                 # Convert full language names to ISO codes
                 lang_map = {
                     "english": "en",
@@ -488,24 +504,31 @@ class TranslationResponse(TranslationBase):
                     "italian": "it",
                     "portuguese": "pt",
                 }
-                if data.source_language.lower() in lang_map:
-                    data.source_language = lang_map[data.source_language.lower()]
+                if source_lang.lower() in lang_map:
+                    source_lang = lang_map[source_lang.lower()]
+                data_dict["source_language"] = source_lang
 
             # Set model_name based on translator_type and translator_info
-            if not hasattr(data, "model_name") or not data.model_name:
-                if hasattr(data, "translator_type") and (
-                    (
-                        hasattr(data.translator_type, "value")
-                        and data.translator_type.value == "ai"
+            if not data_dict.get("model_name"):
+                translator_type = data_dict.get("translator_type")
+                if (
+                    hasattr(translator_type, "value") and translator_type.value == "ai"
+                ) or (isinstance(translator_type, str) and translator_type == "ai"):
+                    data_dict["model_name"] = data_dict.get(
+                        "translator_info", "AI Model"
                     )
-                    or (
-                        isinstance(data.translator_type, str)
-                        and data.translator_type == "ai"
-                    )
-                ):
-                    data.model_name = getattr(data, "translator_info", "AI Model")
                 else:
-                    data.model_name = getattr(data, "translator_info", None)
+                    data_dict["model_name"] = data_dict.get("translator_info", None)
+
+            # Set workflow step fields for SQLAlchemy model objects
+            if hasattr(data, "has_workflow_steps"):
+                data_dict["has_workflow_steps"] = data.has_workflow_steps
+            if hasattr(data, "workflow_step_count"):
+                data_dict["workflow_step_count"] = data.workflow_step_count
+            if hasattr(data, "has_translation_notes"):
+                data_dict["has_translation_notes"] = data.has_translation_notes
+
+            return data_dict
 
         # Handle dictionary data
         elif isinstance(data, dict):
@@ -806,6 +829,7 @@ class ComparisonView(BaseSchema):
 class RepositoryStats(BaseSchema):
     """Schema for repository statistics"""
 
+    total_poets: int = Field(..., ge=0, description="Total number of unique poets")
     total_poems: int = Field(..., ge=0, description="Total number of poems")
     total_translations: int = Field(
         ..., ge=0, description="Total number of translations"

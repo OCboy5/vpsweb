@@ -1,14 +1,41 @@
-# Vox Poetica Studio Web - v0.3.6 Status
+# Vox Poetica Studio Web - v0.3.8 Status
 
-**Date**: 2025-10-26
-**Version**: 0.3.6 (Translation Display & SSE Enhancement)
-**Status**: ✅ **PRODUCTION-READY WITH ENHANCED TRANSLATION DISPLAY & REAL-TIME WORKFLOW VISIBILITY**
+**Date**: 2025-10-27
+**Version**: 0.3.8 (Translation Notes & UI Polish)
+**Status**: ✅ **PRODUCTION-READY WITH COMPREHENSIVE TRANSLATION NOTES & ELEGANT UI**
 
 ## 🎯 Executive Summary
 
-Vox Poetica Studio Web (vpsweb) continues its evolution with v0.3.2, delivering **ENHANCED RELIABILITY & PERFORMANCE** improvements building on the complete web application and repository system from v0.3.1. This release adds timeout protection for workflows, comprehensive database indexing, user-friendly error handling, robust testing infrastructure, database migration tools, and advanced logging capabilities. This release implements a comprehensive FastAPI web interface with responsive design using Tailwind CSS, a complete repository database system with 15+ REST endpoints, and seamless integration with existing VPSWeb translation and WeChat workflows. The implementation includes enterprise-grade backup systems, automated development environment setup, comprehensive testing frameworks, and maintains 100% backward compatibility with all existing CLI functionality. With 56,802 lines of production-ready code across 145 files, v0.3.1 represents the most significant enhancement in the project's history while preserving all core functionality and workflows.
+Vox Poetica Studio Web (vpsweb) achieves a major milestone with v0.3.8, delivering **COMPREHENSIVE TRANSLATION NOTES & ELEGANT UI POLISH** that transforms how users explore and understand the complete T-E-T translation workflow. This release introduces an elegant Translation Notes display system, enhanced Dashboard statistics, and significant UI refinements, building upon the robust database architecture from previous releases. This release adds timeout protection for workflows, comprehensive database indexing, user-friendly error handling, robust testing infrastructure, database migration tools, and advanced logging capabilities. This release implements a comprehensive FastAPI web interface with responsive design using Tailwind CSS, a complete repository database system with 15+ REST endpoints, and seamless integration with existing VPSWeb translation and WeChat workflows. The implementation includes enterprise-grade backup systems, automated development environment setup, comprehensive testing frameworks, and maintains 100% backward compatibility with all existing CLI functionality. With 56,802 lines of production-ready code across 145 files, v0.3.1 represents the most significant enhancement in the project's history while preserving all core functionality and workflows.
 
 ## ✅ Completed Features
+
+### 🎯 Translation Notes & UI Polish Enhancement (v0.3.8)
+
+#### 📖 Translation Notes Display System
+- **Complete Workflow Visualization**: New `/translations/{id}/notes` page displaying all T-E-T workflow steps
+- **Elegant Multi-Step Layout**: Original poem, initial translation, editor review, and final translation with notes
+- **Interactive Progress Navigation**: Step-by-step exploration with expandable notes sections
+- **Rich Performance Metrics**: Tokens, time, and cost (¥) displayed for each workflow step
+- **Preserved Text Formatting**: Proper handling of newlines and indentation in poems and notes
+
+#### 📊 Enhanced Dashboard Statistics
+- **Total Poets Counter**: New statistics card showing count of unique poets in repository
+- **5-Column Layout**: Optimized grid layout for Total Poets, Total Poems, Total Translations, AI/Human Translations
+- **Fixed Statistics Display**: Resolved field name mismatches for accurate AI translation counts
+- **Multi-Line Titles**: Statistics card titles now wrap properly to prevent truncation
+
+#### 🎨 Refined User Interface
+- **Streamlined Dashboard Header**: Removed redundant "Add Poem" button for cleaner design
+- **Conditional Translation Notes Buttons**: Smart display based on AI log existence
+- **Consistent Translation Card Layout**: Unified component architecture across pages
+- **Improved Visual Hierarchy**: Better button positioning and responsive design
+
+#### 🏗️ Technical Improvements
+- **Schema Extensions**: Added `total_poets` field to RepositoryStats for complete metrics
+- **Workflow Field Integration**: Enhanced TranslationResponse with workflow metadata
+- **SQL Query Optimization**: Improved poet counting with distinct aggregation
+- **Field Name Consistency**: Fixed API-to-frontend field mapping issues
 
 ### 🎯 Translation Display & Real-Time Workflow Enhancement (v0.3.6)
 - **Chinese Title Display**: Fixed translated poem titles to display correctly in Chinese instead of English across all pages

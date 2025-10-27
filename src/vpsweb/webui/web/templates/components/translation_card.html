@@ -1,0 +1,94 @@
+{# Shared Translation Card Component
+ Usage: {% include 'components/translation_card.html' %}
+ 
+ Required variables:
+ - translation: translation object with all properties
+ - poem_info: dict with 'title' and 'poet' keys
+ - source_page: 'poems' or 'translations' (for conditional logic)
+#}
+
+{# Calculate display names using translated versions when available, fallback to original #}
+{% set display_title = translation.translated_poem_title or poem_info.title %}
+{% set display_poet = translation.translated_poet_name or poem_info.poet %}
+{% set created_date = translation.created_at %}
+{% if created_date is string %}
+    {% set created_date = created_date | string %}
+{% endif %}
+
+{# Format quality rating #}
+{% set quality_stars = translation.quality_rating | string if translation.quality_rating else '' %}
+{% if quality_stars != '' %}
+    {% set full_stars = '★' * translation.quality_rating %}
+    {% set empty_stars = '☆' * (5 - translation.quality_rating) %}
+    {% set quality_display = full_stars + empty_stars %}
+{% else %}
+    {% set quality_display = 'Not rated' %}
+{% endif %}
+
+{# Determine Translation Notes button visibility based on AI logs existence #}
+{% set show_translation_notes = translation.translator_type == 'AI' and translation.has_translation_notes %}
+
+<div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+    <div class="flex justify-between items-start mb-4">
+        <div class="flex-1">
+            <div class="flex items-center space-x-3 mb-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if translation.translator_type == 'AI' %}bg-green-100 text-green-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                    {{ translation.translator_type }}
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ translation.target_language }}
+                </span>
+                <div class="text-yellow-400 text-sm" title="Quality Rating">
+                    {{ quality_display }}
+                </div>
+            </div>
+            <h4 class="text-lg font-medium text-gray-900 mb-1">{{ display_title }}</h4>
+            <p class="text-sm text-gray-500 mb-2">{{ display_poet }}</p>
+            <p class="text-xs text-gray-400">{{ created_date }}</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="/poems/{{ translation.poem_id }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                View Poem
+            </a>
+            
+            {# Translation Notes button - only show for AI translations that have AI logs #}
+            {% if show_translation_notes %}
+                {% if source_page == 'poems' %}
+                    {# Poems page uses button with onclick #}
+                    <button onclick="viewTranslationNotes('{{ translation.id }}')" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Translation Notes
+                    </button>
+                {% else %}
+                    {# Translations page uses direct link #}
+                    <a href="/translations/{{ translation.id }}/notes" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Translation Notes
+                    </a>
+                {% endif %}
+            {% endif %}
+            
+            <a href="/poems/{{ translation.poem_id }}/compare" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Compare
+            </a>
+        </div>
+    </div>
+    <div class="poetry-text text-gray-700 whitespace-pre-wrap mb-4">{{ translation.translated_text }}</div>
+    <div class="flex justify-between items-center text-sm">
+        <div class="flex space-x-4 text-gray-500">
+            <span>ID: {{ translation.id }}</span>
+            <span>Poem ID: {{ translation.poem_id }}</span>
+        </div>
+    </div>
+</div>

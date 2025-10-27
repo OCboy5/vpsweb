@@ -11,7 +11,12 @@ from sqlalchemy.orm import Session, selectinload
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import PoemCreate, PoemUpdate, PoemResponse
-from ..schemas import PoemFormCreate, WebAPIResponse, PaginationInfo
+from ..schemas import (
+    PoemFormCreate,
+    WebAPIResponse,
+    PaginationInfo,
+    PoemTranslationWithWorkflow,
+)
 
 router = APIRouter()
 
@@ -172,7 +177,7 @@ async def delete_poem(
         )
 
     try:
-        service.poems.delete(poem_id)
+        service.delete_poem(poem_id)
         return WebAPIResponse(
             success=True,
             message=f"Poem '{existing_poem.poem_title}' deleted successfully",
@@ -248,3 +253,69 @@ async def search_poems(
             poems = []
 
     return poems
+
+
+@router.get(
+    "/{poem_id}/translations-with-workflows",
+    response_model=List[PoemTranslationWithWorkflow],
+)
+async def get_poem_translations_with_workflows(
+    poem_id: str,
+    service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Get all translations for a poem with workflow step indicators.
+
+    This endpoint provides translation information along with whether each translation
+    has detailed workflow steps available for viewing in the Translation Notes page.
+
+    **Path Parameters:**
+    - **poem_id**: ULID of the poem
+
+    **Returns:**
+    - List of translations with workflow step information
+    - Includes performance summary for AI translations
+    - Indicates which translations have detailed notes available
+    """
+    # Check if poem exists
+    poem = service.poems.get_by_id(poem_id)
+    if not poem:
+        raise HTTPException(
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
+        )
+
+    # Get translations for this poem
+    translations = service.translations.get_by_poem_id(poem_id)
+
+    # Build response with workflow information
+    result = []
+    for translation in translations:
+        # Get workflow step information
+        has_workflow_steps = translation.has_workflow_steps
+        workflow_step_count = translation.workflow_step_count
+
+        # Performance summary for AI translations
+        performance_summary = None
+        if has_workflow_steps and translation.translator_type.lower() == "ai":
+            performance_summary = {
+                "total_tokens": translation.total_tokens_used,
+                "total_cost": translation.total_cost,
+                "total_duration": translation.total_duration,
+                "steps_available": workflow_step_count,
+            }
+
+        result.append(
+            PoemTranslationWithWorkflow(
+                translation_id=translation.id,
+                translator_info=translation.translator_info,
+                target_language=translation.target_language,
+                translation_type=translation.translator_type.lower(),
+                has_workflow_steps=has_workflow_steps,
+                workflow_step_count=workflow_step_count,
+                created_at=translation.created_at,
+                quality_rating=translation.quality_rating,
+                performance_summary=performance_summary,
+            )
+        )
+
+    return result

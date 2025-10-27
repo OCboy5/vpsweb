@@ -5,6 +5,70 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.8] - 2025-10-27 (Translation Notes & UI Polish)
+
+### 🚀 Overview
+VPSWeb v0.3.8 introduces a **comprehensive Translation Notes display system** that elegantly presents the complete T-E-T workflow evolution, along with significant Dashboard enhancements and UI polish. This release transforms how users explore and understand the translation process, making the workflow transparent and visually appealing.
+
+### ✨ New Features
+
+#### 📖 Translation Notes Display System
+- **Complete Workflow Visualization**: New `/translations/{id}/notes` page displaying all T-E-T workflow steps
+- **Elegant Multi-Step Layout**: Original poem, initial translation, editor review, and final translation with notes
+- **Interactive Progress Navigation**: Step-by-step exploration with expandable notes sections
+- **Rich Performance Metrics**: Tokens, time, and cost (¥) displayed for each workflow step
+- **Preserved Text Formatting**: Proper handling of newlines and indentation in poems and notes
+
+#### 📊 Enhanced Dashboard Statistics
+- **Total Poets Counter**: New statistics card showing count of unique poets in repository
+- **5-Column Layout**: Optimized grid layout for Total Poets, Total Poems, Total Translations, AI/Human Translations
+- **Fixed Statistics Display**: Resolved field name mismatches for accurate AI translation counts
+- **Multi-Line Titles**: Statistics card titles now wrap properly to prevent truncation
+
+#### 🎨 Refined User Interface
+- **Streamlined Dashboard Header**: Removed redundant "Add Poem" button for cleaner design
+- **Conditional Translation Notes Buttons**: Smart display based on AI log existence
+- **Consistent Translation Card Layout**: Unified component architecture across pages
+- **Improved Visual Hierarchy**: Better button positioning and responsive design
+
+### 🔧 Technical Improvements
+
+#### 🏗️ Database & API Enhancements
+- **Schema Extensions**: Added `total_poets` field to RepositoryStats for complete metrics
+- **Workflow Field Integration**: Enhanced TranslationResponse with workflow metadata
+- **SQL Query Optimization**: Improved poet counting with distinct aggregation
+- **Field Name Consistency**: Fixed API-to-frontend field mapping issues
+
+#### 🐛 Bug Fixes
+- **Statistics Display Bug**: Fixed Dashboard showing "AI Translations 0" due to field name mismatch
+- **Case Sensitivity Issues**: Resolved JavaScript conditions for Translation Notes buttons
+- **SQLite Connection Issues**: Added `pool_reset_on_return=None` for database stability
+- **Cascading Delete Logic**: Fixed orphaned translations when poems are deleted
+
+#### 📝 Code Quality
+- **Template Cleanup**: Removed unused components and improved code organization
+- **CSS Improvements**: Enhanced responsive design and text preservation
+- **JavaScript Optimization**: Simplified conditional logic and improved error handling
+
+### 🎯 User Experience
+
+#### 🔍 Translation Workflow Transparency
+- **Step-by-Step Exploration**: Users can now follow the complete translation evolution
+- **Quality Insights**: Editor review and revision notes provide transparency into translation decisions
+- **Performance Tracking**: Clear visibility into tokens, time, and cost for optimization
+- **Cultural Context**: Preserved formatting maintains poetic structure and cultural nuances
+
+#### 📈 Repository Management
+- **Enhanced Statistics**: Complete overview of repository health and activity
+- **Intuitive Navigation**: Smart button placement and conditional display
+- **Visual Consistency**: Unified design language across all pages
+- **Mobile Responsive**: Optimized layouts for various screen sizes
+
+### 📚 Documentation
+- **Implementation Plan**: Comprehensive design document for Translation Notes system
+- **API Documentation**: Updated endpoint documentation for new features
+- **Version Workflow**: Refined release process and documentation standards
+
 ## [0.3.7] - 2025-10-27 (Database Storage Enhancement)
 
 ### 🚀 Overview
