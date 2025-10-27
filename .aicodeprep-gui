@@ -20,7 +20,5 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
-outputs/json/poets/Ted Hughes/Ted Hughes_september_english_chinese_non_reasoning_20251026_220340_9d8f1b2e.json
-src/vpsweb/core/workflow.py
-src/vpsweb/utils/storage.py
-src/vpsweb/models/translation.py
+outputs/json/poets/Ted Hughes/Ted Hughes_the_warm_and_the_cold_english_chinese_hybrid_20251026_222840_896357ec.json
+src/vpsweb/webui/web/templates/poem_detail.html

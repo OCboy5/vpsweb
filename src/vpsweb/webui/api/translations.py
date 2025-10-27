@@ -16,6 +16,7 @@ from src.vpsweb.repository.schemas import (
     TranslationResponse,
     AILogCreate,
     HumanNoteCreate,
+    TranslationWorkflowStepResponse,
 )
 from ..schemas import (
     TranslationFormCreate,
@@ -417,6 +418,203 @@ async def get_translation_notes(
         }
         for note in notes
     ]
+
+
+@router.get(
+    "/{translation_id}/workflow-steps",
+    response_model=List[TranslationWorkflowStepResponse],
+)
+async def get_translation_workflow_steps(
+    translation_id: str, service: RepositoryService = Depends(get_repository_service)
+):
+    """
+    Get all workflow steps for a translation.
+
+    This endpoint provides access to the detailed T-E-T workflow content
+    that is now stored in the database instead of just JSON files.
+
+    **Path Parameters:**
+    - **translation_id**: ULID of the translation
+
+    **Returns:**
+    - List of workflow steps (initial_translation, editor_review, revised_translation)
+    - Each step includes content, notes, metrics, and timing information
+    """
+    # Check if translation exists
+    translation = service.translations.get_by_id(translation_id)
+    if not translation:
+        raise HTTPException(
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+        )
+
+    # Get workflow steps for this translation
+    workflow_steps = service.workflow_steps.get_by_translation(translation_id)
+
+    # Convert to response format
+    return [
+        TranslationWorkflowStepResponse(
+            id=step.id,
+            translation_id=step.translation_id,
+            ai_log_id=step.ai_log_id,
+            workflow_id=step.workflow_id,
+            step_type=step.step_type,
+            step_order=step.step_order,
+            content=step.content,
+            notes=step.notes,
+            model_info=step.model_info,
+            tokens_used=step.tokens_used,
+            prompt_tokens=step.prompt_tokens,
+            completion_tokens=step.completion_tokens,
+            duration_seconds=step.duration_seconds,
+            cost=step.cost,
+            additional_metrics=step.additional_metrics,
+            translated_title=step.translated_title,
+            translated_poet_name=step.translated_poet_name,
+            timestamp=step.timestamp,
+            created_at=step.created_at,
+        )
+        for step in workflow_steps
+    ]
+
+
+@router.get(
+    "/{translation_id}/workflow-steps/{step_id}",
+    response_model=TranslationWorkflowStepResponse,
+)
+async def get_workflow_step(
+    translation_id: str,
+    step_id: str,
+    service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Get a specific workflow step for a translation.
+
+    This endpoint provides detailed information about a single workflow step
+    including all content, metrics, and timing data.
+
+    **Path Parameters:**
+    - **translation_id**: ULID of the translation
+    - **step_id**: ULID of the specific workflow step
+
+    **Returns:**
+    - Detailed workflow step information
+    """
+    # Check if translation exists
+    translation = service.translations.get_by_id(translation_id)
+    if not translation:
+        raise HTTPException(
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+        )
+
+    # Get specific workflow step
+    workflow_step = service.workflow_steps.get_by_id(step_id)
+    if not workflow_step:
+        raise HTTPException(
+            status_code=404, detail=f"Workflow step with ID '{step_id}' not found"
+        )
+
+    # Verify the step belongs to the specified translation
+    if workflow_step.translation_id != translation_id:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Workflow step '{step_id}' does not belong to translation '{translation_id}'",
+        )
+
+    return TranslationWorkflowStepResponse(
+        id=workflow_step.id,
+        translation_id=workflow_step.translation_id,
+        ai_log_id=workflow_step.ai_log_id,
+        workflow_id=workflow_step.workflow_id,
+        step_type=workflow_step.step_type,
+        step_order=workflow_step.step_order,
+        content=workflow_step.content,
+        notes=workflow_step.notes,
+        model_info=workflow_step.model_info,
+        tokens_used=workflow_step.tokens_used,
+        prompt_tokens=workflow_step.prompt_tokens,
+        completion_tokens=workflow_step.completion_tokens,
+        duration_seconds=workflow_step.duration_seconds,
+        cost=workflow_step.cost,
+        additional_metrics=workflow_step.additional_metrics,
+        translated_title=workflow_step.translated_title,
+        translated_poet_name=workflow_step.translated_poet_name,
+        timestamp=workflow_step.timestamp,
+        created_at=workflow_step.created_at,
+    )
+
+
+@router.get("/{translation_id}/workflow-summary")
+async def get_workflow_summary(
+    translation_id: str, service: RepositoryService = Depends(get_repository_service)
+):
+    """
+    Get a summary of the workflow execution for a translation.
+
+    This endpoint provides aggregated metrics and overview information
+    about the complete T-E-T workflow execution.
+
+    **Path Parameters:**
+    - **translation_id**: ULID of the translation
+
+    **Returns:**
+    - Workflow summary with aggregated metrics
+    - Step counts and overall performance data
+    """
+    # Check if translation exists
+    translation = service.translations.get_by_id(translation_id)
+    if not translation:
+        raise HTTPException(
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+        )
+
+    # Get workflow steps for this translation
+    workflow_steps = service.workflow_steps.get_by_translation(translation_id)
+
+    # Get AI log information
+    ai_logs = service.ai_logs.get_by_translation(translation_id)
+    ai_log = ai_logs[0] if ai_logs else None
+
+    # Calculate aggregated metrics
+    total_tokens = sum(step.tokens_used or 0 for step in workflow_steps)
+    total_cost = sum(step.cost or 0.0 for step in workflow_steps)
+    total_duration = sum(step.duration_seconds or 0.0 for step in workflow_steps)
+
+    # Group by step type
+    step_counts = {}
+    step_metrics = {}
+
+    for step in workflow_steps:
+        step_type = step.step_type
+        step_counts[step_type] = step_counts.get(step_type, 0) + 1
+
+        if step_type not in step_metrics:
+            step_metrics[step_type] = {
+                "total_tokens": 0,
+                "total_cost": 0.0,
+                "total_duration": 0.0,
+                "count": 0,
+            }
+
+        step_metrics[step_type]["total_tokens"] += step.tokens_used or 0
+        step_metrics[step_type]["total_cost"] += step.cost or 0.0
+        step_metrics[step_type]["total_duration"] += step.duration_seconds or 0.0
+        step_metrics[step_type]["count"] += 1
+
+    return {
+        "translation_id": translation_id,
+        "workflow_id": workflow_steps[0].workflow_id if workflow_steps else None,
+        "ai_log_id": ai_log.id if ai_log else None,
+        "model_name": ai_log.model_name if ai_log else None,
+        "workflow_mode": ai_log.workflow_mode if ai_log else None,
+        "total_steps": len(workflow_steps),
+        "total_tokens": total_tokens,
+        "total_cost": total_cost,
+        "total_duration": total_duration,
+        "step_counts": step_counts,
+        "step_metrics": step_metrics,
+        "created_at": ai_log.created_at.isoformat() if ai_log else None,
+        "has_workflow_steps": len(workflow_steps) > 0,
+    }
 
 
 # Background task function (placeholder for actual AI workflow)

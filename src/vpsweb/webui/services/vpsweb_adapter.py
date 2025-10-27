@@ -30,7 +30,7 @@ from .poem_service import PoemService
 # TranslationService removed - dead code (not used in current codebase)
 from ..task_models import TaskStatusEnum
 from vpsweb.repository.service import RepositoryWebService
-from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult
+from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult, WorkflowStepType
 from vpsweb.repository.database import create_session
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
@@ -273,6 +273,290 @@ class VPSWebWorkflowAdapter:
             source_lang=self._convert_language_code(source_lang),
             target_lang=self._convert_language_code(target_lang),
         )
+
+    async def _create_ai_log_and_workflow_steps(
+        self,
+        repository_service,
+        translation_id: str,
+        final_result: TranslationOutput,
+        workflow_mode: str,
+    ) -> None:
+        """
+        Create AI log and detailed workflow steps for a translation.
+
+        This method implements Phase 2 of the implementation plan by storing
+        the complete T-E-T workflow content in the database instead of
+        relying solely on JSON files.
+
+        Args:
+            repository_service: Repository service instance
+            translation_id: ID of the saved translation
+            final_result: Complete workflow output
+            workflow_mode: Workflow mode used ('reasoning', 'non_reasoning', 'hybrid')
+        """
+        import json
+        from vpsweb.repository.schemas import AILogCreate, TranslationWorkflowStepCreate
+        from vpsweb.utils.ulid_utils import generate_ulid
+        from datetime import datetime, timezone, timedelta
+
+        # Define UTC+8 timezone
+        UTC_PLUS_8 = timezone(timedelta(hours=8))
+
+        print(f"[AI_LOG] 🆕 Creating AI log for translation {translation_id}")
+
+        # Extract workflow ID from final result
+        workflow_id = getattr(
+            final_result, "workflow_id", None
+        ) or final_result.to_dict().get("workflow_id")
+        if not workflow_id:
+            # Generate a workflow_id if not present
+            workflow_id = generate_ulid()
+            print(f"[AI_LOG] Generated workflow_id: {workflow_id}")
+
+        # Calculate aggregated metrics from final result
+        total_tokens = getattr(
+            final_result, "total_tokens", 0
+        ) or final_result.to_dict().get("total_tokens", 0)
+        duration_seconds = getattr(
+            final_result, "duration_seconds", 0
+        ) or final_result.to_dict().get("duration_seconds", 0)
+
+        # Determine primary model from initial translation
+        model_info = getattr(final_result.initial_translation, "model_info", {})
+        model_name = (
+            model_info.get("model", "unknown")
+            if isinstance(model_info, dict)
+            else "unknown"
+        )
+
+        # Create AI log record
+        token_usage_json = json.dumps(
+            {"total_tokens": total_tokens, "workflow_mode": workflow_mode}
+        )
+
+        cost_info_json = json.dumps(
+            {
+                "total_cost": self._calculate_total_cost(final_result),
+                "workflow_mode": workflow_mode,
+            }
+        )
+
+        ai_log_create = AILogCreate(
+            translation_id=translation_id,
+            model_name=model_name,
+            workflow_mode=workflow_mode,
+            token_usage_json=token_usage_json,
+            cost_info_json=cost_info_json,
+            runtime_seconds=duration_seconds,
+            notes=f"Translation workflow completed using {workflow_mode} mode",
+        )
+
+        print(
+            f"[AI_LOG] Creating AI log with model: {model_name}, tokens: {total_tokens}"
+        )
+        ai_log = repository_service.repo.ai_logs.create(ai_log_create)
+        print(f"[AI_LOG] ✅ AI log created with ID: {ai_log.id}")
+
+        # Create workflow steps
+        print(f"[WORKFLOW_STEPS] 🆕 Creating 3 workflow steps for AI log {ai_log.id}")
+
+        # Get the workflow data from final result
+        workflow_data = final_result.to_dict()
+
+        # Step 1: Initial Translation
+        if "initial_translation" in workflow_data:
+            await self._create_workflow_step(
+                repository_service=repository_service,
+                translation_id=translation_id,
+                ai_log_id=ai_log.id,
+                workflow_id=workflow_id,
+                step_type=WorkflowStepType.INITIAL_TRANSLATION,
+                step_order=1,
+                step_data=workflow_data["initial_translation"],
+                step_name="Initial Translation",
+            )
+
+        # Step 2: Editor Review
+        if "editor_review" in workflow_data:
+            await self._create_workflow_step(
+                repository_service=repository_service,
+                translation_id=translation_id,
+                ai_log_id=ai_log.id,
+                workflow_id=workflow_id,
+                step_type=WorkflowStepType.EDITOR_REVIEW,
+                step_order=2,
+                step_data=workflow_data["editor_review"],
+                step_name="Editor Review",
+            )
+
+        # Step 3: Revised Translation
+        if "revised_translation" in workflow_data:
+            await self._create_workflow_step(
+                repository_service=repository_service,
+                translation_id=translation_id,
+                ai_log_id=ai_log.id,
+                workflow_id=workflow_id,
+                step_type=WorkflowStepType.REVISED_TRANSLATION,
+                step_order=3,
+                step_data=workflow_data["revised_translation"],
+                step_name="Revised Translation",
+            )
+
+        print(f"[WORKFLOW_STEPS] ✅ All workflow steps created successfully")
+
+    async def _create_workflow_step(
+        self,
+        repository_service,
+        translation_id: str,
+        ai_log_id: str,
+        workflow_id: str,
+        step_type: WorkflowStepType,
+        step_order: int,
+        step_data: dict,
+        step_name: str,
+    ) -> None:
+        """
+        Create a single workflow step record.
+
+        Args:
+            repository_service: Repository service instance
+            translation_id: ID of the translation
+            ai_log_id: ID of the AI log
+            workflow_id: Workflow execution ID
+            step_type: Type of workflow step
+            step_order: Order in workflow (1, 2, or 3)
+            step_data: Step data from workflow result
+            step_name: Human-readable step name
+        """
+        import json
+        from vpsweb.repository.schemas import TranslationWorkflowStepCreate
+        from vpsweb.utils.ulid_utils import generate_ulid
+        from datetime import datetime, timezone, timedelta
+
+        # Define UTC+8 timezone
+        UTC_PLUS_8 = timezone(timedelta(hours=8))
+
+        print(f"[WORKFLOW_STEP] Creating {step_name} (step_order: {step_order})")
+
+        # Extract content based on step type
+        content = ""
+        notes = ""
+        model_info_json = ""
+        translated_title = None
+        translated_poet_name = None
+
+        if step_type == WorkflowStepType.INITIAL_TRANSLATION:
+            content = step_data.get("initial_translation", "")
+            notes = step_data.get("initial_translation_notes", "")
+            translated_title = step_data.get("translated_poem_title")
+            translated_poet_name = step_data.get("translated_poet_name")
+            model_info = step_data.get("model_info", {})
+
+        elif step_type == WorkflowStepType.EDITOR_REVIEW:
+            content = step_data.get("editor_suggestions", "")
+            notes = step_data.get("editor_notes", "Editor review completed")
+            model_info = step_data.get("model_info", {})
+
+        elif step_type == WorkflowStepType.REVISED_TRANSLATION:
+            content = step_data.get("revised_translation", "")
+            notes = step_data.get("revised_translation_notes", "")
+            translated_title = (
+                step_data.get("refined_translated_poem_title") or translated_title
+            )
+            translated_poet_name = (
+                step_data.get("refined_translated_poet_name") or translated_poet_name
+            )
+            model_info = step_data.get("model_info", {})
+
+        # Convert model_info to JSON string
+        if model_info:
+            model_info_json = json.dumps(model_info)
+
+        # Extract metrics
+        tokens_used = step_data.get("tokens_used", 0)
+        prompt_tokens = step_data.get("prompt_tokens", 0)
+        completion_tokens = step_data.get("completion_tokens", 0)
+        duration_seconds = step_data.get("duration", 0)
+        cost = step_data.get("cost", 0.0)
+
+        # Create additional metrics JSON for any extra data
+        additional_metrics = {}
+        if "model_info" in step_data:
+            additional_metrics["model_info"] = step_data["model_info"]
+        if "timestamp" in step_data:
+            additional_metrics["timestamp"] = step_data["timestamp"]
+
+        additional_metrics_json = (
+            json.dumps(additional_metrics) if additional_metrics else None
+        )
+
+        # Parse timestamp if available
+        timestamp = datetime.now(UTC_PLUS_8)
+        if "timestamp" in step_data:
+            try:
+                from datetime import datetime as dt
+
+                if isinstance(step_data["timestamp"], str):
+                    timestamp = dt.fromisoformat(
+                        step_data["timestamp"].replace("Z", "+00:00")
+                    )
+                    if timestamp.tzinfo is None:
+                        timestamp = timestamp.replace(tzinfo=UTC_PLUS_8)
+            except Exception as ts_error:
+                print(
+                    f"[WORKFLOW_STEP] Warning: Could not parse timestamp {step_data.get('timestamp')}: {ts_error}"
+                )
+
+        # Create workflow step
+        workflow_step_create = TranslationWorkflowStepCreate(
+            translation_id=translation_id,
+            ai_log_id=ai_log_id,
+            workflow_id=workflow_id,
+            step_type=step_type,
+            step_order=step_order,
+            content=content,
+            notes=notes,
+            model_info=model_info_json,
+            tokens_used=tokens_used,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            duration_seconds=duration_seconds,
+            cost=cost,
+            additional_metrics=additional_metrics_json,
+            translated_title=translated_title,
+            translated_poet_name=translated_poet_name,
+            timestamp=timestamp,
+        )
+
+        workflow_step = repository_service.repo.workflow_steps.create(
+            workflow_step_create
+        )
+        print(
+            f"[WORKFLOW_STEP] ✅ {step_name} created with ID: {workflow_step.id}, tokens: {tokens_used}"
+        )
+
+    def _calculate_total_cost(self, final_result: TranslationOutput) -> float:
+        """
+        Calculate total cost from all workflow steps.
+
+        Args:
+            final_result: Complete workflow output
+
+        Returns:
+            Total cost in USD
+        """
+        workflow_data = final_result.to_dict()
+        total_cost = 0.0
+
+        # Sum costs from all steps
+        for step_key in ["initial_translation", "editor_review", "revised_translation"]:
+            if step_key in workflow_data:
+                step_data = workflow_data[step_key]
+                step_cost = step_data.get("cost", 0.0)
+                if isinstance(step_cost, (int, float)):
+                    total_cost += float(step_cost)
+
+        return round(total_cost, 6)
 
     def _map_workflow_output_to_repository(
         self, workflow_output: TranslationOutput, poem_id: str, workflow_mode: str
@@ -836,6 +1120,29 @@ class VPSWebWorkflowAdapter:
                 print(
                     f"[DB SAVE] ✅ Translation created with ID: {saved_translation.id}"
                 )
+
+                # 🚀 NEW: Create AI log and workflow steps (Phase 2 Enhancement)
+                print(
+                    f"[DB SAVE] 🆕 Creating AI log and workflow steps for translation {saved_translation.id}"
+                )
+                try:
+                    await self._create_ai_log_and_workflow_steps(
+                        repository_service=repository_service,
+                        translation_id=saved_translation.id,
+                        final_result=final_result,
+                        workflow_mode=workflow_mode.value,
+                    )
+                    print(
+                        f"[DB SAVE] ✅ AI log and workflow steps created successfully"
+                    )
+                except Exception as ai_log_error:
+                    print(
+                        f"[DB SAVE] ⚠️ Failed to create AI log and workflow steps: {ai_log_error}"
+                    )
+                    import traceback
+
+                    traceback.print_exc()
+                    # Continue execution - translation save was successful
 
                 # Save JSON file using poet-based storage (CLI-compatible)
                 print(

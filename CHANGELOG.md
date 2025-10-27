@@ -5,6 +5,80 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2025-10-27 (Database Storage Enhancement)
+
+### 🚀 Overview
+VPSWeb v0.3.7 introduces **complete database storage for translation workflow steps**, fundamentally transforming how translation data is managed. This release moves the system from JSON-file-first storage to **database-first with JSON backup**, providing SQL-queryable workflow analytics and detailed translation notes storage.
+
+### ✨ New Features
+
+#### 🗄️ Database Architecture
+- **Translation Workflow Steps Table**: New `translation_workflow_steps` table stores complete T-E-T workflow content
+- **Enhanced CRUD Operations**: Full CRUD support for workflow steps with detailed content and metrics
+- **SQL-Queryable Metrics**: Dedicated columns for tokens_used, cost, duration_seconds with indexing
+- **Cascade Relationships**: Proper foreign key relationships with CASCADE delete for data integrity
+- **ULID Integration**: Time-sortable unique identifiers across all workflow data
+
+#### 📊 Detailed Translation Notes
+- **Complete Workflow Content**: Stores all three workflow steps (initial_translation, editor_review, revised_translation)
+- **Rich Metadata Storage**: Model information, performance metrics, timestamps, and translated titles
+- **Flexible JSON Storage**: Additional metrics field for future extensibility
+- **Database-First Strategy**: Primary storage in database with JSON files as external backup
+
+#### 🔧 API Endpoints
+- **Workflow Steps API**: `GET /api/translations/{id}/workflow-steps` - Get all workflow steps
+- **Workflow Summary API**: `GET /api/translations/{id}/workflow-summary` - Get aggregated metrics
+- **Enhanced Data Access**: SQL-queryable performance analytics and content search
+
+#### 🖥️ Frontend Improvements
+- **Full ID Display**: Translation IDs now show complete 26-character format instead of truncated
+- **Enhanced Data Models**: Extended field sizes for longer content (notes: 10,000 chars)
+- **Improved User Experience**: Complete IDs make API interaction and debugging much easier
+
+### 📋 Database Schema Enhancements
+
+#### New Table: translation_workflow_steps
+- **Primary Fields**: id, translation_id, ai_log_id, workflow_id, step_type, step_order
+- **Content Fields**: content, notes, model_info (all TEXT/unlimited)
+- **Performance Metrics**: tokens_used, prompt_tokens, completion_tokens, duration_seconds, cost (indexed)
+- **Metadata Fields**: additional_metrics, translated_title, translated_poet_name
+- **Timestamps**: timestamp, created_at (indexed)
+
+#### Enhanced Relationships
+```
+poems (1) → translations (N) → ai_logs (1) → workflow_steps (3)
+                 └──→ human_notes (N)
+```
+
+### 🔧 Technical Improvements
+
+#### Database Validation
+- **Pydantic Schemas**: Comprehensive validation with field limits and type checking
+- **Indexing Strategy**: Performance-optimized indexes for common query patterns
+- **Data Integrity**: Check constraints and cascade relationships maintain consistency
+
+#### Web Application Integration
+- **Enhanced VPSWeb Adapter**: Automatic database storage after successful workflow completion
+- **Real-time Updates**: SSE progress tracking continues to work during workflow execution
+- **Backward Compatibility**: JSON file storage continues as backup/archive system
+
+### 🐛 Bug Fixes
+- **Field Size Limitations**: Increased notes field limits from 2,000 to 10,000 characters
+- **Frontend Display**: Fixed truncated ID display in all web interface templates
+- **Validation Issues**: Resolved Pydantic validation errors for long content fields
+
+### ⚠️ Breaking Changes
+- **Database Schema**: New `translation_workflow_steps` table requires migration
+- **API Response Format**: Enhanced workflow step data structure
+- **Storage Strategy**: System now primarily uses database storage instead of JSON files
+
+### 🔄 Migration Notes
+- **Automatic Migration**: Alembic migration `08eb9e1eac6d` creates new table structure
+- **Data Integrity**: Existing data remains intact with backward compatibility
+- **Performance**: Enhanced indexing improves query performance for workflow analytics
+
+---
+
 ## [0.3.6] - 2025-10-26 (Translation Display & SSE Enhancement)
 
 ### 🚀 Overview

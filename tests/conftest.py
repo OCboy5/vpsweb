@@ -588,8 +588,6 @@ def poem_service(repository_service: RepositoryService) -> PoemService:
     return PoemService(repository_service)
 
 
-
-
 # Sample data fixtures for database testing
 @pytest.fixture
 def sample_poem_data():

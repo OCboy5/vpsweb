@@ -729,7 +729,7 @@ class HumanNoteBase(BaseSchema):
     note_text: str = Field(
         ...,
         min_length=5,
-        max_length=2000,
+        max_length=10000,
         description="Human note text (minimum 5 characters)",
         examples=[
             "This translation captures the poetic essence well.",
@@ -832,6 +832,14 @@ class TaskStatus(str, Enum):
     FAILED = "failed"
 
 
+class WorkflowStepType(str, Enum):
+    """Enum for workflow step types"""
+
+    INITIAL_TRANSLATION = "initial_translation"
+    EDITOR_REVIEW = "editor_review"
+    REVISED_TRANSLATION = "revised_translation"
+
+
 # WorkflowTask schemas removed - task tracking now handled by FastAPI app.state
 # for real-time in-memory storage with enhanced step progress reporting
 
@@ -844,6 +852,160 @@ class WorkflowTaskResult(BaseSchema):
     total_tokens: int = Field(..., description="Total tokens used")
     duration_seconds: int = Field(..., description="Translation duration in seconds")
     total_cost: float = Field(..., description="Total cost of translation")
+
+
+# Translation Workflow Step schemas
+class TranslationWorkflowStepBase(BaseSchema):
+    """Base translation workflow step schema with enhanced validation"""
+
+    workflow_id: str = Field(
+        ..., min_length=1, max_length=50, description="Workflow execution ID"
+    )
+    step_type: WorkflowStepType = Field(..., description="Type of workflow step")
+    step_order: int = Field(
+        ..., ge=1, le=10, description="Step order in workflow (1-10)"
+    )
+    content: str = Field(
+        ..., min_length=1, max_length=50000, description="Step content/text"
+    )
+    notes: Optional[str] = Field(
+        None, max_length=50000, description="Additional notes about the step"
+    )
+    model_info: Optional[str] = Field(
+        None, max_length=500, description="Model information as JSON string"
+    )
+
+    # Dedicated metric fields
+    tokens_used: Optional[int] = Field(
+        None, ge=0, le=100000, description="Total tokens used in this step"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None, ge=0, le=50000, description="Prompt tokens used"
+    )
+    completion_tokens: Optional[int] = Field(
+        None, ge=0, le=50000, description="Completion tokens generated"
+    )
+    duration_seconds: Optional[float] = Field(
+        None, ge=0, le=3600, description="Step duration in seconds"
+    )
+    cost: Optional[float] = Field(None, ge=0, le=100, description="Step cost in USD")
+
+    # Flexible JSON for additional metrics
+    additional_metrics: Optional[str] = Field(
+        None, max_length=2000, description="Additional metrics as JSON string"
+    )
+
+    # Translated metadata for translation steps
+    translated_title: Optional[str] = Field(
+        None, max_length=500, description="Translated poem title"
+    )
+    translated_poet_name: Optional[str] = Field(
+        None, max_length=200, description="Translated poet name"
+    )
+
+    timestamp: datetime = Field(..., description="Step execution timestamp")
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        """Validate step content"""
+        if not v or not v.strip():
+            raise ValueError("Step content cannot be empty")
+        return v.strip()
+
+    @field_validator("tokens_used", "prompt_tokens", "completion_tokens")
+    @classmethod
+    def validate_token_counts(cls, v: Optional[int]) -> Optional[int]:
+        """Validate token counts"""
+        if v is not None and v < 0:
+            raise ValueError("Token counts cannot be negative")
+        return v
+
+    @field_validator("duration_seconds")
+    @classmethod
+    def validate_duration_seconds(cls, v: Optional[float]) -> Optional[float]:
+        """Validate duration seconds"""
+        if v is not None:
+            if v < 0:
+                raise ValueError("Duration cannot be negative")
+            if v > 3600:  # Max 1 hour
+                raise ValueError("Duration cannot exceed 1 hour")
+            # Round to 3 decimal places for consistency
+            return round(v, 3)
+        return v
+
+    @field_validator("cost")
+    @classmethod
+    def validate_cost(cls, v: Optional[float]) -> Optional[float]:
+        """Validate cost"""
+        if v is not None:
+            if v < 0:
+                raise ValueError("Cost cannot be negative")
+            if v > 100:  # Max $100 per step
+                raise ValueError("Cost cannot exceed $100")
+            # Round to 6 decimal places for currency precision
+            return round(v, 6)
+        return v
+
+    @field_validator("model_info", "additional_metrics")
+    @classmethod
+    def validate_json_fields(cls, v: Optional[str]) -> Optional[str]:
+        """Validate JSON fields"""
+        if v is None:
+            return None
+
+        v = v.strip()
+        if not v:
+            return None
+
+        # Basic JSON validation
+        if not (v.startswith("{") and v.endswith("}")):
+            raise ValueError("Must be valid JSON format")
+
+        try:
+            import json
+
+            json.loads(v)
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON format")
+
+        return v
+
+
+class TranslationWorkflowStepCreate(TranslationWorkflowStepBase):
+    """Schema for creating a new translation workflow step"""
+
+    translation_id: str = Field(
+        ..., min_length=1, max_length=50, description="ID of the parent translation"
+    )
+    ai_log_id: str = Field(
+        ..., min_length=1, max_length=50, description="ID of the parent AI log"
+    )
+
+    @model_validator(mode="after")
+    def validate_workflow_step_consistency(self) -> "TranslationWorkflowStepCreate":
+        """Validate workflow step data consistency"""
+        # For editor_review steps, translated metadata should typically be None
+        if self.step_type == WorkflowStepType.EDITOR_REVIEW:
+            if self.translated_title or self.translated_poet_name:
+                pass  # Just a note, not an error
+
+        # For translation steps, if we have tokens, cost should be reasonable
+        if self.tokens_used and self.cost:
+            cost_per_token = self.cost / self.tokens_used
+            if cost_per_token > 0.01:  # More than 1 cent per token
+                pass  # Expensive, but allowed
+
+        return self
+
+
+class TranslationWorkflowStepResponse(TranslationWorkflowStepBase):
+    """Schema for translation workflow step response"""
+
+    id: str = Field(..., description="Workflow step ID (ULID)")
+    translation_id: str = Field(..., description="ID of the parent translation")
+    ai_log_id: str = Field(..., description="ID of the parent AI log")
+    created_at: datetime = Field(..., description="Creation timestamp")
 
 
 # Response wrappers

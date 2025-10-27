@@ -1,1745 +1,1760 @@
-outputs/json/poets/Ted Hughes/Ted Hughes_september_english_chinese_non_reasoning_20251026_220340_9d8f1b2e.json:
+outputs/json/poets/Ted Hughes/Ted Hughes_the_warm_and_the_cold_english_chinese_hybrid_20251026_222840_896357ec.json:
 <code>
 {
-  "workflow_id": "08e6b68c-dfe8-4f86-959e-c0c09d8f1b2e",
+  "workflow_id": "3eebcd2f-1885-4a95-a411-d0dd896357ec",
   "input": {
-    "original_poem": "We sit late, watching the dark slowly unfold:\nNo clock counts this.\nWhen kisses are repeated and the arms hold\nThere is no telling where time is.\n\nIt is midsummer: the leaves hang big and still:\nBehind the eye a star,\nUnder the silk of the wrist a sea, tell\nTime is nowhere.\n\nWe stand; leaves have not timed the summer.\nNo clock now needs\nTell we have only what we remember:\nMinutes uproaring with our heads\n\nLike an unfortunate King's and his Queen's\nWhen the senseless mob rules;\nAnd quietly the trees casting their crowns\nInto the pools.",
+    "original_poem": "Freezing dusk is closing\nLike a slow trap of steel\nOn trees and roads and hills and all\nThat can no longer feel.\nBut the carp is in its depth\nLike a planet in its heaven.\nAnd the badger in its bedding\nLike a loaf in the oven.\nAnd the butterfly in its mummy\nLike a viol in its case.\nAnd the owl in its feathers\nLike a doll in its lace.\n\nFreezing dusk has tightened\nLike a nut screwed tight\nOn the starry aeroplane\nOf the soaring night.\nBut the trout is in its hole\nLike a chuckle in a sleeper.\nThe hare strays down the highway\nLike a root going deeper.\nThe snail is dry in the outhouse\nLike a seed in a sunflower.\nThe owl is pale on the gatepost\nLike a clock on its tower.\n\nMoonlight freezes the shaggy world\nLike a mammoth of ice -\nThe past and the future\nAre the jaws of a steel vice.\nBut the cod is in the tide-rip\nLike a key in a purse.\nThe deer are on the bare-blown hill\nLike smiles on a nurse.\nThe flies are behind the plaster\nLike the lost score of a jig.\nSparrows are in the ivy-clump\nLike money in a pig.\n\nSuch a frost\nThe flimsy moon\nHas lost her wits.\n\nA star falls.\n\nThe sweating farmers\nTurn in their sleep\nLike oxen on spits.",
     "source_lang": "English",
     "target_lang": "Chinese",
     "metadata": {
-      "id": "01K8GD5CA6GMD6BV80QE4B237J",
-      "title": "September",
+      "id": "01K8GD8C28JQEQ1WTRPFENWBSM",
+      "title": "The Warm and the Cold",
       "author": "Ted Hughes"
     }
   },
   "initial_translation": {
-    "initial_translation": "\n我们坐到深夜，凝望黑暗缓缓展开：\n没有时钟为此计数；\n当亲吻一再重复，双臂紧紧相拥，\n便无从知晓时光去向。\n\n这是仲夏：树叶硕大而静止：\n眼眸深处有一颗星，\n腕脉丝绸之下藏着一片海，诉说\n时间已不复存在。\n\n我们起身；落叶未曾标记夏日的流逝。\n此刻无需钟表提醒：\n我们仅拥有记忆中的片刻——\n那些如国王与王后般不幸的瞬间，\n\n当愚昧的暴民掌权；\n而树木悄然将王冠卸下，\n投入池中。",
-    "initial_translation_notes": "\n本诗《九月》出自英国诗人特德·休斯（Ted Hughes）之手，其诗风以原始力量、自然意象与心理深度著称。他常以自然景物为载体，揭示人类情感与时间的神秘流动。本诗虽题为“September”，但内容却指向“midsummer”（仲夏），这看似矛盾的命名实则暗示时间感知的错位与主观性——或许“九月”在此并非实指，而是象征季节转折、情感沉淀的临界点。因此，我保留“九月”为题，既尊重原题形式，又赋予其中文语境下的诗意张力：九月在中国文化中亦常与秋思、离别、回忆相联，恰好呼应诗中对记忆与时间消逝的沉思。\n\n在翻译过程中，我面临如下挑战与抉择：\n\n1. **开篇句的多重解读与节奏处理**  \n原文：“We sit late, watching the dark slowly unfold: / No clock counts this.”  \n我曾尝试三种译法：\n- 我们坐至深夜，看黑暗徐徐铺展：/ 没有钟表为此计时。\n- 我们久久静坐，目送夜色渐次展开：/ 此刻不在钟表刻度之上。\n- 我们坐到深夜，凝望黑暗缓缓展开：/ 没有时钟为此计数。\n\n最终选择第三版，因其在节奏上更贴近原文的平缓陈述，动词“凝望”较“目送”更显专注，“缓缓展开”对应“slowly unfold”具画面感，“没有时钟为此计数”以“计数”呼应“counts”，比“计时”更具文学性与抽象意味。\n\n2. **时间主题的哲学性表达**  \n诗中反复强调时间的消隐（“There is no telling where time is”, “Time is nowhere”），这并非物理时间的消失，而是情感沉浸中时间感知的断裂。中文“时间已不复存在”较直译“时间无处可寻”更富诗意，且与下文“无需钟表提醒”形成逻辑递进。\n\n3. **意象的保留与文化适配**  \n“Behind the eye a star, / Under the silk of the wrist a sea” 是典型的休斯式超现实身体意象。我译为“眼眸深处有一颗星，/ 腕脉丝绸之下藏着一片海”，保留“星”与“海”的象征（内在光芒与潜意识之深），并以“腕脉丝绸”传达“silk of the wrist”中肌肤细腻如丝的触感，同时暗示血脉流动，与“海”形成生命律动的隐喻。\n\n4. **结尾的历史隐喻与意象转化**  \n“Like an unfortunate King's and his Queen's / When the senseless mob rules” 引用欧洲历史中君主被暴民推翻的悲剧场景，象征美好事物在混乱中陨落。中文若直译“暴民”易带政治敏感，故以“愚昧的暴民”适度弱化情绪，保留“国王与王后”的文化通识性，并通过“不幸的瞬间”将具体历史事件升华为普遍情感体验。\n\n5. **形式与节奏的调适**  \n原诗为自由体，无固定格律，但句式长短交错，富有内在节奏。中文翻译采用四字、五字、七字句混合，模拟其呼吸感。如“树木悄然将王冠卸下，/ 投入池中”，以“卸下”对应“casting”，赋予树木拟人化的庄严感，“王冠”呼应“crowns”，将落叶比作君王退位，延续诗中王权隐喻，增强悲剧美感。\n\n6. **文化本质的保留与诗意再创造**  \n全诗核心是“记忆即存在”——“we have only what we remember”。此句我译为“我们仅拥有记忆中的片刻”，以“片刻”呼应前文“Minutes uproaring”，将喧嚣的瞬间与静默的回忆并置，强化情感对比。虽中文无时态变化，但通过“已不复存在”“未曾标记”等表达，传达时间流逝的不可逆。\n\n综上，本译文力求在忠实原意的基础上，重现休斯诗中那种静谧而深邃的时空感，使中文读者既能感知其自然意象的质感，亦能体会其哲思的重量。",
-    "translated_poem_title": "九月",
+    "initial_translation": "\n冻结的暮色正缓缓合拢  \n如同钢铁制成的慢动捕兽夹  \n收紧于树木、道路与山丘之上  \n以及一切不再能感知的万物。  \n但鲤鱼深潜于水底  \n如行星悬浮于天穹；  \n獾蜷卧于巢穴  \n如面包置于烤炉中；  \n蝴蝶封存于茧中  \n如提琴安放于琴匣；  \n猫头鹰裹在羽翼里  \n如玩偶缀着蕾丝。\n\n冻结的暮色愈发紧绷  \n如同完全拧紧的螺母  \n套牢那缀满星辰的夜之航机  \n正凌空滑翔。  \n但鳟鱼藏身洞穴  \n如睡梦中的一声轻笑；  \n野兔沿公路游荡  \n如根须向深处延伸；  \n蜗牛干藏于外屋  \n如葵花籽藏于花盘；  \n猫头鹰苍白地栖于门柱  \n如钟悬于塔楼。\n\n月光将毛茸的世界凝冻  \n如同一头冰封的猛犸——  \n过去与未来  \n是钢钳的两颚。  \n但鳕鱼游于潮涌的裂隙  \n如钥匙藏于钱袋；  \n鹿群立于寒风肆虐的荒丘  \n如护士脸上的微笑；  \n苍蝇匿于墙灰之后  \n如遗失的舞曲乐谱；  \n麻雀栖于常春藤丛  \n如钱币藏于存钱罐。\n\n如此严霜  \n那单薄的月亮  \n已失却神智。\n\n一颗星坠落。\n\n出汗的农夫们  \n在睡梦中翻转  \n如铁叉上的烤牛。",
+    "initial_translation_notes": "\n本诗《温暖与寒冷》由英国著名诗人特德·休斯创作，体现其典型的自然主义风格：冷峻、具象、充满原始生命力的意象，常以动物象征内在的静谧与抗争。休斯作为“运动派”诗人之一，擅长用简练而富有张力的语言描绘自然界的残酷与秩序。此诗写于20世纪中后期，延续其对自然与人类处境的哲思，通过“寒冷”与“生命潜藏”之间的对比，展现严酷环境中静默却坚韧的生命力。\n\n翻译过程中，我面临以下挑战及应对策略：\n\n一、开篇句“Freezing dusk is closing / Like a slow trap of steel”的处理  \n原句以“freezing dusk”营造出寒冷渐侵的压迫感，“slow trap of steel”则赋予暮色以机械性、不可抗拒的暴力意象。我译为“冻结的暮色正缓缓合拢 / 如同钢铁制成的慢动捕兽夹”，其中“慢动捕兽夹”虽非日常用语，但保留了“slow trap”的动态与威胁性，且“夹”字呼应后文“钢钳”的意象，形成结构上的统一。“正缓缓合拢”以进行时态传达“is closing”的渐进过程，增强画面感。\n\n二、比喻系统的保留与文化适配  \n诗中大量使用“X like Y”的明喻结构，构建出寒冷世界中生命藏匿的图景。我力求保留所有本体与喻体的对应关系，并确保中文语境下仍具诗意与逻辑连贯。例如：\n- “Like a planet in its heaven” 译为“如行星悬浮于天穹”，“天穹”比“天空”更具宇宙感与庄严性；\n- “Like a chuckle in a sleeper” 译为“如睡梦中的一声轻笑”，“轻笑”传达“chuckle”的细微愉悦感，暗示生命潜藏中的生机；\n- “Like smiles on a nurse” 译为“如护士脸上的微笑”，虽文化中护士形象偏现代，但此意象强调“克制中的温柔”，不宜替换，故保留原喻。\n\n三、节奏与形式的平衡  \n原诗为自由诗体，三节递进，每节四组比喻，结构工整，节奏沉缓如寒夜降临。中文无法完全复制英语的重音韵律，但我通过：\n- 保持每行字数相近（约14–18字），形成视觉与听觉的节奏感；\n- 使用对仗与平行结构（如“藏身”“栖于”“匿于”“游于”）增强内在韵律；\n- 在关键句如“过去与未来 / 是钢钳的两颚”使用短句斩截收束，模拟原诗的冷峻语气。\n\n四、文化意象的处理  \n- “spits”（烤叉）原指烤肉用的长铁叉，常用于烤整只牲畜。译为“铁叉上的烤牛”虽稍显直白，但“烤牛”能唤起沉重翻转的视觉与痛苦感，呼应农夫翻身的不安梦境，且“牛”在中国文化中亦具劳作象征，故未改为“猪”或“羊”。\n- “money in a pig”指西方儿童存钱用的瓷猪储蓄罐，中文“存钱罐”已广为人知，故译为“如钱币藏于存钱罐”，既保留童趣又不失原意。\n\n五、结尾的戏剧性与象征  \n“一颗星坠落”独立成行，如一声轻响打破寂静，我保留单句分行，突出其象征意味——可能是希望的陨落，也可能是觉醒的火花。“出汗的农夫们 / 在睡梦中翻转 / 如氧叉上的烤牛”中，“出汗”暗示内在焦虑或生命力的挣扎，与自然界动物的安眠形成对比，体现人类在自然压迫下的无意识抗争。\n\n综上，本译文力求在忠实原意的基础上，重建中文的诗意空间，使休斯笔下那冷峻、神秘、充满潜流的世界，在汉语中依然清晰可感、寒光闪烁。",
+    "translated_poem_title": "温暖与寒冷",
     "translated_poet_name": "特德·休斯",
-    "timestamp": "2025-10-26T22:02:17.716124",
+    "timestamp": "2025-10-26T22:25:06.631696",
     "model_info": {
       "provider": "tongyi",
       "model": "qwen-plus-latest",
       "temperature": "0.7"
     },
-    "tokens_used": 2286,
-    "prompt_tokens": 1142,
-    "completion_tokens": 1144,
-    "duration": 48.306323289871216,
-    "cost": 0.0032015999999999998
+    "tokens_used": 2638,
+    "prompt_tokens": 1329,
+    "completion_tokens": 1309,
+    "duration": 40.842111110687256,
+    "cost": 0.0036812
   },
   "editor_review": {
-    "editor_suggestions": "\nSuggestions for Improving the Translation of \"九月\" by 特德·休斯:\n1. Line 1: “我们坐到深夜，凝望黑暗缓缓展开：/ 没有时钟为此计数” — “坐到深夜”隐含“从某时坐至深夜”，而原文“we sit late”更中性，仅强调“坐得很晚”，未必指从傍晚开始。此外，“计数”虽呼应“counts”，但“count”在此更宜理解为“衡量”或“记录”，而非数学意义上的“计数”。建议改为“没有时钟能衡量此刻”，以更准确传达“时间无法被量化”的哲思。示例：“我们久久坐着，凝望黑暗缓缓展开：/ 没有时钟能衡量此刻”。\n2. Line 3–4: “当亲吻一再重复，双臂紧紧相拥，/ 便无从知晓时光去向” — “双臂紧紧相拥”语义略显重复（“相拥”已含“双臂”动作），且“一再重复”稍显口语化，未能完全体现“repeated”在诗中那种近乎仪式性的累积感。建议调整为“当吻一次次落下，双臂环抱不离，/ 时光的去向便无从辨认”，增强节奏与诗意密度，同时“落下”呼应“kisses”作为名词的具象化。\n3. Stanza 2, Line 1: “这是仲夏：树叶硕大而静止” — “硕大”虽达意，但偏重“大”而弱化“饱满、繁茂”的质感，“big”在此更强调生命力的充盈。建议用“浓密”或“丰盈”替代，如“树叶丰盈而静止”，以更贴合midsummer的生态意象与视觉张力。\n4. Stanza 2, Lines 2–4: “眼眸深处有一颗星，/ 腕脉丝绸之下藏着一片海，诉说/ 时间已不复存在” — “腕脉丝绸”为创造性译法，但“腕脉”易被误解为医学术语，且“丝绸”前置造成“丝绸之下藏着海”的空间错乱（原句“under the silk of the wrist”意为“在如丝般柔滑的手腕肌肤之下”）。建议调整为“腕间丝绸下藏着一片海”，或更流畅地处理为“眼底有星闪烁，/ 腕肤如丝，其下暗涌成海”，既保留意象又理顺逻辑，增强诗意连贯性。\n5. Stanza 3, Line 1: “我们起身；落叶未曾标记夏日的流逝” — 原文“Leaves have not timed the summer”中“leaves”指当下仍在枝头的叶子，并非“落叶”。“落叶”一词误导读者以为秋天已至，与“midsummer”矛盾。此为严重误译。应改为“树叶未曾为夏日计时”或“绿叶未尝标记夏日的流转”，以忠实原意并维持时间错位的哲学张力。\n6. Stanza 3, Line 3: “我们仅拥有记忆中的片刻——” — “片刻”对应“minutes”，但“minutes uproaring”强调的是“喧嚣、激烈、充满张力的瞬间”，而“片刻”在中文中偏中性甚至微小。建议用“那些喧腾的瞬间”或“那些轰鸣的时刻”，以保留“uproaring”的听觉与情感强度。示例：“我们仅拥有的，是记忆中轰鸣的时刻——”。\n7. Stanza 3, Lines 4–5: “那些如国王与王后般不幸的瞬间，/ 当愚昧的暴民掌权” — “如国王与王后般不幸的瞬间”结构冗长，且“如……般”削弱了比喻的直接性。原文“Like an unfortunate King's and his Queen's”是明喻，修饰“minutes”，宜更紧凑处理。建议改为“如那不幸君王与王后的时刻，/ 暴民愚昧，执掌朝纲”，增强历史画面感与节奏力度。“掌权”改为“执掌朝纲”或“当道”，更具文言诗意，契合“国王与王后”的古典语境。\n8. Final Couplet: “而树木悄然将王冠卸下，/ 投入池中” — “卸下”略显主动，而“casting”更偏向“抛掷、洒落”的自然动作，带有被动与宿命感。建议用“抛落”或“洒下”以增强动态与悲怆感。示例：“而树木静静将王冠抛落，/ 沉入池中”，“沉入”比“投入”更具终结感，呼应“crowns”作为生命象征的陨落。\n9. Punctuation and Line Breaks: 全诗使用中文冒号与句号，但原诗为自由体，标点服务于呼吸与停顿，非语法完整。建议在“缓缓展开：”后保留冒号以延续张力，但“诉说/ 时间已不复存在”中“诉说”后宜加逗号或破折号，否则语义断裂。可改为“诉说，/ 时间已不复存在”或“诉说——/ 时间已不复存在”，以增强语气停顿与抒情层次。\n10. Title: “九月” — 虽译者注解释其象征意义，但读者初读易产生季节错乱（诗中明确为midsummer）。建议加副标题或注释，如“九月（仲夏）”，或在译者序中说明，以避免误解。若坚持单标题，可考虑“九月：仲夏”以平衡形式与信息。\n\nConclude with a brief overall assessment (2-3 sentences) of the translation's current quality and its potential for improvement.\n该译文整体忠实于原诗的情感基调与哲学意蕴，语言富有诗意，尤其在意象转化与节奏把控上展现了高度的文学自觉。然个别关键意象存在误读（如“落叶”），部分措辞可进一步精炼以增强准确性与表现力。经适度修订后，有望成为兼具学术严谨性与艺术感染力的经典译本。",
-    "timestamp": "2025-10-26T22:03:00.742411",
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"The Warm and the Cold\" by Ted Hughes:\n1. Line: \"如同钢铁制成的慢动捕兽夹\" (for \"Like a slow trap of steel\")\n   Issue: \"慢动捕兽夹\" is awkward and unpoetic, potentially confusing readers with its mechanical literalness.\n   Recommendation: Replace with a more fluid and evocative phrase that retains the gradual, threatening imagery.\n   Justification: The original \"slow trap of steel\" emphasizes inexorable, mechanical closure, which should feel natural in Chinese.\n   Example Revision: \"如同缓缓收紧的钢夹\" or \"如同钢阱徐徐合拢\".\n   Alternatives: For difficult lines, consider \"如同钢铁陷阱缓慢逼近\" to blend threat and motion.\n\n2. Line: \"如睡梦中的一声轻笑\" (for \"Like a chuckle in a sleeper\")\n   Issue: \"轻笑\" may not fully capture the subdued, internal nature of \"chuckle,\" which implies a soft, almost unconscious sound.\n   Recommendation: Use a term that emphasizes the sound's intimacy within sleep.\n   Justification: The original conveys a hidden, gentle amusement that is part of the sleeper's experience.\n   Example Revision: \"如睡者喉间的低笑\" or \"如沉睡中的窃笑\".\n   Alternatives: \"如梦中一声轻哂\" to align with Chinese poetic subtlety.\n\n3. Line: \"如护士脸上的微笑\" (for \"Like smiles on a nurse\")\n   Issue: The cultural reference to a nurse's smile may not evoke the same controlled, professional warmth in Chinese readers, potentially reducing emotional resonance.\n   Recommendation: Adapt to a more culturally familiar image, such as a mother or serene figure, to maintain the original's tone of restrained comfort.\n   Justification: Hughes' imagery often relies on universal symbols; in Chinese context, alternatives can enhance relatability.\n   Example Revision: \"如慈母面上的微笑\" or \"如修女脸上的安详\".\n   Alternatives: If retaining \"护士,\" add a note to clarify its symbolic meaning of composed warmth.\n\n4. Line: \"如铁叉上的烤牛\" (for \"Like oxen on spits\")\n   Issue: \"烤牛\" is overly graphic and may jar readers, detracting from the metaphorical weight of human struggle.\n   Recommendation: Soften the phrasing to maintain the visceral image while improving elegance.\n   Justification: The original uses \"oxen on spits\" to symbolize helpless turning, not just literal roasting.\n   Example Revision: \"如烤叉上的牲口\" or \"如铁叉炙转的牛\".\n   Alternatives: \"如转烤的全牛\" to emphasize the whole-body imagery without excessive bluntness.\n\n5. Line: \"野兔沿公路游荡\" (for \"The hare strays down the highway\")\n   Issue: \"游荡\" implies aimless wandering, which may not fully capture \"strays\" connotation of slow, deliberate deviation or exploration.\n   Recommendation: Use a word that conveys leisurely, meandering movement with poetic flow.\n   Justification: The original suggests a natural, unhurried progression that contrasts with the cold setting.\n   Example Revision: \"野兔徜徉于公路\" or \"野兔漫行在道旁\".\n   Alternatives: \"野兔溜达在 highway\" but ensure it fits the rhythm.\n\n6. Line: \"蜗牛干藏于外屋\" (for \"The snail is dry in the outhouse\")\n   Issue: \"干藏\" is an uncommon compound that may confuse readers; it lacks the clarity of the original's simple description.\n   Recommendation: Rephrase for naturalness, using standard terms for \"dry\" and \"hiding.\"\n   Justification: \"Dry\" in the original highlights desiccation and concealment, which should be immediately understandable.\n   Example Revision: \"蜗牛干燥地躲在外屋\" or \"蜗牛干缩在棚屋内\".\n   Alternatives: \"蜗牛在外屋中干涸\" to emphasize the state of being dry.\n\n7. Line: \"鳕鱼游于潮涌的裂隙\" (for \"The cod is in the tide-rip\")\n   Issue: \"潮涌的裂隙\" inaccurately renders \"tide-rip,\" which refers to turbulent water areas, not fissures, risking loss of the oceanic imagery.\n   Recommendation: Use a term that evokes the churning, dynamic nature of tide-rips.\n   Justification: The original contrasts the cod's placement in rough waters with hidden safety.\n   Example Revision: \"鳕鱼潜于潮汐激流\" or \"鳕鱼在潮涌中游弋\".\n   Alternatives: \"鳕鱼藏于潮浪交汇处\" for better cultural and natural accuracy.\n\n8. Line: \"毛茸的世界\" (for \"The shaggy world\")\n   Issue: \"毛茸\" is informal and lacks the poetic elegance of \"shaggy,\" which describes a rough, hairy texture akin to a mammoth.\n   Recommendation: Choose a more vivid and aesthetically pleasing adjective.\n   Justification: Hughes' \"shaggy\" personifies the world as wild and untamed, which should resonate in translation.\n   Example Revision: \"蓬松的世界\" or \"毛糙的天地\".\n   Alternatives: \"茸毛覆裹的世界\" to enhance imagery without sacrificing naturalness.\n\n9. Line: Overall rhythm and musicality\n   Issue: Some lines, like \"收紧于树木、道路与山丘之上,\" feel slightly clunky, disrupting the original's free-verse flow and cadence.\n   Recommendation: Adjust line lengths and word order for smoother rhythm, mimicking the original's沉缓 pace.\n   Justification: Hughes' poem relies on a balanced, gradual build-up that should be mirrored in Chinese.\n   Example Revision: Shorten to \"收紧树木、道路、山丘及万物\" for better parallelism.\n   Alternatives: Incorporate more parallel structures, such as repeating prepositions for consistency.\n\n10. Line: \"如提琴安放于琴匣\" (for \"Like a viol in its case\")\n    Issue: While accurate, \"安放\" may sound too formal or static, missing the original's sense of protective containment.\n    Recommendation: Use a verb that implies gentle placement or security.\n    Justification: The metaphor emphasizes safekeeping and stillness, which should feel natural in Chinese.\n    Example Revision: \"如提琴静卧琴匣\" or \"如提琴藏于匣中\".\n    Alternatives: \"如提琴安居琴盒\" to blend elegance and clarity.\n\nOverall, the translation skillfully captures Ted Hughes' stark contrasts and naturalistic imagery, maintaining faithfulness and emotional impact. However, refining cultural references and word choices could enhance elegance and reader immersion, ensuring the poem's chilling beauty resonates fully in Chinese.",
+    "timestamp": "2025-10-26T22:27:58.750260",
     "model_info": {
-      "provider": "tongyi",
-      "model": "qwen-plus-latest",
-      "temperature": "0.3"
+      "provider": "deepseek",
+      "model": "deepseek-reasoner",
+      "temperature": "0.1"
     },
-    "tokens_used": 3630
+    "tokens_used": 6670,
+    "prompt_tokens": 1922,
+    "completion_tokens": 4748,
+    "duration": 172.09676694869995,
+    "cost": 0.018088
   },
   "revised_translation": {
-    "revised_translation": "\n我们久久坐着，凝望黑暗缓缓展开：\n没有时钟能衡量此刻；\n当吻一次次落下，双臂环抱不离，\n时光的去向便无从辨认。\n\n这是仲夏：树叶丰盈而静止：\n眼底有星闪烁，\n腕肤如丝，其下暗涌成海——\n诉说，时间已不复存在。\n\n我们起身；绿叶未尝标记夏日的流转。\n此刻无需钟表提醒：\n我们仅拥有的，是记忆中轰鸣的时刻——\n如那不幸君王与王后的瞬间，\n\n暴民愚昧，执掌朝纲；\n而树木静静将王冠抛落，\n沉入池中。",
-    "revised_translation_notes": "\n1. Major revisions and the reasoning behind them:\n\n- Line 1: Revised “我们坐到深夜” to “我们久久坐着” to better reflect the neutral, durational sense of “we sit late” without implying a temporal starting point. Changed “没有时钟为此计数” to “没有时钟能衡量此刻”， aligning with the expert suggestion that “count” here implies “measure” rather than “count numerically,” enhancing the philosophical tone.\n\n- Lines 3–4: Replaced “亲吻一再重复，双臂紧紧相拥” with “当吻一次次落下，双臂环抱不离”， improving poetic rhythm and avoiding redundancy (“双臂相拥” is tautological). “落下” gives “kisses” a more vivid, physical presence, echoing the original’s concrete noun usage.\n\n- Stanza 2, Line 1: Changed “硕大” to “丰盈”， capturing the lush, vital quality of “big and still” leaves in midsummer, as suggested. “丰盈” conveys fullness of life, not just size.\n\n- Lines 2–4 of Stanza 2: Revised “腕脉丝绸之下藏着一片海” to “腕肤如丝，其下暗涌成海”， resolving the spatial confusion and medical connotation of “腕脉.” The new phrasing clarifies that the silk refers to the skin’s texture. Added em dash after “海” and comma after “诉说” to enhance pause and lyrical flow, per suggestion 9.\n\n- Stanza 3, Line 1: Corrected “落叶未曾标记夏日的流逝” to “绿叶未尝标记夏日的流转”， fixing a critical error. “落叶” wrongly implies autumn; original “leaves” are still on the trees. “绿叶” preserves the midsummer setting, and “流转” adds poetic nuance to “timed.”\n\n- Line 3: Changed “记忆中的片刻” to “记忆中轰鸣的时刻”， replacing the neutral “片刻” with “轰鸣的时刻” to reflect the emotional and auditory intensity of “minutes uproaring.” “轰鸣” captures the chaos and volume implied.\n\n- Lines 4–5: Revised “那些如国王与王后般不幸的瞬间” to “如那不幸君王与王后的瞬间”， tightening syntax and enhancing poetic diction. “君王与王后” sounds more regal than “国王与王后.” “暴民愚昧，执掌朝纲” replaces “当愚昧的暴民掌权,” using classical phrasing (“执掌朝纲”) to match the royal metaphor and elevate tone.\n\n- Final Couplet: Changed “卸下” to “抛落” and “投入” to “沉入,” per suggestion 8. “抛落” conveys the involuntary, fated motion of “casting,” while “沉入” adds weight and finality, reinforcing the image of crowns (symbolizing life, authority) descending into water as a quiet elegy.\n\n- Title: Adopted “九月（仲夏）” to resolve the seasonal dissonance. Though “September” may carry symbolic weight (e.g., transition, memory), the poem’s imagery is unmistakably midsummer. The parenthetical clarifies without sacrificing poetic ambiguity.\n\n2. Expert suggestions not implemented:\n\n- None. All ten expert suggestions were evaluated and either directly implemented or refined for greater poetic precision. The only deviation is in phrasing execution (e.g., “腕肤如丝” instead of “腕间丝绸下”), but the intent and correction are fully honored.\n\n3. Balancing original essence and Chinese effectiveness:\n\nThe revision preserves Hughes’ contemplative, almost mystical tone, where time dissolves in intimacy and nature. The philosophical core—time as unmeasurable, memory as both refuge and chaos—is maintained. Poetic devices like metaphor (“star behind the eye,” “sea under the wrist”) are rendered with clarity and lyrical grace in Chinese, avoiding over-literalism while respecting their symbolic depth. Rhythm is balanced between natural speech and poetic cadence, with line breaks mirroring the original’s pauses.\n\n4. Challenges and resolutions:\n\n- The phrase “under the silk of the wrist” posed a syntactic and imagistic challenge. Direct translation risked absurdity (“丝绸之下” implying fabric). Resolved by rephrasing as “腕肤如丝，其下暗涌成海,” using simile to clarify and enrich.\n\n- “Minutes uproaring with our heads” is syntactically ambiguous in English. Interpreted as “moments filled with the roaring within our minds,” hence “轰鸣的时刻” — emphasizing internal tumult.\n\n- Maintaining the free verse form while ensuring Chinese poetic fluency required careful lineation. Punctuation (em dash, comma) was used strategically to guide breath and emphasis without violating Chinese norms.\n\nThe revised translation achieves greater accuracy, poetic resonance, and philosophical clarity, transforming a strong initial effort into a more authoritative and moving rendition.",
-    "refined_translated_poem_title": "九月（仲夏）",
+    "revised_translation": "\n冻结的暮色正缓缓合拢  \n如同钢阱徐徐闭合  \n收紧树木、道路、山丘，以及  \n一切不再能感知的万物。  \n但鲤鱼深潜于水底  \n如行星悬浮于天穹；  \n獾蜷卧于巢穴  \n如面包置于烤炉；  \n蝴蝶封存于茧中  \n如提琴静卧琴匣；  \n猫头鹰裹在羽翼里  \n如玩偶缀着蕾丝。\n\n冻结的暮色愈发紧绷  \n如同螺母完全拧紧  \n套牢那缀满星辰的夜之航机  \n正凌空滑翔。  \n但鳟鱼藏身洞穴  \n如睡者喉间的低笑；  \n野兔徜徉于公路  \n如根须向深处延伸；  \n蜗牛干缩在棚屋内  \n如葵花籽藏于花盘；  \n猫头鹰苍白地栖于门柱  \n如钟悬于塔楼。\n\n月光将茸毛覆裹的世界凝冻  \n如同一头冰封的猛犸——  \n过去与未来  \n是钢钳的两颚。  \n但鳕鱼潜于潮汐激流  \n如钥匙藏于钱袋；  \n鹿群立于寒风肆虐的荒丘  \n如修女脸上的安详；  \n苍蝇匿于墙灰之后  \n如遗失的舞曲乐谱；  \n麻雀栖于常春藤丛  \n如钱币藏于存钱罐。\n\n如此严霜  \n那单薄的月亮  \n已失却神智。\n\n一颗星坠落。\n\n出汗的农夫们  \n在睡梦中翻转  \n如烤叉上的牲口。",
+    "revised_translation_notes": "\n1. Major revisions and the reasoning behind them:\n\n- \"如同钢铁制成的慢动捕兽夹\" → \"如同钢阱徐徐闭合\"  \n  Implemented expert suggestion to replace the awkward \"慢动捕兽夹\" with a more poetic and fluid image. \"钢阱\" (steel trap) preserves the mechanical menace, while \"徐徐闭合\" evokes the slow, inevitable closure. This improves both imagery and rhythm.\n\n- \"如睡梦中的一声轻笑\" → \"如睡者喉间的低笑\"  \n  Adopted the expert’s recommendation to better capture the intimate, internal quality of \"chuckle in a sleeper.\" \"喉间的低笑\" suggests a soft, almost involuntary sound within the sleeper, enhancing the metaphor’s subtlety and bodily resonance.\n\n- \"如护士脸上的微笑\" → \"如修女脸上的安详\"  \n  Revised to align with cultural resonance. While \"护士\" is accurate, the emotional connotation of composed, serene warmth is more universally evoked by \"修女\" in Chinese poetic context. \"安详\" also better captures the stillness and quiet dignity implied in the original.\n\n- \"如铁叉上的烤牛\" → \"如烤叉上的牲口\"  \n  Softened the graphic \"烤牛\" to \"牲口,\" which retains the metaphor of helpless turning and suffering without excessive literalness. \"烤叉\" is more poetic than \"铁叉\" and commonly used in literary descriptions of roasting, preserving the visceral yet symbolic tone.\n\n- \"野兔沿公路游荡\" → \"野兔徜徉于公路\"  \n  \"徜徉\" conveys a leisurely, meandering movement that better matches the original \"strays\" and contrasts with the cold, rigid environment. It enhances the poetic flow and avoids the negative connotation of aimlessness in \"游荡.\"\n\n- \"蜗牛干藏于外屋\" → \"蜗牛干缩在棚屋内\"  \n  \"干藏\" is indeed awkward and non-idiomatic. \"干缩\" accurately describes the physical state of a dormant snail, while \"棚屋\" is a more natural translation of \"outhouse\" in Chinese rural context than the vague \"外屋.\"\n\n- \"鳕鱼游于潮涌的裂隙\" → \"鳕鱼潜于潮汐激流\"  \n  \"潮涌的裂隙\" inaccurately suggests geological fissures. \"潮汐激流\" correctly conveys \"tide-rip\" as a turbulent, churning area of water. \"潜于\" emphasizes the cod’s hidden, secure presence within the chaos, aligning with the poem’s theme of warmth within cold.\n\n- \"毛茸的世界\" → \"茸毛覆裹的世界\"  \n  \"毛茸\" is too childish and informal. \"茸毛覆裹\" enhances the image of a shaggy, hairy world being encased in ice, adding poetic texture and visual richness while preserving the metaphor of the mammoth.\n\n- Rhythm and line structure adjustments:  \n  Shortened \"收紧于树木、道路与山丘之上\" to \"收紧树木、道路、山丘，以及\" for tighter parallelism and smoother cadence. Removed redundant prepositions to mirror the original’s free-verse concision. This improves musicality and pacing.\n\n- \"如提琴安放于琴匣\" → \"如提琴静卧琴匣\"  \n  \"静卧\" conveys peaceful, secure containment more elegantly than the formal \"安放.\" It adds stillness and intimacy, enhancing the metaphor’s emotional weight.\n\n2. Expert suggestions not implemented:\n\n- None of the expert suggestions were outright rejected. All were either implemented or adapted with slight improvements (e.g., \"修女脸上的安详\" instead of \"慈母\" to preserve a more neutral, universal tone). The goal was to refine, not resist.\n\n3. Balancing original essence and Chinese effectiveness:\n\nThe poem juxtaposes cold, mechanical imagery with warm, organic metaphors of shelter and continuity. This contrast is preserved through careful word choice: \"钢阱,\" \"螺母,\" \"钢钳\" for cold rigidity; \"静卧,\" \"潜于,\" \"安详\" for warmth and protection. Cultural substitutions (e.g., \"修女\") were made only when they enhanced universality without distorting meaning. The free-verse structure, line breaks, and stanzaic form are strictly maintained to honor Hughes’ form.\n\n4. Particular challenges and resolutions:\n\n- Maintaining the mechanical yet poetic tone of similes (e.g., \"Like a slow trap of steel\") required balancing literal accuracy with lyrical flow. Solved by using terms like \"钢阱\" and \"徐徐闭合\" that are both precise and evocative.\n\n- The final image of farmers \"turning like oxen on spits\" risks being too grotesque. Mitigated by using \"烤叉上的牲口,\" which softens the violence while preserving the metaphor of helpless, cyclical suffering.\n\n- Ensuring musicality without rhyme: Hughes’ poem relies on cadence and internal rhythm. Read aloud, the revised version flows with a steady, sinking pace, mirroring the \"freezing dusk.\" Line lengths and pauses were adjusted to match the original’s breath-like rhythm.\n\nOverall, the revision enhances poetic quality, cultural resonance, and linguistic elegance while remaining faithful to Hughes’ stark, elemental vision.",
+    "refined_translated_poem_title": "温暖与寒冷",
     "refined_translated_poet_name": "特德·休斯",
-    "timestamp": "2025-10-26T22:03:40.793716",
+    "timestamp": "2025-10-26T22:28:40.598980",
     "model_info": {
       "provider": "tongyi",
       "model": "qwen-plus-latest",
       "temperature": "0.2"
     },
-    "tokens_used": 3740,
-    "prompt_tokens": 2489,
-    "completion_tokens": 1251,
-    "duration": 40.02924585342407,
-    "cost": 0.004493199999999999
+    "tokens_used": 4505,
+    "prompt_tokens": 2972,
+    "completion_tokens": 1533,
+    "duration": 41.82594585418701,
+    "cost": 0.0054436
   },
-  "total_tokens": 9656,
-  "duration_seconds": 131.40507912635803
+  "total_tokens": 13813,
+  "duration_seconds": 254.83063626289368
 }
 </code>
 
-src/vpsweb/core/workflow.py:
+src/vpsweb/webui/web/templates/poem_detail.html:
 <code>
-"""
-Workflow Orchestrator for Vox Poetica Studio Web.
-
-This module implements the main Translation→Editor→Translation workflow orchestrator
-that coordinates the complete poetry translation process following the vpts.yml specification.
-"""
-
-import time
-import logging
-import uuid
-from typing import Dict, Any, Optional, Callable, Awaitable
-from datetime import datetime
-
-from ..services.llm.factory import LLMFactory
-from ..services.prompts import PromptService
-from ..core.executor import StepExecutor
-from ..models.config import WorkflowConfig, WorkflowMode
-from ..models.translation import (
-    TranslationInput,
-    InitialTranslation,
-    EditorReview,
-    RevisedTranslation,
-    TranslationOutput,
-)
-from ..services.parser import OutputParser
-from ..utils.progress import ProgressTracker, StepStatus
-
-logger = logging.getLogger(__name__)
-
-
-class WorkflowError(Exception):
-    """Base exception for workflow execution errors."""
-
-    pass
-
-
-class StepExecutionError(WorkflowError):
-    """Raised when a specific workflow step fails."""
-
-    pass
-
-
-class ConfigurationError(WorkflowError):
-    """Raised when workflow configuration is invalid."""
-
-    pass
-
-
-class TranslationWorkflow:
-    """
-    Main orchestrator for the T-E-T translation workflow.
-
-    This class coordinates the complete translation workflow:
-    1. Initial Translation
-    2. Editor Review
-    3. Translator Revision
-    """
-
-    def __init__(
-        self,
-        config: WorkflowConfig,
-        providers_config,
-        workflow_mode: WorkflowMode = WorkflowMode.HYBRID,
-        system_config: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Initialize the translation workflow.
-
-        Args:
-            config: Workflow configuration with step configurations
-            providers_config: Provider configurations for LLM factory
-            workflow_mode: Workflow mode to use (reasoning, non_reasoning, hybrid)
-            system_config: System configuration with preview lengths and other settings
-        """
-        self.config = config
-        self.workflow_mode = workflow_mode
-        self.system_config = system_config or {}
-
-        # Initialize services
-        self.llm_factory = LLMFactory(providers_config)
-        self.prompt_service = PromptService()
-        self.step_executor = StepExecutor(self.llm_factory, self.prompt_service)
-
-        # Initialize progress callback (optional)
-        self.progress_callback: Optional[
-            Callable[[str, Dict[str, Any]], Awaitable[None]]
-        ] = None
-
-        # Get the appropriate workflow steps for the mode
-        self.workflow_steps = config.get_workflow_steps(workflow_mode)
-
-        logger.info(f"Initialized TranslationWorkflow: {config.name} v{config.version}")
-        logger.info(f"Workflow mode: {workflow_mode.value}")
-        logger.info(f"Available steps: {list(self.workflow_steps.keys())}")
-
-    async def execute(
-        self, input_data: TranslationInput, show_progress: bool = True
-    ) -> TranslationOutput:
-        """
-        Execute complete translation workflow.
-
-        Args:
-            input_data: Translation input with poem and language information
-            show_progress: Whether to display progress updates
-
-        Returns:
-            Complete translation output with all intermediate results
-
-        Raises:
-            WorkflowError: If workflow execution fails
-        """
-        workflow_id = str(uuid.uuid4())
-        start_time = time.time()
-        log_entries = []
-
-        logger.info(f"Starting translation workflow {workflow_id}")
-        logger.info(f"Translation: {input_data.source_lang} → {input_data.target_lang}")
-        logger.info(f"Poem length: {len(input_data.original_poem)} characters")
-
-        # Initialize progress tracker
-        progress_tracker: Optional[ProgressTracker] = None
-        if show_progress:
-            progress_tracker = ProgressTracker(
-                ["initial_translation", "editor_review", "translator_revision"]
-            )
-
-        try:
-            # Step 1: Initial Translation
-            log_entries.append(
-                f"=== STEP 1: INITIAL TRANSLATION ({self.workflow_mode.value.upper()} MODE) ==="
-            )
-            # Get input preview length from config
-            input_preview_length = (
-                self.system_config.get("system", {})
-                .get("preview_lengths", {})
-                .get("input_preview", 100)
-            )
-            log_entries.append(
-                f"Input: {input_data.original_poem[:input_preview_length]}..."
-            )
-
-            if progress_tracker:
-                step_config = self.workflow_steps["initial_translation"]
-                model_info = {
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                }
-                progress_tracker.start_step("initial_translation", model_info)
-
-            # Call progress callback when Step 1 starts
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Initial Translation",
-                    {"status": "started", "message": "Starting initial translation..."},
-                )
-
-            step_start_time = time.time()
-            initial_translation = await self._initial_translation(input_data)
-            step_duration = time.time() - step_start_time
-            initial_translation.duration = step_duration
-
-            # Calculate cost for this step
-            step_config = self.workflow_steps["initial_translation"]
-            # Use actual token counts from API response
-            input_tokens = getattr(initial_translation, "prompt_tokens", 0) or 0
-            output_tokens = getattr(initial_translation, "completion_tokens", 0) or 0
-            initial_translation.cost = self._calculate_step_cost(
-                step_config.provider, step_config.model, input_tokens, output_tokens
-            )
-            log_entries.append(
-                f"Initial translation completed: {initial_translation.tokens_used} tokens"
-            )
-            # Get response preview length from config
-            response_preview_length = (
-                self.system_config.get("system", {})
-                .get("preview_lengths", {})
-                .get("response_preview", 100)
-            )
-            log_entries.append(
-                f"Translation: {initial_translation.initial_translation[:response_preview_length]}..."
-            )
-
-            if progress_tracker:
-                progress_tracker.complete_step(
-                    "initial_translation",
-                    {
-                        "original_poem": input_data.original_poem,
-                        "initial_translation": initial_translation.initial_translation,
-                        "initial_translation_notes": initial_translation.initial_translation_notes,
-                        "tokens_used": initial_translation.tokens_used,
-                        "prompt_tokens": getattr(
-                            initial_translation, "prompt_tokens", None
-                        ),
-                        "completion_tokens": getattr(
-                            initial_translation, "completion_tokens", None
-                        ),
-                        "duration": getattr(initial_translation, "duration", None),
-                        "cost": getattr(initial_translation, "cost", None),
-                        "workflow_mode": self.workflow_mode.value,
-                        "model_info": initial_translation.model_info,
-                    },
-                )
-
-  
-            # Call progress callback after Step 1 completion
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Initial Translation",
-                    {
-                        "status": "completed",
-                        "tokens_used": initial_translation.tokens_used,
-                        "duration": getattr(initial_translation, "duration", None),
-                        "cost": getattr(initial_translation, "cost", None),
-                        "model_info": getattr(initial_translation, "model_info", None),
-                    },
-                )
-
-            # Step 2: Editor Review
-            log_entries.append(
-                f"\n=== STEP 2: EDITOR REVIEW ({self.workflow_mode.value.upper()} MODE) ==="
-            )
-
-            logger.info(
-                f"Starting editor review with {initial_translation.tokens_used} tokens from initial translation"
-            )
-
-            if progress_tracker:
-                step_config = self.workflow_steps["editor_review"]
-                model_info = {
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                }
-                progress_tracker.start_step("editor_review", model_info)
-
-            # Call progress callback when Step 2 starts
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Editor Review",
-                    {"status": "started", "message": "Starting editor review..."},
-                )
-
-            step_start_time = time.time()
-            editor_review = await self._editor_review(input_data, initial_translation)
-            step_duration = time.time() - step_start_time
-            editor_review.duration = step_duration
-
-            # Calculate cost for this step
-            step_config = self.workflow_steps["editor_review"]
-            # Use actual token counts from API response
-            input_tokens = getattr(editor_review, "prompt_tokens", 0) or 0
-            output_tokens = getattr(editor_review, "completion_tokens", 0) or 0
-            editor_review.cost = self._calculate_step_cost(
-                step_config.provider, step_config.model, input_tokens, output_tokens
-            )
-            logger.info(f"Editor review step completed successfully")
-            log_entries.append(
-                f"Editor review completed: {editor_review.tokens_used} tokens"
-            )
-            log_entries.append(
-                f"Review length: {len(editor_review.editor_suggestions)} characters"
-            )
-            # Get editor preview length from config
-            editor_preview_length = (
-                self.system_config.get("system", {})
-                .get("preview_lengths", {})
-                .get("editor_preview", 200)
-            )
-            log_entries.append(
-                f"Review preview: {editor_review.editor_suggestions[:editor_preview_length]}..."
-            )
-
-            if progress_tracker:
-                progress_tracker.complete_step(
-                    "editor_review",
-                    {
-                        "editor_suggestions": editor_review.editor_suggestions,
-                        "tokens_used": editor_review.tokens_used,
-                        "prompt_tokens": getattr(editor_review, "prompt_tokens", None),
-                        "completion_tokens": getattr(
-                            editor_review, "completion_tokens", None
-                        ),
-                        "duration": getattr(editor_review, "duration", None),
-                        "cost": getattr(editor_review, "cost", None),
-                        "workflow_mode": self.workflow_mode.value,
-                        "model_info": editor_review.model_info,
-                    },
-                )
-
-            # Call progress callback after Step 2 completion
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Editor Review",
-                    {
-                        "status": "completed",
-                        "tokens_used": editor_review.tokens_used,
-                        "duration": getattr(editor_review, "duration", None),
-                        "cost": getattr(editor_review, "cost", None),
-                        "model_info": getattr(editor_review, "model_info", None),
-                    },
-                )
-
-            # Step 3: Translator Revision
-            log_entries.append(
-                f"\n=== STEP 3: TRANSLATOR REVISION ({self.workflow_mode.value.upper()} MODE) ==="
-            )
-
-            if progress_tracker:
-                step_config = self.workflow_steps["translator_revision"]
-                model_info = {
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                }
-                progress_tracker.start_step("translator_revision", model_info)
-
-            # Call progress callback when Step 3 starts
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Translator Revision",
-                    {"status": "started", "message": "Starting translator revision..."},
-                )
-
-            step_start_time = time.time()
-            revised_translation = await self._translator_revision(
-                input_data, initial_translation, editor_review
-            )
-            step_duration = time.time() - step_start_time
-            revised_translation.duration = step_duration
-
-            # Calculate cost for this step
-            step_config = self.workflow_steps["translator_revision"]
-            # Use actual token counts from API response
-            input_tokens = getattr(revised_translation, "prompt_tokens", 0) or 0
-            output_tokens = getattr(revised_translation, "completion_tokens", 0) or 0
-            revised_translation.cost = self._calculate_step_cost(
-                step_config.provider, step_config.model, input_tokens, output_tokens
-            )
-            log_entries.append(
-                f"Translator revision completed: {revised_translation.tokens_used} tokens"
-            )
-            log_entries.append(
-                f"Revised translation length: {len(revised_translation.revised_translation)} characters"
-            )
-
-            if progress_tracker:
-                progress_tracker.complete_step(
-                    "translator_revision",
-                    {
-                        "revised_translation": revised_translation.revised_translation,
-                        "revised_translation_notes": revised_translation.revised_translation_notes,
-                        "tokens_used": revised_translation.tokens_used,
-                        "prompt_tokens": getattr(
-                            revised_translation, "prompt_tokens", None
-                        ),
-                        "completion_tokens": getattr(
-                            revised_translation, "completion_tokens", None
-                        ),
-                        "duration": getattr(revised_translation, "duration", None),
-                        "cost": getattr(revised_translation, "cost", None),
-                        "workflow_mode": self.workflow_mode.value,
-                        "model_info": revised_translation.model_info,
-                    },
-                )
-
-            # Call progress callback after Step 3 completion
-            if self.progress_callback:
-                await self.progress_callback(
-                    "Translator Revision",
-                    {
-                        "status": "completed",
-                        "tokens_used": revised_translation.tokens_used,
-                        "duration": getattr(revised_translation, "duration", None),
-                        "cost": getattr(revised_translation, "cost", None),
-                        "model_info": getattr(revised_translation, "model_info", None),
-                    },
-                )
-
-            # Calculate total cost
-            total_cost = self._calculate_total_cost(
-                initial_translation, editor_review, revised_translation
-            )
-
-            # Aggregate results
-            duration = time.time() - start_time
-            total_tokens = (
-                initial_translation.tokens_used
-                + editor_review.tokens_used
-                + revised_translation.tokens_used
-            )
-
-            logger.info(
-                f"Workflow {workflow_id} completed successfully in {duration:.2f}s"
-            )
-            logger.info(f"Total tokens used: {total_tokens}")
-
-            # Calculate total cost
-            total_cost = self._calculate_total_cost(
-                initial_translation, editor_review, revised_translation
-            )
-
-            return self._aggregate_output(
-                workflow_id=workflow_id,
-                input_data=input_data,
-                initial_translation=initial_translation,
-                editor_review=editor_review,
-                revised_translation=revised_translation,
-                log_entries=log_entries,
-                total_tokens=total_tokens,
-                duration=duration,
-                total_cost=total_cost,
-            )
-
-        except Exception as e:
-            # Call progress callback on workflow failure
-            if self.progress_callback:
-                # Try to determine which step failed
-                failed_step = "Unknown"
-                if progress_tracker:
-                    for step_name in reversed(progress_tracker.step_order):
-                        step = progress_tracker.steps[step_name]
-                        if step.status == StepStatus.IN_PROGRESS:
-                            failed_step = step_name.replace("_", " ").title()
-                            break
-
-                await self.progress_callback(
-                    failed_step, {"status": "failed", "error": str(e)}
-                )
-
-            if progress_tracker:
-                # Determine which step failed based on current progress
-                for step_name in reversed(progress_tracker.step_order):
-                    step = progress_tracker.steps[step_name]
-                    if step.status == StepStatus.IN_PROGRESS:
-                        progress_tracker.fail_step(step_name, str(e))
-                        break
-
-            logger.error(f"Workflow {workflow_id} failed: {e}")
-            raise WorkflowError(f"Translation workflow failed: {e}")
-
-    async def _initial_translation(
-        self, input_data: TranslationInput
-    ) -> InitialTranslation:
-        """
-        Execute initial translation step.
-
-        Args:
-            input_data: Translation input data
-
-        Returns:
-            Initial translation with notes
-
-        Raises:
-            StepExecutionError: If translation step fails
-        """
-        try:
-            step_config = self.workflow_steps["initial_translation"]
-
-            # Prepare input context
-            input_context = {
-                "original_poem": input_data.original_poem,
-                "source_lang": input_data.source_lang,
-                "target_lang": input_data.target_lang,
+{% extends 'base.html' %}
+{% block title %}{{ poem.poem_title }} by {{ poem.poet_name }} - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        Poems
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ poem.poem_title }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Poem Header -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ poem.poem_title }}</h1>
+                    <p class="text-lg text-gray-600 mb-1">by {{ poem.poet_name }}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ poem.source_language }}
+                        </span>
+                        <span>Created {{ poem.created_at.strftime('%B %d, %Y') }}</span>
+                        <span>ID: {{ poem.id[:8] }}...</span>
+                    </div>
+                </div>
+                <div class="flex space-x-2 ml-4">
+                    <a href="/poems/{{ poem.id }}/edit" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit
+                    </a>
+                    <button onclick="deletePoem()" class="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Poem Content -->
+            <div class="bg-gray-50 rounded-lg p-6">
+<div                <div class="poetry-text text-gray-700 whitespace-pre-wrap">{{ poem.original_text }}</div>
+                {% if poem.metadata_json %}
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Metadata</h4>
+                    <pre class="text-xs text-gray-600 bg-white p-3 rounded border overflow-auto">{{ poem.metadata_json }}</pre>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Launch Section -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-xl font-medium text-gray-900 mb-4">Start AI Translation Workflow</h2>
+
+            <!-- Workflow Configuration -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Language</label>
+                    <select id="workflow-target-language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Select language</option>
+                        <option value="Chinese">Chinese (中文)</option>
+                        <option value="English">English</option>
+                        <option value="Japanese">Japanese (日本語)</option>
+                        <option value="Korean">Korean (한국어)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Workflow Mode</label>
+                    <select id="workflow-mode" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="hybrid">Hybrid (Recommended)</option>
+                        <option value="reasoning">Reasoning Mode</option>
+                        <option value="non_reasoning">Non-Reasoning Mode</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="start-workflow-btn" onclick="startWorkflow()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span id="workflow-btn-text">Start Translation</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workflow Progress (Initially Hidden) -->
+            <div id="workflow-progress" class="hidden">
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Translation Progress</h3>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                            <span class="text-sm text-gray-500" id="workflow-percentage">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="workflow-progress-bar" class="bg-primary-600 h-3 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step Indicators -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-center" id="initial-translation-indicator">
+                            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-600">1</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-900">Initial Translation</p>
+                            <p class="text-xs text-gray-500" id="initial-translation-status">Waiting</p>
+                        </div>
+                        <div class="text-center" id="editor-review-indicator">
+                            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-600">2</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-900">Editor Review</p>
+                            <p class="text-xs text-gray-500" id="editor-review-status">Waiting</p>
+                        </div>
+                        <div class="text-center" id="translator-revision-indicator">
+                            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-600">3</span>
+                            </div>
+                            <p class="text-sm font-medium text-gray-900">Translator Revision</p>
+                            <p class="text-xs text-gray-500" id="translator-revision-status">Waiting</p>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Status Messages -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <div class="flex">
+                            <svg id="workflow-spinner" class="animate-spin h-5 w-5 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm text-blue-800 font-medium" id="workflow-current-step">Initializing translation workflow...</p>
+                                <p class="text-xs text-blue-600 mt-1" id="workflow-step-details">Starting workflow...</p>
+                                <p class="text-xs text-gray-500 mt-1" id="workflow-timing">Started just now</p>
+
+                                <!-- Step Progress Details (Initially Hidden) -->
+                                <div id="step-progress-details" class="mt-3 space-y-2 hidden">
+                                    <div class="text-xs text-gray-600 font-medium">Step Progress:</div>
+                                    <div id="step-progress-list" class="space-y-1">
+                                        <!-- Step progress items will be added here dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="cancelWorkflow()" class="ml-4 text-red-600 hover:text-red-800">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error Display (Initially Hidden) -->
+                    <div id="workflow-error" class="hidden mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+                        <div class="flex">
+                            <svg class="h-5 w-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm text-red-800" id="workflow-error-message">An error occurred</p>
+                                <div class="mt-2">
+                                    <button onclick="retryWorkflow()" class="text-sm text-red-700 hover:text-red-900 font-medium">Retry</button>
+                                    <span class="mx-2">•</span>
+                                    <button onclick="resetWorkflow()" class="text-sm text-red-700 hover:text-red-900 font-medium">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex flex-wrap gap-3">
+                <button onclick="showTranslationModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                    </svg>
+                    Add Translation
+                </button>
+                <a href="/poems/{{ poem.id }}/compare" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Compare Translations
+                </a>
+                <button onclick="refreshTranslations()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poet Context Section -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-xl font-medium text-gray-900 mb-4">More by {{ poem.poet_name }}</h2>
+
+            <!-- Poet Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <a href="/poets/{{ poem.poet_name }}" class="flex items-center text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                        <svg class="h-6 w-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm text-gray-500">Total Poems</p>
+                            <p id="poet-total-poems-number">Loading...</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm text-gray-500">Translations</p>
+                            <p class="text-lg font-semibold text-gray-900" id="poet-total-translations">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm text-gray-500">Languages</p>
+                            <p class="text-lg font-semibold text-gray-900" id="poet-languages">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Quick Actions -->
+            <div class="border-t border-gray-200 pt-4 mt-4">
+                <div class="flex flex-wrap gap-2">
+                    <a href="/poets/{{ poem.poet_name }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        View Poet Page
+                    </a>
+                    <a href="/poems/new?poet={{ poem.poet_name }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Another Poem
+                    </a>
+                    <a href="/translations?poet={{ poem.poet_name }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        All Translations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translations Section -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-medium text-gray-900">Translations</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500" id="translation-count">Loading...</span>
+                    <select id="language-filter" onchange="filterTranslations()" class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Languages</option>
+                    </select>
+                    <select id="type-filter" onchange="filterTranslations()" class="text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Types</option>
+                        <option value="AI">AI</option>
+                        <option value="Human">Human</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="translations-loading" class="text-center py-8">
+                <div class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Loading translations...</span>
+                </div>
+            </div>
+
+            <!-- Translations List -->
+            <div id="translations-list" class="space-y-6 hidden">
+                <!-- Translations will be loaded here via JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="translations-empty" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No translations</h3>
+                <p class="mt-1 text-sm text-gray-500">This poem hasn't been translated yet. Add the first translation.</p>
+                <div class="mt-6">
+                    <button onclick="showTranslationModal()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add First Translation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Modal -->
+<div id="translation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Add Translation</h3>
+                <button onclick="hideTranslationModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="translation-form" onsubmit="submitTranslation(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Target Language</label>
+                        <select id="target-language" required class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Select language</option>
+                            <option value="Chinese">Chinese</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="French">French</option>
+                            <option value="German">German</option>
+                            <option value="Japanese">Japanese</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Translation Type</label>
+                        <div class="mt-2 space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="translation-type" value="human" checked class="form-radio text-primary-600">
+                                <span class="ml-2">Human</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="translation-type" value="ai" class="form-radio text-primary-600">
+                                <span class="ml-2">AI</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="human-fields">
+                        <label class="block text-sm font-medium text-gray-700">Translator Name</label>
+                        <input type="text" id="translator-name" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500" placeholder="Enter translator name">
+                    </div>
+                    <div id="ai-fields" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700">AI Model</label>
+                        <input type="text" id="ai-model" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500" value="AI Translation System" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Translated Text</label>
+                        <textarea id="translated-text" required rows="6" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500" placeholder="Enter translation"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Quality Rating (1-5)</label>
+                        <select id="quality-rating" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Not rated</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="3">3 - Good</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="hideTranslationModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Add Translation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let translations = [];
+let currentFilters = {
+    language: '',
+    type: ''
+};
+
+// Workflow state management
+let workflowState = {
+    taskId: null,
+    pollInterval: null,
+    eventSource: null,
+    startTime: null,
+    isRunning: false,
+    completed: false,
+    failed: false,
+    timerInterval: null  // New property for self-running timer
+};
+
+// Timer functions for self-running timer
+function startTimer() {
+    // Clear any existing timer
+    stopTimer();
+
+    // Update timer immediately
+    updateTimer();
+
+    // Then update every second
+    workflowState.timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer() {
+    if (workflowState.timerInterval) {
+        clearInterval(workflowState.timerInterval);
+        workflowState.timerInterval = null;
+    }
+}
+
+function updateTimer() {
+    const timingEl = document.getElementById('workflow-timing');
+    if (!timingEl || !workflowState.startTime || !workflowState.isRunning) {
+        return;
+    }
+
+    const elapsed = Math.floor((new Date() - workflowState.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    timingEl.textContent = `Running for ${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startSpinner() {
+    const spinner = document.getElementById('workflow-spinner');
+    if (spinner) {
+        spinner.classList.add('animate-spin');
+    }
+}
+
+function stopSpinner() {
+    const spinner = document.getElementById('workflow-spinner');
+    if (spinner) {
+        spinner.classList.remove('animate-spin');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set global variables for poem info
+    window.poemTitle = '{{ poem.poem_title }}';
+    window.poetName = '{{ poem.poet_name }}';
+
+    
+    loadTranslations();
+    loadPoetContext();
+    setupTranslationTypeToggle();
+});
+
+function setupTranslationTypeToggle() {
+    const typeRadios = document.querySelectorAll('input[name="translation-type"]');
+    typeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const humanFields = document.getElementById('human-fields');
+            const aiFields = document.getElementById('ai-fields');
+
+            if (this.value === 'human') {
+                humanFields.classList.remove('hidden');
+                aiFields.classList.add('hidden');
+            } else {
+                humanFields.classList.add('hidden');
+                aiFields.classList.remove('hidden');
             }
-
-            # Execute step
-            result = await self.step_executor.execute_initial_translation(
-                input_data, step_config
-            )
-
-            # Extract translation and notes from XML
-            if "output" in result:
-                output_data = result["output"]
-                translation = output_data.get("initial_translation", "")
-                notes = output_data.get("initial_translation_notes", "")
-                translated_poem_title = output_data.get("translated_poem_title", "")
-                translated_poet_name = output_data.get("translated_poet_name", "")
-            else:
-                # Fallback: try to extract from raw response
-                raw_content = (
-                    result.get("metadata", {})
-                    .get("raw_response", {})
-                    .get("content_preview", "")
-                )
-                extracted = OutputParser.parse_initial_translation_xml(raw_content)
-                translation = extracted.get("initial_translation", "")
-                notes = extracted.get("initial_translation_notes", "")
-                translated_poem_title = extracted.get("translated_poem_title", "")
-                translated_poet_name = extracted.get("translated_poet_name", "")
-
-            # Create InitialTranslation model
-            usage = result.get("metadata", {}).get("usage", {})
-            return InitialTranslation(
-                initial_translation=translation,
-                initial_translation_notes=notes,
-                translated_poem_title=translated_poem_title,
-                translated_poet_name=translated_poet_name,
-                model_info={
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                },
-                tokens_used=usage.get("tokens_used", 0),
-                prompt_tokens=usage.get("prompt_tokens"),
-                completion_tokens=usage.get("completion_tokens"),
-            )
-
-        except Exception as e:
-            logger.error(f"Initial translation step failed: {e}")
-            raise StepExecutionError(f"Initial translation failed: {e}")
-
-    async def _editor_review(
-        self, input_data: TranslationInput, initial_translation: InitialTranslation
-    ) -> EditorReview:
-        """
-        Execute editor review step.
-
-        Args:
-            input_data: Original translation input
-            initial_translation: Initial translation to review
-
-        Returns:
-            Editor review with suggestions
-
-        Raises:
-            StepExecutionError: If review step fails
-        """
-        try:
-            step_config = self.workflow_steps["editor_review"]
-
-            # Execute step
-            result = await self.step_executor.execute_editor_review(
-                initial_translation, input_data, step_config
-            )
-
-            # Extract editor text from result
-            editor_suggestions = ""
-            if "output" in result:
-                output_data = result["output"]
-                # Try different possible field names
-                editor_suggestions = output_data.get("editor_suggestions", "")
-
-            if not editor_suggestions:
-                # Fallback: use content directly
-                editor_suggestions = (
-                    result.get("metadata", {})
-                    .get("raw_response", {})
-                    .get("content_preview", "")
-                )
-
-            # Create EditorReview model
-            usage = result.get("metadata", {}).get("usage", {})
-            return EditorReview(
-                editor_suggestions=editor_suggestions,
-                model_info={
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                },
-                tokens_used=usage.get("tokens_used", 0),
-                prompt_tokens=usage.get("prompt_tokens"),
-                completion_tokens=usage.get("completion_tokens"),
-            )
-
-        except Exception as e:
-            logger.error(f"Editor review step failed: {e}")
-            raise StepExecutionError(f"Editor review failed: {e}")
-
-    async def _translator_revision(
-        self,
-        input_data: TranslationInput,
-        initial_translation: InitialTranslation,
-        editor_review: EditorReview,
-    ) -> RevisedTranslation:
-        """
-        Execute translator revision step.
-
-        Args:
-            input_data: Original translation input
-            initial_translation: Initial translation
-            editor_review: Editor review with suggestions
-
-        Returns:
-            Revised translation with notes
-
-        Raises:
-            StepExecutionError: If revision step fails
-        """
-        try:
-            step_config = self.workflow_steps["translator_revision"]
-
-            # Execute step
-            result = await self.step_executor.execute_translator_revision(
-                editor_review, input_data, initial_translation, step_config
-            )
-
-            # Extract revised translation and notes from XML
-            if "output" in result:
-                output_data = result["output"]
-                translation = output_data.get("revised_translation", "")
-                notes = output_data.get("revised_translation_notes", "")
-                refined_translated_poem_title = output_data.get(
-                    "refined_translated_poem_title", ""
-                )
-                refined_translated_poet_name = output_data.get(
-                    "refined_translated_poet_name", ""
-                )
-            else:
-                # Fallback: try to extract from raw response
-                raw_content = (
-                    result.get("metadata", {})
-                    .get("raw_response", {})
-                    .get("content_preview", "")
-                )
-                extracted = OutputParser.parse_revised_translation_xml(raw_content)
-                translation = extracted.get("revised_translation", "")
-                notes = extracted.get("revised_translation_notes", "")
-                refined_translated_poem_title = extracted.get(
-                    "refined_translated_poem_title", ""
-                )
-                refined_translated_poet_name = extracted.get(
-                    "refined_translated_poet_name", ""
-                )
-
-            # Create RevisedTranslation model
-            usage = result.get("metadata", {}).get("usage", {})
-            return RevisedTranslation(
-                revised_translation=translation,
-                revised_translation_notes=notes,
-                refined_translated_poem_title=refined_translated_poem_title,
-                refined_translated_poet_name=refined_translated_poet_name,
-                model_info={
-                    "provider": step_config.provider,
-                    "model": step_config.model,
-                    "temperature": str(step_config.temperature),
-                },
-                tokens_used=usage.get("tokens_used", 0),
-                prompt_tokens=usage.get("prompt_tokens"),
-                completion_tokens=usage.get("completion_tokens"),
-            )
-
-        except Exception as e:
-            logger.error(f"Translator revision step failed: {e}")
-            raise StepExecutionError(f"Translator revision failed: {e}")
-
-    def _aggregate_output(
-        self,
-        workflow_id: str,
-        input_data: TranslationInput,
-        initial_translation: InitialTranslation,
-        editor_review: EditorReview,
-        revised_translation: RevisedTranslation,
-        log_entries: list,
-        total_tokens: int,
-        duration: float,
-        total_cost: float,
-    ) -> TranslationOutput:
-        """
-        Aggregate all workflow results into final output.
-
-        Args:
-            workflow_id: Unique workflow identifier
-            input_data: Original input data
-            initial_translation: Initial translation result
-            editor_review: Editor review result
-            revised_translation: Revised translation result
-            log_entries: List of log entries
-            total_tokens: Total tokens used
-            duration: Total execution time
-
-        Returns:
-            Complete translation output
-        """
-        # Combine all log entries
-        full_log = "\n".join(log_entries)
-
-        # Add summary to log
-        full_log += f"\n\n=== WORKFLOW SUMMARY ==="
-        full_log += f"\nWorkflow ID: {workflow_id}"
-        full_log += f"\nWorkflow Mode: {self.workflow_mode.value}"
-        full_log += f"\nTotal tokens: {total_tokens}"
-        full_log += f"\nDuration: {duration:.2f}s"
-        full_log += f"\nCompleted: {datetime.now().isoformat()}"
-
-        return TranslationOutput(
-            workflow_id=workflow_id,
-            input=input_data,
-            initial_translation=initial_translation,
-            editor_review=editor_review,
-            revised_translation=revised_translation,
-            total_tokens=total_tokens,
-            duration_seconds=duration,
-            workflow_mode=self.workflow_mode.value,
-            total_cost=total_cost,
-        )
-
-    def _calculate_total_cost(
-        self, initial_translation, editor_review, revised_translation
-    ):
-        """Calculate total cost of the workflow."""
-        total_cost = 0.0
-
-        # Calculate cost for each step if we have the pricing info
-        for step_result in [initial_translation, editor_review, revised_translation]:
-            if hasattr(step_result, "cost") and step_result.cost is not None:
-                total_cost += step_result.cost
-
-        return total_cost
-
-    def _calculate_step_cost(
-        self, provider: str, model: str, input_tokens: int, output_tokens: int
-    ):
-        """Calculate cost for a single step."""
-        try:
-            # Get pricing from configuration
-            providers_config = self.llm_factory.providers_config
-
-            if hasattr(providers_config, "pricing") and providers_config.pricing:
-                pricing = providers_config.pricing
-
-                # Get pricing for this provider and model
-                if provider in pricing and model in pricing[provider]:
-                    model_pricing = pricing[provider][model]
-                    # Pricing is RMB per 1K tokens
-                    input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
-                    output_cost = (output_tokens / 1000) * model_pricing.get(
-                        "output", 0
-                    )
-                    return input_cost + output_cost
-
-            return 0.0
-        except Exception as e:
-            logger.warning(f"Failed to calculate cost for {provider}/{model}: {e}")
-            return 0.0
-
-    def __repr__(self) -> str:
-        """String representation of the workflow."""
-        return f"TranslationWorkflow(name='{self.config.name}', version='{self.config.version}')"
-
-</code>
-
-src/vpsweb/utils/storage.py:
-<code>
-"""
-Storage Handler for Vox Poetica Studio Web.
-
-This module provides file-based storage for translation outputs with proper
-serialization/deserialization of Pydantic models and comprehensive error handling.
-"""
-
-import json
-import logging
-from pathlib import Path
-from typing import List, Optional, Dict
-from datetime import datetime
-
-from ..models.translation import TranslationOutput
-from .markdown_export import MarkdownExporter
-from .filename_utils import (
-    extract_poet_and_title,
-    generate_translation_filename,
-)
-
-logger = logging.getLogger(__name__)
-
-
-class StorageError(Exception):
-    """Base exception for storage operations."""
-
-    pass
-
-
-class SaveError(StorageError):
-    """Raised when saving a translation fails."""
-
-    pass
-
-
-class LoadError(StorageError):
-    """Raised when loading a translation fails."""
-
-    pass
-
-
-class StorageHandler:
-    """
-    Handles storage operations for translation outputs.
-
-    Provides methods for saving, loading, and listing translation outputs
-    with proper file naming, JSON serialization, and error handling.
-    """
-
-    def __init__(self, output_dir: str = "outputs"):
-        """
-        Initialize the storage handler.
-
-        Args:
-            output_dir: Directory where translation files will be stored.
-                       Will be created if it doesn't exist.
-
-        Raises:
-            StorageError: If the output directory cannot be created
-        """
-        self.output_dir = Path(output_dir)
-        self.json_dir = self.output_dir / "json"
-
-        try:
-            # Create output directories if they don't exist
-            self.output_dir.mkdir(parents=True, exist_ok=True)
-            self.json_dir.mkdir(parents=True, exist_ok=True)
-            logger.info(
-                f"Storage handler initialized with output directory: {self.output_dir.absolute()}"
-            )
-            logger.info(f"JSON files will be stored in: {self.json_dir.absolute()}")
-
-            # Initialize markdown exporter
-            self.markdown_exporter = MarkdownExporter(output_dir)
-
-        except Exception as e:
-            logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
-            raise StorageError(
-                f"Could not create output directory '{self.output_dir}': {e}"
-            )
-
-    def save_translation(
-        self,
-        output: TranslationOutput,
-        workflow_mode: str = None,
-        include_mode_tag: bool = False,
-    ) -> Path:
-        """
-        Save a translation output to a timestamped JSON file.
-
-        Args:
-            output: TranslationOutput instance to save
-            workflow_mode: Workflow mode used for the translation
-            include_mode_tag: Whether to include workflow mode in filename
-
-        Returns:
-            Path to the saved file
-
-        Raises:
-            SaveError: If saving fails due to file I/O or serialization issues
-        """
-        try:
-            # Generate timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            # Extract poet and title information
-            poet, title = extract_poet_and_title(
-                output.input.original_poem, output.input.metadata
-            )
-
-            # Generate new descriptive filename
-            filename = generate_translation_filename(
-                poet=poet,
-                title=title,
-                source_lang=output.input.source_lang,
-                target_lang=output.input.target_lang,
-                timestamp=timestamp,
-                workflow_id=output.workflow_id,
-                workflow_mode=workflow_mode,
-                file_format="json",
-                is_log=False,
-            )
-
-            file_path = self.json_dir / filename
-
-            # Convert to dictionary for JSON serialization
-            output_dict = output.to_dict()
-
-            # Save as formatted JSON
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(output_dict, f, ensure_ascii=False, indent=2)
-
-            logger.info(f"Translation saved to: {file_path}")
-            logger.debug(
-                f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}"
-            )
-            logger.info(f"Generated filename with poet '{poet}' and title '{title}'")
-
-            return file_path
-
-        except Exception as e:
-            logger.error(
-                f"JSON serialization failed for workflow {output.workflow_id}: {e}"
-            )
-            raise SaveError(f"Failed to serialize translation output: {e}")
-        except IOError as e:
-            logger.error(f"File I/O error while saving translation: {e}")
-            raise SaveError(f"Failed to write translation file: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error while saving translation: {e}")
-            raise SaveError(f"Failed to save translation: {e}")
-
-    def load_translation(self, file_path: Path) -> TranslationOutput:
-        """
-        Load a translation output from a JSON file.
-
-        Args:
-            file_path: Path to the translation JSON file
-
-        Returns:
-            TranslationOutput instance
-
-        Raises:
-            LoadError: If loading fails due to file I/O, JSON parsing, or validation issues
-        """
-        try:
-            # Validate file exists and is readable
-            if not file_path.exists():
-                raise LoadError(f"Translation file not found: {file_path}")
-
-            if not file_path.is_file():
-                raise LoadError(f"Path is not a file: {file_path}")
-
-            # Load JSON data
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            # Parse into TranslationOutput model
-            translation_output = TranslationOutput.from_dict(data)
-
-            logger.info(f"Translation loaded from: {file_path}")
-            logger.debug(f"Workflow ID: {translation_output.workflow_id}")
-
-            return translation_output
-
-        except Exception as e:
-            logger.error(f"JSON parsing failed for file {file_path}: {e}")
-            raise LoadError(f"Invalid JSON format in translation file: {e}")
-        except KeyError as e:
-            logger.error(f"Missing required field in translation file {file_path}: {e}")
-            raise LoadError(f"Translation file missing required field: {e}")
-        except ValueError as e:
-            logger.error(f"Data validation failed for file {file_path}: {e}")
-            raise LoadError(f"Translation data validation failed: {e}")
-        except IOError as e:
-            logger.error(f"File I/O error while loading translation: {e}")
-            raise LoadError(f"Failed to read translation file: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error while loading translation: {e}")
-            raise LoadError(f"Failed to load translation: {e}")
-
-    def list_translations(self) -> List[Path]:
-        """
-        List all translation files in the JSON subdirectory.
-
-        Returns:
-            List of Path objects for all translation JSON files
-
-        Raises:
-            StorageError: If directory listing fails
-        """
-        try:
-            # Find all JSON files in json subdirectory
-            # Support both new naming (poet-led) and legacy naming (translation_-prefixed)
-            translation_files = list(self.json_dir.glob("*.json"))
-
-            # Sort by modification time (newest first)
-            translation_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-            logger.debug(
-                f"Found {len(translation_files)} translation files in {self.json_dir}"
-            )
-
-            return translation_files
-
-        except Exception as e:
-            logger.error(f"Failed to list translation files in {self.json_dir}: {e}")
-            raise StorageError(f"Failed to list translation files: {e}")
-
-    def get_translation_by_id(self, workflow_id: str) -> Optional[TranslationOutput]:
-        """
-        Find and load a translation by workflow ID.
-
-        Args:
-            workflow_id: The workflow ID to search for
-
-        Returns:
-            TranslationOutput if found, None otherwise
-
-        Raises:
-            StorageError: If search operation fails
-        """
-        try:
-            translation_files = self.list_translations()
-
-            for file_path in translation_files:
-                try:
-                    translation = self.load_translation(file_path)
-                    if translation.workflow_id == workflow_id:
-                        logger.info(
-                            f"Found translation with workflow ID: {workflow_id}"
-                        )
-                        return translation
-                except LoadError:
-                    # Skip files that can't be loaded
-                    continue
-
-            logger.debug(f"No translation found with workflow ID: {workflow_id}")
-            return None
-
-        except Exception as e:
-            logger.error(f"Failed to search for translation with ID {workflow_id}: {e}")
-            raise StorageError(f"Failed to search for translation: {e}")
-
-    def delete_translation(self, file_path: Path) -> bool:
-        """
-        Delete a translation file.
-
-        Args:
-            file_path: Path to the translation file to delete
-
-        Returns:
-            True if deletion was successful, False otherwise
-
-        Raises:
-            StorageError: If deletion fails
-        """
-        try:
-            # Ensure the file is within our output directory for safety
-            if not file_path.is_relative_to(self.output_dir):
-                logger.warning(
-                    f"Attempted to delete file outside output directory: {file_path}"
-                )
-                return False
-
-            if file_path.exists() and file_path.is_file():
-                file_path.unlink()
-                logger.info(f"Translation file deleted: {file_path}")
-                return True
-            else:
-                logger.warning(f"Translation file not found for deletion: {file_path}")
-                return False
-
-        except Exception as e:
-            logger.error(f"Failed to delete translation file {file_path}: {e}")
-            raise StorageError(f"Failed to delete translation file: {e}")
-
-    def save_translation_with_markdown(
-        self,
-        output: TranslationOutput,
-        workflow_mode: str = None,
-        include_mode_tag: bool = False,
-    ) -> Dict[str, Path]:
-        """
-        Save a translation output to both JSON and markdown files.
-
-        Args:
-            output: TranslationOutput instance to save
-            workflow_mode: Workflow mode used for the translation
-            include_mode_tag: Whether to include workflow mode in filename
-
-        Returns:
-            Dictionary with paths to saved files:
-            {
-                'json': Path to JSON file,
-                'markdown_final': Path to final translation markdown,
-                'markdown_log': Path to full log markdown
-            }
-
-        Raises:
-            SaveError: If saving fails due to file I/O or serialization issues
-        """
-        try:
-            # Save JSON file (existing functionality)
-            json_path = self.save_translation(output, workflow_mode, include_mode_tag)
-
-            # Save markdown files (new functionality)
-            markdown_paths = self.markdown_exporter.export_both(output)
-
-            result = {
-                "json": json_path,
-                "markdown_final": Path(markdown_paths["final_translation"]),
-                "markdown_log": Path(markdown_paths["full_log"]),
-            }
-
-            logger.info(f"Translation saved to multiple formats:")
-            logger.info(f"  JSON: {result['json']}")
-            logger.info(f"  Markdown (final): {result['markdown_final']}")
-            logger.info(f"  Markdown (log): {result['markdown_log']}")
-
-            return result
-
-        except Exception as e:
-            logger.error(f"Failed to save translation with markdown: {e}")
-            raise SaveError(f"Failed to save translation with markdown: {e}")
-
-    def get_storage_info(self) -> dict:
-        """
-        Get information about the storage directory.
-
-        Returns:
-            Dictionary with storage statistics
-
-        Raises:
-            StorageError: If statistics collection fails
-        """
-        try:
-            translation_files = self.list_translations()
-            total_size = sum(
-                file_path.stat().st_size for file_path in translation_files
-            )
-
-            return {
-                "output_directory": str(self.output_dir.absolute()),
-                "total_files": len(translation_files),
-                "total_size_bytes": total_size,
-                "total_size_mb": round(total_size / (1024 * 1024), 2),
-                "oldest_file": (
-                    min(translation_files, key=lambda x: x.stat().st_mtime).name
-                    if translation_files
-                    else None
-                ),
-                "newest_file": (
-                    max(translation_files, key=lambda x: x.stat().st_mtime).name
-                    if translation_files
-                    else None
-                ),
-            }
-
-        except Exception as e:
-            logger.error(f"Failed to get storage info: {e}")
-            raise StorageError(f"Failed to get storage information: {e}")
-
-    # Enhanced Poet-Based Organization Methods
-    def save_translation_with_poet_dir(
-        self,
-        output: TranslationOutput,
-        poet_name: str,
-        workflow_mode: str = None,
-        include_mode_tag: bool = False,
-    ) -> Path:
-        """
-        Save a translation output to a poet-based subdirectory structure.
-
-        Structure: outputs/json/poets/{poet_name}/{filename}.json
-        Also saves latest copy to outputs/json/recent/ for fast access
-
-        Args:
-            output: TranslationOutput instance to save
-            poet_name: Name of the poet for subdirectory organization
-            workflow_mode: Workflow mode used for the translation
-            include_mode_tag: Whether to include workflow mode in filename
-
-        Returns:
-            Path to the saved file in poet subdirectory
-
-        Raises:
-            SaveError: If saving fails due to file I/O or serialization issues
-        """
-        try:
-            # Create poet subdirectory structure
-            poets_dir = self.json_dir / "poets"
-            poet_dir = poets_dir / poet_name
-            recent_dir = self.json_dir / "recent"
-
-            # Create directories if they don't exist
-            poets_dir.mkdir(exist_ok=True)
-            poet_dir.mkdir(exist_ok=True)
-            recent_dir.mkdir(exist_ok=True)
-
-            # Generate timestamp and filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            poet, title = extract_poet_and_title(
-                output.input.original_poem, output.input.metadata
-            )
-
-            # Use provided poet_name or extracted poet
-            effective_poet_name = poet_name or poet
-
-            filename = generate_translation_filename(
-                poet=effective_poet_name,
-                title=title,
-                source_lang=output.input.source_lang,
-                target_lang=output.input.target_lang,
-                timestamp=timestamp,
-                workflow_id=output.workflow_id,
-                workflow_mode=workflow_mode,
-                file_format="json",
-                is_log=False,
-            )
-
-            # Save to poet subdirectory
-            poet_file_path = poet_dir / filename
-
-            # Convert to dictionary for JSON serialization
-            output_dict = output.to_dict()
-
-            # Save to poet subdirectory
-            with open(poet_file_path, "w", encoding="utf-8") as f:
-                json.dump(output_dict, f, ensure_ascii=False, indent=2)
-
-            # Also save to recent directory (keep latest 20)
-            recent_filename = f"latest_{output.workflow_id}_{timestamp}.json"
-            recent_file_path = recent_dir / recent_filename
-
-            with open(recent_file_path, "w", encoding="utf-8") as f:
-                json.dump(output_dict, f, ensure_ascii=False, indent=2)
-
-            # Clean up old recent files (keep only 20 most recent)
-            self._cleanup_recent_files(recent_dir, limit=20)
-
-            logger.info(f"Translation saved to poet directory: {poet_file_path}")
-            logger.info(f"Also saved to recent directory: {recent_file_path}")
-
-            return poet_file_path
-
-        except Exception as e:
-            logger.error(f"Failed to save translation with poet directory: {e}")
-            raise SaveError(f"Failed to save translation with poet directory: {e}")
-
-    def get_poet_directories(self) -> List[str]:
-        """
-        Get list of all poet subdirectories.
-
-        Returns:
-            List of poet names that have subdirectories
-
-        Raises:
-            StorageError: If directory listing fails
-        """
-        try:
-            poets_dir = self.json_dir / "poets"
-
-            if not poets_dir.exists():
-                return []
-
-            poet_dirs = []
-            for item in poets_dir.iterdir():
-                if item.is_dir():
-                    poet_dirs.append(item.name)
-
-            return sorted(poet_dirs)
-
-        except Exception as e:
-            logger.error(f"Failed to get poet directories: {e}")
-            raise StorageError(f"Failed to get poet directories: {e}")
-
-    def get_recent_files(self, limit: int = 20) -> List[Path]:
-        """
-        Get list of most recent translation files.
-
-        Args:
-            limit: Maximum number of files to return
-
-        Returns:
-            List of paths to recent files, sorted by modification time
-
-        Raises:
-            StorageError: If file listing fails
-        """
-        try:
-            recent_dir = self.json_dir / "recent"
-
-            if not recent_dir.exists():
-                return []
-
-            files = []
-            for file_path in recent_dir.glob("*.json"):
-                if file_path.is_file():
-                    files.append(file_path)
-
-            # Sort by modification time (newest first)
-            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-            return files[:limit]
-
-        except Exception as e:
-            logger.error(f"Failed to get recent files: {e}")
-            raise StorageError(f"Failed to get recent files: {e}")
-
-    def get_poet_files(self, poet_name: str) -> List[Path]:
-        """
-        Get all translation files for a specific poet.
-
-        Args:
-            poet_name: Name of the poet
-
-        Returns:
-            List of paths to poet's translation files
-
-        Raises:
-            StorageError: If file listing fails
-        """
-        try:
-            poet_dir = self.json_dir / "poets" / poet_name
-
-            if not poet_dir.exists():
-                return []
-
-            files = []
-            for file_path in poet_dir.glob("*.json"):
-                if file_path.is_file():
-                    files.append(file_path)
-
-            # Sort by modification time (newest first)
-            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-            return files
-
-        except Exception as e:
-            logger.error(f"Failed to get poet files for '{poet_name}': {e}")
-            raise StorageError(f"Failed to get poet files for '{poet_name}': {e}")
-
-    def _cleanup_recent_files(self, recent_dir: Path, limit: int = 20):
-        """
-        Clean up recent directory to keep only the specified number of files.
-
-        Args:
-            recent_dir: Path to recent directory
-            limit: Maximum number of files to keep
-        """
-        try:
-            files = []
-            for file_path in recent_dir.glob("*.json"):
-                if file_path.is_file():
-                    files.append(file_path)
-
-            # Sort by modification time (newest first)
-            files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-
-            # Remove excess files
-            for file_path in files[limit:]:
-                file_path.unlink()
-                logger.debug(f"Removed old recent file: {file_path}")
-
-        except Exception as e:
-            logger.warning(f"Failed to cleanup recent files: {e}")
-
-    def __repr__(self) -> str:
-        """String representation of the storage handler."""
-        return f"StorageHandler(output_dir='{self.output_dir}')"
-
-</code>
-
-src/vpsweb/models/translation.py:
-<code>
-"""
-Translation data models for Vox Poetica Studio Web.
-
-This module contains Pydantic models for the complete translation workflow,
-matching the exact structure specified in vpts.yml.
-"""
-
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime
-from enum import Enum
-import json
-
-
-class Language(str, Enum):
-    """Supported languages for translation."""
-
-    ENGLISH = "English"
-    CHINESE = "Chinese"
-    POLISH = "Polish"
-
-
-class TranslationInput(BaseModel):
-    """Input for translation workflow, matching vpts.yml specification."""
-
-    original_poem: str = Field(
-        ...,
-        min_length=1,
-        max_length=2000,  # From vpts.yml: max_length: 2000
-        description="Original poem text for translation",
-    )
-    source_lang: Language = Field(
-        ..., description="Source language (English, Chinese, or Polish)"
-    )
-    target_lang: Language = Field(
-        ..., description="Target language (English or Chinese only)"
-    )
-    metadata: Optional[Dict[str, Any]] = Field(
-        None, description="Additional metadata about the poem (author, title, etc.)"
-    )
-
-    @field_validator("source_lang", "target_lang")
-    @classmethod
-    def validate_languages(cls, v):
-        """Validate language choices against vpts.yml specification."""
-        return v
-
-    @field_validator("target_lang")
-    @classmethod
-    def validate_target_language(cls, v, info):
-        """Ensure target language is only English or Chinese (from vpts.yml)."""
-        if v not in [Language.ENGLISH, Language.CHINESE]:
-            raise ValueError("Target language must be either English or Chinese")
-        return v
-
-    @field_validator("target_lang")
-    @classmethod
-    def validate_source_target_distinct(cls, v, info):
-        """Ensure source and target languages are different."""
-        if "source_lang" in info.data and v == info.data["source_lang"]:
-            raise ValueError("Source and target languages must be different")
-        return v
-
-    model_config = ConfigDict(use_enum_values=True)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary."""
-        return self.model_dump()
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TranslationInput":
-        """Create from dictionary."""
-        return cls(**data)
-
-
-class InitialTranslation(BaseModel):
-    """Output from initial translation step with XML structure from vpts.yml."""
-
-    initial_translation: str = Field(..., description="The translated poem text")
-    initial_translation_notes: str = Field(
-        ...,
-        description="Translator's explanation of translation choices (200-300 words)",
-    )
-    translated_poem_title: str = Field(
-        ..., description="The translated poem title in target language"
-    )
-    translated_poet_name: str = Field(
-        ..., description="The translated poet name in target language"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.now,
-        description="Timestamp when translation was created",
-    )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this translation"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this translation"
-    )
-    completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this translation"
-    )
-    duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for initial translation in seconds"
-    )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this translation step"
-    )
-
-    @field_validator("initial_translation_notes")
-    @classmethod
-    def validate_notes_length(cls, v):
-        """Validate notes length matches vpts.yml specification (200-300 words)."""
-        # Note: Removed warning for shorter notes during development
-        return v
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary with ISO format timestamp."""
-        data = self.model_dump()
-        data["timestamp"] = self.timestamp.isoformat()
-        return data
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "InitialTranslation":
-        """Create from dictionary, parsing ISO timestamp."""
-        if "timestamp" in data and isinstance(data["timestamp"], str):
-            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
-        return cls(**data)
-
-
-class EditorReview(BaseModel):
-    """Output from editor review step with structured suggestions from vpts.yml."""
-
-    editor_suggestions: str = Field(
-        default="", description="Structured editor suggestions extracted from XML"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.now, description="Timestamp when review was created"
-    )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this review"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this review"
-    )
-    completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this review"
-    )
-    duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for editor review in seconds"
-    )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this editor review step"
-    )
-
-    def get_suggestions_list(self) -> List[str]:
-        """Extract numbered suggestions from the editor's text."""
-        import re
-
-        text_to_search = self.editor_suggestions
-        # Look for numbered suggestions like "1. [suggestion text]"
-        suggestions = re.findall(r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE)
-        return [suggestion[1].strip() for suggestion in suggestions]
-
-    def get_overall_assessment(self) -> str:
-        """Extract the overall assessment from the editor's text."""
-        import re
-
-        text_to_search = self.editor_suggestions
-        # Look for the overall assessment after the suggestions
-        assessment_match = re.search(
-            r"overall assessment:?\s*(.+)", text_to_search, re.IGNORECASE | re.DOTALL
-        )
-        if assessment_match:
-            return assessment_match.group(1).strip()
-        return ""
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary with ISO format timestamp."""
-        data = {
-            "editor_suggestions": self.editor_suggestions,
-            "timestamp": self.timestamp.isoformat(),
-            "model_info": self.model_info,
-            "tokens_used": self.tokens_used,
+        });
+    });
+}
+
+async function loadTranslations() {
+    try {
+        const response = await fetch(`/api/v1/translations/?poem_id={{ poem.id }}`);
+        if (response.ok) {
+            translations = await response.json();
+            displayTranslations();
+            updateLanguageFilter();
+        } else {
+            showError();
         }
-        return data
+    } catch (error) {
+        console.error('Failed to load translations:', error);
+        showError();
+    }
+}
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EditorReview":
-        """Create from dictionary, parsing ISO timestamp."""
-        if "timestamp" in data and isinstance(data["timestamp"], str):
-            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
-        return cls(**data)
-
-
-class RevisedTranslation(BaseModel):
-    """Output from translator revision step with XML structure from vpts.yml."""
-
-    revised_translation: str = Field(..., description="The final revised translation")
-    revised_translation_notes: str = Field(
-        ..., description="Explanation of key changes and decisions (200-300 words)"
-    )
-    refined_translated_poem_title: str = Field(
-        ..., description="The refined translated poem title in target language"
-    )
-    refined_translated_poet_name: str = Field(
-        ..., description="The refined translated poet name in target language"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.now, description="Timestamp when revision was created"
-    )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this revision"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this revision"
-    )
-    completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this revision"
-    )
-    duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for translator revision in seconds"
-    )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this translator revision step"
-    )
-
-    @field_validator("revised_translation_notes")
-    @classmethod
-    def validate_revision_notes_length(cls, v):
-        """Validate notes length matches vpts.yml specification (200-300 words)."""
-        word_count = len(v.split())
-        # Allow any length of revision notes without warning
-        return v
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary with ISO format timestamp."""
-        data = self.model_dump()
-        data["timestamp"] = self.timestamp.isoformat()
-        return data
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "RevisedTranslation":
-        """Create from dictionary, parsing ISO timestamp."""
-        if "timestamp" in data and isinstance(data["timestamp"], str):
-            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
-        return cls(**data)
-
-
-class TranslationOutput(BaseModel):
-    """Complete workflow output matching the vpts.yml congregation format."""
-
-    workflow_id: str = Field(
-        ..., description="Unique identifier for this translation workflow"
-    )
-    input: TranslationInput = Field(..., description="Original input to the workflow")
-    initial_translation: InitialTranslation = Field(
-        ..., description="Initial translation with notes"
-    )
-    editor_review: EditorReview = Field(
-        ..., description="Editor's detailed suggestions and feedback"
-    )
-    revised_translation: RevisedTranslation = Field(
-        ..., description="Final revised translation with notes"
-    )
-    total_tokens: int = Field(
-        ..., ge=0, description="Total tokens used across all workflow steps"
-    )
-    duration_seconds: float = Field(
-        ..., ge=0.0, description="Total workflow execution time in seconds"
-    )
-    workflow_mode: Optional[str] = Field(
-        None,
-        description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)",
-    )
-    total_cost: Optional[float] = Field(
-        None, ge=0.0, description="Total cost in RMB for the entire workflow"
-    )
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary with proper serialization."""
-        return {
-            "workflow_id": self.workflow_id,
-            "input": self.input.to_dict(),
-            "initial_translation": self.initial_translation.to_dict(),
-            "editor_review": self.editor_review.to_dict(),
-            "revised_translation": self.revised_translation.to_dict(),
-            "total_tokens": self.total_tokens,
-            "duration_seconds": self.duration_seconds,
+// Load Poet Context Data
+async function loadPoetContext() {
+    try {
+        // Load poet statistics
+        const statsResponse = await fetch(`/api/v1/poets/{{ poem.poet_name }}/stats`);
+        if (statsResponse.ok) {
+            const stats = await statsResponse.json();
+            updatePoetStatistics(stats.data);
         }
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TranslationOutput":
-        """Create from dictionary with proper deserialization."""
-        return cls(
-            workflow_id=data["workflow_id"],
-            input=TranslationInput.from_dict(data["input"]),
-            initial_translation=InitialTranslation.from_dict(
-                data["initial_translation"]
-            ),
-            editor_review=EditorReview.from_dict(data["editor_review"]),
-            revised_translation=RevisedTranslation.from_dict(
-                data["revised_translation"]
-            ),
-            total_tokens=data["total_tokens"],
-            duration_seconds=data["duration_seconds"],
-        )
+        // Load other poems by this poet
+        const poemsResponse = await fetch(`/api/v1/poets/{{ poem.poet_name }}/poems?limit=5`);
+        if (poemsResponse.ok) {
+            const poemsData = await poemsResponse.json();
+            // Other poems section removed - no need to display other poems
+        }
+    } catch (error) {
+        console.error('Failed to load poet context:', error);
+        // Removed other poems section, no need to hide loading states
+    }
+}
 
-    def save_to_file(self, filepath: str, format: str = "json") -> None:
-        """Save the translation output to a file."""
-        if format.lower() == "json":
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
-        else:
-            raise ValueError(f"Unsupported format: {format}")
+function updatePoetStatistics(stats) {
+    // Update poem statistics
+    const totalPoemsEl = document.getElementById('poet-total-poems-number');
+    if (totalPoemsEl && stats.poem_statistics) {
+        totalPoemsEl.textContent = stats.poem_statistics.total_poems || 0;
+    }
 
-    @classmethod
-    def load_from_file(cls, filepath: str, format: str = "json") -> "TranslationOutput":
-        """Load translation output from a file."""
-        if format.lower() == "json":
-            with open(filepath, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            return cls.from_dict(data)
-        else:
-            raise ValueError(f"Unsupported format: {format}")
+    // Update translation statistics
+    const totalTranslationsEl = document.getElementById('poet-total-translations');
+    if (totalTranslationsEl && stats.translation_statistics) {
+        totalTranslationsEl.textContent = stats.translation_statistics.total_translations || 0;
+    }
 
+    // Update languages count
+    const languagesEl = document.getElementById('poet-languages');
+    if (languagesEl && stats.poem_statistics) {
+        const sourceLangs = stats.poem_statistics.source_languages_count || 0;
+        const targetLangs = stats.translation_statistics.target_languages_count || 0;
+        languagesEl.textContent = `${sourceLangs} → ${targetLangs}`;
+    }
+}
+
+// Other poems display function removed - section no longer exists
+
+function displayTranslations() {
+    const loadingEl = document.getElementById('translations-loading');
+    const listEl = document.getElementById('translations-list');
+    const emptyEl = document.getElementById('translations-empty');
+    const countEl = document.getElementById('translation-count');
+
+    loadingEl.classList.add('hidden');
+
+    // Apply filters
+    let filteredTranslations = translations.filter(t => {
+        if (currentFilters.language && t.target_language !== currentFilters.language) {
+            return false;
+        }
+        if (currentFilters.type && t.translator_type !== currentFilters.type) {
+            return false;
+        }
+        return true;
+    });
+
+    countEl.textContent = `${filteredTranslations.length} translation${filteredTranslations.length !== 1 ? 's' : ''}`;
+
+    if (filteredTranslations.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+        return;
+    }
+
+    emptyEl.classList.add('hidden');
+    listEl.classList.remove('hidden');
+    listEl.innerHTML = filteredTranslations.map(translation => createTranslationCard(translation)).join('');
+}
+
+function createTranslationCard(translation) {
+    const createdDate = new Date(translation.created_at).toLocaleString();
+    const qualityStars = translation.quality_rating ? '★'.repeat(translation.quality_rating) + '☆'.repeat(5 - translation.quality_rating) : 'Not rated';
+
+    return `
+        <div class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${translation.translator_type === 'AI' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}">
+                            ${translation.translator_type}
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${translation.target_language}
+                        </span>
+                        <div class="text-yellow-400 text-sm" title="Quality Rating">
+                            ${qualityStars}
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">${translation.translated_poem_title || window.poemTitle}</h4>
+                    <p class="text-sm text-gray-500 mb-2">${translation.translated_poet_name || window.poetName}</p>
+                    <p class="text-xs text-gray-400">${createdDate}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="editTranslation('${translation.id}')" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </button>
+                    <button onclick="deleteTranslation('${translation.id}')" class="text-red-400 hover:text-red-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="poetry-text text-gray-700 whitespace-pre-wrap mb-4">${translation.translated_text}</div>
+            <div class="flex justify-between items-center text-sm">
+                <div class="flex space-x-4 text-gray-500">
+                    <span>ID: ${translation.id.substring(0, 8)}...</span>
+                </div>
+                <button onclick="addNote('${translation.id}')" class="text-primary-600 hover:text-primary-500 font-medium">
+                    Add Note
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function updateLanguageFilter() {
+    const languages = [...new Set(translations.map(t => t.target_language))];
+    const selectEl = document.getElementById('language-filter');
+    selectEl.innerHTML = '<option value="">All Languages</option>' +
+        languages.map(lang => `<option value="${lang}">${lang}</option>`).join('');
+}
+
+function filterTranslations() {
+    currentFilters.language = document.getElementById('language-filter').value;
+    currentFilters.type = document.getElementById('type-filter').value;
+    displayTranslations();
+}
+
+function showTranslationModal() {
+    document.getElementById('translation-modal').classList.remove('hidden');
+    document.getElementById('translation-form').reset();
+}
+
+function hideTranslationModal() {
+    document.getElementById('translation-modal').classList.add('hidden');
+}
+
+async function submitTranslation(event) {
+    event.preventDefault();
+
+    const formData = {
+        poem_id: '{{ poem.id }}',
+        target_language: document.getElementById('target-language').value,
+        translator_name: document.getElementById('translator-name').value || 'Anonymous',
+        translated_text: document.getElementById('translated-text').value,
+        quality_rating: document.getElementById('quality-rating').value ? parseInt(document.getElementById('quality-rating').value) : null
+    };
+
+    try {
+        const response = await fetch('/api/v1/translations/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            hideTranslationModal();
+            loadTranslations();
+            showSuccessMessage('Translation added successfully!');
+        } else {
+            const error = await response.json();
+            showErrorMessage('Failed to add translation: ' + error.detail);
+        }
+    } catch (error) {
+        console.error('Failed to submit translation:', error);
+        showErrorMessage('Failed to add translation. Please try again.');
+    }
+}
+
+async function deleteTranslation(translationId) {
+    if (!confirm('Are you sure you want to delete this translation?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/v1/translations/${translationId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            loadTranslations();
+            showSuccessMessage('Translation deleted successfully!');
+        } else {
+            showErrorMessage('Failed to delete translation.');
+        }
+    } catch (error) {
+        console.error('Failed to delete translation:', error);
+        showErrorMessage('Failed to delete translation. Please try again.');
+    }
+}
+
+async function deletePoem() {
+    if (!confirm('Are you sure you want to delete this poem and all its translations? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/v1/poems/{{ poem.id }}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            window.location.href = '/poems';
+        } else {
+            showErrorMessage('Failed to delete poem.');
+        }
+    } catch (error) {
+        console.error('Failed to delete poem:', error);
+        showErrorMessage('Failed to delete poem. Please try again.');
+    }
+}
+
+function refreshTranslations() {
+    loadTranslations();
+}
+
+function showSuccessMessage(message) {
+    // Success messages disabled to avoid distractions during translation
+    // console.log('Success:', message); // Uncomment for debugging if needed
+}
+
+function showError(message) {
+    // Error messages disabled to avoid distractions during translation
+    // console.error('Error:', message); // Uncomment for debugging if needed
+}
+
+function showErrorMessage(message) {
+    // Error messages disabled to avoid distractions during translation
+    // console.error('Error:', message); // Uncomment for debugging if needed
+}
+
+function editTranslation(translationId) {
+    // TODO: Implement edit translation functionality
+    // alert('Edit translation functionality coming soon!'); // Disabled to avoid distractions
+}
+
+function addNote(translationId) {
+    // TODO: Implement add note functionality
+    // alert('Add note functionality coming soon!'); // Disabled to avoid distractions
+}
+
+// ==================== WORKFLOW MANAGEMENT FUNCTIONS ====================
+
+async function startWorkflow() {
+    const targetLanguage = document.getElementById('workflow-target-language').value;
+    const workflowMode = document.getElementById('workflow-mode').value;
+
+    if (!targetLanguage) {
+        showErrorMessage('Please select a target language for the translation.');
+        return;
+    }
+
+    // Prevent duplicate workflow launches
+    if (workflowState.isRunning) {
+        showErrorMessage('A translation workflow is already running.');
+        return;
+    }
+
+    try {
+        // Disable the start button
+        const startBtn = document.getElementById('start-workflow-btn');
+        const btnText = document.getElementById('workflow-btn-text');
+        startBtn.disabled = true;
+        btnText.textContent = 'Starting...';
+
+        // Map language names to codes
+        const languageMap = {
+            'Chinese': 'zh-CN',
+            'English': 'en',
+            'Japanese': 'ja',
+            'Korean': 'ko'
+        };
+
+        // Prepare workflow request data
+        const requestData = {
+            poem_id: '{{ poem.id }}',
+            source_lang: '{{ poem.source_language }}',
+            target_lang: languageMap[targetLanguage] || targetLanguage,
+            workflow_mode: workflowMode,
+            poet_name: '{{ poem.poet_name }}'
+        };
+
+        console.log('Starting workflow with data:', requestData);
+
+        // Start the workflow
+        const response = await fetch('/api/v1/workflow/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to start workflow');
+        }
+
+        const result = await response.json();
+
+        // Initialize workflow state
+        workflowState.taskId = result.data.task_id;
+        workflowState.startTime = new Date();
+        workflowState.isRunning = true;
+        workflowState.completed = false;
+        workflowState.failed = false;
+
+        console.log('Workflow started with task ID:', result.data.task_id);
+
+        // Start the self-running timer
+        startTimer();
+
+        // Start spinner animation
+        startSpinner();
+
+        // Show progress section
+        document.getElementById('workflow-progress').classList.remove('hidden');
+        document.getElementById('workflow-error').classList.add('hidden');
+
+        // Start polling for updates
+        startWorkflowPolling();
+
+        // Update button text
+        btnText.textContent = 'Running...';
+
+        showSuccessMessage('Translation workflow started successfully!');
+
+    } catch (error) {
+        console.error('Failed to start workflow:', error);
+
+        // Reset button state
+        const startBtn = document.getElementById('start-workflow-btn');
+        const btnText = document.getElementById('workflow-btn-text');
+        startBtn.disabled = false;
+        btnText.textContent = 'Start Translation';
+
+        showErrorMessage('Failed to start translation workflow: ' + error.message);
+
+        // Reset workflow state
+        resetWorkflowState();
+    }
+}
+
+function startWorkflowPolling() {
+    if (workflowState.eventSource) {
+        workflowState.eventSource.close();
+    }
+
+    // Use Server-Sent Events (SSE) for real-time updates
+    const sseUrl = `/api/v1/workflow/tasks/${workflowState.taskId}/stream`;
+    console.log('🔗 Connecting to SSE endpoint:', sseUrl);
+
+    workflowState.eventSource = new EventSource(sseUrl);
+
+    // Track connection state
+    workflowState.sseConnected = false;
+    workflowState.sseReconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+
+    workflowState.eventSource.onopen = function(event) {
+        console.log('✅ SSE connection opened');
+        workflowState.sseConnected = true;
+        workflowState.sseReconnectAttempts = 0;
+    };
+
+    workflowState.eventSource.addEventListener('status', function(event) {
+        try {
+            const task = JSON.parse(event.data);
+            console.log('📡 [Frontend] Received SSE status update:', task);
+            updateWorkflowUI(task);
+
+            // Check if workflow is completed
+            if (task.status === 'completed') {
+                handleWorkflowCompletion(task);
+            } else if (task.status === 'failed') {
+                handleWorkflowFailure(task.error_message || 'Workflow failed');
+            }
+        } catch (error) {
+            console.error('Error parsing SSE data:', error);
+        }
+    });
+
+    // Handle step change events specifically
+    workflowState.eventSource.addEventListener('step_change', function(event) {
+        try {
+            const task = JSON.parse(event.data);
+            console.log('🔄 [Frontend] Received SSE step change update:', task);
+            updateWorkflowUI(task, true); // true = highlight step change
+
+            // Check if workflow is completed
+            if (task.status === 'completed') {
+                handleWorkflowCompletion(task);
+            } else if (task.status === 'failed') {
+                handleWorkflowFailure(task.error_message || 'Workflow failed');
+            }
+        } catch (error) {
+            console.error('Error parsing step change data:', error);
+        }
+    });
+
+    workflowState.eventSource.addEventListener('completed', function(event) {
+        try {
+            const task = JSON.parse(event.data);
+            console.log('🎉 [Frontend] Received completion event:', task);
+            handleWorkflowCompletion(task);
+
+            // Mark SSE as complete to prevent reconnection attempts
+            workflowState.sseCompleted = true;
+            workflowState.sseConnected = false;
+
+            // Close SSE connection gracefully
+            if (workflowState.eventSource) {
+                workflowState.eventSource.close();
+                workflowState.eventSource = null;
+                console.log('✅ SSE connection closed after completion');
+            }
+        } catch (error) {
+            console.error('Error parsing completed event:', error);
+        }
+    });
+
+    workflowState.eventSource.addEventListener('failed', function(event) {
+        try {
+            const task = JSON.parse(event.data);
+            console.log('❌ [Frontend] Received failed event:', task);
+            handleWorkflowFailure(task.error_message || 'Workflow failed');
+
+            // Mark SSE as complete to prevent reconnection attempts
+            workflowState.sseCompleted = true;
+            workflowState.sseConnected = false;
+
+            // Close SSE connection gracefully
+            if (workflowState.eventSource) {
+                workflowState.eventSource.close();
+                workflowState.eventSource = null;
+                console.log('✅ SSE connection closed after failure');
+            }
+        } catch (error) {
+            console.error('Error parsing failed event:', error);
+        }
+    });
+
+    // Handle heartbeat events to keep connection monitoring
+    workflowState.eventSource.addEventListener('heartbeat', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('💓 [Frontend] Received heartbeat:', data.timestamp);
+        } catch (error) {
+            console.error('Error parsing heartbeat event:', error);
+        }
+    });
+
+    workflowState.eventSource.addEventListener('error', function(event) {
+        console.error('❌ SSE error:', event);
+        workflowState.sseConnected = false;
+
+        // Don't try to reconnect if the workflow is already completed
+        if (workflowState.sseCompleted) {
+            console.log('🔌 SSE error after completion, ignoring (workflow already finished)');
+            return;
+        }
+
+        // Close the current SSE connection
+        if (workflowState.eventSource) {
+            workflowState.eventSource.close();
+            workflowState.eventSource = null;
+        }
+
+        // Try to reconnect if we haven't exceeded max attempts
+        if (workflowState.sseReconnectAttempts < maxReconnectAttempts) {
+            workflowState.sseReconnectAttempts++;
+            console.log(`🔄 Attempting SSE reconnection ${workflowState.sseReconnectAttempts}/${maxReconnectAttempts}...`);
+
+            setTimeout(() => {
+                if (workflowState.isRunning && !workflowState.sseCompleted) {
+                    startSSEStreaming();
+                }
+            }, 2000 * workflowState.sseReconnectAttempts); // Exponential backoff
+        } else {
+            console.log('⚠️ Max SSE reconnection attempts reached, falling back to HTTP polling');
+            startFallbackPolling();
+        }
+    });
+
+    workflowState.eventSource.addEventListener('timeout', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('⏰ [Frontend] Received timeout event:', data);
+            showErrorMessage(data.message);
+            handleWorkflowFailure('Timeout: Workflow exceeded 10 minute time limit');
+        } catch (error) {
+            console.error('Error parsing timeout event:', error);
+        }
+    });
+
+    // Handle unexpected connection closure
+    workflowState.eventSource.onerror = function(event) {
+        console.error('🔌 SSE connection error:', event);
+        workflowState.sseConnected = false;
+
+        // The error event listener above will handle reconnection logic
+    };
+
+    console.log('🚀 Started SSE streaming for task:', workflowState.taskId);
+}
+
+function startFallbackPolling() {
+    console.log('⚠️ Falling back to HTTP polling');
+
+    // Clear any existing polling interval
+    if (workflowState.pollInterval) {
+        clearInterval(workflowState.pollInterval);
+    }
+
+    // Track polling state
+    workflowState.isPolling = true;
+    workflowState.pollingErrors = 0;
+    const maxPollingErrors = 5;
+
+    // Fallback poll every 1.5 seconds for active tasks (faster than SSE for better responsiveness)
+    workflowState.pollInterval = setInterval(async () => {
+        if (!workflowState.isRunning || !workflowState.isPolling) {
+            return;
+        }
+
+        try {
+            await updateWorkflowStatus();
+            // Reset error counter on successful poll
+            workflowState.pollingErrors = 0;
+        } catch (error) {
+            workflowState.pollingErrors++;
+            console.error(`Error polling workflow status (${workflowState.pollingErrors}/${maxPollingErrors}):`, error);
+
+            // If we get too many polling errors, stop polling
+            if (workflowState.pollingErrors >= maxPollingErrors) {
+                console.error('Max polling errors reached, stopping polling');
+                stopWorkflowPolling();
+                showErrorMessage('Unable to fetch workflow status updates. The workflow may still be running - please refresh the page to check.');
+            }
+        }
+    }, 1500);
+
+    // Set timeout to stop polling after 10 minutes
+    workflowState.pollingTimeout = setTimeout(() => {
+        if (workflowState.isRunning) {
+            stopWorkflowPolling();
+            showErrorMessage('Translation workflow timed out after 10 minutes.');
+            handleWorkflowFailure('Timeout: Workflow exceeded 10 minute time limit');
+        }
+    }, 10 * 60 * 1000);
+
+    console.log('🔄 Started HTTP fallback polling');
+}
+
+function stopWorkflowPolling() {
+    workflowState.isPolling = false;
+
+    if (workflowState.pollInterval) {
+        clearInterval(workflowState.pollInterval);
+        workflowState.pollInterval = null;
+    }
+
+    if (workflowState.pollingTimeout) {
+        clearTimeout(workflowState.pollingTimeout);
+        workflowState.pollingTimeout = null;
+    }
+
+    console.log('⏹️ Stopped workflow polling');
+}
+
+async function updateWorkflowStatus() {
+    if (!workflowState.taskId || !workflowState.isRunning) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/v1/workflow/tasks/${workflowState.taskId}`);
+
+        if (!response.ok) {
+            throw new Error('Failed to get workflow status');
+        }
+
+        const result = await response.json();
+        const task = result.data;
+        updateWorkflowUI(task);
+
+        // Check if workflow is completed
+        if (task.status === 'completed') {
+            handleWorkflowCompletion(task);
+        } else if (task.status === 'failed') {
+            handleWorkflowFailure(task.error_message || 'Workflow failed');
+        }
+
+    } catch (error) {
+        console.error('Failed to update workflow status:', error);
+        // Don't fail the workflow, just log the error
+    }
+}
+
+function updateWorkflowUI(task, isStepChange = false) {
+    console.log('🎨 [Frontend] Updating UI with task data:', task, isStepChange ? '(STEP CHANGE)' : '');
+
+    // Update progress bar
+    const progressBar = document.getElementById('workflow-progress-bar');
+    const percentageText = document.getElementById('workflow-percentage');
+
+    if (progressBar && task.progress !== undefined) {
+        progressBar.style.width = `${task.progress}%`;
+        console.log('📊 [Frontend] Progress bar updated:', `${task.progress}%`);
+    }
+
+    if (percentageText && task.progress !== undefined) {
+        percentageText.textContent = `${task.progress}%`;
+        console.log('📈 [Frontend] Progress text updated:', `${task.progress}%`);
+    }
+
+    // Update enhanced status messages
+    const currentStepEl = document.getElementById('workflow-current-step');
+    const stepDetailsEl = document.getElementById('workflow-step-details');
+    const timing = document.getElementById('workflow-timing');
+
+    if (task.status === 'running') {
+        const elapsed = Math.floor((new Date() - workflowState.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+
+        // Update current step and details with enhanced step information
+        let stepInfo = '';
+        let stepDetailsInfo = '';
+
+        if (task.current_step && task.step_details) {
+            const stepName = task.current_step;
+            const stepStatus = task.step_details.step_status || 'unknown';
+            const provider = task.step_details.provider || 'AI';
+            const mode = task.step_details.mode || 'standard';
+
+            // Enhanced step display with status
+            stepInfo = `${stepName} (${stepStatus})`;
+
+            // Enhanced step details
+            stepDetailsInfo = `${provider} • ${mode}`;
+
+            if (task.step_details.message) {
+                // Filter out redundant "Starting..." messages
+                const message = task.step_details.message;
+                if (!message.toLowerCase().startsWith('starting')) {
+                    stepDetailsInfo += ` • ${message}`;
+                }
+            }
+
+            console.log(`🔄 [Frontend] Step: ${stepInfo} - ${stepDetailsInfo}`);
+
+            // Add visual feedback for step changes
+            if (isStepChange && currentStepEl) {
+                currentStepEl.classList.add('animate-pulse', 'text-blue-600');
+                setTimeout(() => {
+                    currentStepEl.classList.remove('animate-pulse', 'text-blue-600');
+                }, 2000);
+            }
+        } else {
+            // Fallback to percentage-based step detection
+            stepInfo = getStepStatusMessage(percentage);
+            stepDetailsInfo = getStepStatusMessage(percentage);
+        }
+
+        if (currentStepEl) {
+            currentStepEl.textContent = stepInfo;
+        }
+
+        if (stepDetailsEl) {
+            stepDetailsEl.textContent = stepDetailsInfo;
+        }
+
+        if (timing) {
+            timing.textContent = `Running for ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Show step progress details if available
+        if (task.step_progress) {
+            updateStepProgressDetails(task.step_progress);
+        }
+
+        // Update step states if available
+        if (task.step_states) {
+            updateStepStates(task.step_states);
+        } else {
+            // Fallback: Update step indicators based on current step only
+            updateStepIndicators(task.current_step);
+        }
+    }
+}
+
+function getStepStatusMessage(percentage) {
+    if (percentage < 33) {
+        return 'Step 1: Creating initial translation...';
+    } else if (percentage < 66) {
+        return 'Step 2: Reviewing and suggesting improvements...';
+    } else if (percentage < 100) {
+        return 'Step 3: Refining final translation...';
+    } else {
+        return 'Finalizing translation...';
+    }
+}
+
+function formatStepDetails(stepDetails) {
+    if (!stepDetails || typeof stepDetails !== 'object') {
+        return 'Processing...';
+    }
+
+    // Format step details based on available information
+    if (stepDetails.provider && stepDetails.mode) {
+        return `Provider: ${stepDetails.provider} | Mode: ${stepDetails.mode}`;
+    } else if (stepDetails.total_tokens) {
+        return `Tokens used: ${stepDetails.total_tokens} | Duration: ${stepDetails.duration_seconds}s`;
+    } else if (stepDetails.workflow_id) {
+        return `Workflow ID: ${stepDetails.workflow_id}`;
+    } else {
+        // Generic object to string conversion
+        return Object.entries(stepDetails)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(' | ');
+    }
+}
+
+function updateStepProgressDetails(stepProgress) {
+    const stepProgressEl = document.getElementById('step-progress-details');
+    const stepProgressList = document.getElementById('step-progress-list');
+
+    if (!stepProgress || typeof stepProgress !== 'object') {
+        stepProgressEl.classList.add('hidden');
+        return;
+    }
+
+    stepProgressEl.classList.remove('hidden');
+
+    // Convert step progress object to list items
+    const stepItems = Object.entries(stepProgress).map(([stepName, percentage]) => {
+        const isActive = percentage > 0 && percentage < 100;
+        const isCompleted = percentage >= 100;
+
+        let statusIcon = '⏸️';
+        let statusColor = 'text-gray-500';
+
+        if (isCompleted) {
+            statusIcon = '✅';
+            statusColor = 'text-green-600';
+        } else if (isActive) {
+            statusIcon = '🔄';
+            statusColor = 'text-blue-600 animate-pulse';
+        }
+
+        return `
+            <div class="flex items-center justify-between text-xs">
+                <span class="font-medium">${statusIcon} ${stepName}</span>
+                <span class="${statusColor}">${percentage}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-1">
+                <div class="bg-blue-500 h-1 rounded-full transition-all duration-300 ease-out" style="width: ${percentage}%"></div>
+            </div>
+        `;
+    }).join('');
+
+    stepProgressList.innerHTML = stepItems;
+}
+
+function updateStepIndicators(currentStepName) {
+    const steps = [
+        { id: 'initial-translation', name: 'Initial Translation' },
+        { id: 'editor-review', name: 'Editor Review' },
+        { id: 'translator-revision', name: 'Translator Revision' }
+    ];
+
+    steps.forEach((step, index) => {
+        const indicator = document.getElementById(`${step.id}-indicator`);
+        const status = document.getElementById(`${step.id}-status`);
+
+        if (!indicator || !status) {
+            return;
+        }
+
+        if (currentStepName === step.name) {
+            // Current step - in progress
+            indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center animate-pulse';
+            indicator.querySelector('span').className = 'text-sm font-medium text-white';
+            indicator.querySelector('span').textContent = index + 1;
+            status.textContent = 'In Progress';
+        } else if (
+            (index === 0 && currentStepName === 'Editor Review') ||
+            (index === 1 && currentStepName === 'Translator Revision') ||
+            (index === 2 && currentStepName === 'Translation Complete')
+        ) {
+            // Previous step - completed
+            indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
+            indicator.querySelector('span').className = 'text-sm font-medium text-white';
+            indicator.querySelector('span').textContent = '✓';
+            status.textContent = 'Completed';
+        } else {
+            // Future step - waiting
+            indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center';
+            indicator.querySelector('span').className = 'text-sm font-medium text-gray-600';
+            indicator.querySelector('span').textContent = index + 1;
+            status.textContent = 'Waiting';
+        }
+    });
+}
+
+function updateAllStepsToCompleted() {
+    // Mark all steps as completed when workflow is finished
+    const steps = [
+        { id: 'initial-translation', name: 'Initial Translation' },
+        { id: 'editor-review', name: 'Editor Review' },
+        { id: 'translator-revision', name: 'Translator Revision' }
+    ];
+
+    steps.forEach((step, index) => {
+        const indicator = document.getElementById(`${step.id}-indicator`);
+        const status = document.getElementById(`${step.id}-status`);
+
+        if (!indicator || !status) {
+            return;
+        }
+
+        // Mark all steps as completed
+        indicator.querySelector('div').className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
+        indicator.querySelector('span').className = 'text-sm font-medium text-white';
+        indicator.querySelector('span').textContent = '✓';
+        status.textContent = 'Completed';
+    });
+
+    console.log('✅ [Frontend] All steps marked as completed');
+}
+
+function updateStepStates(stepStates) {
+    // Update step states if available from backend
+    if (!stepStates || typeof stepStates !== 'object') {
+        return;
+    }
+
+    console.log('🔄 [Frontend] Updating step states:', stepStates);
+
+    // Update each step indicator based on its state
+    Object.entries(stepStates).forEach(([stepName, state]) => {
+        const stepId = stepName.toLowerCase().replace(/\s+/g, '-');
+        const indicator = document.getElementById(`${stepId}-indicator`);
+        const statusEl = document.getElementById(`${stepId}-status`);
+
+        if (!indicator || !statusEl) {
+            return;
+        }
+
+        const indicatorDiv = indicator.querySelector('div');
+        const indicatorSpan = indicator.querySelector('span');
+
+        if (state === 'completed') {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center';
+            indicatorSpan.className = 'text-sm font-medium text-white';
+            indicatorSpan.textContent = '✓';
+            statusEl.textContent = 'Completed';
+            statusEl.className = 'text-xs text-green-600 font-medium';
+        } else if (state === 'running') {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center animate-pulse';
+            indicatorSpan.className = 'text-sm font-medium text-white';
+            indicatorSpan.textContent = '⚡';
+            statusEl.textContent = 'In Progress';
+            statusEl.className = 'text-xs text-blue-600 font-medium';
+        } else {
+            indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center';
+            indicatorSpan.className = 'text-sm font-medium text-gray-600';
+            indicatorSpan.textContent = stepName.charAt(0).toUpperCase();
+            statusEl.textContent = 'Waiting';
+            statusEl.className = 'text-xs text-gray-500 font-medium';
+        }
+    });
+}
+
+function handleWorkflowCompletion(task) {
+    console.log('Workflow completed:', task);
+
+    // Stop polling
+    if (workflowState.pollInterval) {
+        clearInterval(workflowState.pollInterval);
+        workflowState.pollInterval = null;
+    }
+
+    // Stop timer
+    stopTimer();
+
+    // Stop spinner animation
+    stopSpinner();
+
+    // Update state
+    workflowState.isRunning = false;
+    workflowState.completed = true;
+
+    // Update UI with null checks
+    const statusMessage = document.getElementById('workflow-status-message');
+    const timing = document.getElementById('workflow-timing');
+    const progressBar = document.getElementById('workflow-progress-bar');
+    const percentageText = document.getElementById('workflow-percentage');
+
+    if (statusMessage) {
+        statusMessage.textContent = 'Translation completed successfully!';
+    }
+
+    if (timing) {
+        const elapsed = Math.floor((new Date() - workflowState.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        timing.textContent = `Completed in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress display
+    if (progressBar) {
+        progressBar.style.width = '100%';
+    }
+    if (percentageText) {
+        percentageText.textContent = '100%';
+    }
+
+    // Update all steps to completed
+    updateAllStepsToCompleted();
+
+    // Show completion message
+    showSuccessMessage('Translation completed successfully!');
+
+    // Always refresh translations after completion
+    setTimeout(() => {
+        console.log('🔄 [Frontend] Refreshing translations after workflow completion');
+        loadTranslations();
+        resetWorkflowUI();
+
+        // Show a success message that translation was added
+        showSuccessMessage('Translation completed and added to the list!');
+    }, 1000); // Reduced delay to 1 second for better UX
+}
+
+function handleWorkflowFailure(errorMessage) {
+    console.error('Workflow failed:', errorMessage);
+
+    // Stop polling
+    if (workflowState.pollInterval) {
+        clearInterval(workflowState.pollInterval);
+        workflowState.pollInterval = null;
+    }
+
+    // Stop timer
+    stopTimer();
+
+    // Stop spinner animation
+    stopSpinner();
+
+    // Update state
+    workflowState.isRunning = false;
+    workflowState.failed = true;
+
+    // Show error message
+    const errorDiv = document.getElementById('workflow-error');
+    const errorMessageEl = document.getElementById('workflow-error-message');
+
+    errorMessageEl.textContent = errorMessage || 'Translation workflow failed';
+    errorDiv.classList.remove('hidden');
+
+    // Update button
+    const startBtn = document.getElementById('start-workflow-btn');
+    const btnText = document.getElementById('workflow-btn-text');
+    startBtn.disabled = false;
+    btnText.textContent = 'Start Translation';
+
+    showErrorMessage('Translation workflow failed: ' + errorMessage);
+}
+
+async function cancelWorkflow() {
+    if (!workflowState.taskId || !workflowState.isRunning) {
+        return;
+    }
+
+    if (!confirm('Are you sure you want to cancel the translation workflow?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/v1/workflow/tasks/${workflowState.taskId}/cancel`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            showSuccessMessage('Workflow cancelled successfully');
+            // Stop timer immediately on cancel
+            stopTimer();
+            // Stop spinner animation immediately on cancel
+            stopSpinner();
+            resetWorkflowUI();
+            resetWorkflowState();
+        } else {
+            showErrorMessage('Failed to cancel workflow');
+        }
+    } catch (error) {
+        console.error('Failed to cancel workflow:', error);
+        showErrorMessage('Failed to cancel workflow');
+    }
+}
+
+async function retryWorkflow() {
+    if (!workflowState.taskId) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/v1/workflow/tasks/${workflowState.taskId}/retry`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            // Reset workflow state with new task ID
+            workflowState.taskId = result.id;
+            workflowState.startTime = new Date();
+            workflowState.isRunning = true;
+            workflowState.completed = false;
+            workflowState.failed = false;
+
+            // Hide error and restart polling
+            document.getElementById('workflow-error').classList.add('hidden');
+            startWorkflowPolling();
+
+            // Restart the timer
+            startTimer();
+
+            // Restart spinner animation
+            startSpinner();
+
+            showSuccessMessage('Workflow restarted successfully');
+        } else {
+            showErrorMessage('Failed to retry workflow');
+        }
+    } catch (error) {
+        console.error('Failed to retry workflow:', error);
+        showErrorMessage('Failed to retry workflow');
+    }
+}
+
+function resetWorkflow() {
+    resetWorkflowUI();
+    resetWorkflowState();
+}
+
+function resetWorkflowUI() {
+    // Keep progress section visible after completion (no longer hiding it)
+    // Only hide error section if it exists
+    const errorSection = document.getElementById('workflow-error');
+
+    if (errorSection) {
+        errorSection.classList.add('hidden');
+    }
+
+    // Reset button with null checks
+    const startBtn = document.getElementById('start-workflow-btn');
+    const btnText = document.getElementById('workflow-btn-text');
+
+    if (startBtn) {
+        startBtn.disabled = false;
+    }
+    if (btnText) {
+        btnText.textContent = 'Start Translation';
+    }
+
+    // Reset form with null checks
+    const targetLangSelect = document.getElementById('workflow-target-language');
+    const modeSelect = document.getElementById('workflow-mode');
+
+    if (targetLangSelect) {
+        targetLangSelect.value = '';
+    }
+    if (modeSelect) {
+        modeSelect.value = 'hybrid';
+    }
+}
+
+function resetWorkflowState() {
+    // Close SSE connection
+    if (workflowState.eventSource) {
+        workflowState.eventSource.close();
+        workflowState.eventSource = null;
+        console.log('🔌 Closed SSE connection');
+    }
+
+    // Stop polling (fallback)
+    stopWorkflowPolling();
+
+    // Stop timer
+    stopTimer();
+
+    // Stop spinner animation
+    stopSpinner();
+
+    // Reset state
+    workflowState.taskId = null;
+    workflowState.startTime = null;
+    workflowState.isRunning = false;
+    workflowState.completed = false;
+    workflowState.failed = false;
+    workflowState.sseConnected = false;
+    workflowState.sseReconnectAttempts = 0;
+    workflowState.sseCompleted = false;
+    workflowState.isPolling = false;
+    workflowState.pollingErrors = 0;
+}
+
+// Clean up connections when page is unloaded
+window.addEventListener('beforeunload', () => {
+    console.log('🧹 Cleaning up connections before page unload');
+
+    // Close SSE connection
+    if (workflowState.eventSource) {
+        workflowState.eventSource.close();
+        console.log('🔌 Closed SSE connection on page unload');
+    }
+
+    // Stop polling
+    stopWorkflowPolling();
+});
+
+// Also clean up on page visibility changes (user switching tabs)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && workflowState.isRunning) {
+        console.log('👁️ Page hidden, keeping connections active but reducing polling frequency');
+        // Optionally reduce polling frequency when tab is not visible
+    }
+});
+
+</script>
+{% endblock %}
 </code>
 
 
 
-the translation results are in the .json file. one issue is that in "editor_review" json structure, it only has "tokens_used": 3630, but no "prompt_tokens","completion_tokens", "duration", and "cost", as for "initial_translation" and "revised_translation". I include here 3 python scripts implementing the logic.
+I want your help to design the strategy and blueprint to create a "Translation Notes" page that can display the T-E-T process results of each vpsweb translation in an elegant way. 
+1. in this page, we should display the original poem, the initial translation, initial translation notes, editors notes, revised translation and revised translation notes
+2. I'd like the user to have the opportunity to view the evolvement of a poem translation
+3. The source of content is included in the .json file. I have also included a .html file to show the current style of the WebUI

@@ -23,11 +23,22 @@ providers:
     default_model: "deepseek-reasoner"
     capabilities:
       reasoning: true
+  
+  siliconflow:
+    api_key_env: "SILICONFLOW_API_KEY"
+    base_url: "https://api.siliconflow.cn/v1/"
+    type: "openai_compatible"
+    models:
+      - "deepseek-ai/DeepSeek-V3.2-Exp"  # Reasoning model
+    default_model: "deepseek-ai/DeepSeek-V3.2-Exp"
+    capabilities:
+      reasoning: true
 
 # Model classification for automatic prompt selection
 model_classification:
   reasoning_models:
     - "deepseek-reasoner"
+    - "deepseek-ai/DeepSeek-V3.2-Exp"
   non_reasoning_models:
     - "qwen3-max-latest"
     - "qwen-plus-latest"

@@ -202,7 +202,6 @@ class TranslationWorkflow:
                     },
                 )
 
-  
             # Call progress callback after Step 1 completion
             if self.progress_callback:
                 await self.progress_callback(

@@ -336,17 +336,25 @@ class TestTranslationOutput:
         assert output.total_tokens == 1250
         assert output.duration_seconds == 15.5
 
-    def test_get_congregated_output(self, sample_translation_output):
-        """Test generating congregated output format."""
+    def test_json_structure_consistency(self, sample_translation_output):
+        """Test that JSON structure is consistent and contains expected fields."""
         output = sample_translation_output
-        congregated = output.get_congregated_output()
+        result = output.to_dict()
 
-        assert congregated["original_poem"] == "The fog comes on little cat feet."
-        assert congregated["initial_translation"] == "雾来了，踏着猫的细步。"
-        assert congregated["revised_translation"] == "雾来了，踏着猫儿轻盈的脚步。"
-        assert "editor_suggestions" in congregated
-        assert "initial_translation_notes" in congregated
-        assert "revised_translation_notes" in congregated
+        # Test that the structure contains the expected top-level fields
+        assert "workflow_id" in result
+        assert "input" in result
+        assert "initial_translation" in result
+        assert "editor_review" in result
+        assert "revised_translation" in result
+        assert "total_tokens" in result
+        assert "duration_seconds" in result
+
+        # Test nested structure
+        assert result["input"]["original_poem"] == "The fog comes on little cat feet."
+        assert "initial_translation" in result["initial_translation"]
+        assert "editor_suggestions" in result["editor_review"]
+        assert "revised_translation" in result["revised_translation"]
 
     def test_to_dict_method(self, sample_translation_output):
         """Test conversion to dictionary."""
@@ -356,7 +364,8 @@ class TestTranslationOutput:
         assert result["workflow_id"] == "test-workflow-123"
         assert result["total_tokens"] == 1250
         assert result["duration_seconds"] == 15.5
-        assert "congregated_output" in result
+
+        # Test that all expected sections are present
         assert "input" in result
         assert "initial_translation" in result
         assert "editor_review" in result
@@ -566,10 +575,10 @@ class TestModelSerialization:
 
         # Should contain all expected fields
         assert "workflow_id" in json_str
+        assert "input" in json_str
         assert "initial_translation" in json_str
         assert "revised_translation" in json_str
         assert "editor_review" in json_str
-        assert "congregated_output" in json_str
 
         # Should be able to deserialize
         loaded_data = json.loads(json_str)

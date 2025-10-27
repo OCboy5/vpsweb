@@ -19,6 +19,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     Integer,
+    Float,
     CheckConstraint,
     Index,
     Enum,
@@ -164,6 +165,11 @@ class Translation(Base):
     human_notes: Mapped[List["HumanNote"]] = relationship(
         "HumanNote", back_populates="translation", cascade="all, delete-orphan"
     )
+    workflow_steps: Mapped[List["TranslationWorkflowStep"]] = relationship(
+        "TranslationWorkflowStep",
+        back_populates="translation",
+        cascade="all, delete-orphan",
+    )
 
     # Indexes
     __table_args__ = (
@@ -199,6 +205,31 @@ class Translation(Base):
     def has_human_notes(self) -> bool:
         """Check if this translation has human notes"""
         return len(self.human_notes) > 0
+
+    @property
+    def has_workflow_steps(self) -> bool:
+        """Check if this translation has workflow steps"""
+        return len(self.workflow_steps) > 0
+
+    @property
+    def workflow_step_count(self) -> int:
+        """Get the number of workflow steps for this translation"""
+        return len(self.workflow_steps)
+
+    @property
+    def total_tokens_used(self) -> Optional[int]:
+        """Get total tokens used across all workflow steps"""
+        return sum(step.tokens_used or 0 for step in self.workflow_steps)
+
+    @property
+    def total_cost(self) -> Optional[float]:
+        """Get total cost across all workflow steps"""
+        return sum(step.cost or 0.0 for step in self.workflow_steps)
+
+    @property
+    def total_duration(self) -> Optional[float]:
+        """Get total duration across all workflow steps"""
+        return sum(step.duration_seconds or 0.0 for step in self.workflow_steps)
 
 
 class AILog(Base):
@@ -243,6 +274,9 @@ class AILog(Base):
     translation: Mapped["Translation"] = relationship(
         "Translation", back_populates="ai_logs"
     )
+    workflow_steps: Mapped[List["TranslationWorkflowStep"]] = relationship(
+        "TranslationWorkflowStep", back_populates="ai_log", cascade="all, delete-orphan"
+    )
 
     # Indexes
     __table_args__ = (
@@ -278,6 +312,11 @@ class AILog(Base):
 
             return json.loads(self.cost_info_json)
         return None
+
+    @property
+    def step_count(self) -> int:
+        """Get the number of workflow steps for this AI log"""
+        return len(self.workflow_steps)
 
 
 class HumanNote(Base):
@@ -320,6 +359,129 @@ class HumanNote(Base):
 
     def __repr__(self) -> str:
         return f"HumanNote(id={self.id}, translation_id={self.translation_id})"
+
+
+class TranslationWorkflowStep(Base):
+    """TranslationWorkflowStep model for detailed T-E-T workflow content"""
+
+    __tablename__ = "translation_workflow_steps"
+
+    # Primary key
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, index=True)
+
+    # Foreign key to Translation (for aggregation queries)
+    translation_id: Mapped[str] = mapped_column(
+        String(26),
+        ForeignKey("translations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Foreign key to AILog (for provenance)
+    ai_log_id: Mapped[str] = mapped_column(
+        String(26),
+        ForeignKey("ai_logs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Workflow identification
+    workflow_id: Mapped[str] = mapped_column(String(26), nullable=False, index=True)
+
+    # Step classification
+    step_type: Mapped[str] = mapped_column(
+        String(30), nullable=False, index=True
+    )  # 'initial_translation', 'editor_review', 'revised_translation'
+    step_order: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # Core content
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    model_info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # NEW: Dedicated columns for key metrics (SQL-queryable)
+    tokens_used: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True, index=True
+    )
+    prompt_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    completion_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    duration_seconds: Mapped[Optional[float]] = mapped_column(
+        Float, nullable=True, index=True
+    )
+    cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
+
+    # Keep JSON for additional/future metrics (flexibility)
+    additional_metrics: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Translated metadata (for initial_translation and revised_translation steps)
+    translated_title: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    translated_poet_name: Mapped[Optional[str]] = mapped_column(
+        String(200), nullable=True
+    )
+
+    # Timestamps
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
+    )
+
+    # Relationships
+    translation: Mapped["Translation"] = relationship(
+        "Translation", back_populates="workflow_steps"
+    )
+    ai_log: Mapped["AILog"] = relationship("AILog", back_populates="workflow_steps")
+
+    # Indexes for performance
+    __table_args__ = (
+        Index("idx_workflow_steps_translation_id", "translation_id"),
+        Index("idx_workflow_steps_ai_log_id", "ai_log_id"),
+        Index("idx_workflow_steps_workflow_id", "workflow_id"),
+        Index("idx_workflow_steps_type_order", "translation_id", "step_order"),
+        # Performance indexes for analytics
+        Index("idx_workflow_steps_cost", "cost"),
+        Index("idx_workflow_steps_duration", "duration_seconds"),
+        Index("idx_workflow_steps_tokens", "tokens_used"),
+        Index(
+            "idx_workflow_steps_step_metrics", "step_type", "cost", "duration_seconds"
+        ),
+        CheckConstraint(
+            "step_type IN ('initial_translation', 'editor_review', 'revised_translation')",
+            name="ck_translation_workflow_steps_step_type",
+        ),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"TranslationWorkflowStep(id={self.id}, step_type={self.step_type}, "
+            f"translation_id={self.translation_id})"
+        )
+
+    @property
+    def additional_metrics_data(self) -> Optional[dict]:
+        """Parse additional metrics JSON if available"""
+        if self.additional_metrics:
+            import json
+
+            return json.loads(self.additional_metrics)
+        return None
+
+    @property
+    def model_info_data(self) -> Optional[dict]:
+        """Parse model info JSON if available"""
+        if self.model_info:
+            import json
+
+            return json.loads(self.model_info)
+        return None
 
 
 # WorkflowTask model removed - task tracking now handled by FastAPI app.state

@@ -20,7 +20,7 @@ from sqlalchemy import select, update, delete, func, and_, or_
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from .models import Poem, Translation, AILog, HumanNote
+from .models import Poem, Translation, AILog, HumanNote, TranslationWorkflowStep
 from .schemas import (
     PoemCreate,
     PoemUpdate,
@@ -32,9 +32,12 @@ from .schemas import (
     AILogResponse,
     HumanNoteCreate,
     HumanNoteResponse,
+    TranslationWorkflowStepCreate,
+    TranslationWorkflowStepResponse,
     TranslatorType,
     WorkflowMode,
     TaskStatus,
+    WorkflowStepType,
 )
 
 
@@ -489,6 +492,204 @@ class CRUDHumanNote:
         return result.rowcount > 0
 
 
+class CRUDTranslationWorkflowStep:
+    """CRUD operations for TranslationWorkflowStep model"""
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
+    def create(
+        self, step_data: TranslationWorkflowStepCreate
+    ) -> TranslationWorkflowStep:
+        """
+        Create a new translation workflow step
+
+        Args:
+            step_data: Workflow step creation data
+
+        Returns:
+            Created workflow step object
+
+        Raises:
+            IntegrityError: If step with same ID already exists
+        """
+        # Generate ULID for time-sortable unique ID
+        step_id = generate_ulid()
+
+        db_step = TranslationWorkflowStep(
+            id=step_id,
+            translation_id=step_data.translation_id,
+            ai_log_id=step_data.ai_log_id,
+            workflow_id=step_data.workflow_id,
+            step_type=step_data.step_type,
+            step_order=step_data.step_order,
+            content=step_data.content,
+            notes=step_data.notes,
+            model_info=step_data.model_info,
+            tokens_used=step_data.tokens_used,
+            prompt_tokens=step_data.prompt_tokens,
+            completion_tokens=step_data.completion_tokens,
+            duration_seconds=step_data.duration_seconds,
+            cost=step_data.cost,
+            additional_metrics=step_data.additional_metrics,
+            translated_title=step_data.translated_title,
+            translated_poet_name=step_data.translated_poet_name,
+            timestamp=step_data.timestamp,
+        )
+
+        try:
+            self.db.add(db_step)
+            self.db.commit()
+            self.db.refresh(db_step)
+            return db_step
+        except IntegrityError:
+            self._safe_rollback()
+            raise
+        except SQLAlchemyError as e:
+            self._safe_rollback()
+            raise e
+
+    def get_by_id(self, step_id: str) -> Optional[TranslationWorkflowStep]:
+        """Get workflow step by ID"""
+        stmt = select(TranslationWorkflowStep).where(
+            TranslationWorkflowStep.id == step_id
+        )
+        result = self.db.execute(stmt).scalar_one_or_none()
+        return result
+
+    def get_by_translation(self, translation_id: str) -> List[TranslationWorkflowStep]:
+        """Get all workflow steps for a translation"""
+        stmt = (
+            select(TranslationWorkflowStep)
+            .where(TranslationWorkflowStep.translation_id == translation_id)
+            .order_by(
+                TranslationWorkflowStep.step_order.asc(),
+                TranslationWorkflowStep.timestamp.asc(),
+            )
+        )
+        result = self.db.execute(stmt).scalars().all()
+        return result
+
+    def get_by_ai_log(self, ai_log_id: str) -> List[TranslationWorkflowStep]:
+        """Get all workflow steps for an AI log"""
+        stmt = (
+            select(TranslationWorkflowStep)
+            .where(TranslationWorkflowStep.ai_log_id == ai_log_id)
+            .order_by(
+                TranslationWorkflowStep.step_order.asc(),
+                TranslationWorkflowStep.timestamp.asc(),
+            )
+        )
+        result = self.db.execute(stmt).scalars().all()
+        return result
+
+    def get_by_workflow(self, workflow_id: str) -> List[TranslationWorkflowStep]:
+        """Get all workflow steps for a workflow execution"""
+        stmt = (
+            select(TranslationWorkflowStep)
+            .where(TranslationWorkflowStep.workflow_id == workflow_id)
+            .order_by(
+                TranslationWorkflowStep.step_order.asc(),
+                TranslationWorkflowStep.timestamp.asc(),
+            )
+        )
+        result = self.db.execute(stmt).scalars().all()
+        return result
+
+    def get_by_step_type(
+        self, translation_id: str, step_type: WorkflowStepType
+    ) -> Optional[TranslationWorkflowStep]:
+        """Get a specific step type for a translation"""
+        stmt = (
+            select(TranslationWorkflowStep)
+            .where(
+                and_(
+                    TranslationWorkflowStep.translation_id == translation_id,
+                    TranslationWorkflowStep.step_type == step_type,
+                )
+            )
+            .order_by(TranslationWorkflowStep.step_order.asc())
+            .limit(1)
+        )
+        result = self.db.execute(stmt).scalar_one_or_none()
+        return result
+
+    def get_workflow_metrics(self, workflow_id: str) -> Dict[str, Any]:
+        """Get aggregated metrics for a workflow execution"""
+        stmt = select(
+            func.sum(TranslationWorkflowStep.tokens_used).label("total_tokens"),
+            func.sum(TranslationWorkflowStep.cost).label("total_cost"),
+            func.sum(TranslationWorkflowStep.duration_seconds).label("total_duration"),
+            func.count(TranslationWorkflowStep.id).label("step_count"),
+        ).where(TranslationWorkflowStep.workflow_id == workflow_id)
+
+        result = self.db.execute(stmt).first()
+        return {
+            "total_tokens": result.total_tokens or 0,
+            "total_cost": result.total_cost or 0.0,
+            "total_duration": result.total_duration or 0.0,
+            "step_count": result.step_count or 0,
+        }
+
+    def update(
+        self, step_id: str, update_data: Dict[str, Any]
+    ) -> Optional[TranslationWorkflowStep]:
+        """Update workflow step by ID"""
+        stmt = (
+            update(TranslationWorkflowStep)
+            .where(TranslationWorkflowStep.id == step_id)
+            .values(**update_data)
+            .returning(TranslationWorkflowStep)
+        )
+        result = self.db.execute(stmt).scalar_one_or_none()
+
+        if result:
+            self.db.commit()
+            self.db.refresh(result)
+
+        return result
+
+    def delete(self, step_id: str) -> bool:
+        """Delete workflow step by ID"""
+        stmt = delete(TranslationWorkflowStep).where(
+            TranslationWorkflowStep.id == step_id
+        )
+        result = self.db.execute(stmt)
+        self.db.commit()
+        return result.rowcount > 0
+
+    def delete_by_workflow(self, workflow_id: str) -> int:
+        """Delete all workflow steps for a workflow execution"""
+        stmt = delete(TranslationWorkflowStep).where(
+            TranslationWorkflowStep.workflow_id == workflow_id
+        )
+        result = self.db.execute(stmt)
+        self.db.commit()
+        return result.rowcount
+
+    def count(self) -> int:
+        """Get total number of workflow steps"""
+        stmt = select(func.count(TranslationWorkflowStep.id))
+        result = self.db.execute(stmt).scalar()
+        return result or 0
+
+    def count_by_translation(self, translation_id: str) -> int:
+        """Get number of workflow steps for a translation"""
+        stmt = select(func.count(TranslationWorkflowStep.id)).where(
+            TranslationWorkflowStep.translation_id == translation_id
+        )
+        result = self.db.execute(stmt).scalar()
+        return result or 0
+
+
 # CRUDWorkflowTask class removed - task tracking now handled by FastAPI app.state
 # for real-time in-memory storage with enhanced step progress reporting
 
@@ -503,6 +704,7 @@ class RepositoryService:
         self.translations = CRUDTranslation(db)
         self.ai_logs = CRUDAILog(db)
         self.human_notes = CRUDHumanNote(db)
+        self.workflow_steps = CRUDTranslationWorkflowStep(db)
         # workflow_tasks removed - now using FastAPI app.state for task tracking
 
     def get_repository_stats(self) -> Dict[str, Any]:
@@ -557,12 +759,14 @@ class RepositoryService:
         for translation in translations:
             ai_logs = self.ai_logs.get_by_translation(translation.id)
             human_notes = self.human_notes.get_by_translation(translation.id)
+            workflow_steps = self.workflow_steps.get_by_translation(translation.id)
 
             result["translations"].append(
                 {
                     "translation": translation,
                     "ai_logs": ai_logs,
                     "human_notes": human_notes,
+                    "workflow_steps": workflow_steps,
                 }
             )
 
