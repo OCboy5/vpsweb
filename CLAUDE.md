@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Note**: For tool usage workflow and MCP tool selection guidance, see `.claude/instructions.md`
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Project Overview
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
@@ -109,12 +113,34 @@ export PYTHONPATH="$(pwd)/src:$PYTHONPATH"  # Required for src layout
 ./scripts/setup-database.sh init       # Initialize database
 ./scripts/start.sh                     # Start FastAPI server (localhost:8000)
 ./scripts/stop.sh                      # Stop server
+./scripts/clean-start.sh               # Clean restart (stop + start)
 ```
 
-### Quality Checks
+### Testing and Quality
 ```bash
-./dev-check.sh                         # Run all quality checks
-poetry run pytest tests/               # Run tests
+./scripts/test.sh                      # Run test suite with coverage
+poetry run pytest tests/ -v            # Run tests with verbose output
+poetry run pytest tests/unit/          # Run unit tests only
+poetry run pytest tests/integration/   # Run integration tests only
+poetry run pytest tests/slow           # Run slow tests (add -m 'not slow' to skip)
+poetry run black --check src/ tests/   # Check code formatting
+poetry run black src/ tests/           # Format code
+poetry run flake8 src/ tests/          # Run linting
+poetry run mypy src/                   # Type checking
+```
+
+### Database Operations
+```bash
+# Database migrations (Alembic)
+alembic revision --autogenerate -m "description"  # Create migration
+alembic upgrade head                                # Apply migrations
+alembic downgrade -1                               # Rollback one migration
+alembic current                                    # Show current revision
+alembic history                                    # Show migration history
+
+# Direct database operations
+sqlite3 repository_root/repo.db ".tables"          # List tables
+sqlite3 repository_root/repo.db ".schema poems"    # Show table schema
 ```
 
 ### Core Usage
@@ -187,27 +213,69 @@ git checkout v0.2.0-local-2025-10-05
 
 ### Key Architectural Patterns
 
-#### FastAPI Web Application (v0.3+)
+##### FastAPI Web Application (v0.3+)
 - **SSE Streaming**: Real-time workflow progress via Server-Sent Events
 - **Dependency Injection**: Service layer with async database sessions
 - **Modular Routing**: Separate API routers for poems, translations, statistics
 - **Task Tracking**: In-memory task management via FastAPI app.state
+- **Template System**: Jinja2 templates with Tailwind CSS for responsive UI
+- **Static Assets**: CSS, JS, and image serving via FastAPI static mounts
 
 #### Async Database Patterns
 - Service layer pattern with dependency injection
 - Async session management with proper cleanup
 - Cascade operations for related data integrity
+- Alembic migrations for schema versioning
+- Connection pooling with aiosqlite for performance
 
 ### Specialized Documentation
 - **WeChat Integration**: [docs/wechat-integration.md](docs/wechat-integration.md)
 - **API Patterns**: [docs/api-patterns.md](docs/api-patterns.md)
 - **Testing**: [docs/testing.md](docs/testing.md)
 - **Future Development**: [docs/future-development.md](docs/future-development.md)
+- **Development Setup**: [docs/Development_Setup.md](docs/Development_Setup.md)
+- **User Guide**: [docs/User_Guide.md](docs/User_Guide.md)
+- **Backup & Restore**: [docs/backup_restore_guide.md](docs/backup_restore_guide.md)
 
+## Development Workflow Patterns
+
+### Test-Driven Development
+```bash
+# Typical development cycle
+poetry run pytest tests/unit/test_new_feature.py -v  # Test new feature
+poetry run black src/ tests/                         # Format code
+poetry run flake8 src/ tests/                        # Lint code
+poetry run mypy src/                                 # Type check
+git add . && git commit -m "feat: add new feature"   # Commit changes
+```
+
+### Debugging Common Issues
+```bash
+# Database issues
+sqlite3 repository_root/repo.db "SELECT COUNT(*) FROM poems;"  # Check data
+alembic current                                              # Check migration status
+
+# Import issues
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"                  # Set path
+python -c "from vpsweb import __main__; print('OK')"         # Test imports
+
+# Server issues
+./scripts/stop.sh                                            # Stop server
+pkill -f uvicorn                                             # Kill stray processes
+./scripts/clean-start.sh                                     # Clean restart
+```
+
+### VS Code Symbol Tools for Context Efficiency
+Use VS Code symbol tools to reduce context consumption:
+- `get_document_symbols_code` for file structure overview instead of reading entire files
+- `search_symbols_code` to find symbols by name across the project
+- `get_symbol_definition_code` for type info and docs without full file context
+- Workflow: get outline → search symbols → get definitions → read implementation only when needed
+  
 ---
 ## Important Reminders
 **NEVER**:
-- Announce success before new written code passing all tests
+- Announce success before new written code passed all tests
 **ALWAYS**:
 - Commit working code incrementally
 - Update plan documentation as you go

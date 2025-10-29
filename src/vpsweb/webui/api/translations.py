@@ -74,8 +74,17 @@ async def list_translations(
     # Convert database models to Pydantic response models with workflow fields
     result = []
     for translation in translations:
+        # Load workflow_mode for AI translations
+        workflow_mode = None
+        if translation.translator_type == "ai":
+            ai_logs = service.ai_logs.get_by_translation(translation.id)
+            workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
+
         # Convert to dict first - now the schema handles workflow fields automatically
         translation_dict = TranslationResponse.model_validate(translation).model_dump()
+
+        # Add workflow_mode to the response
+        translation_dict["workflow_mode"] = workflow_mode
 
         result.append(translation_dict)
 

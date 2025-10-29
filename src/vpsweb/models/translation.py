@@ -286,6 +286,7 @@ class TranslationOutput(BaseModel):
         """Convert to dictionary with proper serialization."""
         return {
             "workflow_id": self.workflow_id,
+            "workflow_mode": self.workflow_mode,
             "input": self.input.to_dict(),
             "initial_translation": self.initial_translation.to_dict(),
             "editor_review": self.editor_review.to_dict(),
@@ -299,6 +300,7 @@ class TranslationOutput(BaseModel):
         """Create from dictionary with proper deserialization."""
         return cls(
             workflow_id=data["workflow_id"],
+            workflow_mode=data.get("workflow_mode"),
             input=TranslationInput.from_dict(data["input"]),
             initial_translation=InitialTranslation.from_dict(
                 data["initial_translation"]

@@ -5,17 +5,15 @@ Tools
 2.
 
 
-build a translation notes page, 1 notes always belong to 1 translation
+
+1. I really what we have done with the Translation Notes page. It has all the infomation I want to present. If we name the current layout as Layout 1, I want to try design and implement a Layout 2. I would like the user be able to toggle between the 2 layouts.
+2. Layout 2 would look very much like our Poem Compare page: Under the page header block, there will be 3 column sections that hold "original poem", "initial translation", "revised translation" respectively. At the bottom of "intial translation" section there is a "initial translation note" button, and at the bottom of "revised translation" section there is a "revised translation note" button. there will also be a icon/button named "Editor Review" in-between the "initial translation" section and "revised translation" section.
+3. below the 3 column sections, there is a Notes display block. If the user click either one of the "initial translation note", "editor review" and "revised translation note", the corresponding note will be displayed in this block.
+4. please investigate the current translation_notes.html and poem_compare.html, use context7, deepwiki, chrome_devtools mcp tools when needed, and think hard about the design and implementation of the Layout 2 of the translation notes page.
+5. Please check with me if there's anything unclear to you.
 
 
-
-let's start to design our strategy and blueprint to create a "Translation Notes" page that can display the ai_log&translation_step_results of each ai translation in an elegant way. 
-1. in this page, we should display the original poem, the initial translation, initial translation notes, editors notes, revised translation and revised translation notes, with metadata of each step.
-2. I'd like the user to have the opportunity to view the evolvement of a poem translation in the T-E-T workflow.
-3. we should also keep the style of the page consistent with the current style of the WebUI 
-4. think very hard
-
-1.show "Translation Notes" button in translation only if there's a note related to this translation
+Please follow the workflow in the instructions.
 
 
 微信公众号

@@ -152,7 +152,17 @@ class RepositoryWebService:
     def get_poem_translations(self, poem_id: str) -> List[TranslationResponse]:
         """Get all translations for a poem"""
         translations = self.repo.translations.get_by_poem(poem_id)
-        return [self._translation_to_response(t) for t in translations]
+        result = []
+        for translation in translations:
+            # Manually load AI logs for workflow mode
+            workflow_mode = None
+            if translation.translator_type == "ai":
+                ai_logs = self.repo.ai_logs.get_by_translation(translation.id)
+                workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
+
+            translation_response = self._translation_to_response(translation, workflow_mode)
+            result.append(translation_response)
+        return result
 
     def get_translation_with_details(
         self, translation_id: str
@@ -278,7 +288,7 @@ class RepositoryWebService:
             translation_count=poem.translation_count,
         )
 
-    def _translation_to_response(self, translation: Translation) -> TranslationResponse:
+    def _translation_to_response(self, translation: Translation, workflow_mode: Optional[str] = None) -> TranslationResponse:
         """Convert translation model to response schema"""
         return TranslationResponse(
             id=translation.id,
@@ -290,6 +300,7 @@ class RepositoryWebService:
             quality_rating=translation.quality_rating,
             raw_path=translation.raw_path,
             created_at=translation.created_at,
+            workflow_mode=workflow_mode,
         )
 
     def _ai_log_to_response(self, ai_log: AILog) -> AILogResponse:

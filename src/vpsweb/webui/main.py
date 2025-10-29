@@ -250,8 +250,10 @@ def strip_leading_spaces(text):
     """Remove leading whitespace only from the beginning of text (first line)"""
     if not text:
         return text
-    # Remove only leading whitespace from the very beginning, preserving internal formatting
-    return text.lstrip()
+    # Remove leading whitespace and newlines from the beginning, preserving internal formatting
+    while text and (text[0] == ' ' or text[0] == '\t' or text[0] == '\n' or text[0] == '\r'):
+        text = text[1:]
+    return text
 
 
 templates.env.filters["strip_leading_spaces"] = strip_leading_spaces
@@ -375,11 +377,15 @@ async def poem_compare(poem_id: str, request: Request, db: Session = Depends(get
     if not poem:
         raise HTTPException(status_code=404, detail="Poem not found")
 
+    # Get translations for this poem
+    translations = service.translations.get_by_poem(poem_id)
+
     return templates.TemplateResponse(
         "poem_compare.html",
         {
             "request": request,
             "poem": poem,
+            "translations": translations,
             "title": f"Compare Translations - {poem.poem_title} - VPSWeb Repository",
         },
     )

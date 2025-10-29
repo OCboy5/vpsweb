@@ -6,11 +6,13 @@ API endpoints for poem management operations with comprehensive CRUD functionali
 
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
+from sqlalchemy import func, select, case
 
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import PoemCreate, PoemUpdate, PoemResponse
+from src.vpsweb.repository.models import Poem, Translation
 from ..schemas import (
     PoemFormCreate,
     WebAPIResponse,
@@ -57,7 +59,41 @@ async def list_poems(
         language=language,
         title_search=title_search,
     )
-    return poems
+
+    # Try using the working property approach for each poem
+    response_data = []
+    for poem in poems:
+        # Calculate translation counts using direct SQL queries (like the statistics API)
+        ai_translation_count = service.db.execute(
+            select(func.count(Translation.id)).where(
+                Translation.poem_id == poem.id,
+                Translation.translator_type == "ai"
+            )
+        ).scalar() or 0
+
+        human_translation_count = service.db.execute(
+            select(func.count(Translation.id)).where(
+                Translation.poem_id == poem.id,
+                Translation.translator_type == "human"
+            )
+        ).scalar() or 0
+
+        poem_dict = {
+            "id": poem.id,
+            "poet_name": poem.poet_name,
+            "poem_title": poem.poem_title,
+            "source_language": poem.source_language,
+            "original_text": poem.original_text,
+            "metadata_json": poem.metadata_json,
+            "created_at": poem.created_at,
+            "updated_at": poem.updated_at,
+            "translation_count": poem.translation_count or 0,
+            "ai_translation_count": ai_translation_count,
+            "human_translation_count": human_translation_count,
+        }
+        response_data.append(poem_dict)
+
+    return response_data
 
 
 @router.post("/", response_model=PoemResponse)
@@ -207,21 +243,34 @@ async def get_poem_translations(
         )
 
     # Get translations for this poem
-    translations = service.translations.get_by_poem_id(poem_id)
+    translations = service.translations.get_by_poem(poem_id)
 
-    # Convert to dict format for API response
-    return [
-        {
+    # Convert to dict format for API response with poem fallback data
+    result = []
+    for t in translations:
+        # Load workflow_mode for AI translations
+        workflow_mode = None
+        if t.translator_type == "ai":
+            ai_logs = service.ai_logs.get_by_translation(t.id)
+            workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
+
+        result.append({
             "id": t.id,
             "translator_type": t.translator_type,
             "translator_info": t.translator_info,
             "target_language": t.target_language,
+            "translated_text": t.translated_text,
+            "translated_poem_title": t.translated_poem_title,
+            "translated_poet_name": t.translated_poet_name,
+            "poem_title": poem.poem_title,  # Add original poem title for fallback
+            "poet_name": poem.poet_name,      # Add original poet name for fallback
             "quality_rating": t.quality_rating,
             "created_at": t.created_at.isoformat(),
             "translation_count": 1,  # Each translation record represents one
-        }
-        for t in translations
-    ]
+            "workflow_mode": workflow_mode,  # Add workflow mode
+        })
+
+    return result
 
 
 @router.post("/search", response_model=List[PoemResponse])
@@ -285,7 +334,7 @@ async def get_poem_translations_with_workflows(
         )
 
     # Get translations for this poem
-    translations = service.translations.get_by_poem_id(poem_id)
+    translations = service.translations.get_by_poem(poem_id)
 
     # Build response with workflow information
     result = []
