@@ -7,7 +7,6 @@ You have access to powerful MCP tools that significantly improve your capabiliti
 **Your MCP Tools:**
 - **vscode-mcp-server** - VS Code IDE integration (PRIMARY for code navigation)
 - **context7** - Semantic code search and understanding
-- **filesystem** - File system operations outside VS Code workspace
 - **github** - Repository issues, PRs, commits, discussions
 - **deepwiki** - Documentation search for libraries/frameworks
 - **fetch** - External documentation and API specs
