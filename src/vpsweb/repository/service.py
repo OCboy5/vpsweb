@@ -378,9 +378,12 @@ class RepositoryWebService:
         elif sort_by == "translation_count":
             order_column = func.count(Translation.id)
         elif sort_by == "recent_activity":
-            order_column = func.greatest(
-                func.max(Translation.created_at),
-                func.max(Poem.created_at),
+            # SQLite doesn't support greatest() function
+            # Use a CASE statement to choose the latest date
+            from sqlalchemy import case
+            order_column = case(
+                (func.max(Translation.created_at) >= func.max(Poem.created_at), func.max(Translation.created_at)),
+                else_=func.max(Poem.created_at)
             )
         else:
             order_column = Poem.poet_name
