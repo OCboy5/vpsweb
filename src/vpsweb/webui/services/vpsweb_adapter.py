@@ -1104,7 +1104,7 @@ class VPSWebWorkflowAdapter:
                         or translation_data.get("translated_poet_name", "")
                     ).strip(),
                     translator_type=TranslatorType.AI,  # Use proper enum value
-                    translator_info="qwen-max",  # Use actual model name
+                    translator_info="vpsweb",  # Use actual model name
                     quality_rating=translation_data.get(
                         "quality_rating", None
                     ),  # Fixed field name

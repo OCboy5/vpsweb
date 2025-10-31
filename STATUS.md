@@ -1,14 +1,40 @@
-# Vox Poetica Studio Web - v0.3.8 Status
+# Vox Poetica Studio Web - v0.3.10 Status
 
-**Date**: 2025-10-27
-**Version**: 0.3.8 (Translation Notes & UI Polish)
-**Status**: ✅ **PRODUCTION-READY WITH COMPREHENSIVE TRANSLATION NOTES & ELEGANT UI**
+**Date**: 2025-10-31
+**Version**: 0.3.10 (Enhanced Translation UI & Translator Attribution)
+**Status**: ✅ **PRODUCTION-READY WITH ENHANCED TRANSLATOR ATTRIBUTION & REFINED UI**
 
 ## 🎯 Executive Summary
 
 Vox Poetica Studio Web (vpsweb) achieves a major milestone with v0.3.8, delivering **COMPREHENSIVE TRANSLATION NOTES & ELEGANT UI POLISH** that transforms how users explore and understand the complete T-E-T translation workflow. This release introduces an elegant Translation Notes display system, enhanced Dashboard statistics, and significant UI refinements, building upon the robust database architecture from previous releases. This release adds timeout protection for workflows, comprehensive database indexing, user-friendly error handling, robust testing infrastructure, database migration tools, and advanced logging capabilities. This release implements a comprehensive FastAPI web interface with responsive design using Tailwind CSS, a complete repository database system with 15+ REST endpoints, and seamless integration with existing VPSWeb translation and WeChat workflows. The implementation includes enterprise-grade backup systems, automated development environment setup, comprehensive testing frameworks, and maintains 100% backward compatibility with all existing CLI functionality. With 56,802 lines of production-ready code across 145 files, v0.3.1 represents the most significant enhancement in the project's history while preserving all core functionality and workflows.
 
 ## ✅ Completed Features
+
+### 🎯 Enhanced Translation UI & Translator Attribution (v0.3.10)
+
+#### 👤 Enhanced Translator Attribution
+- **Poem Details Page**: Human translations now display translator name as "译者: Name" under translated poet name
+- **Translation Compare Page**: Translator names shown in purple badges for human translations in card headers
+- **Conditional Display**: Translator information only appears for human translations, maintaining clean AI interface
+- **Consistent Styling**: Translator names use same visual style as translated poet names for cohesive design
+
+#### 🎛️ Improved Translation Management
+- **Add Translation Modal**: New input fields for "translated poem title" and "translated poet name" for human translators
+- **Mandatory Language Selection**: Required target language selection with visual indicators (red asterisk)
+- **Enhanced Form Validation**: Improved data integrity and user feedback for translation submission
+- **Database Integration**: New translation fields properly saved to repository database
+
+#### 🎨 Refined User Interface
+- **Wide Layout Consistency**: Translation compare page now uses same breakout wrapper structure as translation notes
+- **Auto-Adaptive Centering**: Improved wide layout behavior with intelligent content-based sizing
+- **Favicon Support**: Added proper favicon.ico to eliminate 404 errors and improve branding
+- **Conditional Navigation**: "Translation Notes" buttons only shown for AI translations (hidden for human translations)
+
+#### 🔧 Technical Improvements
+- **Translator Branding**: Changed hardcoded "qwen-max" references to "vpsweb" for consistent branding
+- **Code Formatting**: Updated code formatting with Black for consistent style across all files
+- **Template Organization**: Improved template structure and maintainability
+- **Responsive Design**: Enhanced mobile and desktop compatibility
 
 ### 🎯 Translation Notes & UI Polish Enhancement (v0.3.8)
 

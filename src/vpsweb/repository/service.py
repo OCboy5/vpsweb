@@ -160,7 +160,9 @@ class RepositoryWebService:
                 ai_logs = self.repo.ai_logs.get_by_translation(translation.id)
                 workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
 
-            translation_response = self._translation_to_response(translation, workflow_mode)
+            translation_response = self._translation_to_response(
+                translation, workflow_mode
+            )
             result.append(translation_response)
         return result
 
@@ -288,7 +290,9 @@ class RepositoryWebService:
             translation_count=poem.translation_count,
         )
 
-    def _translation_to_response(self, translation: Translation, workflow_mode: Optional[str] = None) -> TranslationResponse:
+    def _translation_to_response(
+        self, translation: Translation, workflow_mode: Optional[str] = None
+    ) -> TranslationResponse:
         """Convert translation model to response schema"""
         return TranslationResponse(
             id=translation.id,
@@ -381,9 +385,13 @@ class RepositoryWebService:
             # SQLite doesn't support greatest() function
             # Use a CASE statement to choose the latest date
             from sqlalchemy import case
+
             order_column = case(
-                (func.max(Translation.created_at) >= func.max(Poem.created_at), func.max(Translation.created_at)),
-                else_=func.max(Poem.created_at)
+                (
+                    func.max(Translation.created_at) >= func.max(Poem.created_at),
+                    func.max(Translation.created_at),
+                ),
+                else_=func.max(Poem.created_at),
             )
         else:
             order_column = Poem.poet_name

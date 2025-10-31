@@ -64,19 +64,24 @@ async def list_poems(
     response_data = []
     for poem in poems:
         # Calculate translation counts using direct SQL queries (like the statistics API)
-        ai_translation_count = service.db.execute(
-            select(func.count(Translation.id)).where(
-                Translation.poem_id == poem.id,
-                Translation.translator_type == "ai"
-            )
-        ).scalar() or 0
+        ai_translation_count = (
+            service.db.execute(
+                select(func.count(Translation.id)).where(
+                    Translation.poem_id == poem.id, Translation.translator_type == "ai"
+                )
+            ).scalar()
+            or 0
+        )
 
-        human_translation_count = service.db.execute(
-            select(func.count(Translation.id)).where(
-                Translation.poem_id == poem.id,
-                Translation.translator_type == "human"
-            )
-        ).scalar() or 0
+        human_translation_count = (
+            service.db.execute(
+                select(func.count(Translation.id)).where(
+                    Translation.poem_id == poem.id,
+                    Translation.translator_type == "human",
+                )
+            ).scalar()
+            or 0
+        )
 
         poem_dict = {
             "id": poem.id,
@@ -213,7 +218,7 @@ async def delete_poem(
         )
 
     try:
-        service.delete_poem(poem_id)
+        service.poems.delete(poem_id)
         return WebAPIResponse(
             success=True,
             message=f"Poem '{existing_poem.poem_title}' deleted successfully",
@@ -254,21 +259,23 @@ async def get_poem_translations(
             ai_logs = service.ai_logs.get_by_translation(t.id)
             workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
 
-        result.append({
-            "id": t.id,
-            "translator_type": t.translator_type,
-            "translator_info": t.translator_info,
-            "target_language": t.target_language,
-            "translated_text": t.translated_text,
-            "translated_poem_title": t.translated_poem_title,
-            "translated_poet_name": t.translated_poet_name,
-            "poem_title": poem.poem_title,  # Add original poem title for fallback
-            "poet_name": poem.poet_name,      # Add original poet name for fallback
-            "quality_rating": t.quality_rating,
-            "created_at": t.created_at.isoformat(),
-            "translation_count": 1,  # Each translation record represents one
-            "workflow_mode": workflow_mode,  # Add workflow mode
-        })
+        result.append(
+            {
+                "id": t.id,
+                "translator_type": t.translator_type,
+                "translator_info": t.translator_info,
+                "target_language": t.target_language,
+                "translated_text": t.translated_text,
+                "translated_poem_title": t.translated_poem_title,
+                "translated_poet_name": t.translated_poet_name,
+                "poem_title": poem.poem_title,  # Add original poem title for fallback
+                "poet_name": poem.poet_name,  # Add original poet name for fallback
+                "quality_rating": t.quality_rating,
+                "created_at": t.created_at.isoformat(),
+                "translation_count": 1,  # Each translation record represents one
+                "workflow_mode": workflow_mode,  # Add workflow mode
+            }
+        )
 
     return result
 

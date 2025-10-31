@@ -69,6 +69,12 @@ class TranslationFormCreate(WebUIBase):
     target_language: str = Field(
         ..., min_length=2, max_length=10, description="Target language"
     )
+    translated_poem_title: Optional[str] = Field(
+        None, max_length=500, description="Translated poem title"
+    )
+    translated_poet_name: Optional[str] = Field(
+        None, max_length=200, description="Translated poet name"
+    )
     translator_name: Optional[str] = Field(
         None, max_length=200, description="Human translator name"
     )

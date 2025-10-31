@@ -453,7 +453,7 @@
         
         <!-- Content -->
         <div class="p-6">
-            <div class="text-center text-gray-500 italic">
+            <div class="text-center text-gray-500 italic text-sm">
                 Click 'View Notes' and 'Editor Review' buttons above to display 'Initial Translation Notes', 'Revised Translation Notes' and 'Editor's Suggestions' here.
             </div>
         </div>
@@ -478,6 +478,33 @@
         </div>
     </div>
 </div>
+
+<!-- Performance Summary for Wide Layout -->
+{% if translation.translator_type.lower() == 'ai' and workflow_data and workflow_data.total_tokens %}
+<aside class="mt-12 max-w-7xl mx-auto">
+    <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-100">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Performance Summary</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-primary-600">{{ workflow_data.total_tokens or 0 }}</div>
+                <div class="text-sm text-gray-600">Total Tokens</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">¥{{ "%.2f"|format(workflow_data.total_cost or 0) }}</div>
+                <div class="text-sm text-gray-600">Total Cost</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ "%.1f"|format(workflow_data.total_duration or 0) }}s</div>
+                <div class="text-sm text-gray-600">Total Time</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ workflow_steps|length or 0 }}</div>
+                <div class="text-sm text-gray-600">Workflow Steps</div>
+            </div>
+        </div>
+    </div>
+</aside>
+{% endif %}
 
 <script>
 // Translation Notes Page JavaScript
@@ -674,11 +701,65 @@ function showNotes(type, content) {
 
     if (!notesContainer || !notesTitleEl || !notesContentEl) return;
 
+    // Get step data for metrics
+    let stepData = null;
+    if (type === 'initial' && window.layout2Data.initialStep) {
+        stepData = window.layout2Data.initialStep;
+    } else if (type === 'editor' && window.layout2Data.editorStep) {
+        stepData = window.layout2Data.editorStep;
+    } else if (type === 'revised' && window.layout2Data.revisedStep) {
+        stepData = window.layout2Data.revisedStep;
+    }
+
+    // For Editor Review, ensure we have all metrics including cost
+    if (type === 'editor' && stepData && !stepData.cost && window.layout2Data.initialStep && window.layout2Data.revisedStep) {
+        // If editor step doesn't have cost data, we can calculate it or use placeholder
+        // For now, we'll ensure cost is displayed if available in the workflow
+        stepData.cost = window.layout2Data.initialStep.cost || window.layout2Data.revisedStep.cost || null;
+    }
+
+    // Build metrics HTML if step data is available
+    let metricsHtml = '';
+    if (stepData) {
+        const metrics = [];
+        if (stepData.tokens_used) {
+            metrics.push(`<span class="flex items-center text-gray-600 text-xs">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                </svg>
+                ${stepData.tokens_used} tokens
+            </span>`);
+        }
+        if (stepData.duration_seconds) {
+            metrics.push(`<span class="flex items-center text-gray-600 text-xs">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                ${parseFloat(stepData.duration_seconds).toFixed(1)}s
+            </span>`);
+        }
+        if (stepData.cost) {
+            metrics.push(`<span class="flex items-center text-gray-600 text-xs">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3-2-1.343-2-3-2zm0 8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v2m0-6h.01M16 13h.01"/>
+                </svg>
+                ¥${parseFloat(stepData.cost).toFixed(6)}
+            </span>`);
+        }
+
+        if (metrics.length > 0) {
+            metricsHtml = `<div class="flex flex-wrap gap-4 mb-4 pb-4 border-b border-gray-200 justify-end">${metrics.join('')}</div>`;
+        }
+    }
+
     if (!content) {
         content = '<p class="text-gray-500 italic">No notes available for this step.</p>';
     } else {
         content = `<div class="prose prose-sm max-w-none text-sm text-gray-700 leading-relaxed">${content.replace(/\n/g, '<br>')}</div>`;
     }
+
+    // Combine metrics and content
+    const fullContent = metricsHtml + content;
 
     const titles = {
         initial: 'Initial Translator Notes',
@@ -687,7 +768,7 @@ function showNotes(type, content) {
     };
 
     notesTitleEl.textContent = titles[type];
-    notesContentEl.innerHTML = content;
+    notesContentEl.innerHTML = fullContent;
     notesContainer.classList.remove('hidden');
     notesContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }

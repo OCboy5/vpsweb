@@ -117,12 +117,25 @@ async def create_translation(
             detail=f"Poem with ID '{translation_data.poem_id}' not found",
         )
 
+    # Convert language names to language codes (consistent with existing frontend mapping)
+    language_mapping = {
+        "Chinese": "zh-CN",
+        "English": "en",
+        "Spanish": "es",
+        "French": "fr",
+        "German": "de",
+        "Japanese": "ja",
+    }
+    target_language_code = language_mapping.get(
+        translation_data.target_language, translation_data.target_language.lower()
+    )
+
     # Convert form schema to creation schema
     translation_create = TranslationCreate(
         poem_id=translation_data.poem_id,
-        translator_type=TranslatorType.HUMAN,
+        translator_type="human",  # Use lowercase string instead of enum
         translator_info=translation_data.translator_name or "Anonymous",
-        target_language=translation_data.target_language,
+        target_language=target_language_code,
         translated_text=translation_data.translated_text,
         translated_poem_title=translation_data.translated_poem_title
         or "",  # 🎯 Add for consistency (typically empty for human translations)
@@ -141,6 +154,8 @@ async def create_translation(
             "translator_info": translation.translator_info,
             "target_language": translation.target_language,
             "translated_text": translation.translated_text,
+            "translated_poem_title": translation.translated_poem_title,
+            "translated_poet_name": translation.translated_poet_name,
             "quality_rating": translation.quality_rating,
             "created_at": translation.created_at,
             "translation_id": translation.id,

@@ -297,15 +297,23 @@
             <form id="translation-form" onsubmit="submitTranslation(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Target Language</label>
+                        <label class="block text-sm font-medium text-gray-700">Target Language <span class="text-red-500">*</span></label>
                         <select id="target-language" required class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
-                            <option value="">Select language</option>
+                            <option value="">Select language (required)</option>
                             <option value="Chinese">Chinese</option>
                             <option value="Spanish">Spanish</option>
                             <option value="French">French</option>
                             <option value="German">German</option>
                             <option value="Japanese">Japanese</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Translated Poem Title</label>
+                        <input type="text" id="translated-poem-title" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500" placeholder="Enter translated poem title (optional)">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Translated Poet Name</label>
+                        <input type="text" id="translated-poet-name" class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500" placeholder="Enter translated poet name (optional)">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Translation Type</label>
@@ -570,6 +578,9 @@ function createTranslationCard(translation) {
                     </div>
                     <h4 class="text-lg font-medium text-gray-900 mb-1">${translation.translated_poem_title || window.poemTitle}</h4>
                     <p class="text-sm text-gray-500 mb-2">${translation.translated_poet_name || window.poetName}</p>
+                    ${translation.translator_type === 'human' && translation.translator_info ? `
+                    <p class="text-sm text-gray-500 mb-2">译者: ${translation.translator_info}</p>
+                    ` : ''}
                     <p class="text-xs text-gray-400">${createdDate}</p>
                 </div>
                 <div class="flex space-x-2">
@@ -628,6 +639,8 @@ async function submitTranslation(event) {
     const formData = {
         poem_id: '{{ poem.id }}',
         target_language: document.getElementById('target-language').value,
+        translated_poem_title: document.getElementById('translated-poem-title').value,
+        translated_poet_name: document.getElementById('translated-poet-name').value,
         translator_name: document.getElementById('translator-name').value || 'Anonymous',
         translated_text: document.getElementById('translated-text').value,
         quality_rating: document.getElementById('quality-rating').value ? parseInt(document.getElementById('quality-rating').value) : null
@@ -689,7 +702,13 @@ async function deletePoem() {
         });
 
         if (response.ok) {
-            window.location.href = '/poems';
+            // Show success message before redirecting
+            showSuccessMessage('Poem deleted successfully!');
+
+            // Redirect after a short delay to allow user to see the message
+            setTimeout(() => {
+                window.location.href = '/poems';
+            }, 1000);
         } else {
             showErrorMessage('Failed to delete poem.');
         }
@@ -704,18 +723,95 @@ function refreshTranslations() {
 }
 
 function showSuccessMessage(message) {
-    // Success messages disabled to avoid distractions during translation
-    // console.log('Success:', message); // Uncomment for debugging if needed
+    showToast(message, 'success');
+    console.log('Success:', message);
 }
 
 function showError(message) {
-    // Error messages disabled to avoid distractions during translation
-    // console.error('Error:', message); // Uncomment for debugging if needed
+    showToast(message, 'error');
+    console.error('Error:', message);
 }
 
 function showErrorMessage(message) {
-    // Error messages disabled to avoid distractions during translation
-    // console.error('Error:', message); // Uncomment for debugging if needed
+    showToast(message, 'error');
+    console.error('Error:', message);
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+
+    // Style based on type
+    const baseClasses = 'px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full';
+    let typeClasses = '';
+    let icon = '';
+
+    switch (type) {
+        case 'success':
+            typeClasses = 'bg-green-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>`;
+            break;
+        case 'error':
+            typeClasses = 'bg-red-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>`;
+            break;
+        default:
+            typeClasses = 'bg-blue-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>`;
+    }
+
+    toast.className = `${baseClasses} ${typeClasses}`;
+    toast.innerHTML = `${icon}${message}`;
+
+    // Add click to dismiss functionality
+    toast.addEventListener('click', () => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    });
+
+    // Add hover effect to show it's clickable
+    toast.style.cursor = 'pointer';
+
+    // Add to container
+    toastContainer.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+        toast.classList.add('translate-x-0');
+    }, 10);
+
+    // Remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 4000);
 }
 
 

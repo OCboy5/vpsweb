@@ -59,7 +59,8 @@
         </div>
 
         <!-- Wide Comparison Grid -->
-    <div id="comparison-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="width: max-content;">
+    <div id="wide-layout-wrapper">
+        <div id="comparison-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Original Poem Column -->
             <div class="flex flex-col bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
                 <!-- Header -->
@@ -106,6 +107,7 @@
                 <div class="p-6 text-center text-gray-400 flex items-center justify-center h-full"><div><svg class="mx-auto h-8 w-8 animate-spin text-gray-300 mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p>Loading...</p></div></div>
             </div>
         </div>
+    </div>
 </div>
 
 <script>
@@ -192,8 +194,8 @@ function generateColumnHTML(translation, color, colNum) {
         return `<div class="p-6 text-center text-gray-400 flex items-center justify-center h-full"><div><svg class="mx-auto h-12 w-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg><p>No translation selected</p></div></div>`;
     }
 
-    const typeClass = translation.translator_type === 'AI' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
-    const notesLink = `<a href="/translations/${translation.id}/notes" class="text-sm text-blue-600 hover:text-blue-500 font-medium text-right whitespace-nowrap">Translation<br>Notes</a>`;
+    const typeClass = translation.translator_type === 'ai' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+    const notesLink = translation.translator_type === 'ai' ? `<a href="/translations/${translation.id}/notes" class="text-sm text-blue-600 hover:text-blue-500 font-medium text-right whitespace-nowrap">Translation<br>Notes</a>` : '';
 
     return `
         <div class="bg-gradient-to-r from-${color}-50 to-${color}-100 px-6 py-4 border-b border-gray-200 relative min-h-[93px]">
@@ -201,6 +203,11 @@ function generateColumnHTML(translation, color, colNum) {
                 <div class="mb-1">
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${color}-200 text-${color}-800">${translation.target_language}</span>
                 </div>
+                ${translation.translator_type === 'human' && translation.translator_info ? `
+                <div class="mb-1">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">${translation.translator_info}</span>
+                </div>
+                ` : ''}
                 ${translation.workflow_mode ? `
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">${translation.workflow_mode}</span>
                 ` : ''}
@@ -261,17 +268,21 @@ function initializeSyncScroll() {
     min-width: 100%;
 }
 
-/* Auto-Adaptive Centering for Wide Layout */
-#comparison-container {
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
+/* --- NEW, CORRECT RULES (LEARNED FROM YOUR WORKING FILE) --- */
+#wide-layout-wrapper {
+  /* This is the breakout container. It breaks out and centers its child. */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  padding: 0 2rem; /* Adds padding to the left/right of the breakout area */
+}
 
-    /* This makes the breakout container a centering grid */
-    display: grid;
-    place-items: center;
-    padding: 1.5rem;
+#comparison-container {
+  /* This is the grid itself. It's told to be exactly as wide as its content. */
+  width: max-content;
 }
 
 body {

@@ -96,9 +96,13 @@ async def list_poets(
             # SQLite doesn't support greatest() function
             # Use a CASE statement to choose the latest date
             from sqlalchemy import case
+
             order_column = case(
-                (func.max(Translation.created_at) >= func.max(Poem.created_at), func.max(Translation.created_at)),
-                else_=func.max(Poem.created_at)
+                (
+                    func.max(Translation.created_at) >= func.max(Poem.created_at),
+                    func.max(Translation.created_at),
+                ),
+                else_=func.max(Poem.created_at),
             )
         else:
             order_column = Poem.poet_name

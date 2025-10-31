@@ -81,7 +81,7 @@ user: |
   a. Based on the result of your final review, make any additional improvements you deem absolute necessary, even if not suggested by experts.
   b. Read the revised translation aloud to check for rhythm and flow. Make any final adjustments based on your review.
 
-  Please provide your revised translation, followed by an explanation of the changes you made and why. Include:
+  Please provide your revised translation, followed by an explanation in Chinese of the changes you made and why. Include:
   1. Major revisions and the reasoning behind them.
   2. Any significant expert suggestions you chose not to implement and why.
   3. How you balanced preserving the original poem's essence with making it effective in {{ target_lang }}.

@@ -5,6 +5,126 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10] - 2025-10-31 (Enhanced Translation UI & Translator Attribution)
+
+### 🚀 Overview
+VPSWeb v0.3.10 brings significant **enhancements to the translation comparison and detail interfaces** with improved translator attribution, refined wide layout behavior, and polished user experience. This release focuses on making translator information more visible and ensuring consistent, beautiful layouts across all translation viewing interfaces.
+
+### ✨ New Features
+
+#### 👤 Enhanced Translator Attribution
+- **Poem Details Page**: Human translations now display translator name as "译者: Name" under translated poet name
+- **Translation Compare Page**: Translator names shown in purple badges for human translations in card headers
+- **Conditional Display**: Translator information only appears for human translations, maintaining clean AI interface
+- **Consistent Styling**: Translator names use same visual style as translated poet names for cohesive design
+
+#### 🎛️ Improved Translation Management
+- **Add Translation Modal**: New input fields for "translated poem title" and "translated poet name" for human translators
+- **Mandatory Language Selection**: Required target language selection with visual indicators (red asterisk)
+- **Enhanced Form Validation**: Improved data integrity and user feedback for translation submission
+- **Database Integration**: New translation fields properly saved to repository database
+
+#### 🎨 Refined User Interface
+- **Wide Layout Consistency**: Translation compare page now uses same breakout wrapper structure as translation notes
+- **Auto-Adaptive Centering**: Improved wide layout behavior with intelligent content-based sizing
+- **Favicon Support**: Added proper favicon.ico to eliminate 404 errors and improve branding
+- **Conditional Navigation**: "Translation Notes" buttons only shown for AI translations (hidden for human translations)
+
+### 🔧 Technical Improvements
+
+#### 🏗️ Code Quality & Branding
+- **Translator Branding**: Changed hardcoded "qwen-max" references to "vpsweb" for consistent branding
+- **Code Formatting**: Updated code formatting with Black for consistent style across all files
+- **Template Organization**: Improved template structure and maintainability
+- **Responsive Design**: Enhanced mobile and desktop compatibility
+
+#### 🐛 Bug Fixes
+- **Favicon 404 Error**: Fixed missing favicon.ico by moving to static directory and adding proper link tag
+- **Validation Errors**: Resolved translation form validation issues with enum types and language mapping
+- **Layout Alignment**: Fixed column alignment issues in translation comparison wide layout
+- **Language Code Consistency**: Ensured consistent use of "zh-CN" vs "zh" across application
+
+### 📋 API Enhancements
+
+#### Translation Form Schema
+- **Extended Fields**: Added `translated_poem_title` and `translated_poet_name` to TranslationFormCreate
+- **Language Mapping**: Improved language code mapping with support for Chinese (zh-CN), English, Spanish, French, German, Japanese
+- **Validation Improvements**: Enhanced form validation with proper error handling and user feedback
+
+#### Database Integration
+- **Field Storage**: New translation fields properly integrated with existing database schema
+- **Backward Compatibility**: Maintained compatibility with existing translation data
+- **Data Integrity**: Ensured proper validation and storage of new translation metadata
+
+### 🔒 Configuration & Dependencies
+- **Model Configuration**: Updated LLM provider configurations for improved stability
+- **Prompt Optimization**: Refined prompt templates for better translation quality
+- **Environment Variables**: Enhanced configuration validation and error handling
+
+### 📈 Performance & Reliability
+- **Layout Performance**: Optimized wide layout rendering for smoother user experience
+- **Loading States**: Improved loading indicators and error handling across all interfaces
+- **Database Performance**: Enhanced query optimization for translation listing and filtering
+
+---
+
+## [0.3.9] - 2025-10-30 (Translation Notes Wide Layout & Auto-Adaptive Design)
+
+### 🚀 Overview
+VPSWeb v0.3.9 introduces a **revolutionary wide layout system** for translation notes with auto-adaptive design, along with enhanced performance metrics display and improved mobile responsiveness. This release transforms how users interact with translation workflow data, making it more accessible and visually appealing on all devices.
+
+### ✨ New Features
+
+#### 📐 Auto-Adaptive Wide Layout System
+- **Breakthrough Grid Technology**: New CSS-based wide layout that breaks out of container constraints
+- **Auto-Content Sizing**: Layout automatically adapts to content width with `width: max-content`
+- **Perfect Column Alignment**: Translation notes columns align perfectly at tops regardless of content length
+- **Responsive Behavior**: Seamlessly transitions between mobile and desktop layouts
+- **Centered Design**: Beautiful centering on wide screens while maintaining mobile compatibility
+
+#### 📊 Enhanced Performance Metrics
+- **Step-Level Metrics**: Translation step metrics (tokens, duration, cost) now displayed prominently
+- **Right-Aligned Metrics**: Performance information positioned elegantly to the right of note titles
+- **Visual Indicators**: Small icons and consistent styling for tokens (💭), time (⏱️), and cost (💰)
+- **Performance Summary**: Comprehensive summary section showing total tokens, cost, time, and workflow steps
+- **Detailed Breakdown**: Granular metrics for each workflow step with precise formatting
+
+### 🎨 Refined User Interface
+
+#### 📱 Improved Mobile Experience
+- **Touch-Friendly Design**: Enhanced mobile layout with better touch targets and spacing
+- **Responsive Metrics**: Performance metrics display adapts appropriately to screen size
+- **Consistent Experience**: Unified design language across mobile and desktop interfaces
+- **Smooth Scrolling**: Improved scrolling behavior and viewport management
+
+#### 🎯 Enhanced Visual Hierarchy
+- **Consistent Font Sizing**: Optimized font sizes for better readability across all elements
+- **Improved Spacing**: Better use of white space and visual separation
+- **Color Coordination**: Consistent color scheme for performance indicators and status elements
+- **Professional Polish**: Refined styling throughout the translation notes interface
+
+### 🔧 Technical Improvements
+
+#### 🏗️ Advanced CSS Architecture
+- **Grid-Based Layout System**: Modern CSS Grid implementation for layout control
+- **Breakout Container Technology**: Innovative approach to wide layout implementation
+- **Cross-Browser Compatibility**: Ensured consistent behavior across modern browsers
+- **Performance Optimization**: Efficient CSS with minimal reflow and repaint operations
+
+#### 🐛 Bug Fixes
+- **Layout Collapse Issues**: Fixed problems with wide layout collapsing on certain content sizes
+- **Mobile Navigation**: Resolved navigation issues on mobile devices with wide layout
+- **Metrics Display**: Fixed inconsistent formatting of performance metrics
+- **Scrolling Behavior**: Improved smooth scrolling and viewport management
+
+#### 📝 Code Quality
+- **Template Optimization**: Cleaned up translation notes template structure
+- **CSS Organization**: Better organization of CSS rules and styling logic
+- **JavaScript Refactoring**: Improved JavaScript code organization and error handling
+- **Performance Optimization**: Reduced JavaScript execution time and improved responsiveness
+
+---
+
 ## [0.3.8] - 2025-10-27 (Translation Notes & UI Polish)
 
 ### 🚀 Overview

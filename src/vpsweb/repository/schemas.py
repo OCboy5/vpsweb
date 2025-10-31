@@ -235,8 +235,12 @@ class PoemResponse(PoemBase):
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
     translation_count: Optional[int] = Field(0, description="Number of translations")
-    ai_translation_count: Optional[int] = Field(0, description="Number of AI translations")
-    human_translation_count: Optional[int] = Field(0, description="Number of human translations")
+    ai_translation_count: Optional[int] = Field(
+        0, description="Number of AI translations"
+    )
+    human_translation_count: Optional[int] = Field(
+        0, description="Number of human translations"
+    )
 
 
 class PoemList(BaseSchema):
@@ -451,7 +455,8 @@ class TranslationResponse(TranslationBase):
         False, description="Whether translation has AI logs (translation notes)"
     )
     workflow_mode: Optional[str] = Field(
-        None, description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)"
+        None,
+        description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)",
     )
 
     @model_validator(mode="before")

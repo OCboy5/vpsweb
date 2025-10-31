@@ -251,7 +251,9 @@ def strip_leading_spaces(text):
     if not text:
         return text
     # Remove leading whitespace and newlines from the beginning, preserving internal formatting
-    while text and (text[0] == ' ' or text[0] == '\t' or text[0] == '\n' or text[0] == '\r'):
+    while text and (
+        text[0] == " " or text[0] == "\t" or text[0] == "\n" or text[0] == "\r"
+    ):
         text = text[1:]
     return text
 
