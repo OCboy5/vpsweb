@@ -517,7 +517,7 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
-def test_client(db_session) -> Generator[TestClient, None]:
+def test_client(db_session) -> Generator[TestClient, None, None]:
     """
     Create a FastAPI test client with database override.
 
