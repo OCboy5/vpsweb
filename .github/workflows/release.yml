@@ -161,15 +161,15 @@ jobs:
           echo "Testing core functionality..."
 
           # Test core models and CLI functionality
-          poetry run pytest tests/test_cli.py tests/test_models.py -q --tb=short || {
+          poetry run pytest tests/unit/test_models.py tests/integration/test_cli.py -q --tb=short || {
             echo "❌ Critical core tests failed - aborting release"
             exit 1
           }
 
-          # Run unit tests that should be stable
+          # Run additional unit tests (excluding models which already ran)
           if [ -d "tests/unit" ]; then
-            poetry run pytest tests/unit/ -q --tb=short || {
-              echo "⚠️ Some unit tests failed, but core CLI and models passed"
+            poetry run pytest tests/unit/ -q --tb=short --ignore=tests/unit/test_models.py || {
+              echo "⚠️ Some additional unit tests failed, but core CLI and models passed"
             }
           fi
 
