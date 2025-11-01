@@ -152,6 +152,12 @@ jobs:
 
           echo "✅ Pre-flight checks passed"
 
+      - name: Set up Python path
+        run: |
+          echo "🔧 Setting up Python path for src layout"
+          export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+
       - name: Run tests
         run: |
           echo "🧪 Running essential tests for release validation..."
