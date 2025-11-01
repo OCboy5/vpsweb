@@ -5,6 +5,33 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.12] - 2025-11-01
+
+### 🚀 Overview
+VPSWeb v0.3.12 - **Automated Release Workflow Enhancement**. This release focuses on establishing a robust, automated release process using GitHub Actions with comprehensive validation, backup creation, and safety checks.
+
+### ✨ New Features
+- **Enhanced Release Workflow**: Fully automated GitHub Actions workflow for creating releases
+- **Pre-flight Validation**: Comprehensive repository state checks and validation
+- **Automated Backups**: Automatic backup tag creation before releases
+- **Dry Run Support**: Safe testing mode for release process validation
+
+### 🔧 Improvements
+- **Simplified Testing**: Release-focused test suite with essential functionality validation
+- **Quality Gates**: Automated code formatting checks (with optional linting/type checking)
+- **Version Management**: Atomic version updates across all source files
+- **Error Handling**: Enhanced error messages and rollback procedures
+
+### 📚 Documentation Updates
+- **VERSION_WORKFLOW.md**: Comprehensive guide for automated release process
+- **Troubleshooting Guide**: Detailed rollback and recovery procedures
+- **Best Practices**: Release planning and optimization guidelines
+
+### 🔧 Technical Changes
+- **Workflow Fixes**: Resolved Python path configuration, import testing, and sed pattern matching
+- **Release Safety**: Multiple validation checkpoints and non-destructive testing options
+- **CI/CD Integration**: Seamless integration with existing GitHub Actions infrastructure
+
 ## [0.3.11] - 2025-11-01 (Language Code Standardization & UI Polish)
 
 ### 🚀 Overview
