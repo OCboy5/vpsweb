@@ -230,11 +230,11 @@ jobs:
             echo "❌ version_option not found in src/vpsweb/__main__.py"
             exit 1
           fi
-          sed -i'' -e 's/@click.version_option(version="[^"]*")/@click.version_option(version="'$version'")/' src/vpsweb/__main__.py
+          sed -i'' -e 's/version="[^"]*", prog_name="vpsweb"/version="'$version'", prog_name="vpsweb"/' src/vpsweb/__main__.py
 
           # Verify updates
           init_version=$(grep '__version__ = ' src/vpsweb/__init__.py | sed 's/.*"\(.*\)"/\1/')
-          main_version=$(grep 'version_option(version=' src/vpsweb/__main__.py | sed 's/.*version_option(version="\([^"]*\)".*/\1/')
+          main_version=$(grep 'version="' src/vpsweb/__main__.py | sed 's/.*version="\([^"]*\)".*/\1/')
 
           if [[ "$init_version" != "$version" ]] || [[ "$main_version" != "$version" ]]; then
             echo "❌ Version update failed in source files"
@@ -275,7 +275,7 @@ jobs:
           # Check if all files have the correct version
           pyproject_version=$(grep '^version =' pyproject.toml | sed 's/version = "//; s/"//')
           init_version=$(grep '__version__ = ' src/vpsweb/__init__.py | sed 's/.*"\(.*\)"/\1/')
-          main_version=$(grep 'version_option(version=' src/vpsweb/__main__.py | sed 's/.*version_option(version="\([^"]*\)".*/\1/')
+          main_version=$(grep 'version="' src/vpsweb/__main__.py | sed 's/.*version="\([^"]*\)".*/\1/')
 
           echo "Version verification:"
           echo "  Expected: $version"
