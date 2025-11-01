@@ -175,7 +175,7 @@ jobs:
           }
 
           echo "Testing CLI entry point..."
-          python -c "from vpsweb.__main__ import main; print('✅ CLI entry point available')" || {
+          python -c "from vpsweb.__main__ import cli; print('✅ CLI entry point available')" || {
             echo "❌ CLI entry point unavailable - aborting release"
             exit 1
           }
