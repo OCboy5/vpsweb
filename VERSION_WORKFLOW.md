@@ -1,239 +1,300 @@
-# vpsweb — Streamlined Release Workflow (VERSION_WORKFLOW.md)
+# vpsweb — Automated Release Workflow
 
-A concise, GitHub‑compliant release process that Claude Code can follow reliably. Uses semantic versioning and GitHub CLI.
-
----
-
-## 0) Prerequisites
-
-- GitHub CLI installed and authenticated:
-  - gh auth status
-- Clean working tree on main:
-  - git status (no changes)
-  - git pull origin main
-- Python tooling available:
-  - Black and pytest installed (e.g., pip install black pytest)
-
-Scripts available in repo:
-- ./save-version.sh X.Y.Z  (optional local backup)
-- ./push-version.sh X.Y.Z "Release notes"  (official release)
-  - Note: push-version.sh handles existing tags gracefully
+This document describes the streamlined, automated release process for `vpsweb`, managed by GitHub Actions with comprehensive validation and error handling.
 
 ---
 
-## 1) Pre‑Release Checklist (must pass)
+## 1. Overview
 
-- **Step 1.1**: Version bump done and consistent across all files:
-  - pyproject.toml → version = "X.Y.Z"
-  - src/vpsweb/__init__.py → __version__ = "X.Y.Z"
-  - src/vpsweb/__main__.py → version_option(version="X.Y.Z")
-  - Quick check:
-    - grep -R 'X\.Y\.Z' src/ pyproject.toml
+The release process is fully automated with a robust GitHub Actions workflow that handles all the tedious steps while providing extensive validation and safety measures. The workflow includes:
 
-- **Step 1.2**: Update CHANGELOG.md with release notes (MANDATORY)
-  - Add new section: `## [X.Y.Z] - YYYY-MM-DD (Release Name)`
-  - Include highlights, features, fixes
-  - Use consistent format with previous releases
+- **Pre-flight validation**: Checks repository state, version format, and prevents common issues
+- **Automated backup**: Creates backup tags before making changes
+- **Comprehensive testing**: Runs tests, code formatting checks, and optional linting/type checking
+- **Atomic version updates**: Updates all version files with verification
+- **Smart changelog management**: Creates structured release notes templates
+- **Dry-run support**: Safe testing mode without pushing changes
+- **Rollback protection**: Multiple safety checks to prevent accidental releases
 
-- **Step 1.3**: Update documentation files (MANDATORY):
-  - README.md: Update version badge and current status section
-  - STATUS.md: Update version number, executive summary, and completed features
-  - CLAUDE.md: Update version references if present
-  - DEVELOPMENT.md: Update version-specific development notes if applicable
+This approach minimizes manual work, reduces the risk of human error, and ensures that every release is consistent and reliable.
 
-- **Step 1.4**: Code formatting passes:
-  - python -m black --check src/ tests/
-  - If formatting fails: python -m black src/ tests/
+---
 
-- **Step 1.5**: Tests pass locally (if possible):
-  - pytest -q
-  - Note: Some test failures may be acceptable for non-breaking changes
+## 2. How to Create a Release
 
-- **Step 1.6**: Commit all changes to main:
-  - git add .
-  - git commit -m "Release vX.Y.Z - [Release Name]
+Creating a new release requires just a few clicks with enhanced options for safety and testing.
 
-- **Step 1.7**: Create local backup
+### 2.1 Standard Release Process
+
+1.  **Navigate to the Actions tab** in the `vpsweb` GitHub repository.
+
+2.  In the left sidebar, click on the **"Create Release"** workflow.
+
+3.  You will see a message saying "This workflow has a `workflow_dispatch` event trigger." Click the **"Run workflow"** dropdown button on the right.
+
+4.  Configure the release options:
+    - **Version**: Type the new semantic version number (e.g., `0.4.0`)
+    - **Create backup**: Keep this checked (recommended) to create a backup tag
+    - **Dry run**: Leave unchecked for actual release, or check to test the process
+
+5.  Click the green **"Run workflow"** button.
+
+### 2.2 Dry Run Mode (Recommended for Testing)
+
+For testing or to preview changes without affecting the repository:
+
+1.  Follow steps 1-4 above, but **check the "Dry run" option**
+2.  The workflow will perform all steps except:
+    - Pushing changes to GitHub
+    - Creating the actual GitHub release
+3.  Review the output to ensure everything would work correctly
+4.  Run again without "Dry run" when ready to create the actual release
+
+### 2.3 What the Automation Does
+
+The workflow performs the following comprehensive steps:
+
+#### Phase 1: Validation & Preparation
+- 🔍 **Version Validation**: Validates semantic version format (X.Y.Z) and checks for duplicates
+- 📋 **Backup Creation**: Creates backup tag (e.g., `v0.3.11-local-2025-11-01`)
+- 🔒 **Repository State Check**: Ensures clean working directory, correct branch, and up-to-date
+- 🧪 **Pre-flight Checks**: Validates all required files exist and are accessible
+
+#### Phase 2: Quality Assurance
+- 🧪 **Test Suite**: Runs full pytest test suite with short traceback format
+- 🎨 **Code Formatting**: Runs Black formatting check on all source files
+- 🔍 **Linting** (optional): Runs flake8 if available
+- 🔎 **Type Checking** (optional): Runs MyPy if available
+
+#### Phase 3: Version Management
+- 📦 **Version Updates**: Updates version in `pyproject.toml`, `src/vpsweb/__init__.py`, and `src/vpsweb/__main__.py`
+- 🔍 **Change Verification**: Verifies all version files were updated correctly
+- 📝 **Changelog Update**: Creates structured release section in `CHANGELOG.md`
+
+#### Phase 4: Release Creation
+- 💾 **Commit Changes**: Commits all version-related changes with standardized message
+- 🏷️ **Tag Creation**: Creates Git tag `vX.Y.Z` with release annotation
+- 🚀 **Push Changes**: Pushes commit and tag to `main` branch
+- 🎉 **GitHub Release**: Creates formal GitHub Release with release notes
+
+---
+
+## 3. Workflow Features and Options
+
+### 3.1 Input Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | String | Required | Semantic version number (e.g., `0.4.0`) |
+| `create_backup` | Boolean | `true` | Create backup tag before release |
+| `dry_run` | Boolean | `false` | Test mode - performs all steps except pushing to GitHub |
+
+### 3.2 Safety Checks
+
+The workflow includes comprehensive safety checks:
+
+- **Version Format**: Validates semantic versioning pattern `X.Y.Z`
+- **Version Uniqueness**: Prevents duplicate version releases
+- **Repository Cleanliness**: Ensures no uncommitted changes
+- **Branch Verification**: Must be on `main` branch
+- **Remote Sync**: Ensures local `main` matches `origin/main`
+- **File Existence**: Verifies all required version files exist
+- **Update Verification**: Confirms all version files were updated correctly
+
+### 3.3 Error Handling
+
+- **Early Validation**: Fails fast if basic requirements aren't met
+- **Clear Error Messages**: Provides specific guidance for each failure mode
+- **Non-Destructive**: Dry run mode allows safe testing
+- **Rollback Support**: Backup tags enable easy recovery
+
+---
+
+## 4. Post-Release Step: Update Release Notes
+
+After the workflow completes successfully, update the release notes for better communication:
+
+### 4.1 Manual Release Notes Update
+
+1.  Go to the [**Releases page**](https://github.com/OCboy5/vpsweb/releases) of the repository.
+2.  Find the newly created release (e.g., `v0.4.0`).
+3.  Click the **"Edit"** button (pencil icon) for that release.
+4.  **Update the release notes** with meaningful descriptions.
+
+### 4.2 Release Notes Template
+
+The workflow creates a structured template in `CHANGELOG.md` that you can use:
+
+```markdown
+## [0.4.0] - 2025-11-01
+
+### 🚀 Overview
+VPSWeb v0.4.0 - [Concise description of the release]
+
+### ✨ New Features
+- ✨ Feature: [Description of new features]
+
+### 🔧 Improvements
+- 🛠️ Improvement: [Description of improvements]
+
+### 🐛 Bug Fixes
+- 🐛 Fix: [Description of bug fixes]
+
+### 📚 Documentation Updates
+- 📚 Docs: [Description of documentation changes]
+
+### 🔧 Technical Changes
+- 🔨 Technical: [Description of technical changes]
+```
+
+### 4.3 Best Practices for Release Notes
+
+- **User-focused**: Write from the user's perspective
+- **Categorize changes**: Use the provided categories for consistency
+- **Be specific**: Include concrete details about what changed
+- **Mention breaking changes**: Clearly highlight any breaking changes
+- **Credit contributors**: Acknowledge people who contributed
+
+---
+
+## 5. Troubleshooting and Recovery
+
+### 5.1 Common Issues and Solutions
+
+#### Version Format Error
+- **Issue**: Invalid version format provided
+- **Solution**: Use semantic versioning format `X.Y.Z` (e.g., `0.4.0`)
+- **Example**: `1.2.3` ✅, `v1.2.3` ❌, `1.2` ❌
+
+#### Repository State Error
+- **Issue**: Uncommitted changes or wrong branch
+- **Solution**:
   ```bash
-  ./save-version.sh X.Y.Z
+  git status  # Check for changes
+  git add . && git commit -m "WIP"  # Commit or stash changes
+  git checkout main  # Switch to main branch
+  git pull origin main  # Sync with remote
   ```
-  [Detailed release notes]
 
-  🚀 Generated with Claude Code (https://claude.ai/claude-code)
+#### Test Failures
+- **Issue**: Test suite fails
+- **Solution**:
+  - Review test output in workflow logs
+  - Fix failing tests locally
+  - Ensure all dependencies are properly installed
 
-  Co-Authored-By: Claude <noreply@anthropic.com>"
-  - git push origin main
+#### Version Update Failures
+- **Issue**: Version files not updated correctly
+- **Solution**:
+  - Check that `__version__` exists in `src/vpsweb/__init__.py`
+  - Check that `version_option()` exists in `src/vpsweb/__main__.py`
+  - Verify `pyproject.toml` has valid `version = "X.Y.Z"` format
 
----
+### 5.2 Rollback Procedures
 
-## 2) Standard Release Flow (recommended path)
+If a release was made in error, you have multiple recovery options:
 
-⚠️ **IMPORTANT**: Local backup should be created in Step 1.7 
-- If you missed Step 1.7, create backup now: `./save-version.sh X.Y.Z`
+#### Option 1: Full Rollback (Destructive)
+**⚠️ Warning: This removes the release and all changes**
 
-1) Create the official GitHub release (tag + release)
-```bash
-./push-version.sh X.Y.Z "Brief release notes: highlights, features, fixes"
-```
+1.  **Delete the GitHub Release**:
+    - Go to the Releases page
+    - Find the release and delete it
 
-- push-version.sh will:
-  - Create or reuse annotated tag vX.Y.Z
-  - Push tag to origin
-  - Create GitHub Release via gh release create
-  - Provide helpful messages if tag/release already exists
+2.  **Delete the remote Git tag**:
+    ```bash
+    git push --delete origin v0.4.0
+    ```
 
----
+3.  **Revert the release commit**:
+    ```bash
+    # Find the commit hash from workflow logs or git log
+    git log --oneline --grep="chore(release)"
+    # Revert the specific commit
+    git revert <commit-hash>
+    git push origin main
+    ```
 
-## 3) Post‑Release Verification
+#### Option 2: Use Backup Tag (Recommended)
+**Non-destructive recovery using automatic backup**
 
-Run these checks immediately after the release:
+1.  **Identify the backup tag**: Find the backup tag from workflow logs (e.g., `v0.3.11-local-2025-11-01`)
 
-```bash
-# Release exists on GitHub
-gh release view vX.Y.Z
+2.  **Restore from backup**:
+    ```bash
+    # Checkout the backup state
+    git checkout v0.3.11-local-2025-11-01
 
-# Tag exists on remote
-git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$" || echo "Tag missing on remote"
+    # Create a new branch from the backup
+    git checkout -b restore-backup
 
-# CI/CD status (open in browser)
-# https://github.com/OCboy5/vpsweb/actions
-# Release page:
-# https://github.com/OCboy5/vpsweb/releases/tag/vX.Y.Z
-```
+    # Push to main (force push - use with caution)
+    git push origin restore-backup:main --force
+    ```
 
-If CI fails:
-- Fix issues, push commits to main.
-- If needed, edit the GitHub Release notes via gh or web UI.
+3.  **Clean up**:
+    ```bash
+    # Switch back to main
+    git checkout main
 
----
+    # Pull the restored state
+    git pull origin main
 
-## 4) Fallback: Manual Release (only if the script fails)
+    # Delete the temporary branch
+    git branch -D restore-backup
+    ```
 
-1) Ensure tag exists locally and remotely
-```bash
-git tag -a vX.Y.Z -m "vX.Y.Z"  # if not already created
-git push origin vX.Y.Z
-```
+### 5.3 Getting Help
 
-2) Create GitHub Release manually
-```bash
-gh release create vX.Y.Z --title "vX.Y.Z" --notes "Release notes here"
-```
+If you encounter issues:
 
-3) Verify (same as Post-Release Verification)
-
----
-
-## 5) Rollback / Recovery
-
-- Delete local tag and recreate:
-```bash
-git tag -d vX.Y.Z
-git tag -a vX.Y.Z -m "vX.Y.Z"
-```
-
-- Delete remote tag (if necessary):
-```bash
-git push --delete origin vX.Y.Z
-```
-
-- If you used local backup:
-```bash
-# List local backups
-git tag -l "*local*"
-
-# Check out a local backup (example)
-git checkout v0.1.0-local-2025-10-05
-```
+1.  **Check Workflow Logs**: Review the detailed output in the GitHub Actions tab
+2.  **Try Dry Run Mode**: Test the release process with `dry_run: true`
+3.  **Verify Local State**: Ensure your local repository matches expectations
+4.  **Review Git History**: Check for any unexpected commits or changes
 
 ---
 
-## 6) Release Notes — Minimal Template
+## 6. Versioning Rules (SemVer)
 
-Use concise, high-signal notes. Example:
+This project follows [Semantic Versioning](https://semver.org/).
 
-```
-### Highlights
-- New: WeChat article generator (generate-article) and publisher (publish-article)
-- Improved: Translation repository schema and ingestion stability
-- Fix: Better error handling for existing tags in push-version.sh
+- **MAJOR** version (`X.y.z`): For incompatible API changes
+- **MINOR** version (`x.Y.z`): For adding functionality in a backward-compatible manner
+- **PATCH** version (`x.y.Z`): For backward-compatible bug fixes
 
-### Details
-- CLI: vpsweb generate-article/publish-article with WeChat-compatible HTML and drafts API
-- DB: SQLite FTS5 indexing fixes and tokenization tweaks
-- Docs: Updated README and VERSION_WORKFLOW
+### Version Examples
+- ✅ `0.3.11` - Patch release (bug fixes)
+- ✅ `0.4.0` - Minor release (new features)
+- ✅ `1.0.0` - Major release (breaking changes)
 
-### Compatibility
-- No breaking changes to existing outputs/*.json
-```
+### Tag Format
+- Git tags are prefixed with `v`: `v0.3.11`
+- Version in files does **not** include the prefix: `version = "0.3.11"`
 
 ---
 
-## 7) Versioning Rules (SemVer)
+## 7. Workflow Optimization Tips
 
-- Major (X.0.0): Breaking changes
-- Minor (x.Y.0): New features, backwards compatible
-- Patch (x.y.Z): Fixes and small improvements
+### 7.1 Before Creating a Release
 
-Tags: vX.Y.Z (e.g., v0.2.1)
+1.  **Run Tests Locally**: `poetry run pytest`
+2.  **Check Formatting**: `poetry run black --check src/ tests/`
+3.  **Clean Working Directory**: Commit or stash all changes
+4.  **Sync with Main**: `git pull origin main`
+5.  **Verify Version**: Confirm the version you want to release
 
----
+### 7.2 Testing New Features
 
-## 8) Quick Reference (TL;DR)
+Use the **Dry Run** mode to test:
+- New version formats
+- Custom changelog entries
+- Workflow modifications
+- Integration changes
 
-```bash
-# 0) Preconditions
-gh auth status
-git status
-python -m black --check src/ tests/
-pytest -q
+### 7.3 Release Planning
 
-# 1) 🚨 MANDATORY RELEASE CHECKLIST
-# 1.1) Local backup (BEFORE making changes!)
-./save-version.sh X.Y.Z
-
-# 1.2) Version bump in 3 files
-# Edit: pyproject.toml, src/vpsweb/__init__.py, src/vpsweb/__main__.py
-
-# 1.3) Update CHANGELOG.md (MANDATORY)
-# Add new section with release notes
-
-# 1.4) Update documentation (MANDATORY)
-# Edit: README.md (version + status), STATUS.md (version + features)
-
-# 1.5) Format code if needed
-python -m black src/ tests/
-
-# 1.6) Commit and push
-git add .
-git commit -m "Release vX.Y.Z - [Release Name]
-
-[Release notes]
-
-🚀 Generated with Claude Code (https://claude.ai/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-git push origin main
-
-# 2) Official release
-./push-version.sh X.Y.Z "Brief release notes: highlights, features, fixes"
-
-# 3) Verify
-gh release view vX.Y.Z
-git ls-remote --tags origin | grep "refs/tags/vX.Y.Z$"
-# Open Actions and Releases pages to confirm
-```
-
-
-
-## 9) Notes and Best Practices
-
-- Keep releases atomic: ensure main is up to date and green before tagging.
-- Prefer ./push-version.sh as the single source of truth for releases; use ./save-version.sh as a safety net before major changes.
-- If a tag already exists, push-version.sh will skip re-creating it and proceed—review its output for next steps.
-- Always verify that the release appears on GitHub and CI/CD has run.
-- Keep release notes meaningful and succinct.
-
----
-
-This streamlined workflow preserves all critical checks, keeps GitHub‑standard tagging and releases, and is simple enough for Claude Code to follow deterministically.
+- **Schedule releases** when you have time to update release notes
+- **Test thoroughly** before releasing major versions
+- **Communicate changes** to users through detailed release notes
+- **Monitor feedback** after release for any issues
