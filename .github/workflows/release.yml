@@ -230,7 +230,7 @@ jobs:
             echo "❌ version_option not found in src/vpsweb/__main__.py"
             exit 1
           fi
-          sed -i'' -e 's/@click\.version_option(version="[^"]*")/@click.version_option(version="'$version'")/' src/vpsweb/__main__.py
+          sed -i'' -e 's/@click.version_option(version="[^"]*")/@click.version_option(version="'$version'")/' src/vpsweb/__main__.py
 
           # Verify updates
           init_version=$(grep '__version__ = ' src/vpsweb/__init__.py | sed 's/.*"\(.*\)"/\1/')
