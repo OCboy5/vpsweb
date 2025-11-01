@@ -29,7 +29,7 @@ from src.vpsweb.repository.database import init_db, get_db
 from src.vpsweb.repository.models import Poem
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.service import RepositoryWebService
-from .api import poems, translations, statistics, poets
+from .api import poems, translations, statistics, poets, wechat
 from .config import settings
 from .services.poem_service import PoemService
 
@@ -267,6 +267,7 @@ app.include_router(
 )
 app.include_router(statistics.router, prefix="/api/v1/statistics", tags=["statistics"])
 app.include_router(poets.router, prefix="/api/v1/poets", tags=["poets"])
+app.include_router(wechat.router, prefix="/api/v1/wechat", tags=["wechat"])
 
 
 @app.get("/", response_class=HTMLResponse)

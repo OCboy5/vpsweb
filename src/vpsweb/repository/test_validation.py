@@ -30,7 +30,7 @@ def test_poem_validation():
         poem = PoemCreate(
             poet_name="陶渊明",
             poem_title="歸園田居",
-            source_language="zh",
+            source_language="zh-CN",
             original_text="採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。",
         )
         print(f"✓ Valid poem created: {poem.poet_name} - {poem.poem_title}")

@@ -8,6 +8,9 @@ Tools
 1. the vpsweb project can produce pretty good poetry translations from Chinese to English or vice versa. I've attached two examples in the uploaded .json files. I've also uploaded the T-E-T workflow prompts(hybrid mode: non_reasoning, reasoning, non_reasonging) for your reference. My challenge is: how can I improve the workflow prompts to further enhance the quality of the translations to the highest level as possible, even equal to or exceed the best human poetry translators. What are the directions of enhancement I should consider?  Should I use some few-shot examples? Should I give the LLMs more instructions? What are your considerations and suggestions? I want this project to test the upper limit capability of LLMs in poetry translation, which is one of the toughest challenge to human intelligence. So please think extremely hard, research best practices, and come up with your proposal. And please check with me if there's anything unclear to you.
 
 
+1. Now let's complete the last step for this phase of the project. let's integrate the CLI wechat article generation workflow to the WebUI. In the Poem details page, for each ai translation that has valid "translation notes", will display a "Publish" button. Click on the button, will start the wechat article generation workflow, and use the same output directory structure as the CLI wechat article workflow to generate the wechat article. These outputs are ready for the CLI publish-article workflow to upload to wechat.  
+2. Please investigate the current codebase thoroughly when planning. Reuse what's available as much as possible. 
+3. Make sure to check the WebUI output .json file structure and the CLI wechat article workflow expected input .json structure to see if there's any discrepancy that will disrupt the parser.
 Please check with me if there's anything unclear to you.
 
 

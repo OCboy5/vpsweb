@@ -62,7 +62,7 @@ class PoemBase(BaseSchema):
         min_length=2,
         max_length=10,
         description="Source language code (BCP-47)",
-        examples=["zh", "en", "fr", "es"],
+        examples=["zh-CN", "en", "fr", "es"],
     )
     original_text: str = Field(
         ...,
@@ -272,7 +272,7 @@ class TranslationBase(BaseSchema):
         min_length=2,
         max_length=10,
         description="Target language code (BCP-47)",
-        examples=["en", "zh", "fr", "es"],
+        examples=["en", "zh-CN", "fr", "es"],
     )
     translated_text: str = Field(
         ...,

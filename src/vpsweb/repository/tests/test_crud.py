@@ -65,7 +65,7 @@ def poem_create_data():
     return PoemCreate(
         poet_name="李白",
         poem_title="靜夜思",
-        source_language="zh",
+        source_language="zh-CN",
         original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。",
         metadata_json='{"dynasty": "唐", "theme": "思鄉"}',
     )
@@ -531,7 +531,7 @@ class TestRepositoryService:
         assert stats["total_translations"] == 2
         assert stats["ai_translations"] == 1
         assert stats["human_translations"] == 1
-        assert "zh" in stats["languages"]
+        assert "zh-CN" in stats["languages"]
         assert stats["latest_translation"] is not None
 
     def test_search_poems(self, repository_service, poem_create_data):

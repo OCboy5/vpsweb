@@ -84,6 +84,9 @@ class WeChatArticleMetadata(BaseModel):
     source_json_path: str = Field(
         ..., description="Path to original translation JSON file"
     )
+    source_html_path: Optional[str] = Field(
+        None, description="Path to generated HTML article file for browser viewing"
+    )
 
     # Article information
     slug: str = Field(

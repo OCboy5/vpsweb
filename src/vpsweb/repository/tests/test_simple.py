@@ -33,7 +33,7 @@ def test_pydantic_validation():
     poem_data = {
         "poet_name": "陶渊明",
         "poem_title": "歸園田居",
-        "source_language": "zh",
+        "source_language": "zh-CN",
         "original_text": "採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。",
         "metadata_json": '{"dynasty": "東晉"}',
     }
@@ -41,7 +41,7 @@ def test_pydantic_validation():
     poem = PoemCreate(**poem_data)
     assert poem.poet_name == "陶渊明"
     assert poem.poem_title == "歸園田居"
-    assert poem.source_language == "zh"
+    assert poem.source_language == "zh-CN"
     assert len(poem.original_text) >= 10
 
     # Test invalid poem (too short text)
@@ -82,7 +82,7 @@ def test_model_creation():
         id="test_poem_001",
         poet_name="李白",
         poem_title="靜夜思",
-        source_language="zh",
+        source_language="zh-CN",
         original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。",
     )
 
@@ -154,7 +154,7 @@ def test_model_relationships():
         id="test_poem_rel",
         poet_name="杜甫",
         poem_title="春望",
-        source_language="zh",
+        source_language="zh-CN",
         original_text="國破山河在，城春草木深。",
     )
 
@@ -187,7 +187,7 @@ def test_model_properties():
         id="test_poem_prop",
         poet_name="王維",
         poem_title="相思",
-        source_language="zh",
+        source_language="zh-CN",
         original_text="紅豆生南國，春來發幾枝。",
     )
 

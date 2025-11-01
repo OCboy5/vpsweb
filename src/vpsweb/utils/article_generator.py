@@ -469,7 +469,7 @@ class ArticleGenerator:
             if not line:
                 continue
 
-            # Look for author line
+            # Look for author line with Chinese prefix
             if "作者：" in line:
                 # Extract poet name
                 poet_name = line.split("作者：")[1].strip()
@@ -480,14 +480,20 @@ class ArticleGenerator:
             if match:
                 series_index = match.group(1)
 
-            # First non-empty line that's not author is likely the title
-            if not poem_title and "作者：" not in line:
+            # First non-empty line is likely the title
+            if not poem_title:
                 poem_title = line.strip()
                 # Remove common prefixes
                 poem_title = re.sub(
                     r"^[第其其其][一二三四五六七八九十]+\s*", "", poem_title
                 )
                 poem_title = poem_title.strip()
+                continue
+
+            # Second non-empty line (after title) is likely the poet name if no Chinese prefix found
+            if not poet_name and i == 1:
+                poet_name = line.strip()
+                continue
 
         # Fallback values if parsing failed
         if not poem_title:
@@ -505,7 +511,7 @@ class ArticleGenerator:
         date_str = datetime.now().strftime("%Y%m%d")
 
         # If source language is Chinese, use Chinese characters directly
-        if source_lang.lower() in ["chinese", "中文", "zh"]:
+        if source_lang.lower() in ["chinese", "中文", "zh", "zh-cn", "zh_cn"]:
             # Clean Chinese characters (remove special characters but keep Chinese text)
             poet_clean = re.sub(r"[^\u4e00-\u9fff\w]", "", poet_name)
             title_clean = re.sub(r"[^\u4e00-\u9fff\w]", "", poem_title)
@@ -587,27 +593,63 @@ class ArticleGenerator:
                 self._extract_translation_text(final_translation)
             )
 
+            # If no target poet was found in translation text, try to get it from translation data metadata
+            if not target_lang_poet:
+                # Try to get translated poet name from translation data metadata
+                translation_metadata = translation_data.get("metadata", {})
+                target_lang_poet = translation_metadata.get(
+                    "refined_translated_poet_name"
+                ) or translation_metadata.get("translated_poet_name")
+
             # Create bilingual title and poet name variables
             source_lang = metadata.source_lang.lower()
             target_lang = metadata.target_lang.lower()
 
             # Determine language-appropriate display
-            if source_lang in ["chinese", "zh", "中文"]:
+            if source_lang in ["chinese", "中文", "zh", "zh-cn", "zh_cn"]:
                 source_title = poem_title
-                source_poet = poet_name
+                # Clean up poet name by removing any existing prefixes
+                if poet_name.startswith("作者："):
+                    source_poet = poet_name[3:]  # Remove "作者：" prefix
+                else:
+                    source_poet = poet_name
+                source_author_prefix = "作者："
             else:
                 source_title = poem_title
-                source_poet = poet_name
+                # Clean up poet name by removing any existing prefixes
+                if poet_name.startswith("By "):
+                    source_poet = poet_name[3:]  # Remove "By " prefix
+                else:
+                    source_poet = poet_name
+                source_author_prefix = "By "
 
             if target_lang in ["english", "en", "英文"]:
                 # Use extracted target language title and poet (for English format)
                 target_title = target_lang_title if target_lang_title else poem_title
-                # Use extracted target_lang_poet directly if it exists, otherwise use original poet name
-                target_poet = target_lang_poet if target_lang_poet else poet_name
+                # Clean up poet name by removing any existing prefixes
+                extracted_poet = target_lang_poet if target_lang_poet else poet_name
+                if extracted_poet.startswith("By "):
+                    target_poet = extracted_poet[3:]  # Remove "By " prefix
+                else:
+                    target_poet = extracted_poet
+                target_author_prefix = "By "
+            elif target_lang in ["chinese", "中文", "zh", "zh-cn", "zh_cn"]:
+                # For Chinese target languages
+                target_title = target_lang_title if target_lang_title else poem_title
+                # Clean up poet name by removing any existing prefixes
+                extracted_poet = target_lang_poet if target_lang_poet else poet_name
+                if extracted_poet.startswith("作者："):
+                    target_poet = extracted_poet[3:]  # Remove "作者：" prefix
+                else:
+                    target_poet = extracted_poet
+                target_author_prefix = "作者："
             else:
-                # For other target languages, use the extracted title and original poet name
+                # For other target languages, use the extracted title and translated poet name if available
                 target_title = target_lang_title if target_lang_title else poem_title
                 target_poet = target_lang_poet if target_lang_poet else poet_name
+                target_author_prefix = (
+                    "作者："  # Default to Chinese prefix for other languages
+                )
 
             # Prepare template variables
             # Use cached translation notes if available to avoid duplicate LLM calls
@@ -630,8 +672,10 @@ class ArticleGenerator:
                 # Bilingual variables
                 "source_title": source_title,
                 "source_poet": source_poet,
+                "source_author_prefix": source_author_prefix,
                 "target_title": target_title,
                 "target_poet": target_poet,
+                "target_author_prefix": target_author_prefix,
                 "source_lang": source_lang,
                 "target_lang": target_lang,
             }
@@ -651,16 +695,16 @@ class ArticleGenerator:
         lines = original_poem.strip().split("\n")
         poem_lines = []
 
-        for line in lines:
+        for i, line in enumerate(lines):
             line = line.strip()
-            # Skip author line
-            if "作者：" in line:
-                continue
             # Skip empty lines
             if not line:
                 continue
             # Skip title line if it's the first line
-            if line == lines[0].strip() and len(poem_lines) == 0:
+            if i == 0:
+                continue
+            # Skip author line (second line) - could be "作者：Name" or just "Name"
+            if i == 1:
                 continue
             poem_lines.append(line)
 
@@ -681,13 +725,13 @@ class ArticleGenerator:
             line = line.strip()
 
             # Extract target language title from first non-empty line
-            if i == 0 and line and not line.startswith("By "):
+            if i == 0 and line:
                 target_lang_title = line
                 continue
 
-            # Extract target language poet name from "By " line (common in English translations)
-            # But only if it's the second line after the title, not a translation line
-            if line.startswith("By ") and i == 1:
+            # Extract target language poet name from second line (after title)
+            # This could be "By Poet Name" or just "Poet Name" depending on formatting
+            if i == 1 and line:
                 target_lang_poet = line
                 continue
 

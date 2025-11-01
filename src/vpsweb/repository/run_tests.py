@@ -41,7 +41,7 @@ def test_basic_models():
             id="test_poem",
             poet_name="李白",
             poem_title="靜夜思",
-            source_language="zh",
+            source_language="zh-CN",
             original_text="床前明月光，疑是地上霜。舉頭望明月，低頭思故鄉。",
         )
         assert poem.poet_name == "李白"
@@ -95,7 +95,7 @@ def test_pydantic_schemas():
         poem = PoemCreate(
             poet_name="陶渊明",
             poem_title="歸園田居",
-            source_language="zh",
+            source_language="zh-CN",
             original_text="採菊東籬下，悠然見南山。山氣日夕佳，飛鳥相與還。",
         )
         assert poem.poet_name == "陶渊明"

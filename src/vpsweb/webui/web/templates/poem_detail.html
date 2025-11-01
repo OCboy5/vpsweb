@@ -584,11 +584,24 @@ function createTranslationCard(translation) {
                     <p class="text-xs text-gray-400">${createdDate}</p>
                 </div>
                 <div class="flex space-x-2">
-                    <button onclick="deleteTranslation('${translation.id}')" class="text-red-400 hover:text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </button>
+                    ${translation.translator_type === 'ai' ? `
+                        <div class="group">
+                            <button onclick="generateWeChatArticle('${translation.id}')" class="flex items-center space-x-1 text-green-600 hover:text-green-500" id="publish-btn-${translation.id}" title="Publish to WeChat">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                                </svg>
+                                <span class="hidden group-hover:inline">Publish</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                    <div class="group">
+                        <button onclick="deleteTranslation('${translation.id}')" class="flex items-center space-x-1 text-red-400 hover:text-red-600" title="Delete Translation">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span class="hidden group-hover:inline">Delete</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="poetry-text text-gray-700 whitespace-pre-wrap mb-4">${translation.translated_text}</div>
@@ -823,6 +836,259 @@ function addNote(translationId) {
 function viewTranslationNotes(translationId) {
     // Navigate to translation notes page
     window.location.href = `/translations/${translationId}/notes`;
+}
+
+// WeChat article generation function
+async function generateWeChatArticle(translationId) {
+    const publishBtn = document.getElementById(`publish-btn-${translationId}`);
+
+    if (!publishBtn) {
+        showErrorMessage('Publish button not found');
+        return;
+    }
+
+    // Confirm before starting
+    if (!confirm('Generate WeChat article from this translation? This will create HTML and Markdown files ready for publishing.')) {
+        return;
+    }
+
+    // Update button state to show progress
+    const originalContent = publishBtn.innerHTML;
+    publishBtn.disabled = true;
+    publishBtn.innerHTML = `
+        <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    `;
+
+    try {
+        // Start WeChat article generation
+        const response = await fetch(`/api/v1/wechat/${translationId}/generate-wechat-article`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                author: '',
+                digest: '',
+                dry_run: false
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to generate WeChat article');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccessMessage('WeChat article generation started! The article is being created in the background.');
+
+            // Start polling for completion
+            pollWeChatArticleStatus(translationId, result.data.task_id);
+
+        } else {
+            throw new Error(result.message || 'Failed to start generation');
+        }
+
+    } catch (error) {
+        console.error('Failed to generate WeChat article:', error);
+        showErrorMessage('Failed to generate WeChat article: ' + error.message);
+
+        // Restore button state on error
+        publishBtn.disabled = false;
+        publishBtn.innerHTML = originalContent;
+    }
+}
+
+// Poll for WeChat article generation completion
+async function pollWeChatArticleStatus(translationId, taskId) {
+    const maxAttempts = 60; // Poll for up to 5 minutes (60 * 5 seconds)
+    let attempts = 0;
+
+    const pollInterval = setInterval(async () => {
+        attempts++;
+
+        try {
+            const response = await fetch(`/api/v1/wechat/${translationId}/wechat-article-status`);
+
+            if (!response.ok) {
+                throw new Error('Failed to check status');
+            }
+
+            const result = await response.json();
+            const status = result.data;
+
+            if (status.status === 'completed') {
+                clearInterval(pollInterval);
+
+                const publishBtn = document.getElementById(`publish-btn-${translationId}`);
+                if (publishBtn) {
+                    publishBtn.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    `;
+                    publishBtn.disabled = false;
+                    publishBtn.onclick = () => viewWeChatArticles(translationId);
+                }
+
+                showSuccessMessage(`WeChat article generated successfully! ${status.output_dir ? `Files saved to: ${status.output_dir}` : ''}`);
+
+            } else if (status.status === 'failed') {
+                clearInterval(pollInterval);
+
+                const publishBtn = document.getElementById(`publish-btn-${translationId}`);
+                if (publishBtn) {
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalContent;
+                }
+
+                showErrorMessage('WeChat article generation failed: ' + (status.error_message || 'Unknown error'));
+
+            } else if (attempts >= maxAttempts) {
+                clearInterval(pollInterval);
+
+                const publishBtn = document.getElementById(`publish-btn-${translationId}`);
+                if (publishBtn) {
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalContent;
+                }
+
+                showErrorMessage('WeChat article generation timed out');
+
+            } else {
+                // Still running - you could update progress here if needed
+                console.log(`WeChat article generation in progress... (attempt ${attempts}/${maxAttempts})`);
+            }
+
+        } catch (error) {
+            console.error('Error polling WeChat article status:', error);
+            if (attempts >= maxAttempts) {
+                clearInterval(pollInterval);
+
+                const publishBtn = document.getElementById(`publish-btn-${translationId}`);
+                if (publishBtn) {
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalContent;
+                }
+
+                showErrorMessage('Failed to check article generation status');
+            }
+        }
+    }, 5000); // Poll every 5 seconds
+}
+
+// View generated WeChat articles
+async function viewWeChatArticles(translationId) {
+    try {
+        const response = await fetch(`/api/v1/wechat/${translationId}/wechat-articles`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch articles');
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data.output_dir) {
+            // Fetch metadata to get source_html_path
+            try {
+                const metadataResponse = await fetch(`/api/v1/wechat/${translationId}/metadata`);
+                if (metadataResponse.ok) {
+                    const metadataResult = await metadataResponse.json();
+                    if (metadataResult.success && metadataResult.data) {
+                        showArticleDialog(metadataResult.data, result.data.output_dir, translationId);
+                        return;
+                    }
+                }
+            } catch (metadataError) {
+                console.warn('Could not fetch metadata, falling back to basic view');
+            }
+
+            // Fallback: show basic article info
+            const articles = result.data.articles || [];
+            const articleList = articles.map(article =>
+                `• ${article.type.toUpperCase()}: ${article.file_path}`
+            ).join('\n');
+
+            const message = `Generated WeChat Articles:\n\n${articleList}\n\nOutput directory: ${result.data.output_dir}\n\nFiles are ready for CLI publish-article workflow:\nvpsweb publish-article -d ${result.data.output_dir}`;
+
+            alert(message);
+
+        } else {
+            showErrorMessage('No articles found for this translation');
+        }
+
+    } catch (error) {
+        console.error('Failed to view WeChat articles:', error);
+        showErrorMessage('Failed to view articles: ' + error.message);
+    }
+}
+
+// Show article dialog with clickable links
+function showArticleDialog(metadata, outputDir, translationId) {
+    // Create modal HTML
+    const modalHtml = `
+        <div id="article-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                <h3 style="margin-top: 0;">Generated WeChat Articles</h3>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>Title:</strong> ${metadata.title || 'N/A'}
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>Slug:</strong> ${metadata.slug || 'N/A'}
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>Poet:</strong> ${metadata.poet_name || 'N/A'}
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>Created:</strong> ${metadata.created_at || 'N/A'}
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <strong>Output Directory:</strong> <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">${outputDir}</code>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <strong>📄 View Article:</strong><br>
+                    <a href="/api/v1/wechat/${translationId}/wechat-article-view" target="_blank" style="color: #007bff; text-decoration: underline; display: inline-block; margin-top: 5px; cursor: pointer;">
+                        🔗 Open HTML Article in New Tab
+                    </a>
+                    <br>
+                    <small style="color: #666; font-size: 0.8em;">Opens article in a new browser tab</small>
+                </div>
+
+                <div style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                    <strong>📝 CLI Usage:</strong><br>
+                    Files are ready for CLI publish-article workflow:<br>
+                    <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">vpsweb publish-article -d ${outputDir}</code>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button onclick="closeArticleModal()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Close article modal
+function closeArticleModal() {
+    const modal = document.getElementById('article-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 // ==================== WORKFLOW MANAGEMENT FUNCTIONS ====================

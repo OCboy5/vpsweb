@@ -5,6 +5,74 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.11] - 2025-11-01 (Language Code Standardization & UI Polish)
+
+### 🚀 Overview
+VPSWeb v0.3.11 focuses on **standardizing Chinese language codes throughout the codebase** from "zh" to "zh-CN" for ISO compliance, **introducing WeChat article publishing in the WebUI**, and enhancing **UI button interactions**. This release ensures consistency in language handling while adding seamless translation-to-article publishing capabilities and improving the user interface with better button hover effects and tooltips.
+
+### ✨ New Features
+
+#### 🌏 Language Code Standardization
+- **Systematic zh→zh-CN Migration**: Updated all Chinese language codes from "zh" to "zh-CN" across the entire codebase
+- **Language Mapper Updates**: Core language definitions and translation pairs now use "zh-CN" as primary Chinese code
+- **Repository Schema Updates**: Example values in API schemas updated to use "zh-CN"
+- **Test Suite Updates**: All test files updated to use "zh-CN" for consistency
+- **Backward Compatibility**: Maintained support for both "zh" and "zh-CN" inputs during transition period
+
+#### 🚀 WeChat Article Publishing in WebUI
+- **Direct Translation Publishing**: One-click WeChat article generation directly from translation cards in the WebUI
+- **Background Task Processing**: Async article generation with task progress tracking via SSE streaming
+- **Integrated Workflow**: Seamless translation-to-article pipeline without manual file operations
+- **Article Viewer**: Built-in article viewer with clean, mobile-friendly layout
+- **Metadata Management**: Automatic slug generation, author attribution, and digest creation
+- **File Organization**: Structured article storage by date and unique identifiers
+
+#### 🎨 Enhanced UI Button Interactions
+- **Translation Card Buttons**: Added hover text labels to Publish and Delete buttons in translation cards
+- **Tailwind CSS Group Utilities**: Implemented proper show/hide text on hover using group-hover classes
+- **Icon-First Design**: Clean icon-only appearance with text labels appearing on hover
+- **Consistent Button Sizing**: Standardized w-5 h-5 icon dimensions across all button states
+- **Accessibility Improvements**: Added tooltips and proper button titles for screen readers
+
+### 🔧 Improvements
+
+#### 📝 Article Generator Enhancements
+- **Language-Appropriate Author Prefixes**: Dynamic prefix selection based on source/target language
+- **Chinese Source**: Uses "作者：" prefix for Chinese source content
+- **English Source**: Uses "By " prefix for English source content
+- **Template Integration**: Proper prefix handling in both WeChat article templates
+- **Text Extraction Logic**: Improved parsing for clean poet names without hardcoded prefixes
+
+#### 🌐 WeChat Template System
+- **Dual Template Support**: Updated both default.html and codebuddy.html templates
+- **Dynamic Variables**: Template variables for source_author_prefix and target_author_prefix
+- **Consistent Rendering**: Proper author prefix display across all generated articles
+- **Fallback Handling**: Graceful handling of missing poet information
+
+### 🐛 Bug Fixes
+- **Double Prefix Issue**: Fixed duplicate author prefixes appearing in generated articles
+- **Button Layout**: Resolved button positioning issues in translation cards
+- **Language Mapping**: Fixed inconsistent language code handling across different components
+- **Template Parsing**: Improved text extraction logic for better poet name handling
+
+### 🧪 Technical Changes
+- **Language Mapper**: Core Chinese language code updated from "zh" to "zh-CN"
+- **Translation Pairs**: All common translation pairs updated to use "zh-CN"
+- **API Schemas**: Example values standardized to "zh-CN"
+- **Test Infrastructure**: Comprehensive test updates for language code consistency
+- **Web Adapter**: Updated language detection logic with backward compatibility
+
+### 📚 Documentation Updates
+- **Code Consistency**: All language code references now follow ISO standards
+- **API Examples**: Updated to demonstrate "zh-CN" usage patterns
+- **Test Examples**: Consistent language code usage throughout test suite
+
+### 🔄 Migration Notes
+- **Backward Compatibility**: Existing data using "zh" codes continues to work
+- **API Response Format**: No breaking changes to existing API responses
+- **Database Migration**: No database changes required - this is a code-level standardization
+- **Configuration**: Existing configurations continue to work with automatic normalization
+
 ## [0.3.10] - 2025-10-31 (Enhanced Translation UI & Translator Attribution)
 
 ### 🚀 Overview

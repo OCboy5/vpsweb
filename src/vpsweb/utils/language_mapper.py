@@ -103,7 +103,7 @@ class LanguageMapper:
             ),
             # Chinese
             LanguageInfo(
-                code="zh",
+                code="zh-CN",
                 name="Chinese",
                 native_name="中文",
                 direction=LanguageDirection.LTR,
@@ -682,8 +682,8 @@ def get_display_name(code: str, use_native: bool = False) -> str:
 
 # Common language pairs for poetry translation
 COMMON_TRANSLATION_PAIRS = [
-    ("en", "zh"),  # English ↔ Chinese
-    ("zh", "en"),  # Chinese ↔ English
+    ("en", "zh-CN"),  # English ↔ Chinese
+    ("zh-CN", "en"),  # Chinese ↔ English
     ("en", "ja"),  # English ↔ Japanese
     ("ja", "en"),  # Japanese ↔ English
     ("en", "fr"),  # English ↔ French
@@ -696,8 +696,8 @@ COMMON_TRANSLATION_PAIRS = [
     ("ru", "en"),  # Russian ↔ English
     ("en", "ar"),  # English ↔ Arabic
     ("ar", "en"),  # Arabic ↔ English
-    ("zh", "ja"),  # Chinese ↔ Japanese
-    ("ja", "zh"),  # Japanese ↔ Chinese
+    ("zh-CN", "ja"),  # Chinese ↔ Japanese
+    ("ja", "zh-CN"),  # Japanese ↔ Chinese
     ("fr", "de"),  # French ↔ German
     ("de", "fr"),  # German ↔ French
     ("es", "fr"),  # Spanish ↔ French

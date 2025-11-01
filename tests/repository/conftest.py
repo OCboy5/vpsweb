@@ -109,7 +109,7 @@ def sample_poem_data():
 def sample_translation_data():
     """Sample translation data for testing."""
     return {
-        "target_language": "zh",
+        "target_language": "zh-CN",
         "version": 1,
         "translated_text": "这是一首测试诗歌的中文翻译，包含足够的内容以通过验证要求。它包含有意义的诗节和用于测试目的的正确结构。",
         "translator_notes": "Test translation notes",
@@ -166,7 +166,7 @@ def mock_language_validator():
     """Mock language validator for testing."""
 
     def _validate_language_code(code):
-        valid_codes = ["en", "zh", "es", "fr", "de", "ja"]
+        valid_codes = ["en", "zh-CN", "es", "fr", "de", "ja"]
         if code.lower() in valid_codes:
             return True, None
         return False, f"Invalid language code: {code}"
@@ -274,7 +274,7 @@ class AsyncTestContext:
         default_data = {
             "id": "01HXRQ8YJ9P9N7Q4J8K2R4S4T4",
             "poem_id": poem_id,
-            "target_language": "zh",
+            "target_language": "zh-CN",
             "version": 1,
             "translated_text": "测试翻译内容",
             "translator_type": "hybrid",
@@ -333,7 +333,7 @@ def generate_test_poems():
                 "id": f"test_poem_{i:03d}",
                 "poet_name": f"Poet {i}",
                 "poem_title": f"Test Poem {i}",
-                "source_language": "en" if i % 2 == 0 else "zh",
+                "source_language": "en" if i % 2 == 0 else "zh-CN",
                 "original_text": f"This is test poem number {i} with sufficient content for validation.",
                 "is_active": True,
             }

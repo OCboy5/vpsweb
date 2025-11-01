@@ -13,6 +13,7 @@ Usage:
 
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -47,22 +48,37 @@ class WeChatArticleRunner:
         """
         self.config = load_config(config_path)
 
+        # 检查是否有微信配置，如果没有则使用默认配置
+        if hasattr(self.config, "wechat") and hasattr(
+            self.config.wechat, "article_generation"
+        ):
+            # 使用完整的微信配置
+            wechat_config = self.config.wechat.article_generation.model_dump()
+            print("✅ Using WeChat configuration from config")
+        else:
+            # 使用默认配置
+            wechat_config = {
+                "include_translation_notes": True,
+                "copyright_text": "【著作权声明】\n本译文与译注完全由知韵(VoxPoetica)AI工具生成制作，仅供学习交流使用。原作品版权归原作者所有，如有侵权请联系删除。翻译内容未经授权，不得转载、不得用于商业用途。若需引用，请注明出处。",
+                "article_template": "codebuddy",
+                "default_cover_image_path": "config/html_templates/cover_image_big.jpg",
+                "default_local_cover_image_name": "cover_image_big.jpg",
+                "model_type": "non_reasoning",
+            }
+            print("⚠️ Using default WeChat configuration (config.wechat not found)")
+
         # 初始化文章生成器
-        self.article_config = ArticleGenerationConfig(
-            **self.config.wechat.article_generation.model_dump()
-        )
+        self.article_config = ArticleGenerationConfig(**wechat_config)
 
         self.article_generator = ArticleGenerator(
             config=self.article_config,
             providers_config=(
-                self.config.providers.model_dump()
-                if hasattr(self.config, "providers")
-                else None
+                self.config.providers if hasattr(self.config, "providers") else None
             ),
             wechat_llm_config=(
-                self.config.models.wechat_translation_notes.model_dump()
-                if hasattr(self.config, "models")
-                and hasattr(self.config.models, "wechat_translation_notes")
+                self.config.providers.wechat_translation_notes.model_dump()
+                if hasattr(self.config, "providers")
+                and hasattr(self.config.providers, "wechat_translation_notes")
                 else None
             ),
             system_config=self.config.model_dump(),
@@ -94,8 +110,12 @@ class WeChatArticleRunner:
             文章生成结果
         """
         try:
+            print(
+                f"📄 Starting WeChat article generation from file: {translation_json_path}"
+            )
             logger.info(f"开始从翻译文件生成微信文章: {translation_json_path}")
 
+            print(f"🔧 Calling article generator...")
             # 使用现有的文章生成器
             result = self.article_generator.generate_from_translation(
                 translation_json_path=translation_json_path,
@@ -104,13 +124,16 @@ class WeChatArticleRunner:
                 digest=digest,
                 dry_run=dry_run,
             )
+            print(f"✅ Article generator returned result successfully!")
 
-            # 添加自定义元数据
-            if custom_metadata:
-                if not hasattr(result, "custom_metadata"):
-                    result.custom_metadata = {}
-                result.custom_metadata.update(custom_metadata)
+            # Fix metadata paths and add source_html_path for WebUI usage
+            result = self._fix_webui_metadata(
+                result, translation_json_path, result.output_directory
+            )
 
+            # Custom metadata handling - skip for now since model doesn't support it
+            # Note: custom_metadata parameter kept for API compatibility
+            print(f"📝 WeChat article generation completed: {result.slug}")
             logger.info(f"微信文章生成完成: {result.slug}")
             return result
 
@@ -145,6 +168,7 @@ class WeChatArticleRunner:
             文章生成结果
         """
         try:
+            print(f"📝 Creating temporary JSON file for article generation...")
             # 创建临时JSON文件
             import tempfile
 
@@ -154,7 +178,10 @@ class WeChatArticleRunner:
                 json.dump(translation_data, f, ensure_ascii=False, indent=2)
                 temp_json_path = f.name
 
+            print(f"✅ Temporary JSON file created: {temp_json_path}")
+
             try:
+                print(f"🚀 Starting article generation from translation data...")
                 # 生成文章
                 result = self.generate_from_translation(
                     translation_json_path=temp_json_path,
@@ -164,16 +191,106 @@ class WeChatArticleRunner:
                     dry_run=dry_run,
                     custom_metadata=custom_metadata,
                 )
+                print(f"✅ Article generation completed successfully!")
+
+                # Fix metadata paths for WebUI usage
+                result = self._fix_webui_metadata(
+                    result, temp_json_path, result.output_directory
+                )
 
                 return result
 
             finally:
                 # 清理临时文件
                 Path(temp_json_path).unlink(missing_ok=True)
+                print(f"🧹 Temporary file cleaned up: {temp_json_path}")
 
         except Exception as e:
+            print(f"❌ Failed to generate article from data: {e}")
             logger.error(f"从翻译数据生成微信文章失败: {e}")
             raise ArticleGeneratorError(f"Failed to generate article from data: {e}")
+
+    def _fix_webui_metadata(
+        self,
+        result: ArticleGenerationResult,
+        original_json_path: str,
+        output_dir: Optional[str],
+    ) -> ArticleGenerationResult:
+        """
+        Fix metadata paths for WebUI usage.
+
+        This method addresses the issues where:
+        1. source_json_path points to a temporary file instead of the actual source
+        2. source_html_path is missing but needed for browser viewing
+
+        Args:
+            result: Original article generation result
+            original_json_path: Path to the original translation JSON file (if available)
+            output_dir: Output directory where articles were generated
+
+        Returns:
+            Updated ArticleGenerationResult with corrected metadata
+        """
+        try:
+            # Load the metadata file
+            if not output_dir:
+                print("⚠️ No output_dir provided, cannot fix metadata paths")
+                return result
+
+            metadata_path = Path(output_dir) / "metadata.json"
+            if not metadata_path.exists():
+                print(f"⚠️ Metadata file not found: {metadata_path}")
+                return result
+
+            # Read current metadata
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                metadata_dict = json.load(f)
+
+            # Fix source_json_path - remove temporary file path and add meaningful reference
+            if "source_json_path" in metadata_dict:
+                temp_path = metadata_dict["source_json_path"]
+                if temp_path.startswith("/var/folders/") or temp_path.startswith(
+                    "/tmp/"
+                ):
+                    # Replace with meaningful translation reference
+                    if "poet_name" in metadata_dict and "poem_title" in metadata_dict:
+                        poet = metadata_dict["poet_name"]
+                        title = metadata_dict["poem_title"]
+                        metadata_dict["source_json_path"] = (
+                            f"WebUI Translation: {title} by {poet}"
+                        )
+                    else:
+                        metadata_dict["source_json_path"] = (
+                            f"WebUI Translation (generated {datetime.now().strftime('%Y-%m-%d')})"
+                        )
+                    print(
+                        f"🔧 Fixed source_json_path: {metadata_dict['source_json_path']}"
+                    )
+
+            # Add source_html_path for browser viewing
+            html_file_path = Path(output_dir) / "article.html"
+            if html_file_path.exists():
+                metadata_dict["source_html_path"] = str(html_file_path.absolute())
+                print(f"🔧 Added source_html_path: {metadata_dict['source_html_path']}")
+            else:
+                print(f"⚠️ HTML file not found: {html_file_path}")
+
+            # Write updated metadata
+            with open(metadata_path, "w", encoding="utf-8") as f:
+                json.dump(metadata_dict, f, ensure_ascii=False, indent=2)
+
+            print(f"✅ Updated metadata file with correct paths")
+
+            # Update the result object if needed (Note: ArticleGenerationResult might not have metadata field)
+            # This depends on the ArticleGenerationResult structure
+
+            return result
+
+        except Exception as e:
+            print(f"⚠️ Failed to fix metadata paths: {e}")
+            logger.error(f"Failed to fix metadata paths: {e}")
+            # Return original result if fixing fails
+            return result
 
     def batch_generate_articles(
         self,

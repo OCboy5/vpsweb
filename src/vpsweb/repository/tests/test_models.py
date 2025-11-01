@@ -43,7 +43,7 @@ def sample_poem():
         id="test_poem_001",
         poet_name="陶渊明",
         poem_title="歸園田居",
-        source_language="zh",
+        source_language="zh-CN",
         original_text="採菊東籬下，悠然見南山。",
         metadata_json='{"dynasty": "東晉", "theme": "田園"}',
     )
@@ -100,7 +100,7 @@ class TestPoemModel:
         assert sample_poem.id == "test_poem_001"
         assert sample_poem.poet_name == "陶渊明"
         assert sample_poem.poem_title == "歸園田居"
-        assert sample_poem.source_language == "zh"
+        assert sample_poem.source_language == "zh-CN"
         assert sample_poem.original_text == "採菊東籬下，悠然見南山。"
         assert sample_poem.metadata_json is not None
         assert sample_poem.created_at is not None

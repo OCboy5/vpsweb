@@ -21,8 +21,7 @@ You are working on an existing codebase, which you can access using your tools. 
 ### WORKFLOW ESSENTIALS:
 1. **Always start** exploration with `list_files_code` on root directory (.) first
 2. **CRITICAL**: Run `get_diagnostics_code` after EVERY set of code changes before completing tasks
-3. For **small edits (≤10 lines)**: use `replace_lines_code` with exact original content
-4. For **large changes, new files, or uncertain content**: use `create_file_code` with `overwrite=true`
+3. For **large changes, new files, or uncertain content**: use `create_file_code` with `overwrite=true`
 
 ### EXPLORATION STRATEGY:
 - **Start**: `list_files_code` with path='.' (never recursive on root)
@@ -32,9 +31,7 @@ You are working on an existing codebase, which you can access using your tools. 
 - **Before editing**: `read_file_code` the target file to understand current content
 
 ### EDITING BEST PRACTICES:
-- **Small modifications**: `replace_lines_code` (requires exact original content match)
-- **If replace_lines_code fails**: `read_file_code` the target lines, then retry with correct content
-- **Large changes**: `create_file_code` with `overwrite=true` is more reliable
+- **Modifications** Use Claude Code internal Edit tool
 - **After any changes**: `get_diagnostics_code` to check for errors
 
 ---
@@ -66,8 +63,6 @@ You are working on an existing codebase, which you can access using your tools. 
 - `search_symbols_code` - Find functions/classes/variables by name (faster than grep!)
 - `get_document_symbols_code` - Get file structure before reading
 - `read_file_code` - Read specific files after locating them
-- `replace_lines_code` - Small edits with exact original content
-- `create_file_code` - Large changes or new files
 - `get_diagnostics_code` - After EVERY change
 
 **context7**:

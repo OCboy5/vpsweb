@@ -131,7 +131,7 @@
     <div class="section-title">原诗</div>
     <div class="poem-text">
         <p class="poem-header">{{ source_title }}</p>
-        <p class="poem-header">作者：{{ source_poet }}</p>
+        <p class="poem-header">{{ source_author_prefix }}{{ source_poet }}</p>
         {% for line in poem_text.split('\n') %}
             {% if line.strip() %}
                 <p>{{ line }}</p>
@@ -143,7 +143,7 @@
     <div class="translation-text">
         <p class="translation-header">{{ target_title }}</p>
         {% if target_poet %}
-            <p class="translation-header">{{ target_poet }}</p>
+            <p class="translation-header">{{ target_author_prefix }}{{ target_poet }}</p>
         {% endif %}
         {% for line in translation_text.split('\n') %}
             {% if line.strip() %}

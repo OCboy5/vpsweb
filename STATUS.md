@@ -1,14 +1,44 @@
-# Vox Poetica Studio Web - v0.3.10 Status
+# Vox Poetica Studio Web - v0.3.11 Status
 
-**Date**: 2025-10-31
-**Version**: 0.3.10 (Enhanced Translation UI & Translator Attribution)
-**Status**: ✅ **PRODUCTION-READY WITH ENHANCED TRANSLATOR ATTRIBUTION & REFINED UI**
+**Date**: 2025-11-01
+**Version**: 0.3.11 (Language Code Standardization & UI Polish)
+**Status**: ✅ **PRODUCTION-READY WITH STANDARDIZED LANGUAGE CODES & ENHANCED UI**
 
 ## 🎯 Executive Summary
 
 Vox Poetica Studio Web (vpsweb) achieves a major milestone with v0.3.8, delivering **COMPREHENSIVE TRANSLATION NOTES & ELEGANT UI POLISH** that transforms how users explore and understand the complete T-E-T translation workflow. This release introduces an elegant Translation Notes display system, enhanced Dashboard statistics, and significant UI refinements, building upon the robust database architecture from previous releases. This release adds timeout protection for workflows, comprehensive database indexing, user-friendly error handling, robust testing infrastructure, database migration tools, and advanced logging capabilities. This release implements a comprehensive FastAPI web interface with responsive design using Tailwind CSS, a complete repository database system with 15+ REST endpoints, and seamless integration with existing VPSWeb translation and WeChat workflows. The implementation includes enterprise-grade backup systems, automated development environment setup, comprehensive testing frameworks, and maintains 100% backward compatibility with all existing CLI functionality. With 56,802 lines of production-ready code across 145 files, v0.3.1 represents the most significant enhancement in the project's history while preserving all core functionality and workflows.
 
 ## ✅ Completed Features
+
+### 🌏 Language Code Standardization & UI Polish (v0.3.11)
+
+#### 🌏 Comprehensive Language Code Standardization
+- **Systematic zh→zh-CN Migration**: Updated all Chinese language codes from "zh" to "zh-CN" across entire codebase for ISO compliance
+- **Language Mapper Core Updates**: Primary Chinese language definition updated from "zh" to "zh-CN"
+- **Translation Pairs Standardization**: All common translation pairs updated to use "zh-CN" format
+- **Repository Schema Updates**: API schema examples updated to use "zh-CN" language codes
+- **Test Suite Consistency**: All test files updated to use "zh-CN" for consistency
+- **Backward Compatibility**: Maintained support for both "zh" and "zh-CN" inputs during transition period
+
+#### 🎨 Enhanced UI Button Interactions
+- **Translation Card Buttons**: Added hover text labels to Publish and Delete buttons in translation cards
+- **Tailwind CSS Group Utilities**: Implemented proper show/hide text on hover using group-hover classes
+- **Icon-First Design**: Clean icon-only appearance with text labels appearing on hover
+- **Consistent Button Sizing**: Standardized w-5 h-5 icon dimensions across all button states
+- **Accessibility Improvements**: Added tooltips and proper button titles for screen readers
+
+#### 📝 Article Generator Enhancements
+- **Language-Appropriate Author Prefixes**: Dynamic prefix selection based on source/target language
+- **Chinese Source Content**: Uses "作者：" prefix for Chinese source content
+- **English Source Content**: Uses "By " prefix for English source content
+- **Template Integration**: Proper prefix handling in both WeChat article templates (default.html and codebuddy.html)
+- **Text Extraction Logic**: Improved parsing for clean poet names without hardcoded prefixes
+
+#### 🔧 Technical Improvements
+- **Web Adapter Updates**: Updated language detection logic with backward compatibility support
+- **API Formatting**: Removed hardcoded prefixes from API responses, allowing templates to handle them
+- **Parsing Logic**: Enhanced poem header parsing to handle poet names without prefixes
+- **Consistent Language Handling**: Unified language code processing across all components
 
 ### 🎯 Enhanced Translation UI & Translator Attribution (v0.3.10)
 

@@ -134,7 +134,6 @@ class VPSWebWorkflowAdapter:
         # Fallback mapping for common codes
         fallback_mapping = {
             "en": "English",
-            "zh": "Chinese",
             "zh-CN": "Chinese",
             "zh-TW": "Chinese",
             "ja": "Japanese",
@@ -230,7 +229,6 @@ class VPSWebWorkflowAdapter:
             "en": "English",
             "en-US": "English",
             "en-GB": "English",
-            "zh": "Chinese",
             "zh-CN": "Chinese",
             "zh-TW": "Chinese",
             "zh-HK": "Chinese",
@@ -907,7 +905,8 @@ class VPSWebWorkflowAdapter:
                 original_poem=poem.original_text,
                 source_lang=(
                     Language.CHINESE
-                    if poem.source_language.startswith("zh")
+                    if poem.source_language.startswith("zh-CN")
+                    or poem.source_language == "zh"
                     else Language.ENGLISH
                 ),
                 target_lang=(

@@ -12,7 +12,7 @@
         <div style="border-left: 4px solid #e74c3c; background-color: #f8f9fa; padding: 15px; margin: 15px 0;">
             <div style="font-family: 'KaiTi', 'STKaiti', serif; font-size: 17px; line-height: 1.0; color: #2c3e50;">
                 <p style="margin: 0 0 10px 0; text-indent: 0; font-weight: bold;">{{ source_title }}</p>
-                <p style="margin: 0 0 15px 0; text-indent: 0; font-weight: bold;">作者：{{ source_poet }}</p>
+                <p style="margin: 0 0 15px 0; text-indent: 0; font-weight: bold;">{{ source_author_prefix }}{{ source_poet }}</p>
                 {% for line in poem_text.split('\n') -%}
         {% if line.strip() %}<p style="margin: 0 0 0px 0;">{{ line }}</p>{% endif %}
         {% endfor %}
@@ -26,7 +26,7 @@
         <div style="border-left: 4px solid #3498db; background-color: #f8f9fa; padding: 15px; margin: 15px 0;">
             <div style="font-family: 'Georgia', serif; font-size: 16px; line-height: 1.1; color: #34495e;">
                 <p style="margin: 0 0 10px 0; font-weight: bold;">{{ target_title }}</p>
-                {% if target_poet -%}<p style="margin: 0 0 15px 0; font-weight: bold;">{{ target_poet }}</p>{% endif -%}
+                {% if target_poet -%}<p style="margin: 0 0 15px 0; font-weight: bold;">{{ target_author_prefix }}{{ target_poet }}</p>{% endif -%}
                 {% for line in translation_text.split('\n') -%}
         {% if line.strip() %}<p style="margin: 0 0 0px 0;">{{ line }}</p>{% endif %}
         {% endfor %}
