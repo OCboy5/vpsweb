@@ -9,7 +9,7 @@ import asyncio
 import time
 import logging
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone as datetime_timezone
 
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService, TemplateLoadError, TemplateVariableError
@@ -323,7 +323,7 @@ class StepExecutor:
             "status": "success",
             "output": parsed_output,
             "metadata": {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(datetime_timezone.utc).isoformat(),
                 "execution_time_seconds": execution_time,
                 "model_info": {
                     "provider": config.provider,

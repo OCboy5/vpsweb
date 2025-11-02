@@ -302,6 +302,8 @@ class TestRevisedTranslation:
         translation = RevisedTranslation(
             revised_translation="雾来了，踏着猫儿轻盈的脚步。",
             revised_translation_notes="Improved rhythm and poetic language based on editor suggestions.",
+            refined_translated_poem_title="雾",
+            refined_translated_poet_name="卡尔·桑德堡",
             model_info={"provider": "tongyi", "model": "qwen-max"},
             tokens_used=300,
         )
@@ -316,6 +318,8 @@ class TestRevisedTranslation:
         translation = RevisedTranslation(
             revised_translation="Test translation",
             revised_translation_notes="Test notes",
+            refined_translated_poem_title="Test Title",
+            refined_translated_poet_name="Test Poet",
             model_info={"provider": "test"},
             tokens_used=200,
         )
@@ -336,9 +340,9 @@ class TestTranslationOutput:
         output = sample_translation_output
 
         assert output.workflow_id == "test-workflow-123"
-        assert output.original_poem == "The fog comes on little cat feet."
-        assert output.source_lang == "English"
-        assert output.target_lang == "Chinese"
+        assert output.input.original_poem == "The fog comes on little cat feet."
+        assert output.input.source_lang == "English"
+        assert output.input.target_lang == "Chinese"
         assert output.total_tokens == 1250
         assert output.duration_seconds == 15.5
 
@@ -409,7 +413,6 @@ class TestConfigModels:
     def test_step_config_creation(self):
         """Test creating StepConfig."""
         step = StepConfig(
-            name="initial_translation",
             provider="tongyi",
             model="qwen-max",
             temperature=0.7,
@@ -417,7 +420,6 @@ class TestConfigModels:
             prompt_template="test_template.yaml",
         )
 
-        assert step.name == "initial_translation"
         assert step.provider == "tongyi"
         assert step.model == "qwen-max"
         assert step.temperature == 0.7
@@ -428,21 +430,21 @@ class TestConfigModels:
         workflow = WorkflowConfig(
             name="test_workflow",
             version="1.0.0",
-            steps=[
-                StepConfig(
-                    name="step1",
+            hybrid_workflow={
+                "step1": StepConfig(
                     provider="tongyi",
                     model="qwen-max",
                     temperature=0.7,
                     max_tokens=1000,
+                    prompt_template="step1.yaml",
                 )
-            ],
+            },
         )
 
         assert workflow.name == "test_workflow"
         assert workflow.version == "1.0.0"
-        assert len(workflow.steps) == 1
-        assert workflow.steps[0].name == "step1"
+        assert len(workflow.hybrid_workflow) == 1
+        assert "step1" in workflow.hybrid_workflow
 
     def test_logging_config_creation(self):
         """Test creating LoggingConfig."""
@@ -481,7 +483,7 @@ class TestConfigModels:
 
         assert config.main.workflow.name == "test_workflow"
         assert config.main.workflow.version == "1.0.0"
-        assert len(config.main.workflow.steps) == 3
+        assert len(config.main.workflow.hybrid_workflow) == 3
         assert "tongyi" in config.providers.providers
         assert "deepseek" in config.providers.providers
 

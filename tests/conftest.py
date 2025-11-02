@@ -124,32 +124,29 @@ def sample_config():
             workflow=WorkflowConfig(
                 name="test_workflow",
                 version="1.0.0",
-                steps=[
-                    StepConfig(
-                        name="initial_translation",
+                hybrid_workflow={
+                    "initial_translation": StepConfig(
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.7,
                         max_tokens=1000,
                         prompt_template="test_template.yaml",
                     ),
-                    StepConfig(
-                        name="editor_review",
+                    "editor_review": StepConfig(
                         provider="deepseek",
                         model="deepseek-chat",
                         temperature=0.5,
                         max_tokens=800,
                         prompt_template="test_template.yaml",
                     ),
-                    StepConfig(
-                        name="translator_revision",
+                    "translator_revision": StepConfig(
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.6,
                         max_tokens=1000,
                         prompt_template="test_template.yaml",
                     ),
-                ],
+                },
             ),
             storage=StorageConfig(output_dir="./output"),
             logging=LoggingConfig(

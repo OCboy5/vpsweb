@@ -7,7 +7,7 @@ Provides business logic for poem operations.
 
 import logging
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone as datetime_timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
@@ -179,8 +179,8 @@ class PoemService:
                 source_language=source_language.strip().lower(),
                 original_text=content.strip(),
                 metadata_json=metadata_json,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
+                created_at=datetime.now(datetime_timezone.utc),
+                updated_at=datetime.now(datetime_timezone.utc),
             )
 
             # Save to database
@@ -268,7 +268,7 @@ class PoemService:
             if metadata_json is not None:
                 poem.metadata_json = metadata_json
 
-            poem.updated_at = datetime.utcnow()
+            poem.updated_at = datetime.now(datetime_timezone.utc)
 
             # Save changes
             self.db.commit()

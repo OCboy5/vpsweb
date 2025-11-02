@@ -284,7 +284,7 @@ async def get_poem_translations(
 async def search_poems(
     query: str = Query(..., min_length=1, max_length=100, description="Search query"),
     search_type: str = Query(
-        "title", regex="^(title|poet|text|all)$", description="Search field"
+        "title", pattern="^(title|poet|text|all)$", description="Search field"
     ),
     service: RepositoryService = Depends(get_repository_service),
 ):
