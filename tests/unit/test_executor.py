@@ -337,18 +337,37 @@ class TestStepExecutor:
 
         # Create initial translation
         initial_translation = InitialTranslation(
-            original_poem="The fog comes on little cat feet.",
-            source_lang="English",
-            target_lang="Chinese",
             initial_translation="雾来了\n踏着猫的小脚。",
             initial_translation_notes="Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model.",
+            translated_poem_title="雾",
+            translated_poet_name="卡尔·桑德堡",
             model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
             tokens_used=150,
         )
 
+        # Create translation input for editor review
+        translation_input = TranslationInput(
+            original_poem="The fog comes on little cat feet.",
+            source_lang="English",
+            target_lang="Chinese",
+        )
+
+          # Create editor review config (no required fields for editor review)
+        editor_review_config = StepConfig(
+            name="editor_review",
+            provider="openai",
+            model="gpt-3.5-turbo",
+            temperature=0.7,
+            max_tokens=1000,
+            prompt_template="editor_review.yaml",
+            timeout=30,
+            retry_attempts=2,
+            required_fields=[],  # Editor review doesn't require specific fields
+        )
+
         # Execute editor review
         result = await step_executor.execute_editor_review(
-            initial_translation, sample_translation_input, sample_step_config
+            initial_translation, translation_input, editor_review_config
         )
 
         # Verify results
@@ -381,6 +400,23 @@ class TestStepExecutor:
             "Revision user prompt",
         )
 
+        # Create translation input
+        translation_input = TranslationInput(
+            original_poem="The fog comes on little cat feet.",
+            source_lang="English",
+            target_lang="Chinese",
+        )
+
+        # Create initial translation for revision step
+        initial_translation = InitialTranslation(
+            initial_translation="雾来了\n踏着猫的小脚。",
+            initial_translation_notes="Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model.",
+            translated_poem_title="雾",
+            translated_poet_name="卡尔·桑德堡",
+            model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
+            tokens_used=150,
+        )
+
         # Create editor review
         editor_review = Mock()
         editor_review.original_poem = "The fog comes on little cat feet."
@@ -390,12 +426,25 @@ class TestStepExecutor:
         editor_review.initial_translation_notes = "Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model."
         editor_review.editor_suggestions = "Consider using more poetic language"
 
+        # Create translator revision config
+        revision_config = StepConfig(
+            name="translator_revision",
+            provider="openai",
+            model="gpt-3.5-turbo",
+            temperature=0.7,
+            max_tokens=1000,
+            prompt_template="translator_revision.yaml",
+            timeout=30,
+            retry_attempts=2,
+            required_fields=[],  # Translator revision has flexible output format
+        )
+
         # Execute translator revision
         result = await step_executor.execute_translator_revision(
             editor_review,
-            sample_translation_input,
+            translation_input,
             initial_translation,
-            sample_step_config,
+            revision_config,
         )
 
         # Verify results
@@ -418,10 +467,10 @@ class TestStepExecutor:
             "initial_translation", {"key": "value"}, config
         )
 
-        # Invalid step name
-        with pytest.raises(ValueError, match="Unknown step name"):
+        # Empty step name
+        with pytest.raises(ValueError, match="Step name cannot be empty"):
             step_executor._validate_step_inputs(
-                "invalid_step", {"key": "value"}, config
+                "", {"key": "value"}, config
             )
 
         # Invalid input data type
@@ -435,6 +484,9 @@ class TestStepExecutor:
             step_executor._validate_step_inputs(
                 "initial_translation", {"key": "value"}, None
             )
+
+        # Note: Step name validation is handled by workflow configuration,
+        # not by this method, so we don't test for invalid step names here
 
     @pytest.mark.asyncio
     async def test_get_llm_provider_error(self, step_executor, mock_llm_factory):
@@ -527,7 +579,7 @@ class TestStepExecutor:
     async def test_plain_text_response_fallback(
         self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
     ):
-        """Test fallback handling when no XML tags are found."""
+        """Test fallback handling when no XML tags are found for non-initial steps."""
         # Setup mocks with plain text response (no XML tags)
         mock_provider = AsyncMock()
         plain_text_response = Mock()
@@ -541,12 +593,12 @@ class TestStepExecutor:
             "User prompt content",
         )
 
-        # Modify config to not require specific fields
+        # Use a step that supports fallback (not initial_translation which requires XML)
         config_no_required = StepConfig(
-            name="initial_translation",
+            name="editor_review",  # This step can handle plain text
             provider=sample_step_config.provider,
             model="gpt-3.5-turbo",
-            prompt_template="initial_translation.yaml",
+            prompt_template="editor_review.yaml",
             required_fields=[],  # No required fields
         )
 
@@ -556,9 +608,9 @@ class TestStepExecutor:
             "target_lang": "Chinese",
         }
 
-        # Execute step - should succeed with fallback
+        # Execute step - should succeed with fallback for editor_review
         result = await step_executor.execute_step(
-            "initial_translation", input_data, config_no_required
+            "editor_review", input_data, config_no_required
         )
 
         assert result["status"] == "success"

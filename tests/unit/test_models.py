@@ -143,6 +143,8 @@ class TestInitialTranslation:
         translation = InitialTranslation(
             initial_translation="雾来了，踏着猫的细步。",
             initial_translation_notes="This translation captures the gentle imagery.",
+            translated_poem_title="雾",
+            translated_poet_name="卡尔·桑德堡",
             model_info={"provider": "tongyi", "model": "qwen-max"},
             tokens_used=250,
         )
@@ -180,6 +182,8 @@ class TestInitialTranslation:
         translation = InitialTranslation(
             initial_translation="Test translation",
             initial_translation_notes="Test notes",
+            translated_poem_title="Test Title",
+            translated_poet_name="Test Poet",
             model_info={"provider": "test"},
             tokens_used=100,
         )
@@ -198,6 +202,8 @@ class TestInitialTranslation:
         data = {
             "initial_translation": "Test translation",
             "initial_translation_notes": "Test notes",
+            "translated_poem_title": "Test Title",
+            "translated_poet_name": "Test Poet",
             "model_info": {"provider": "test"},
             "tokens_used": 100,
             "timestamp": "2024-01-01T12:00:00",
