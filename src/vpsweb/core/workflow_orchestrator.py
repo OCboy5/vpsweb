@@ -35,7 +35,7 @@ from .interfaces import (
 from .container import DIContainer
 from ..models.translation import TranslationInput, TranslationOutput
 from ..models.config import WorkflowMode
-from ..utils.tools_phase3a_v2 import (
+from vpsweb.utils.tools_phase3a import (
     AsyncTimer,
     ErrorCollector,
     PerformanceMonitor,

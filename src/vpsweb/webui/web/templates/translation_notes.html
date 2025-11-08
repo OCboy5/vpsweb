@@ -345,34 +345,6 @@
             </section>
         {% endif %}
     </div>
-
-    <!-- Performance Summary (AI Translations Only) -->
-    {% if translation.translator_type.lower() == 'ai' and workflow_data and workflow_data.total_tokens %}
-    <aside class="mt-12 max-w-5xl mx-auto">
-        <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Performance Summary</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-primary-600">{{ workflow_data.total_tokens or 0 }}</div>
-                    <div class="text-sm text-gray-600">Total Tokens</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600">¥{{ "%.2f"|format(workflow_data.total_cost or 0) }}</div>
-                    <div class="text-sm text-gray-600">Total Cost</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ "%.1f"|format(workflow_data.total_duration or 0) }}s</div>
-                    <div class="text-sm text-gray-600">Total Time</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ workflow_steps|length or 0 }}</div>
-                    <div class="text-sm text-gray-600">Workflow Steps</div>
-                </div>
-            </div>
-        </div>
-    </aside>
-    {% endif %}
-</div>
 </div>
 
 <!-- Layout 2: Elegant 4-Column Evolution Layout -->
@@ -653,8 +625,8 @@ function generateColumnHTML(stepData, color, stepNum, stepLabel) {
         </div>`;
     }
 
-    const translatedTitle = stepData.translated_title || `${stepLabel} Translation`;
-    const translatedPoet = stepData.translated_poet_name || window.layout2Data.poetName;
+      const translatedTitle = stepData.translated_title || `${stepLabel} Translation`;
+    const translatedPoet = stepData.translated_poet_name || 'Translated';
     const notesLink = stepData.notes ?
         `<a href="#" class="notes-btn inline-flex items-center text-sm text-${color}-600 hover:text-${color}-800 font-medium whitespace-nowrap">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

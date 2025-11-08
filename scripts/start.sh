@@ -14,7 +14,8 @@ echo "Access the web interface at: http://localhost:8000"
 echo "Press Ctrl+C to stop the server"
 echo
 
-poetry run uvicorn vpsweb.webui.main:app \
+poetry run uvicorn vpsweb.webui.main:create_app \
+    --factory \
     --host 127.0.0.1 \
     --port 8000 \
     --reload \

@@ -47,8 +47,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Translator Type</label>
                     <select id="type-filter" class="w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
                         <option value="">All Types</option>
-                        <option value="AI">AI</option>
-                        <option value="Human">Human</option>
+                        <option value="ai">AI</option>
+                        <option value="human">Human</option>
                     </select>
                 </div>
             </div>
@@ -146,9 +146,15 @@ function setupFilters() {
 
 async function loadTranslations() {
     try {
+        console.log('Starting to load translations...');
         const response = await fetch('/api/v1/translations/?limit=100');
+        console.log('API response status:', response.status);
         if (response.ok) {
-            translations = await response.json();
+            const data = await response.json();
+            console.log('API response data:', data);
+            // Handle both direct array and wrapped response formats
+            translations = Array.isArray(data) ? data : (data.translations || []);
+            console.log('Extracted translations array:', translations);
             displayTranslations();
             updateFilters();
         } else {

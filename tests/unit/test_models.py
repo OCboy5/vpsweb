@@ -143,6 +143,8 @@ class TestInitialTranslation:
         translation = InitialTranslation(
             initial_translation="雾来了，踏着猫的细步。",
             initial_translation_notes="This translation captures the gentle imagery.",
+            translated_poem_title="Fog",
+            translated_poet_name="Carl Sandburg",
             model_info={"provider": "tongyi", "model": "qwen-max"},
             tokens_used=250,
         )
@@ -180,6 +182,8 @@ class TestInitialTranslation:
         translation = InitialTranslation(
             initial_translation="Test translation",
             initial_translation_notes="Test notes",
+            translated_poem_title="Test Title",
+            translated_poet_name="Test Poet",
             model_info={"provider": "test"},
             tokens_used=100,
         )
@@ -198,6 +202,8 @@ class TestInitialTranslation:
         data = {
             "initial_translation": "Test translation",
             "initial_translation_notes": "Test notes",
+            "translated_poem_title": "Test Title",
+            "translated_poet_name": "Test Poet",
             "model_info": {"provider": "test"},
             "tokens_used": 100,
             "timestamp": "2024-01-01T12:00:00",
@@ -296,6 +302,8 @@ class TestRevisedTranslation:
         translation = RevisedTranslation(
             revised_translation="雾来了，踏着猫儿轻盈的脚步。",
             revised_translation_notes="Improved rhythm and poetic language based on editor suggestions.",
+            refined_translated_poem_title="Fog",
+            refined_translated_poet_name="Carl Sandburg",
             model_info={"provider": "tongyi", "model": "qwen-max"},
             tokens_used=300,
         )
@@ -310,6 +318,8 @@ class TestRevisedTranslation:
         translation = RevisedTranslation(
             revised_translation="Test translation",
             revised_translation_notes="Test notes",
+            refined_translated_poem_title="Test Title",
+            refined_translated_poet_name="Test Poet",
             model_info={"provider": "test"},
             tokens_used=200,
         )
@@ -330,9 +340,9 @@ class TestTranslationOutput:
         output = sample_translation_output
 
         assert output.workflow_id == "test-workflow-123"
-        assert output.original_poem == "The fog comes on little cat feet."
-        assert output.source_lang == "English"
-        assert output.target_lang == "Chinese"
+        assert output.input.original_poem == "The fog comes on little cat feet."
+        assert output.input.source_lang == "English"
+        assert output.input.target_lang == "Chinese"
         assert output.total_tokens == 1250
         assert output.duration_seconds == 15.5
 

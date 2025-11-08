@@ -93,6 +93,7 @@ class DIContainer:
 
     def register_instance(self, interface: Type[T], instance: T, name: Optional[str] = None) -> None:
         """Register a pre-created instance."""
+
         self.register(interface, instance=instance, lifetime=LifetimeScope.SINGLETON, name=name)
 
     def resolve(self, interface: Type[T], name: Optional[str] = None) -> T:
@@ -107,6 +108,8 @@ class DIContainer:
             An instance of the requested type
         """
         key = name if name else interface
+
+
 
         if key not in self._registrations:
             raise ValueError(f"Dependency {key} is not registered")
@@ -334,3 +337,8 @@ def auto_register(container: DIContainer, module: Any, lifetime: LifetimeScope =
                     # This class implements an abstract base class
                     container.register(base, obj, lifetime=lifetime)
                     break
+
+_container_instance = DIContainer()
+
+def get_container() -> DIContainer:
+    return _container_instance

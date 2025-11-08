@@ -239,9 +239,9 @@ async function submitPoem(event) {
             const poem = await response.json();
             showSuccessMessage(`Poem "${poem.poem_title}" added successfully!`);
 
-            // Redirect to poem detail page
+            // Redirect to poems list page to avoid database transaction timing issues
             setTimeout(() => {
-                window.location.href = `/poems/${poem.id}`;
+                window.location.href = `/poems`;
             }, 1500);
         } else {
             const error = await response.json();

@@ -582,6 +582,20 @@ class PerformanceMonitor:
 
         self.metrics[operation_name].add_operation(duration, success)
 
+    async def record_request(
+        self,
+        method: str,
+        path: str,
+        status_code: int,
+        duration_ms: float,
+        additional_data: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Record HTTP request performance metrics."""
+        operation_name = f"{method} {path}"
+        success = status_code < 400
+
+        self.record_operation(operation_name, duration_ms / 1000.0, success)
+
     def get_metrics(self, operation_name: str) -> Optional[PerformanceMetrics]:
         """Get metrics for a specific operation."""
         return self.metrics.get(operation_name)
