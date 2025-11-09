@@ -90,21 +90,17 @@ class ProgressTracker:
             and "model_info" in step.result
         ):
             model_info = step.result["model_info"]
-            provider = model_info.get("provider", "Unknown")
-            model = model_info.get("model", "Unknown")
-            temp = model_info.get("temperature", "Unknown")
-            # Determine if reasoning model
-            is_reasoning = model.lower() in [
-                "deepseek-reasoner",
-                "o1",
-                "o1-mini",
-                "o3-mini",
-            ]
-            model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
+            if model_info:
+                provider = model_info.get("provider", "Unknown")
+                model = model_info.get("model", "Unknown")
+                temp = model_info.get("temperature", "Unknown")
+                is_reasoning = model_info.get("is_reasoning", False)
+                model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
 
-            # Add model info on next line with indentation
-            model_line = f"      🤖 Provider: {provider.title()} | 🧠 Model: {model} | 🌡️ Temp: {temp} | ⚡ {model_type}"
-            return base_line + "\n" + model_line
+                model_line = f"      🤖 Provider: {provider.title()} | 🧠 Model: {model} | 🌡️ Temp: {temp} | ⚡ {model_type}"
+                return base_line + "\n" + model_line
+            else:
+                return base_line
 
         return base_line
 
@@ -208,12 +204,7 @@ class ProgressTracker:
             temp = model_info.get("temperature", "Unknown")
 
             # Determine if reasoning model
-            is_reasoning = model.lower() in [
-                "deepseek-reasoner",
-                "o1",
-                "o1-mini",
-                "o3-mini",
-            ]
+            is_reasoning = model_info.get("is_reasoning", False)
             model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
 
             print(f"  🤖 Model Provider: {provider.title()}")
@@ -237,13 +228,11 @@ class ProgressTracker:
 
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get("cost"):
-            print(f"  💰 Cost: ¥{result['cost']:.6f}")
-        # Show a preview of the translation (first 100 chars)
-        translation = result.get("initial_translation", "N/A")
-        if translation != "N/A" and len(translation) > 100:
-            translation = translation[:100] + "..."
-        print(f"  📝 Translation Preview: {translation}")
+        translation_full = result.get("initial_translation", "N/A")
+        translation_preview = translation_full
+        if translation_full != "N/A" and len(translation_full) > 100:
+            translation_preview = translation_full[:100] + "..."
+        print(f"  📝 Translation Preview: {translation_preview}")
 
     def _display_editor_review(self, result: Dict[str, Any]) -> None:
         """Display editor review results."""
@@ -261,7 +250,7 @@ class ProgressTracker:
 
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get("cost"):
+        if result.get("cost") is not None:
             print(f"  💰 Cost: ¥{result['cost']:.6f}")
 
         # Count editor suggestions more accurately
@@ -308,7 +297,7 @@ class ProgressTracker:
 
         if result.get("duration"):
             print(f"  ⏱️  Time Spent: {result['duration']:.2f}s")
-        if result.get("cost"):
+        if result.get("cost") is not None:
             print(f"  💰 Cost: ¥{result['cost']:.6f}")
         # Show a preview of the revised translation (first 100 chars)
         revision = result.get("revised_translation", "N/A")

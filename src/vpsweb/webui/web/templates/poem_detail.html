@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ poem.poem_title }} by {{ poem.poet_name }} - VPSWeb Repository{% endblock %}
+{% block title %}Loading... - VPSWeb Repository{% endblock %}
 
 {% block content %}
 <div class="px-4 py-6">
@@ -26,7 +26,7 @@
                     <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ poem.poem_title }}</span>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2" id="poem-title">Loading...</span>
                 </div>
             </li>
         </ol>
@@ -37,14 +37,14 @@
         <div class="px-4 py-5 sm:p-6">
             <div class="flex justify-between items-start mb-6">
                 <div class="flex-1">
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ poem.poem_title }}</h1>
-                    <p class="text-lg text-gray-600 mb-1">by {{ poem.poet_name }}</p>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2" id="poem-full-title">Loading...</h1>
+                    <p class="text-lg text-gray-600 mb-1">by <span id="poet-name">Loading...</span></p>
                     <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ poem.source_language }}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800" id="source-language">
+                            Loading...
                         </span>
-                        <span>Created {{ poem.created_at.strftime('%B %d, %Y') }}</span>
-                        <span>ID: {{ poem.id[:8] }}...</span>
+                        <span>Created <span id="created-date">Loading...</span></span>
+                        <span>ID: <span id="poem-id-short">Loading...</span>...</span>
                     </div>
                 </div>
                 <div class="flex space-x-2 ml-4">
@@ -59,13 +59,11 @@
 
             <!-- Poem Content -->
             <div class="bg-gray-50 rounded-lg p-6">
-<div                <div class="poetry-text text-gray-700 whitespace-pre-wrap">{{ poem.original_text }}</div>
-                {% if poem.metadata_json %}
-                <div class="mt-6 pt-6 border-t border-gray-200">
+              <div class="poetry-text text-gray-700 whitespace-pre-wrap" id="poem-text">Loading poem content...</div>
+                <div id="poem-metadata" class="mt-6 pt-6 border-t border-gray-200 hidden">
                     <h4 class="text-sm font-medium text-gray-900 mb-2">Metadata</h4>
-                    <pre class="text-xs text-gray-600 bg-white p-3 rounded border overflow-auto">{{ poem.metadata_json }}</pre>
+                    <pre class="text-xs text-gray-600 bg-white p-3 rounded border overflow-auto" id="poem-metadata-content"></pre>
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -366,11 +364,84 @@
 </div>
 
 <script>
+// Get poem ID from URL parameter or template context
+const poemId = "{{ poem_id }}";
+
+let poem = null;
 let translations = [];
 let currentFilters = {
     language: '',
     type: ''
 };
+
+// Load poem data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadPoemData();
+});
+
+async function loadPoemData() {
+    try {
+        const response = await fetch(`/api/v1/poems/${poemId}`);
+        if (response.ok) {
+            poem = await response.json();
+            updatePoemDisplay();
+            // Load existing translations
+            loadTranslations();
+        } else {
+            showError('Failed to load poem data');
+        }
+    } catch (error) {
+        console.error('Failed to load poem data:', error);
+        showError('Failed to load poem data');
+    }
+}
+
+function updatePoemDisplay() {
+    if (!poem) return;
+
+    // Update page title
+    document.title = `${poem.poem_title} by ${poem.poet_name} - VPSWeb Repository`;
+
+    // Update poem information
+    document.getElementById('poem-title').textContent = poem.poem_title;
+    document.getElementById('poem-full-title').textContent = poem.poem_title;
+    document.getElementById('poet-name').textContent = poem.poet_name;
+    document.getElementById('source-language').textContent = poem.source_language;
+
+    // Format and update created date
+    const createdDate = new Date(poem.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.getElementById('created-date').textContent = createdDate;
+
+    // Update poem ID (shortened)
+    document.getElementById('poem-id-short').textContent = poem.id.substring(0, 8);
+
+    // Update poem text
+    document.getElementById('poem-text').textContent = poem.original_text;
+
+    // Update metadata if available
+    if (poem.metadata_json) {
+        document.getElementById('poem-metadata-content').textContent = poem.metadata_json;
+        document.getElementById('poem-metadata').classList.remove('hidden');
+    }
+}
+
+function showError(message) {
+    // Simple error display
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+    errorDiv.textContent = message;
+    document.body.appendChild(errorDiv);
+
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.parentNode.removeChild(errorDiv);
+        }
+    }, 5000);
+}
 
 // Workflow state management
 let workflowState = {
@@ -460,9 +531,10 @@ function setupTranslationTypeToggle() {
 
 async function loadTranslations() {
     try {
-        const response = await fetch(`/api/v1/translations/?poem_id={{ poem.id }}`);
+        const response = await fetch(`/api/v1/translations/?poem_id={{ poem_id }}`);
         if (response.ok) {
-            translations = await response.json();
+            const responseData = await response.json();
+            translations = responseData.translations || [];
             displayTranslations();
             updateLanguageFilter();
         } else {
@@ -576,8 +648,12 @@ function createTranslationCard(translation) {
                             ${qualityStars}
                         </div>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-1">${translation.translated_poem_title || window.poemTitle}</h4>
-                    <p class="text-sm text-gray-500 mb-2">${translation.translated_poet_name || window.poetName}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-1">
+                        ${translation.translated_poem_title || `[${translation.target_language} Translation]`}
+                    </h4>
+                    <p class="text-sm text-gray-500 mb-2">
+                        ${translation.translated_poet_name || window.poetName || 'Original Poet'}
+                    </p>
                     ${translation.translator_type === 'human' && translation.translator_info ? `
                     <p class="text-sm text-gray-500 mb-2">译者: ${translation.translator_info}</p>
                     ` : ''}
@@ -610,7 +686,7 @@ function createTranslationCard(translation) {
                     <span>ID: ${translation.id}</span>
                 </div>
                 <div class="flex space-x-3">
-                    ${translation.translator_type === 'ai' && translation.has_translation_notes ? `
+                    ${translation.translator_type === 'ai' ? `
                         <button onclick="viewTranslationNotes('${translation.id}')" class="text-primary-600 hover:text-primary-500 font-medium flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -1093,7 +1169,16 @@ function closeArticleModal() {
 
 // ==================== WORKFLOW MANAGEMENT FUNCTIONS ====================
 
+// Debouncing variable to prevent double-clicks
+let isWorkflowStarting = false;
+
 async function startWorkflow() {
+    // Prevent multiple simultaneous calls
+    if (isWorkflowStarting) {
+        console.log('Workflow start already in progress, ignoring duplicate call');
+        return;
+    }
+
     const targetLanguage = document.getElementById('workflow-target-language').value;
     const workflowMode = document.getElementById('workflow-mode').value;
 
@@ -1107,6 +1192,9 @@ async function startWorkflow() {
         showErrorMessage('A translation workflow is already running.');
         return;
     }
+
+    // Set debouncing flag
+    isWorkflowStarting = true;
 
     try {
         // Disable the start button
@@ -1126,16 +1214,14 @@ async function startWorkflow() {
         // Prepare workflow request data
         const requestData = {
             poem_id: '{{ poem.id }}',
-            source_lang: '{{ poem.source_language }}',
             target_lang: languageMap[targetLanguage] || targetLanguage,
-            workflow_mode: workflowMode,
-            poet_name: '{{ poem.poet_name }}'
+            workflow_mode: workflowMode
         };
 
         console.log('Starting workflow with data:', requestData);
 
         // Start the workflow
-        const response = await fetch('/api/v1/workflow/translate', {
+        const response = await fetch('/api/v1/translations/trigger', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1150,14 +1236,19 @@ async function startWorkflow() {
 
         const result = await response.json();
 
+        // Check if workflow started successfully
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to start translation workflow');
+        }
+
         // Initialize workflow state
-        workflowState.taskId = result.data.task_id;
+        workflowState.taskId = result.task_id;
         workflowState.startTime = new Date();
         workflowState.isRunning = true;
         workflowState.completed = false;
         workflowState.failed = false;
 
-        console.log('Workflow started with task ID:', result.data.task_id);
+        console.log('Workflow started with task ID:', result.task_id);
 
         // Start the self-running timer
         startTimer();
@@ -1169,13 +1260,13 @@ async function startWorkflow() {
         document.getElementById('workflow-progress').classList.remove('hidden');
         document.getElementById('workflow-error').classList.add('hidden');
 
-        // Start polling for updates
+        // Start SSE connection to receive real-time progress updates
         startWorkflowPolling();
 
         // Update button text
-        btnText.textContent = 'Running...';
+        btnText.textContent = 'Processing...';
 
-        showSuccessMessage('Translation workflow started successfully!');
+        showSuccessMessage('Translation workflow started!');
 
     } catch (error) {
         console.error('Failed to start workflow:', error);
@@ -1190,6 +1281,9 @@ async function startWorkflow() {
 
         // Reset workflow state
         resetWorkflowState();
+    } finally {
+        // Always reset the debouncing flag
+        isWorkflowStarting = false;
     }
 }
 
@@ -1199,7 +1293,7 @@ function startWorkflowPolling() {
     }
 
     // Use Server-Sent Events (SSE) for real-time updates
-    const sseUrl = `/api/v1/workflow/tasks/${workflowState.taskId}/stream`;
+    const sseUrl = `/api/v1/translations/${workflowState.taskId}/events`;
     console.log('🔗 Connecting to SSE endpoint:', sseUrl);
 
     workflowState.eventSource = new EventSource(sseUrl);
@@ -1215,46 +1309,142 @@ function startWorkflowPolling() {
         workflowState.sseReconnectAttempts = 0;
     };
 
+    // Handle connected event
+    workflowState.eventSource.addEventListener('connected', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📡 [Frontend] SSE connected:', data.message);
+        } catch (error) {
+            console.error('Error parsing connected event:', error);
+        }
+    });
+
+    // Handle status events (main progress updates)
     workflowState.eventSource.addEventListener('status', function(event) {
         try {
-            const task = JSON.parse(event.data);
-            console.log('📡 [Frontend] Received SSE status update:', task);
-            updateWorkflowUI(task);
+            const data = JSON.parse(event.data);
+            console.log('📊 [Frontend] Status update:', data.status, 'progress:', data.progress + '%', 'step:', data.current_step);
 
-            // Check if workflow is completed
-            if (task.status === 'completed') {
-                handleWorkflowCompletion(task);
-            } else if (task.status === 'failed') {
-                handleWorkflowFailure(task.error_message || 'Workflow failed');
+            // Update progress bar
+            updateWorkflowProgress(data.progress || 0);
+
+            // Update current step display
+            const currentStepEl = document.getElementById('workflow-current-step');
+            if (currentStepEl && data.current_step) {
+                currentStepEl.textContent = `Step ${getStepNumber(data.current_step)} of 3: ${data.current_step}`;
             }
+
+            // Update step indicators based on step_states
+            if (data.step_states) {
+                updateStepIndicatorsFromStates(data.step_states);
+            }
+
         } catch (error) {
-            console.error('Error parsing SSE data:', error);
+            console.error('Error parsing status event:', error);
         }
     });
 
-    // Handle step change events specifically
+    // Handle step_change events (step transitions)
     workflowState.eventSource.addEventListener('step_change', function(event) {
         try {
-            const task = JSON.parse(event.data);
-            console.log('🔄 [Frontend] Received SSE step change update:', task);
-            updateWorkflowUI(task, true); // true = highlight step change
+            const data = JSON.parse(event.data);
+            console.log('🔄 [Frontend] Step change to:', data.current_step, 'progress:', data.progress + '%');
 
-            // Check if workflow is completed
-            if (task.status === 'completed') {
-                handleWorkflowCompletion(task);
-            } else if (task.status === 'failed') {
-                handleWorkflowFailure(task.error_message || 'Workflow failed');
+            // Update current step display with emphasis
+            const currentStepEl = document.getElementById('workflow-current-step');
+            if (currentStepEl && data.current_step) {
+                currentStepEl.textContent = `Step ${getStepNumber(data.current_step)} of 3: ${data.current_step}`;
             }
+
+            // Update step indicators - prioritize step_states from backend
+            if (data.step_states && Object.keys(data.step_states).length > 0) {
+                console.log('🔧 [Frontend] Using step_states from backend:', data.step_states);
+                updateStepIndicatorsFromStates(data.step_states);
+            } else {
+                console.log('⚠️ [Frontend] No step_states provided, using current step only');
+                // Only update current step indicator, don't reset others
+                updateCurrentStepIndicator(data.current_step);
+            }
+
         } catch (error) {
-            console.error('Error parsing step change data:', error);
+            console.error('Error parsing step_change event:', error);
         }
     });
 
+    // Handle step start events
+    workflowState.eventSource.addEventListener('step_start', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('🔄 [Frontend] Step started:', data.message);
+
+            // Update UI with step progress
+            const currentStepEl = document.getElementById('workflow-current-step');
+            const stepDetailsEl = document.getElementById('workflow-step-details');
+
+            if (currentStepEl) {
+                currentStepEl.textContent = data.message;
+            }
+            if (stepDetailsEl) {
+                stepDetailsEl.textContent = `Step ${data.step} of 3`;
+            }
+
+            // Update progress bar
+            updateProgressFromStep(data.step, 'start');
+
+            // Update current step indicator only (minimal fallback)
+            const stepNames = ['', 'Initial Translation', 'Editor Review', 'Translator Revision'];
+            if (data.step >= 1 && data.step <= 3) {
+                updateCurrentStepIndicator(stepNames[data.step]);
+            }
+
+        } catch (error) {
+            console.error('Error parsing step_start event:', error);
+        }
+    });
+
+    // Handle step complete events
+    workflowState.eventSource.addEventListener('step_complete', function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('✅ [Frontend] Step completed:', data.message);
+
+            // Update UI with step progress
+            const currentStepEl = document.getElementById('workflow-current-step');
+            const stepDetailsEl = document.getElementById('workflow-step-details');
+
+            if (currentStepEl) {
+                currentStepEl.textContent = data.message;
+            }
+            if (stepDetailsEl) {
+                stepDetailsEl.textContent = `Step ${data.step} of 3 completed`;
+            }
+
+            // Update progress bar
+            updateProgressFromStep(data.step, 'complete');
+
+            // Update current step indicator - move to next step or mark as completed
+            const stepNames = ['', 'Initial Translation', 'Editor Review', 'Translator Revision'];
+            if (data.step >= 1 && data.step <= 3) {
+                if (data.step < 3) {
+                    // Move to next step (minimal update - don't override other steps)
+                    updateCurrentStepIndicator(stepNames[data.step + 1]);
+                } else {
+                    // Final step completed - mark all as completed
+                    updateAllStepsToCompleted();
+                }
+            }
+
+        } catch (error) {
+            console.error('Error parsing step_complete event:', error);
+        }
+    });
+
+    // Handle completion event
     workflowState.eventSource.addEventListener('completed', function(event) {
         try {
-            const task = JSON.parse(event.data);
-            console.log('🎉 [Frontend] Received completion event:', task);
-            handleWorkflowCompletion(task);
+            const data = JSON.parse(event.data);
+            console.log('🎉 [Frontend] Translation completed:', data.message);
+            handleWorkflowCompletion();
 
             // Mark SSE as complete to prevent reconnection attempts
             workflowState.sseCompleted = true;
@@ -1325,7 +1515,7 @@ function startWorkflowPolling() {
 
             setTimeout(() => {
                 if (workflowState.isRunning && !workflowState.sseCompleted) {
-                    startSSEStreaming();
+                    startWorkflowPolling();
                 }
             }, 2000 * workflowState.sseReconnectAttempts); // Exponential backoff
         } else {
@@ -1536,8 +1726,8 @@ function updateWorkflowUI(task, isStepChange = false) {
         if (task.step_states) {
             updateStepStates(task.step_states);
         } else {
-            // Fallback: Update step indicators based on current step only
-            updateStepIndicators(task.current_step);
+            // Fallback: Update current step indicator only (minimal update)
+            updateCurrentStepIndicator(task.current_step);
         }
     }
 }
@@ -1725,8 +1915,31 @@ function updateStepStates(stepStates) {
     });
 }
 
-function handleWorkflowCompletion(task) {
-    console.log('Workflow completed:', task);
+function updateProgressFromStep(step, action) {
+    const progressBar = document.getElementById('workflow-progress-bar');
+    const percentageText = document.getElementById('workflow-percentage');
+
+    if (!progressBar || !percentageText) {
+        return;
+    }
+
+    // Calculate progress based on step and action
+    let progress = 0;
+    if (action === 'start') {
+        progress = ((step - 1) * 33); // 0%, 33%, 66%
+    } else if (action === 'complete') {
+        progress = (step * 33); // 33%, 66%, 99%
+    }
+
+    // Update progress bar
+    progressBar.style.width = `${progress}%`;
+    percentageText.textContent = `${progress}%`;
+
+    console.log(`📊 [Frontend] Progress updated: ${progress}% (step ${step} ${action})`);
+}
+
+function handleWorkflowCompletion() {
+    console.log('Workflow completed successfully!');
 
     // Stop polling
     if (workflowState.pollInterval) {
@@ -1784,6 +1997,69 @@ function handleWorkflowCompletion(task) {
         // Show a success message that translation was added
         showSuccessMessage('Translation completed and added to the list!');
     }, 1000); // Reduced delay to 1 second for better UX
+}
+
+// Helper functions for SSE event handling
+function updateWorkflowProgress(progress) {
+    const progressBar = document.getElementById('workflow-progress-bar');
+    const percentageText = document.getElementById('workflow-percentage');
+
+    if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+    }
+    if (percentageText) {
+        percentageText.textContent = `${progress}%`;
+    }
+}
+
+function getStepNumber(stepName) {
+    const stepMap = {
+        'Initial Translation': 1,
+        'Editor Review': 2,
+        'Translator Revision': 3
+    };
+    return stepMap[stepName] || 0;
+}
+
+function updateStepIndicatorsFromStates(stepStates) {
+    // Use the existing updateStepStates function
+    updateStepStates(stepStates);
+}
+
+function updateCurrentStepIndicator(currentStepName) {
+    // Minimal fallback: only update the current step indicator without affecting other steps
+    const steps = [
+        { id: 'initial-translation', name: 'Initial Translation' },
+        { id: 'editor-review', name: 'Editor Review' },
+        { id: 'translator-revision', name: 'Translator Revision' }
+    ];
+
+    const currentStep = steps.find(step => step.name === currentStepName);
+    if (!currentStep) {
+        console.warn(`[Frontend] Unknown step name: ${currentStepName}`);
+        return;
+    }
+
+    const indicator = document.getElementById(`${currentStep.id}-indicator`);
+    const status = document.getElementById(`${currentStep.id}-status`);
+
+    if (!indicator || !status) {
+        console.warn(`[Frontend] Step indicators not found for: ${currentStep.id}`);
+        return;
+    }
+
+    // Only update the current step - don't touch other steps to preserve their states
+    const indicatorDiv = indicator.querySelector('div');
+    const indicatorSpan = indicator.querySelector('span');
+    const stepIndex = steps.indexOf(currentStep) + 1;
+
+    indicatorDiv.className = 'w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center animate-pulse';
+    indicatorSpan.className = 'text-sm font-medium text-white';
+    indicatorSpan.textContent = '⚡';
+    status.textContent = 'In Progress';
+    status.className = 'text-xs text-blue-600 font-medium';
+
+    console.log(`[Frontend] Updated current step indicator: ${currentStepName} (${currentStep.id})`);
 }
 
 function handleWorkflowFailure(errorMessage) {
@@ -1895,6 +2171,61 @@ async function retryWorkflow() {
 function resetWorkflow() {
     resetWorkflowUI();
     resetWorkflowState();
+}
+
+async function checkTranslationCompletion() {
+    try {
+        console.log('🔍 [Frontend] Checking for translation completion...');
+
+        // Get poem ID from the current page
+        const poemId = '{{ poem.id }}';
+        const targetLang = '{{ target_language }}'; // This might need to be adjusted
+
+        // Fetch translations for this poem
+        const response = await fetch(`/api/v1/translations/?poem_id=${poemId}&target_language=${targetLang}`);
+        const responseData = await response.json();
+        const translations = responseData.translations || [];
+
+        // Check if we have any complete translations (not placeholder text)
+        const completeTranslations = translations.filter(t =>
+            t.translated_text &&
+            t.translated_text !== '[Translation in progress...]' &&
+            t.translated_text.length > 50 // Assume real translations are longer
+        );
+
+        if (completeTranslations.length > 0) {
+            console.log('✅ [Frontend] Translation completed successfully!');
+            console.log('📄 Found complete translation:', completeTranslations[0]);
+
+            // Reload the page to show the new translation
+            window.location.reload();
+        } else {
+            console.log('⏳ [Frontend] Translation still in progress, checking again in 2 seconds...');
+            // Check again after 2 seconds
+            setTimeout(checkTranslationCompletion, 2000);
+        }
+
+    } catch (error) {
+        console.error('❌ [Frontend] Error checking translation completion:', error);
+
+        // Show error to user
+        const errorSection = document.getElementById('workflow-error');
+        if (errorSection) {
+            errorSection.classList.remove('hidden');
+            const errorMessage = errorSection.querySelector('span');
+            if (errorMessage) {
+                errorMessage.textContent = 'Failed to check translation status. Please refresh the page manually.';
+            }
+        }
+
+        // Reset button state
+        const startBtn = document.getElementById('start-workflow-btn');
+        const btnText = document.getElementById('workflow-btn-text');
+        if (startBtn && btnText) {
+            startBtn.disabled = false;
+            btnText.textContent = 'Start Translation';
+        }
+    }
 }
 
 function resetWorkflowUI() {

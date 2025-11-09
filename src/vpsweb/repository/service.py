@@ -301,6 +301,8 @@ class RepositoryWebService:
             translator_info=translation.translator_info,
             target_language=translation.target_language,
             translated_text=translation.translated_text,
+            translated_poem_title=translation.translated_poem_title,
+            translated_poet_name=translation.translated_poet_name,
             quality_rating=translation.quality_rating,
             raw_path=translation.raw_path,
             created_at=translation.created_at,

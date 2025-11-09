@@ -20,6 +20,13 @@ class Language(str, Enum):
     POLISH = "Polish"
 
 
+LANGUAGE_CODE_MAP = {
+    "en": Language.ENGLISH,
+    "zh-CN": Language.CHINESE,
+    "pl": Language.POLISH,
+}
+
+
 class TranslationInput(BaseModel):
     """Input for translation workflow, matching vpts.yml specification."""
 

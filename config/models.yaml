@@ -74,6 +74,10 @@ pricing:
     deepseek-chat:
       input: 0.002      # ¥0.002 per 1K input tokens
       output: 0.003     # ¥0.003 per 1K output tokens
+  siliconflow:
+    deepseek-ai/DeepSeek-V3.2-Exp:
+      input: 0.002      # ¥0.002 per 1K input tokens
+      output: 0.003     # ¥0.003 per 1K output tokens
 
 # WeChat Translation Notes LLM Configuration
 wechat_translation_notes:

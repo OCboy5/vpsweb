@@ -92,7 +92,7 @@ class TranslationFormCreate(WebUIBase):
         return v
 
 
-class TranslationFormRequest(WebUIBase):
+class TranslationRequest(WebUIBase):
     """Schema for translation workflow request from form"""
 
     poem_id: str = Field(..., description="ID of the poem to translate")

@@ -17,12 +17,12 @@ from fastapi import (
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-from src.vpsweb.repository.database import get_db
-from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.models import Translation, TranslationWorkflowStep
+from vpsweb.repository.database import get_db
+from vpsweb.repository.crud import RepositoryService
+from vpsweb.repository.models import Translation, TranslationWorkflowStep
 from ..schemas import WebAPIResponse
 from ..utils.wechat_article_runner import WeChatArticleRunner
-from ..services.vpsweb_adapter import VPSWebWorkflowAdapter
+from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
 
 import json
 import tempfile
@@ -53,19 +53,26 @@ class WeChatArticleResponse(BaseModel):
     data: Optional[Dict[str, Any]] = None
 
 
-def get_vpsweb_adapter(db: Session = Depends(get_db)) -> VPSWebWorkflowAdapter:
+def get_vpsweb_adapter(db: Session = Depends(get_db)) -> VPSWebWorkflowAdapterV2:
     """Dependency to get VPSWeb workflow adapter instance"""
     from ..services.poem_service import PoemService
-    from ..services.vpsweb_adapter import VPSWebWorkflowAdapter
-    from src.vpsweb.repository.service import RepositoryWebService
+    from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
+    from vpsweb.repository.service import RepositoryWebService
+    from vpsweb.core.workflow_orchestrator import WorkflowOrchestratorV2
+    from vpsweb.core.container import DIContainer
 
     poem_service = PoemService(db)
     repository_service = RepositoryWebService(db)
 
-    return VPSWebWorkflowAdapter(
+    # Create workflow orchestrator for the adapter
+    container = DIContainer()
+    workflow_orchestrator = WorkflowOrchestratorV2(container=container)
+
+    return VPSWebWorkflowAdapterV2(
         poem_service=poem_service,
         repository_service=repository_service,
-        config_path=None,  # Use default config path
+        workflow_orchestrator=workflow_orchestrator,
+        config_service=None  # Use default config service
     )
 
 
@@ -78,7 +85,7 @@ async def generate_wechat_article(
     request: Request,
     db: Session = Depends(get_db),
     service: RepositoryService = Depends(get_repository_service),
-    adapter: VPSWebWorkflowAdapter = Depends(get_vpsweb_adapter),
+    adapter: VPSWebWorkflowAdapterV2= Depends(get_vpsweb_adapter),
 ):
     """
     Generate a WeChat article from translation workflow data.

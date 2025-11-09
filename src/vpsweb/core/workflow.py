@@ -14,7 +14,7 @@ from datetime import datetime
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService
 from ..core.executor import StepExecutor
-from ..models.config import WorkflowConfig, WorkflowMode
+from ..models.config import WorkflowConfig, WorkflowMode, ProvidersConfig
 from ..models.translation import (
     TranslationInput,
     InitialTranslation,
@@ -59,8 +59,10 @@ class TranslationWorkflow:
     def __init__(
         self,
         config: WorkflowConfig,
-        providers_config,
-        workflow_mode: WorkflowMode = WorkflowMode.HYBRID,
+        providers_config: ProvidersConfig,
+        workflow_mode: WorkflowMode,
+        task_service: Optional[Any] = None,
+        task_id: Optional[str] = None,
         system_config: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -73,6 +75,7 @@ class TranslationWorkflow:
             system_config: System configuration with preview lengths and other settings
         """
         self.config = config
+        self.providers_config = providers_config
         self.workflow_mode = workflow_mode
         self.system_config = system_config or {}
 
@@ -87,11 +90,18 @@ class TranslationWorkflow:
         ] = None
 
         # Get the appropriate workflow steps for the mode
-        self.workflow_steps = config.get_workflow_steps(workflow_mode)
+        self.workflow_steps = self.config.get_workflow_steps(workflow_mode)
+        self.progress_tracker = ProgressTracker(list(self.workflow_steps.keys()))
+        self._cancelled = False
+        self.task_service = task_service
+        self.task_id = task_id
 
         logger.info(f"Initialized TranslationWorkflow: {config.name} v{config.version}")
         logger.info(f"Workflow mode: {workflow_mode.value}")
         logger.info(f"Available steps: {list(self.workflow_steps.keys())}")
+
+    def cancel(self):
+        self._cancelled = True
 
     async def execute(
         self, input_data: TranslationInput, show_progress: bool = True
@@ -113,19 +123,19 @@ class TranslationWorkflow:
         start_time = time.time()
         log_entries = []
 
+        logger.debug(f"Executing TranslationWorkflow with workflow_id: {workflow_id}")
         logger.info(f"Starting translation workflow {workflow_id}")
         logger.info(f"Translation: {input_data.source_lang} → {input_data.target_lang}")
         logger.info(f"Poem length: {len(input_data.original_poem)} characters")
 
         # Initialize progress tracker
-        progress_tracker: Optional[ProgressTracker] = None
         if show_progress:
-            progress_tracker = ProgressTracker(
-                ["initial_translation", "editor_review", "translator_revision"]
-            )
+            progress_tracker = self.progress_tracker
+
+        if self._cancelled:
+            return
 
         try:
-            # Step 1: Initial Translation
             log_entries.append(
                 f"=== STEP 1: INITIAL TRANSLATION ({self.workflow_mode.value.upper()} MODE) ==="
             )
@@ -145,6 +155,7 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
+                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
                 }
                 progress_tracker.start_step("initial_translation", model_info)
 
@@ -152,12 +163,14 @@ class TranslationWorkflow:
             if self.progress_callback:
                 await self.progress_callback(
                     "Initial Translation",
-                    {"status": "started", "message": "Starting initial translation..."},
+                    {"status": "running", "message": "Starting initial translation..."},
                 )
 
+            logger.debug("Calling _initial_translation")
             step_start_time = time.time()
             initial_translation = await self._initial_translation(input_data)
             step_duration = time.time() - step_start_time
+            logger.debug(f"_initial_translation completed in {step_duration:.2f}s")
             initial_translation.duration = step_duration
 
             # Calculate cost for this step
@@ -215,7 +228,11 @@ class TranslationWorkflow:
                     },
                 )
 
+            if self._cancelled:
+                return
+
             # Step 2: Editor Review
+
             log_entries.append(
                 f"\n=== STEP 2: EDITOR REVIEW ({self.workflow_mode.value.upper()} MODE) ==="
             )
@@ -230,6 +247,7 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
+                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
                 }
                 progress_tracker.start_step("editor_review", model_info)
 
@@ -237,12 +255,14 @@ class TranslationWorkflow:
             if self.progress_callback:
                 await self.progress_callback(
                     "Editor Review",
-                    {"status": "started", "message": "Starting editor review..."},
+                    {"status": "running", "message": "Starting editor review..."},
                 )
 
+            logger.debug("Calling _editor_review")
             step_start_time = time.time()
             editor_review = await self._editor_review(input_data, initial_translation)
             step_duration = time.time() - step_start_time
+            logger.debug(f"_editor_review completed in {step_duration:.2f}s")
             editor_review.duration = step_duration
 
             # Calculate cost for this step
@@ -253,6 +273,9 @@ class TranslationWorkflow:
             editor_review.cost = self._calculate_step_cost(
                 step_config.provider, step_config.model, input_tokens, output_tokens
             )
+            logger.debug(f"Editor Review - Provider: {step_config.provider}, Model: {step_config.model}")
+            logger.debug(f"Editor Review - Input Tokens: {input_tokens}, Output Tokens: {output_tokens}")
+            logger.debug(f"Editor Review - Calculated Cost: {editor_review.cost}")
             logger.info(f"Editor review step completed successfully")
             log_entries.append(
                 f"Editor review completed: {editor_review.tokens_used} tokens"
@@ -300,7 +323,11 @@ class TranslationWorkflow:
                     },
                 )
 
+            if self._cancelled:
+                return
+
             # Step 3: Translator Revision
+
             log_entries.append(
                 f"\n=== STEP 3: TRANSLATOR REVISION ({self.workflow_mode.value.upper()} MODE) ==="
             )
@@ -311,6 +338,7 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
+                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
                 }
                 progress_tracker.start_step("translator_revision", model_info)
 
@@ -318,14 +346,19 @@ class TranslationWorkflow:
             if self.progress_callback:
                 await self.progress_callback(
                     "Translator Revision",
-                    {"status": "started", "message": "Starting translator revision..."},
+                    {"status": "running", "message": "Starting translator revision..."},
                 )
 
+            logger.debug("Calling _translator_revision")
             step_start_time = time.time()
             revised_translation = await self._translator_revision(
                 input_data, initial_translation, editor_review
             )
+
+            if self._cancelled:
+                return
             step_duration = time.time() - step_start_time
+            logger.debug(f"_translator_revision completed in {step_duration:.2f}s")
             revised_translation.duration = step_duration
 
             # Calculate cost for this step
@@ -556,10 +589,13 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
+                    "is_reasoning": str(self.providers_config.is_reasoning_model(step_config.model)),
                 },
                 tokens_used=usage.get("tokens_used", 0),
                 prompt_tokens=usage.get("prompt_tokens"),
                 completion_tokens=usage.get("completion_tokens"),
+                duration=result.get("duration"),
+                cost=result.get("cost"),
             )
 
         except Exception as e:
