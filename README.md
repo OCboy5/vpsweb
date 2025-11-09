@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.11-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.3.11)
+[![Version](https://img.shields.io/badge/Version-0.4.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.4.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -13,7 +13,13 @@
 
 ## 🏗️ Architecture & Quality
 
-VPSWeb v0.3.3 represents a **gold-standard implementation** with professional-grade architecture and comprehensive quality assurance:
+VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive dependency injection and professional-grade architecture:
+
+### **Phase-3 Dependency Injection Architecture** (v0.4.0)
+- **🏗️ Complete DI Container**: Full dependency injection container system with service interfaces
+- **🔄 Workflow Orchestrator**: Refactored workflow orchestration with clean service abstractions
+- **🎯 Modular Service Design**: Enhanced separation of concerns across all application layers
+- **🧪 Enhanced Testing Infrastructure**: Comprehensive testing support with dependency injection
 
 ### **System Architecture**
 - **🎯 Modular FastAPI Monolith**: Clean separation between repository/ (data layer) and webui/ (interface layer)
@@ -34,21 +40,27 @@ VPSWeb v0.3.3 represents a **gold-standard implementation** with professional-gr
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.3.10 - ENHANCED TRANSLATION UI & TRANSLATOR ATTRIBUTION**
+## 🎯 Current Status: **v0.4.0 - MAJOR PHASE-3 DEPENDENCY INJECTION RELEASE**
 
-🗃️ **Async Database Support**: New async database layer with AsyncSQLiteDatabase for improved performance
-🚀 **Alembic Migration Integration**: Complete migration system with automatic rollback support
-📝 **Enhanced Poet Management**: Comprehensive poet model with file organization and metadata tracking
-🌐 **Complete Web Interface**: Full-featured FastAPI web application with responsive design and Tailwind CSS
-📊 **Repository Database System**: 4-table schema with 15+ REST endpoints and comprehensive CRUD operations
-🔄 **Workflow Integration**: Seamless integration with existing VPSWeb translation and WeChat workflows
-🚀 **Production Ready**: Enterprise-grade backup system, automated setup, and comprehensive testing
-📈 **High Performance**: <200ms API response times with modern SQLAlchemy 2.0 and async support
-🎨 **Modern UI/UX**: Dashboard with real-time statistics, poem management, and translation comparison
-🛠️ **Developer Experience**: One-command environment setup and comprehensive documentation
-✅ **Backward Compatible**: All existing CLI functionality preserved and enhanced
-📋 **Quality Assured**: 100% test coverage with 5 critical bugs resolved during QA
-🔧 **Pydantic V2**: Complete migration with modern validation patterns and field validators
+🏗️ **Phase-3 Architecture**: Complete dependency injection container system with service interfaces
+🔄 **Workflow Orchestrator**: Refactored workflow orchestration with clean service abstractions
+🎯 **Enhanced Modularity**: Improved separation of concerns across all application layers
+📊 **CLI Refactoring**: Complete CLI system refactoring with dependency injection support
+🌐 **WebUI Enhancements**: Improved API structure and user experience with DI
+🧪 **Testing Infrastructure**: Comprehensive testing support with dependency injection
+📈 **Performance Gains**: Optimized execution and resource management
+🛠️ **Developer Experience**: Enhanced development workflow and tooling
+🚀 **Production Ready**: Enterprise-grade stability with new architecture
+✅ **Backward Compatible**: All existing functionality preserved with enhanced architecture
+📋 **Quality Assured**: Zero-conflict merge process with comprehensive validation
+🔧 **Modern Standards**: Complete adherence to modern Python best practices
+
+### **Previous v0.3.x Features**
+🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0
+🌐 **Complete Web Interface**: FastAPI web application with responsive design
+📊 **Repository Database**: 4-table schema with 15+ REST endpoints
+🔄 **Workflow Integration**: Seamless integration with translation workflows
+🎨 **Modern UI/UX**: Dashboard with real-time statistics and management
 
 ## ✨ Features
 
@@ -97,7 +109,7 @@ VPSWeb v0.3.3 represents a **gold-standard implementation** with professional-gr
 
 ## 🚀 Quick Start
 
-VPSWeb v0.3.3 features a **one-command automated setup** that configures the entire development environment in minutes.
+VPSWeb v0.4.0 features a **one-command automated setup** that configures the entire development environment with the new dependency injection architecture in minutes.
 
 ### Automated Setup (Recommended)
 
@@ -343,24 +355,46 @@ LOG_FILE="vpsweb.log"
 
 ## 🏗️ Architecture
 
-VPSWeb follows a clean, modular architecture:
+VPSWeb follows a clean, modular architecture with comprehensive dependency injection:
 
 ```
 src/vpsweb/
-├── core/           # Workflow orchestration
-│   ├── workflow.py # Main workflow orchestrator
-│   └── executor.py # Step execution engine
-├── models/         # Data models (Pydantic)
-│   ├── translation.py # Translation workflow models
-│   └── config.py   # Configuration models
-├── services/       # External service integrations
-│   ├── llm/        # LLM provider abstractions
-│   ├── parser.py   # XML output parsing
-│   └── prompts.py  # Prompt management
-└── utils/          # Utilities
-    ├── logger.py   # Logging configuration
-    ├── storage.py  # File operations
-    └── config_loader.py # Configuration loading
+├── core/                    # Workflow orchestration & DI
+│   ├── workflow.py          # Main workflow orchestrator
+│   ├── workflow_orchestrator.py # Enhanced orchestrator with DI
+│   ├── container.py         # Dependency injection container
+│   └── interfaces.py        # Service interface definitions
+├── models/                  # Data models (Pydantic)
+│   ├── translation.py       # Translation workflow models
+│   └── config.py           # Configuration models
+├── services/                # External service integrations
+│   ├── llm/               # LLM provider abstractions
+│   │   ├── base.py        # Base provider interface
+│   │   ├── factory.py     # Provider factory
+│   │   └── openai_compatible.py  # OpenAI-compatible provider
+│   ├── parser.py          # XML output parsing
+│   └── prompts.py         # Prompt management
+├── cli/                     # Command-line interface with DI
+│   ├── main.py            # CLI entry point
+│   ├── services.py        # CLI service implementations
+│   └── interfaces.py      # CLI service interfaces
+├── webui/                   # FastAPI web application
+│   ├── main.py             # FastAPI app entry point with DI
+│   ├── container.py        # WebUI DI container
+│   ├── services/           # WebUI service layer
+│   │   ├── services.py     # Service implementations
+│   │   ├── interfaces.py  # Service interfaces
+│   │   └── vpsweb_adapter.py # VPSWeb adapter
+│   └── api/                # REST API routers
+├── repository/              # Database layer and services
+│   ├── database.py         # SQLAlchemy async database setup
+│   ├── models.py           # Database ORM models
+│   └── service.py          # Repository business logic
+└── utils/                   # Utilities
+    ├── logger.py           # Logging configuration
+    ├── storage.py          # File operations
+    ├── config_loader.py    # Configuration loading
+    └── tools_phase3a.py    # Phase-3 utilities
 ```
 
 ## 🔧 Development
