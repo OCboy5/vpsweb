@@ -57,15 +57,6 @@ Please check with me if there's anything unclear to you.
 
 
 
-
-
-微信公众号
-Appid: wxf92f7edea2893dfc
-Appsecret: 8db8f2224fe70e75eb9e12bb83569819
-公众号密码：Uv_36fihG38BagT
-access_token: 
-
-
 Commands:
 
 # Phase 1: Repository Core
