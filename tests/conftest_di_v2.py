@@ -69,7 +69,7 @@ def di_container() -> Generator[DIContainer, None, None]:
         yield container
     finally:
         # Cleanup container resources
-        if hasattr(container, 'cleanup'):
+        if hasattr(container, "cleanup"):
             container.cleanup()
 
 
@@ -122,7 +122,7 @@ def sample_workflow_config():
                 timeout=30,
                 retry_attempts=3,
             )
-        ]
+        ],
     )
 
 
@@ -155,8 +155,8 @@ def enhanced_translation_input():
             "publication_year": "1916",
             "theme": "nature",
             "form": "free verse",
-            "mood": "contemplative"
-        }
+            "mood": "contemplative",
+        },
     )
 
 
@@ -192,6 +192,7 @@ def async_test_db():
         await engine.dispose()
         # Remove temporary directory
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
@@ -215,7 +216,7 @@ class TestDataFactory:
             "original_poem": "The fog comes on little cat feet.",
             "source_lang": "English",
             "target_lang": "Chinese",
-            "metadata": {}
+            "metadata": {},
         }
         defaults.update(overrides)
         return TranslationInput(**defaults)
@@ -229,7 +230,7 @@ class TestDataFactory:
             "translated_poet_name": "卡尔·桑德堡",
             "tokens_used": 150,
             "execution_time_seconds": 2.5,
-            "quality_rating": 9.0
+            "quality_rating": 9.0,
         }
         defaults.update(overrides)
         return InitialTranslation(**defaults)
@@ -239,11 +240,11 @@ class TestDataFactory:
         defaults = {
             "editor_suggestions": [
                 "Consider adding more descriptive imagery",
-                "Review the rhyme scheme"
+                "Review the rhyme scheme",
             ],
             "initial_translation_with_notes": "雾来了，悄无声息（翻译笔记）",
             "overall_assessment": "Good translation but needs refinement",
-            "quality_rating": 7.5
+            "quality_rating": 7.5,
         }
         defaults.update(overrides)
         return EditorReview(**defaults)
@@ -257,8 +258,8 @@ class TestDataFactory:
             "changes_made": [
                 "Enhanced imagery with cat imagery",
                 "Improved natural flow and rhythm",
-                "Better preserved poetic form"
-            ]
+                "Better preserved poetic form",
+            ],
         }
         defaults.update(overrides)
         return RevisedTranslation(**defaults)
@@ -275,7 +276,7 @@ class TestDataFactory:
                     model="gpt-4",
                     prompt_template="templates/test.xml",
                 )
-            ]
+            ],
         }
         defaults.update(overrides)
         return WorkflowConfig(**defaults)
@@ -347,13 +348,13 @@ class TestConfigService:
                 "max_retries": 3,
                 "timeout": 30,
                 "temperature": 0.7,
-                "max_tokens": 1000
+                "max_tokens": 1000,
             },
             "testing": {
                 "assertions_enabled": True,
                 "mock_external_services": True,
-                "performance_monitoring": False
-            }
+                "performance_monitoring": False,
+            },
         }
 
     def get_test_config(self, name: str) -> Dict[str, Any]:
@@ -372,13 +373,13 @@ class TestConfigService:
                 "max_retries": 3,
                 "timeout": 30,
                 "temperature": 0.7,
-                "max_tokens": 1000
+                "max_tokens": 1000,
             },
             "testing": {
                 "assertions_enabled": True,
                 "mock_external_services": True,
-                "performance_monitoring": False
-            }
+                "performance_monitoring": False,
+            },
         }
 
 
@@ -399,18 +400,19 @@ class PerformanceMonitor:
     def start_timer(self, name: str):
         """Start timing measurement."""
         import time
+
         self.start_time = time.time()
         self.metrics[name] = {"start_time": self.start_time}
 
     def end_timer(self, name: str):
         """End timing measurement."""
         import time
+
         if name in self.metrics and self.start_time:
             end_time = time.time()
-            self.metrics[name].update({
-                "end_time": end_time,
-                "duration": end_time - self.start_time
-            })
+            self.metrics[name].update(
+                {"end_time": end_time, "duration": end_time - self.start_time}
+            )
             del self.start_time
 
     def get_duration(self, name: str) -> float:
@@ -465,10 +467,7 @@ class ErrorSimulator:
 
     def add_scenario(self, name: str, error_type: type, message: str):
         """Add an error scenario for simulation."""
-        self.error_scenarios[name] = {
-            "type": error_type,
-            "message": message
-        }
+        self.error_scenarios[name] = {"type": error_type, "message": message}
 
     def simulate_error(self, scenario_name: str):
         """Simulate an error scenario."""
@@ -493,12 +492,11 @@ class AsyncTestHelpers:
 
     @staticmethod
     async def wait_for_condition(
-        condition_check: callable,
-        timeout: float = 5.0,
-        interval: float = 0.1
+        condition_check: callable, timeout: float = 5.0, interval: float = 0.1
     ) -> bool:
         """Wait for a condition to become true."""
         import time
+
         start_time = time.time()
 
         while time.time() - start_time < timeout:
@@ -509,11 +507,7 @@ class AsyncTestHelpers:
         return False
 
     @staticmethod
-    async def assert_async_result(
-        async_func,
-        expected_result,
-        timeout: float = 5.0
-    ):
+    async def assert_async_result(async_func, expected_result, timeout: float = 5.0):
         """Assert that an async function returns the expected result."""
         result = await asyncio.wait_for(async_func(), timeout=timeout)
         assert result == expected_result, f"Expected {expected_result}, got {result}"
@@ -534,10 +528,7 @@ class ResourceManager:
 
     def add_resource(self, resource, cleanup_func=None):
         """Add a resource to be managed."""
-        self.resources.append({
-            "resource": resource,
-            "cleanup_func": cleanup_func
-        })
+        self.resources.append({"resource": resource, "cleanup_func": cleanup_func})
 
     def cleanup_all(self):
         """Cleanup all managed resources."""

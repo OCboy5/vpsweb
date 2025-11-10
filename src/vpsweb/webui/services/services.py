@@ -44,7 +44,7 @@ class PoemServiceV2(IPoemServiceV2):
         self,
         repository_service: RepositoryWebService,
         performance_service: Optional[IPerformanceServiceV2] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         self.repository_service = repository_service
         self.performance_service = performance_service
@@ -56,7 +56,7 @@ class PoemServiceV2(IPoemServiceV2):
         skip: int = 0,
         limit: int = 100,
         search: Optional[str] = None,
-        language: Optional[str] = None
+        language: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of poems with filtering options."""
         start_time = time.time()
@@ -68,7 +68,7 @@ class PoemServiceV2(IPoemServiceV2):
                 limit=limit,
                 poet_name=None,
                 language=language,
-                title_search=search
+                title_search=search,
             )
 
             # Get total count for pagination
@@ -81,12 +81,9 @@ class PoemServiceV2(IPoemServiceV2):
                     "skip": skip,
                     "limit": limit,
                     "has_next": skip + limit < total_count,
-                    "has_prev": skip > 0
+                    "has_prev": skip > 0,
                 },
-                "filters": {
-                    "search": search,
-                    "language": language
-                }
+                "filters": {"search": search, "language": language},
             }
 
             # Log performance
@@ -96,16 +93,24 @@ class PoemServiceV2(IPoemServiceV2):
                     "poems",
                     200,
                     (time.time() - start_time) * 1000,
-                    {"total_count": total_count, "returned_count": len(poems)}
+                    {"total_count": total_count, "returned_count": len(poems)},
                 )
 
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "operation": "get_poem_list",
-                "parameters": {"skip": skip, "limit": limit, "search": search, "language": language}
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "operation": "get_poem_list",
+                    "parameters": {
+                        "skip": skip,
+                        "limit": limit,
+                        "search": search,
+                        "language": language,
+                    },
+                },
+            )
             self.logger.error(f"Error getting poem list: {e}")
             raise
 
@@ -118,13 +123,19 @@ class PoemServiceV2(IPoemServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get translations for this poem
-            translations = self.repository_service.repo.translations.get_by_poem(poem_id)
+            translations = self.repository_service.repo.translations.get_by_poem(
+                poem_id
+            )
 
             result = {
                 "poem": poem,
                 "translations": translations,
                 "translation_count": len(translations),
-                "last_updated": max([t.created_at for t in translations] + [poem.created_at]) if translations else poem.created_at
+                "last_updated": (
+                    max([t.created_at for t in translations] + [poem.created_at])
+                    if translations
+                    else poem.created_at
+                ),
             }
 
             return result
@@ -185,7 +196,7 @@ class PoemServiceV2(IPoemServiceV2):
             result = {
                 "success": True,
                 "poem": poem,
-                "message": "Poem created successfully"
+                "message": "Poem created successfully",
             }
 
             return result
@@ -195,7 +206,9 @@ class PoemServiceV2(IPoemServiceV2):
             self.logger.error(f"Error creating poem: {e}")
             raise
 
-    async def update_poem(self, poem_id: str, poem_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def update_poem(
+        self, poem_id: str, poem_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Update an existing poem."""
         try:
             # Check if poem exists
@@ -209,13 +222,15 @@ class PoemServiceV2(IPoemServiceV2):
             result = {
                 "success": True,
                 "poem": updated_poem,
-                "message": "Poem updated successfully"
+                "message": "Poem updated successfully",
             }
 
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {"poem_id": poem_id, "poem_data": poem_data})
+            self.error_collector.add_error(
+                e, {"poem_id": poem_id, "poem_data": poem_data}
+            )
             self.logger.error(f"Error updating poem: {e}")
             raise
 
@@ -246,7 +261,9 @@ class PoemServiceV2(IPoemServiceV2):
         """Get overall poem statistics."""
         try:
             total_poems = self.repository_service.repo.poems.count()
-            recent_poems = self.repository_service.repo.poems.get_multi(skip=0, limit=10)
+            recent_poems = self.repository_service.repo.poems.get_multi(
+                skip=0, limit=10
+            )
 
             # Calculate statistics
             stats = {
@@ -272,7 +289,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         self,
         repository_service: RepositoryWebService,
         performance_service: Optional[IPerformanceServiceV2] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         self.repository_service = repository_service
         self.performance_service = performance_service
@@ -285,7 +302,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         limit: int = 100,
         poem_id: Optional[str] = None,
         source_lang: Optional[str] = None,
-        target_lang: Optional[str] = None
+        target_lang: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of translations with filtering."""
         try:
@@ -294,13 +311,11 @@ class TranslationServiceV2(ITranslationServiceV2):
                 limit=limit,
                 poem_id=poem_id,
                 source_lang=source_lang,
-                target_lang=target_lang
+                target_lang=target_lang,
             )
 
             total_count = self.repository_service.repo.translations.count(
-                poem_id=poem_id,
-                source_lang=source_lang,
-                target_lang=target_lang
+                poem_id=poem_id, source_lang=source_lang, target_lang=target_lang
             )
 
             result = {
@@ -310,29 +325,38 @@ class TranslationServiceV2(ITranslationServiceV2):
                     "skip": skip,
                     "limit": limit,
                     "has_next": skip + limit < total_count,
-                    "has_prev": skip > 0
+                    "has_prev": skip > 0,
                 },
                 "filters": {
                     "poem_id": poem_id,
                     "source_lang": source_lang,
-                    "target_lang": target_lang
-                }
+                    "target_lang": target_lang,
+                },
             }
 
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "operation": "get_translation_list",
-                "filters": {"poem_id": poem_id, "source_lang": source_lang, "target_lang": target_lang}
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "operation": "get_translation_list",
+                    "filters": {
+                        "poem_id": poem_id,
+                        "source_lang": source_lang,
+                        "target_lang": target_lang,
+                    },
+                },
+            )
             self.logger.error(f"Error getting translation list: {e}")
             raise
 
     async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
         try:
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -345,8 +369,8 @@ class TranslationServiceV2(ITranslationServiceV2):
                 "metadata": {
                     "has_workflow_steps": translation.has_workflow_steps,
                     "translation_type": translation.translator_type,
-                    "quality_rating": translation.quality_rating
-                }
+                    "quality_rating": translation.quality_rating,
+                },
             }
 
             return result
@@ -361,20 +385,21 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would implement comparison logic
             # For now, return basic data
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
             # Get other translations of the same poem for comparison
             other_translations = self.repository_service.repo.translations.get_by_poem(
-                translation.poem_id,
-                exclude_id=translation_id
+                translation.poem_id, exclude_id=translation_id
             )
 
             result = {
                 "translation": translation,
                 "other_translations": other_translations,
-                "comparison_count": len(other_translations)
+                "comparison_count": len(other_translations),
             }
 
             return result
@@ -384,7 +409,9 @@ class TranslationServiceV2(ITranslationServiceV2):
             self.logger.error(f"Error getting translation comparison: {e}")
             raise
 
-    async def create_translation(self, translation_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_translation(
+        self, translation_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Create a new translation with validation."""
         try:
             # Validate required fields
@@ -394,17 +421,21 @@ class TranslationServiceV2(ITranslationServiceV2):
                 raise ValueError("Translated content is required")
 
             # Check if poem exists
-            poem = self.repository_service.repo.poems.get_by_id(translation_data["poem_id"])
+            poem = self.repository_service.repo.poems.get_by_id(
+                translation_data["poem_id"]
+            )
             if not poem:
                 raise ValueError(f"Poem not found: {translation_data['poem_id']}")
 
             # Create translation
-            translation = self.repository_service.repo.translations.create(translation_data)
+            translation = self.repository_service.repo.translations.create(
+                translation_data
+            )
 
             result = {
                 "success": True,
                 "translation": translation,
-                "message": "Translation created successfully"
+                "message": "Translation created successfully",
             }
 
             return result
@@ -428,14 +459,16 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would integrate with the workflow orchestrator
             # For now, return placeholder data
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
             result = {
                 "translation_id": translation_id,
                 "has_workflow": translation.has_workflow_steps,
-                "summary": "Workflow data not yet implemented"
+                "summary": "Workflow data not yet implemented",
             }
 
             return result
@@ -449,11 +482,36 @@ class TranslationServiceV2(ITranslationServiceV2):
         """Get detailed workflow steps for a translation."""
         try:
             # Get workflow steps from repository service
-            workflow_steps = self.repository_service.repo.workflow_steps.get_by_translation(translation_id)
+            workflow_steps = (
+                self.repository_service.repo.workflow_steps.get_by_translation(
+                    translation_id
+                )
+            )
 
             # Convert to dictionary format for template consumption
             steps_data = []
+
+            # Get workflow mode from the first AI log (since it's the same for all steps)
+            workflow_mode = "Unknown"
+            if (
+                workflow_steps
+                and workflow_steps[0].ai_log
+                and hasattr(workflow_steps[0].ai_log, "workflow_mode")
+            ):
+                workflow_mode = workflow_steps[0].ai_log.workflow_mode
+
             for step in workflow_steps:
+                # Get model name from model_info JSON (this contains the correct model for each step)
+                model_name = "Unknown"
+                if step.model_info:
+                    try:
+                        import json
+
+                        model_info_dict = json.loads(step.model_info)
+                        model_name = model_info_dict.get("model", "Unknown")
+                    except (json.JSONDecodeError, AttributeError):
+                        model_name = "Unknown"
+
                 step_data = {
                     "id": step.id,
                     "translation_id": step.translation_id,
@@ -464,6 +522,8 @@ class TranslationServiceV2(ITranslationServiceV2):
                     "content": step.content,
                     "notes": step.notes,
                     "model_info": step.model_info,
+                    "model_name": model_name,
+                    "workflow_mode": workflow_mode,
                     "tokens_used": step.tokens_used,
                     "prompt_tokens": step.prompt_tokens,
                     "completion_tokens": step.completion_tokens,
@@ -473,7 +533,9 @@ class TranslationServiceV2(ITranslationServiceV2):
                     "translated_title": step.translated_title,
                     "translated_poet_name": step.translated_poet_name,
                     "timestamp": step.timestamp.isoformat() if step.timestamp else None,
-                    "created_at": step.created_at.isoformat() if step.created_at else None,
+                    "created_at": (
+                        step.created_at.isoformat() if step.created_at else None
+                    ),
                 }
                 steps_data.append(step_data)
 
@@ -511,6 +573,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
     async def _load_configuration(self):
         from vpsweb.utils.config_loader import load_config
+
         if self._config is None:
             try:
                 self.logger.info("Loading VPSWeb configuration...")
@@ -527,18 +590,22 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         target_lang: str,
         workflow_mode: str,
         background_tasks: BackgroundTasks,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
     ) -> str:
         """Start a new translation workflow as a background task."""
         try:
-            self.logger.info(f"🚀 [WORKFLOW] Starting translation workflow for poem {poem_id}")
+            self.logger.info(
+                f"🚀 [WORKFLOW] Starting translation workflow for poem {poem_id}"
+            )
 
             # Validate poem exists
             poem = self.repository_service.repo.poems.get_by_id(poem_id)
             if not poem:
                 raise ValueError(f"Poem not found: {poem_id}")
             source_lang = poem.source_language
-            self.logger.info(f"🌍 [WORKFLOW] Source lang: {source_lang}, Target lang: {target_lang}")
+            self.logger.info(
+                f"🌍 [WORKFLOW] Source lang: {source_lang}, Target lang: {target_lang}"
+            )
 
             # Create a task
             task_id = await self.task_service.create_task(
@@ -548,12 +615,14 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "source_lang": source_lang,
                     "target_lang": target_lang,
                     "workflow_mode": workflow_mode,
-                    "user_id": user_id
+                    "user_id": user_id,
                 },
-                user_id
+                user_id,
             )
 
-            self.logger.info(f"📋 [WORKFLOW] Created task {task_id}, scheduling background task...")
+            self.logger.info(
+                f"📋 [WORKFLOW] Created task {task_id}, scheduling background task..."
+            )
 
             # Add the workflow execution to background tasks
             background_tasks.add_task(
@@ -565,15 +634,16 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 source_lang=source_lang,
             )
 
-            self.logger.info(f"✅ [WORKFLOW] Background task scheduled for task {task_id}")
+            self.logger.info(
+                f"✅ [WORKFLOW] Background task scheduled for task {task_id}"
+            )
 
             return task_id
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "poem_id": poem_id,
-                "workflow_mode": workflow_mode
-            })
+            self.error_collector.add_error(
+                e, {"poem_id": poem_id, "workflow_mode": workflow_mode}
+            )
             self.logger.error(f"Error starting workflow: {e}")
             raise
 
@@ -593,9 +663,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         self.logger.info(
             f"🎬 [WORKFLOW] _execute_workflow STARTED for task_id={task_id}"
         )
-        self.logger.info(
-            f"📝 [WORKFLOW] poem_id={poem_id}, target_lang={target_lang}"
-        )
+        self.logger.info(f"📝 [WORKFLOW] poem_id={poem_id}, target_lang={target_lang}")
         self.logger.info(f"⚙️ [WORKFLOW] workflow_mode={workflow_mode}")
 
         task = await self.task_service.get_task(task_id)
@@ -605,7 +673,9 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
         try:
             # Add initial delay to give SSE connection time to establish
-            self.logger.info(f"⏳ [WORKFLOW] Waiting 1 second for SSE connection to establish...")
+            self.logger.info(
+                f"⏳ [WORKFLOW] Waiting 1 second for SSE connection to establish..."
+            )
             await asyncio.sleep(1)
 
             await self.task_service.update_task_status(task_id, "running")
@@ -614,7 +684,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             step_states = {
                 "Initial Translation": "waiting",
                 "Editor Review": "waiting",
-                "Translator Revision": "waiting"
+                "Translator Revision": "waiting",
             }
 
             async def progress_callback(step_name: str, details: dict):
@@ -644,7 +714,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "provider": details.get("provider", "AI"),
                     "mode": workflow_mode,
                     "message": details.get("message", ""),
-                    "output": details.get("output", "")
+                    "output": details.get("output", ""),
                 }
 
                 # Use the task service to update progress properly
@@ -692,7 +762,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     max_tokens=step_config.max_tokens,
                     timeout=step_config.timeout,
                     retry_attempts=step_config.retry_attempts,
-                    required_fields=step_config.required_fields
+                    required_fields=step_config.required_fields,
                 )
                 workflow_steps.append(workflow_step)
 
@@ -705,12 +775,17 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "target_lang": target_lang,
                     "workflow_mode": workflow_mode,
                     "model_config": self._providers_config,
-                    "workflow_config": self._workflow_config
-                }
+                    "workflow_config": self._workflow_config,
+                },
             )
 
             # Prepare input data for workflow
-            from vpsweb.models.translation import TranslationInput, Language, LANGUAGE_CODE_MAP
+            from vpsweb.models.translation import (
+                TranslationInput,
+                Language,
+                LANGUAGE_CODE_MAP,
+            )
+
             input_data = TranslationInput(
                 original_poem=poem.original_text,
                 source_lang=LANGUAGE_CODE_MAP.get(source_lang, source_lang),
@@ -719,7 +794,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "title": poem.poem_title,
                     "author": poem.poet_name,
                     "poem_id": poem_id,
-                }
+                },
             )
 
             workflow = TranslationWorkflow(
@@ -733,25 +808,30 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             workflow.progress_callback = progress_callback
 
             # Execute real workflow using orchestrator
-            self.logger.info(f"🚀 [WORKFLOW] Starting real workflow execution for task {task_id}")
-            result = await workflow.execute(
-                input_data=input_data,
-                show_progress=True
+            self.logger.info(
+                f"🚀 [WORKFLOW] Starting real workflow execution for task {task_id}"
+            )
+            result = await workflow.execute(input_data=input_data, show_progress=True)
+
+            self.logger.info(
+                f"✅ [WORKFLOW] Real workflow completed for task {task_id}"
             )
 
-            self.logger.info(f"✅ [WORKFLOW] Real workflow completed for task {task_id}")
-
             # Save results to database and JSON
-            self.logger.info(f"💾 [WORKFLOW] Saving results to database and JSON for task {task_id}")
-            await self._persist_workflow_result(poem_id, result, workflow_mode, input_data)
+            self.logger.info(
+                f"💾 [WORKFLOW] Saving results to database and JSON for task {task_id}"
+            )
+            await self._persist_workflow_result(
+                poem_id, result, workflow_mode, input_data
+            )
 
             # Get workflow results from the result object
             final_result = result.revised_translation or result.initial_translation
 
             translated_text = ""
-            if hasattr(final_result, 'revised_translation'):
+            if hasattr(final_result, "revised_translation"):
                 translated_text = final_result.revised_translation
-            elif hasattr(final_result, 'initial_translation'):
+            elif hasattr(final_result, "initial_translation"):
                 translated_text = final_result.initial_translation
 
             # Update final task state for completion
@@ -762,15 +842,17 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "current_step": "Translator Revision",
                 "step_details": {
                     "step_status": "completed",
-                    "provider": result.initial_translation.model_info.get("model", "AI"),
+                    "provider": result.initial_translation.model_info.get(
+                        "model", "AI"
+                    ),
                     "mode": workflow_mode,
                     "message": "All steps completed successfully",
-                    "output": translated_text
+                    "output": translated_text,
                 },
                 "step_states": {
                     "Initial Translation": "completed",
                     "Editor Review": "completed",
-                    "Translator Revision": "completed"
+                    "Translator Revision": "completed",
                 },
                 "message": "Translation workflow completed successfully",
                 "error": None,
@@ -778,38 +860,54 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "created_at": datetime.now().isoformat(),
                 "started_at": datetime.now().isoformat(),
                 "completed_at": datetime.now().isoformat(),
-                "updated_at": datetime.now().isoformat()
+                "updated_at": datetime.now().isoformat(),
             }
 
             # Update the task with completion data
             if task_id in self.task_service.tasks:
                 self.task_service.tasks[task_id].update(final_task_data)
 
-            await self.task_service.update_task_status(task_id, "completed", result=result.__dict__)
+            await self.task_service.update_task_status(
+                task_id, "completed", result=result.__dict__
+            )
             self.logger.info(f"Real workflow completed successfully for task {task_id}")
 
         except Exception as e:
-            self.logger.error(f"Real workflow execution failed for task {task_id}: {e}", exc_info=True)
-            await self.task_service.update_task_status(
-                task_id, "failed", error=str(e)
+            self.logger.error(
+                f"Real workflow execution failed for task {task_id}: {e}", exc_info=True
             )
+            await self.task_service.update_task_status(task_id, "failed", error=str(e))
 
-    async def _persist_workflow_result(self, poem_id: str, result: Any, workflow_mode: str, input_data: Dict[str, Any]):
+    async def _persist_workflow_result(
+        self, poem_id: str, result: Any, workflow_mode: str, input_data: Dict[str, Any]
+    ):
         # Save to DB
         await self._save_translation_to_db(result, poem_id, workflow_mode, input_data)
         # Save to JSON
         await self._save_translation_to_json(result, poem_id, workflow_mode, input_data)
 
     async def _save_translation_to_db(self, result, poem_id, workflow_mode, input_data):
-        from vpsweb.repository.schemas import AILogCreate, TranslationWorkflowStepCreate, TranslationCreate, TranslatorType, WorkflowStepType
+        from vpsweb.repository.schemas import (
+            AILogCreate,
+            TranslationWorkflowStepCreate,
+            TranslationCreate,
+            TranslatorType,
+            WorkflowStepType,
+        )
         import json
 
         # Convert language names to proper codes for database storage
         language_mapper = LanguageMapper()
 
         # Get proper language codes
-        source_lang_code = language_mapper.get_language_code(input_data.source_lang) or input_data.source_lang
-        target_lang_code = language_mapper.get_language_code(input_data.target_lang) or input_data.target_lang
+        source_lang_code = (
+            language_mapper.get_language_code(input_data.source_lang)
+            or input_data.source_lang
+        )
+        target_lang_code = (
+            language_mapper.get_language_code(input_data.target_lang)
+            or input_data.target_lang
+        )
 
         # Normalize the codes
         source_lang_code = language_mapper.normalize_code(source_lang_code)
@@ -821,29 +919,33 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
         # Extract translation text
         translated_text = ""
-        if hasattr(final_result, 'revised_translation'):
+        if hasattr(final_result, "revised_translation"):
             translated_text = final_result.revised_translation
-        elif hasattr(final_result, 'initial_translation'):
+        elif hasattr(final_result, "initial_translation"):
             translated_text = final_result.initial_translation
 
         # Debug: Log the extracted text
-        self.logger.info(f"🔍 [DEBUG] Extracted translated_text: '{translated_text}' (length: {len(translated_text)})")
+        self.logger.info(
+            f"🔍 [DEBUG] Extracted translated_text: '{translated_text}' (length: {len(translated_text)})"
+        )
 
         # Skip database creation if no translation text was generated
         if not translated_text or len(translated_text.strip()) < 10:
-            self.logger.warning(f"⚠️ [WARNING] No valid translation text generated for task {poem_id}. Skipping database persistence.")
+            self.logger.warning(
+                f"⚠️ [WARNING] No valid translation text generated for task {poem_id}. Skipping database persistence."
+            )
             return
 
         translated_poem_title = ""
-        if hasattr(final_result, 'refined_translated_poem_title'):
+        if hasattr(final_result, "refined_translated_poem_title"):
             translated_poem_title = final_result.refined_translated_poem_title
-        elif hasattr(final_result, 'translated_poem_title'):
+        elif hasattr(final_result, "translated_poem_title"):
             translated_poem_title = final_result.translated_poem_title
 
         translated_poet_name = ""
-        if hasattr(final_result, 'refined_translated_poet_name'):
+        if hasattr(final_result, "refined_translated_poet_name"):
             translated_poet_name = final_result.refined_translated_poet_name
-        elif hasattr(final_result, 'translated_poet_name'):
+        elif hasattr(final_result, "translated_poet_name"):
             translated_poet_name = final_result.translated_poet_name
 
         translation_create = TranslationCreate(
@@ -854,11 +956,17 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             translated_poem_title=translated_poem_title,
             translated_poet_name=translated_poet_name,
             translator_type=TranslatorType.AI,
-            translator_info=result.initial_translation.model_info.get("model", "unknown"),
+            translator_info=result.initial_translation.model_info.get(
+                "model", "unknown"
+            ),
             quality_rating=None,
             metadata={
                 "status": "completed",
-                "steps_executed": ["initial_translation", "editor_review", "translator_revision"],
+                "steps_executed": [
+                    "initial_translation",
+                    "editor_review",
+                    "translator_revision",
+                ],
                 "total_tokens_used": result.total_tokens,
                 "execution_time": result.duration_seconds,
                 "results": {
@@ -867,18 +975,24 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "revised_translation": result.revised_translation.model_dump(),
                 },
                 "errors": [],
-                "metadata": result.input.metadata
+                "metadata": result.input.metadata,
             },
         )
-        translation = self.repository_service.repo.translations.create(translation_create)
+        translation = self.repository_service.repo.translations.create(
+            translation_create
+        )
 
         # Create AI Log with the translation_id
         ai_log_create = AILogCreate(
             translation_id=translation.id,
             model_name=result.initial_translation.model_info.get("model", "unknown"),
             workflow_mode=workflow_mode,
-            token_usage_json=json.dumps({"total_tokens": result.total_tokens, "workflow_mode": workflow_mode}),
-            cost_info_json=json.dumps({"total_cost": result.total_cost, "workflow_mode": workflow_mode}),
+            token_usage_json=json.dumps(
+                {"total_tokens": result.total_tokens, "workflow_mode": workflow_mode}
+            ),
+            cost_info_json=json.dumps(
+                {"total_cost": result.total_cost, "workflow_mode": workflow_mode}
+            ),
             runtime_seconds=result.duration_seconds,
             notes=f"Translation workflow completed using {workflow_mode} mode",
         )
@@ -886,9 +1000,19 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
         # Create Workflow Steps
         steps_data = [
-            (WorkflowStepType.INITIAL_TRANSLATION, 1, result.initial_translation, "Initial Translation"),
+            (
+                WorkflowStepType.INITIAL_TRANSLATION,
+                1,
+                result.initial_translation,
+                "Initial Translation",
+            ),
             (WorkflowStepType.EDITOR_REVIEW, 2, result.editor_review, "Editor Review"),
-            (WorkflowStepType.REVISED_TRANSLATION, 3, result.revised_translation, "Translator Revision"),
+            (
+                WorkflowStepType.REVISED_TRANSLATION,
+                3,
+                result.revised_translation,
+                "Translator Revision",
+            ),
         ]
 
         for step_type, step_order, step_data, step_name in steps_data:
@@ -899,34 +1023,58 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             # Handle different data structures for different step types
             if step_type == "editor_review":
                 # Editor review step might store duration/cost differently
-                self.logger.info(f"🔍 [DEBUG] Editor review step_data.type: {type(step_data)}")
-                self.logger.info(f"🔍 [DEBUG] Editor review has 'duration' attr: {hasattr(step_data, 'duration')}")
-                self.logger.info(f"🔍 [DEBUG] Editor review is dict: {isinstance(step_data, dict)}")
+                self.logger.info(
+                    f"🔍 [DEBUG] Editor review step_data.type: {type(step_data)}"
+                )
+                self.logger.info(
+                    f"🔍 [DEBUG] Editor review has 'duration' attr: {hasattr(step_data, 'duration')}"
+                )
+                self.logger.info(
+                    f"🔍 [DEBUG] Editor review is dict: {isinstance(step_data, dict)}"
+                )
 
-                if hasattr(step_data, 'duration'):
-                    step_duration = getattr(step_data, 'duration', None)
-                    self.logger.info(f"🔍 [DEBUG] Got duration from attr: {step_duration}")
+                if hasattr(step_data, "duration"):
+                    step_duration = getattr(step_data, "duration", None)
+                    self.logger.info(
+                        f"🔍 [DEBUG] Got duration from attr: {step_duration}"
+                    )
                 else:
-                    step_duration = step_data.get('duration') if isinstance(step_data, dict) else None
-                    self.logger.info(f"🔍 [DEBUG] Got duration from dict: {step_duration}")
+                    step_duration = (
+                        step_data.get("duration")
+                        if isinstance(step_data, dict)
+                        else None
+                    )
+                    self.logger.info(
+                        f"🔍 [DEBUG] Got duration from dict: {step_duration}"
+                    )
 
-                if hasattr(step_data, 'cost'):
-                    step_cost = getattr(step_data, 'cost', None)
+                if hasattr(step_data, "cost"):
+                    step_cost = getattr(step_data, "cost", None)
                     self.logger.info(f"🔍 [DEBUG] Got cost from attr: {step_cost}")
                 else:
-                    step_cost = step_data.get('cost') if isinstance(step_data, dict) else None
+                    step_cost = (
+                        step_data.get("cost") if isinstance(step_data, dict) else None
+                    )
                     self.logger.info(f"🔍 [DEBUG] Got cost from dict: {step_cost}")
             else:
                 # Other steps use object attributes
-                step_duration = getattr(step_data, 'duration', None)
-                step_cost = getattr(step_data, 'cost', None)
+                step_duration = getattr(step_data, "duration", None)
+                step_cost = getattr(step_data, "cost", None)
 
             if step_type == "initial_translation":
-                step_translated_title = getattr(step_data, 'translated_poem_title', None)
-                step_translated_poet_name = getattr(step_data, 'translated_poet_name', None)
+                step_translated_title = getattr(
+                    step_data, "translated_poem_title", None
+                )
+                step_translated_poet_name = getattr(
+                    step_data, "translated_poet_name", None
+                )
             elif step_type == "revised_translation":
-                step_translated_title = getattr(step_data, 'refined_translated_poem_title', None)
-                step_translated_poet_name = getattr(step_data, 'refined_translated_poet_name', None)
+                step_translated_title = getattr(
+                    step_data, "refined_translated_poem_title", None
+                )
+                step_translated_poet_name = getattr(
+                    step_data, "refined_translated_poet_name", None
+                )
             # For editor_review, translated metadata remain None but duration and cost should be preserved
 
             workflow_step_create = TranslationWorkflowStepCreate(
@@ -935,8 +1083,11 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 workflow_id=result.workflow_id,
                 step_type=step_type,
                 step_order=step_order,
-                content=getattr(step_data, 'initial_translation', '') or getattr(step_data, 'editor_suggestions', '') or getattr(step_data, 'revised_translation', ''),
-                notes=getattr(step_data, 'initial_translation_notes', '') or getattr(step_data, 'revised_translation_notes', ''),
+                content=getattr(step_data, "initial_translation", "")
+                or getattr(step_data, "editor_suggestions", "")
+                or getattr(step_data, "revised_translation", ""),
+                notes=getattr(step_data, "initial_translation_notes", "")
+                or getattr(step_data, "revised_translation_notes", ""),
                 model_info=json.dumps(step_data.model_info),
                 tokens_used=step_data.tokens_used,
                 prompt_tokens=step_data.prompt_tokens,
@@ -949,7 +1100,9 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             )
             self.repository_service.repo.workflow_steps.create(workflow_step_create)
 
-    async def _save_translation_to_json(self, result, poem_id, workflow_mode, input_data):
+    async def _save_translation_to_json(
+        self, result, poem_id, workflow_mode, input_data
+    ):
         poem = self.repository_service.repo.poems.get_by_id(poem_id)
         if not poem:
             return
@@ -987,9 +1140,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         try:
             if self.task_service:
                 await self.task_service.update_task_status(
-                    task_id,
-                    "cancelled",
-                    {"cancelled_by": user_id or "system"}
+                    task_id, "cancelled", {"cancelled_by": user_id or "system"}
                 )
                 return True
             return False
@@ -1003,12 +1154,14 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         self,
         limit: int = 50,
         user_id: Optional[str] = None,
-        status_filter: Optional[str] = None
+        status_filter: Optional[str] = None,
     ) -> Dict[str, Any]:
         """List workflow tasks with filtering."""
         try:
             if self.task_service:
-                return await self.task_service.get_filtered_tasks(limit, user_id, status_filter)
+                return await self.task_service.get_filtered_tasks(
+                    limit, user_id, status_filter
+                )
 
             # Fallback - return empty list
             return {"tasks": [], "total_count": 0}
@@ -1025,27 +1178,23 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 {
                     "name": "reasoning",
                     "description": "Step-by-step reasoning with detailed analysis",
-                    "recommended_for": "complex or literary poems"
+                    "recommended_for": "complex or literary poems",
                 },
                 {
                     "name": "non_reasoning",
                     "description": "Direct translation without detailed reasoning",
-                    "recommended_for": "simple or technical content"
+                    "recommended_for": "simple or technical content",
                 },
                 {
                     "name": "hybrid",
                     "description": "Balanced approach with selective reasoning",
-                    "recommended_for": "most content types"
-                }
+                    "recommended_for": "most content types",
+                },
             ]
         }
 
     async def validate_workflow_input(
-        self,
-        poem_id: str,
-        source_lang: str,
-        target_lang: str,
-        workflow_mode: str
+        self, poem_id: str, source_lang: str, target_lang: str, workflow_mode: str
     ) -> Dict[str, Any]:
         """Validate workflow input parameters."""
         try:
@@ -1069,21 +1218,21 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "validation": {
                     "poem_exists": True,
                     "different_languages": True,
-                    "valid_mode": True
-                }
+                    "valid_mode": True,
+                },
             }
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "poem_id": poem_id,
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                "workflow_mode": workflow_mode
-            })
-            return {
-                "valid": False,
-                "error": str(e)
-            }
+            self.error_collector.add_error(
+                e,
+                {
+                    "poem_id": poem_id,
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "workflow_mode": workflow_mode,
+                },
+            )
+            return {"valid": False, "error": str(e)}
 
 
 class PoetServiceV2(IPoetServiceV2):
@@ -1093,7 +1242,7 @@ class PoetServiceV2(IPoetServiceV2):
         self,
         repository_service: RepositoryWebService,
         performance_service: Optional[IPerformanceServiceV2] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         self.repository_service = repository_service
         self.performance_service = performance_service
@@ -1108,7 +1257,7 @@ class PoetServiceV2(IPoetServiceV2):
         sort_by: str = "name",
         sort_order: str = "asc",
         min_poems: Optional[int] = None,
-        min_translations: Optional[int] = None
+        min_translations: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of poets with statistics."""
         try:
@@ -1118,7 +1267,7 @@ class PoetServiceV2(IPoetServiceV2):
                 limit=limit,
                 search=search,
                 sort_by=sort_by,
-                sort_order=sort_order
+                sort_order=sort_order,
             )
 
             # Enrich with statistics
@@ -1129,14 +1278,17 @@ class PoetServiceV2(IPoetServiceV2):
                 # Apply filters
                 if min_poems and poet_stats["poem_count"] < min_poems:
                     continue
-                if min_translations and poet_stats["translation_count"] < min_translations:
+                if (
+                    min_translations
+                    and poet_stats["translation_count"] < min_translations
+                ):
                     continue
 
                 enriched_poet = {
                     **poet,
                     "poem_count": poet_stats["poem_count"],
                     "translation_count": poet_stats["translation_count"],
-                    "last_activity": poet_stats["last_activity"]
+                    "last_activity": poet_stats["last_activity"],
                 }
                 enriched_poets.append(enriched_poet)
 
@@ -1147,24 +1299,27 @@ class PoetServiceV2(IPoetServiceV2):
                     "skip": skip,
                     "limit": limit,
                     "has_next": len(enriched_poets) == limit,
-                    "has_prev": skip > 0
+                    "has_prev": skip > 0,
                 },
                 "filters": {
                     "search": search,
                     "sort_by": sort_by,
                     "sort_order": sort_order,
                     "min_poems": min_poems,
-                    "min_translations": min_translations
-                }
+                    "min_translations": min_translations,
+                },
             }
 
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "operation": "get_poets_list",
-                "filters": {"search": search, "sort_by": sort_by}
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "operation": "get_poets_list",
+                    "filters": {"search": search, "sort_by": sort_by},
+                },
+            )
             self.logger.error(f"Error getting poets list: {e}")
             raise
 
@@ -1176,7 +1331,7 @@ class PoetServiceV2(IPoetServiceV2):
         language: Optional[str] = None,
         has_translations: Optional[bool] = None,
         sort_by: str = "title",
-        sort_order: str = "asc"
+        sort_order: str = "asc",
     ) -> Dict[str, Any]:
         """Get detailed poet information with poems and statistics."""
         try:
@@ -1188,7 +1343,7 @@ class PoetServiceV2(IPoetServiceV2):
                 language=language,
                 has_translations=has_translations,
                 sort_by=sort_by,
-                sort_order=sort_order
+                sort_order=sort_order,
             )
 
             # Get poet statistics
@@ -1199,7 +1354,7 @@ class PoetServiceV2(IPoetServiceV2):
                     "name": poet_name,
                     "poem_count": stats["poem_count"],
                     "translation_count": stats["translation_count"],
-                    "last_activity": stats["last_activity"]
+                    "last_activity": stats["last_activity"],
                 },
                 "poems": poems,
                 "statistics": stats,
@@ -1207,8 +1362,8 @@ class PoetServiceV2(IPoetServiceV2):
                     "skip": skip,
                     "limit": limit,
                     "has_next": len(poems) == limit,
-                    "has_prev": skip > 0
-                }
+                    "has_prev": skip > 0,
+                },
             }
 
             return result
@@ -1225,11 +1380,15 @@ class PoetServiceV2(IPoetServiceV2):
             poem_count = self.repository_service.repo.poems.count_by_poet(poet_name)
 
             # Get translation count
-            translation_count = self.repository_service.repo.translations.count_by_poet(poet_name)
+            translation_count = self.repository_service.repo.translations.count_by_poet(
+                poet_name
+            )
 
             # Get last activity
             last_poem = self.repository_service.repo.poems.get_latest_by_poet(poet_name)
-            last_translation = self.repository_service.repo.translations.get_latest_by_poet(poet_name)
+            last_translation = (
+                self.repository_service.repo.translations.get_latest_by_poet(poet_name)
+            )
 
             last_activity = None
             if last_poem and last_translation:
@@ -1244,7 +1403,9 @@ class PoetServiceV2(IPoetServiceV2):
                 "poem_count": poem_count,
                 "translation_count": translation_count,
                 "last_activity": last_activity,
-                "translation_ratio": translation_count / poem_count if poem_count > 0 else 0
+                "translation_ratio": (
+                    translation_count / poem_count if poem_count > 0 else 0
+                ),
             }
 
         except Exception as e:
@@ -1255,7 +1416,7 @@ class PoetServiceV2(IPoetServiceV2):
                 "poem_count": 0,
                 "translation_count": 0,
                 "last_activity": None,
-                "translation_ratio": 0
+                "translation_ratio": 0,
             }
 
     async def get_all_poets_statistics(self) -> Dict[str, Any]:
@@ -1282,9 +1443,11 @@ class PoetServiceV2(IPoetServiceV2):
                 "total_poets": len(all_stats),
                 "total_poems": total_poems,
                 "total_translations": total_translations,
-                "overall_translation_ratio": total_translations / total_poems if total_poems > 0 else 0,
+                "overall_translation_ratio": (
+                    total_translations / total_poems if total_poems > 0 else 0
+                ),
                 "top_poets": all_stats[:10],  # Top 10 by translations
-                "all_statistics": all_stats
+                "all_statistics": all_stats,
             }
 
         except Exception as e:
@@ -1296,7 +1459,7 @@ class PoetServiceV2(IPoetServiceV2):
                 "total_translations": 0,
                 "overall_translation_ratio": 0,
                 "top_poets": [],
-                "all_statistics": []
+                "all_statistics": [],
             }
 
 
@@ -1307,7 +1470,7 @@ class StatisticsServiceV2(IStatisticsServiceV2):
         self,
         repository_service: RepositoryWebService,
         performance_service: Optional[IPerformanceServiceV2] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         self.repository_service = repository_service
         self.performance_service = performance_service
@@ -1323,29 +1486,37 @@ class StatisticsServiceV2(IStatisticsServiceV2):
 
             # Recent activity (last 30 days)
             thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
-            recent_poems = self.repository_service.repo.poems.count_since(thirty_days_ago)
-            recent_translations = self.repository_service.repo.translations.count_since(thirty_days_ago)
+            recent_poems = self.repository_service.repo.poems.count_since(
+                thirty_days_ago
+            )
+            recent_translations = self.repository_service.repo.translations.count_since(
+                thirty_days_ago
+            )
 
             # Language distribution
             languages = self.repository_service.repo.poems.get_language_distribution()
 
             # Poet statistics
-            total_poets = len(self.repository_service.repo.poems.get_distinct_poets(limit=10000))
+            total_poets = len(
+                self.repository_service.repo.poems.get_distinct_poets(limit=10000)
+            )
 
             result = {
                 "overview": {
                     "total_poems": total_poems,
                     "total_translations": total_translations,
                     "total_poets": total_poets,
-                    "total_translation_ratio": total_translations / total_poems if total_poems > 0 else 0
+                    "total_translation_ratio": (
+                        total_translations / total_poems if total_poems > 0 else 0
+                    ),
                 },
                 "recent_activity": {
                     "recent_poems": recent_poems,
                     "recent_translations": recent_translations,
-                    "activity_period_days": 30
+                    "activity_period_days": 30,
                 },
                 "language_distribution": languages,
-                "last_updated": datetime.now(timezone.utc).isoformat()
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
 
             return result
@@ -1363,18 +1534,20 @@ class StatisticsServiceV2(IStatisticsServiceV2):
             end_date = datetime.now(timezone.utc)
             start_date = end_date - timedelta(days=days)
 
-            translations_in_period = self.repository_service.repo.translations.count_in_period(
-                start_date, end_date
+            translations_in_period = (
+                self.repository_service.repo.translations.count_in_period(
+                    start_date, end_date
+                )
             )
 
             return {
                 "period": {
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat(),
-                    "days": days
+                    "days": days,
                 },
                 "translations_created": translations_in_period,
-                "daily_average": translations_in_period / days if days > 0 else 0
+                "daily_average": translations_in_period / days if days > 0 else 0,
             }
 
         except Exception as e:
@@ -1389,14 +1562,16 @@ class StatisticsServiceV2(IStatisticsServiceV2):
             end_date = datetime.now(timezone.utc)
             start_date = end_date - timedelta(days=days)
 
-            active_poets = self.repository_service.repo.poems.get_active_poets_in_period(
-                start_date, end_date
+            active_poets = (
+                self.repository_service.repo.poems.get_active_poets_in_period(
+                    start_date, end_date
+                )
             )
 
             return {
                 "period": {"days": days},
                 "active_poets_count": len(active_poets),
-                "active_poets": active_poets[:20]  # Top 20
+                "active_poets": active_poets[:20],  # Top 20
             }
 
         except Exception as e:
@@ -1415,9 +1590,9 @@ class StatisticsServiceV2(IStatisticsServiceV2):
                     "successful_workflows": 0,
                     "failed_workflows": 0,
                     "average_execution_time": 0,
-                    "success_rate": 0
+                    "success_rate": 0,
                 },
-                "note": "Workflow performance tracking not yet implemented"
+                "note": "Workflow performance tracking not yet implemented",
             }
 
         except Exception as e:
@@ -1440,7 +1615,7 @@ class PerformanceServiceV2(IPerformanceServiceV2):
         path: str,
         status_code: int,
         duration: float,
-        additional_data: Optional[Dict[str, Any]] = None
+        additional_data: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log request performance metrics."""
         try:
@@ -1449,7 +1624,7 @@ class PerformanceServiceV2(IPerformanceServiceV2):
                 path=path,
                 status_code=status_code,
                 duration_ms=duration,
-                additional_data=additional_data or {}
+                additional_data=additional_data or {},
             )
 
             # Log slow requests
@@ -1461,10 +1636,7 @@ class PerformanceServiceV2(IPerformanceServiceV2):
         except Exception as e:
             self.logger.error(f"Error logging performance: {e}")
 
-    async def get_performance_summary(
-        self,
-        minutes: int = 60
-    ) -> Dict[str, Any]:
+    async def get_performance_summary(self, minutes: int = 60) -> Dict[str, Any]:
         """Get performance summary for specified time period."""
         try:
             metrics = await self.performance_monitor.get_performance_metrics(minutes)
@@ -1482,16 +1654,17 @@ class PerformanceServiceV2(IPerformanceServiceV2):
 class TaskManagementServiceV2(ITaskManagementServiceV2):
     """In-memory task management service implementation."""
 
-    def __init__(self, tasks_store: Optional[Dict[str, Any]] = None, logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        tasks_store: Optional[Dict[str, Any]] = None,
+        logger: Optional[logging.Logger] = None,
+    ):
         self.logger = logger or logging.getLogger(__name__)
         self.tasks: Dict[str, Any] = tasks_store if tasks_store is not None else {}
         self.max_age_hours = 24
 
     async def create_task(
-        self,
-        task_type: str,
-        task_data: Dict[str, Any],
-        user_id: Optional[str] = None
+        self, task_type: str, task_data: Dict[str, Any], user_id: Optional[str] = None
     ) -> str:
         """Create a new background task."""
         task_id = generate_unique_id()
@@ -1508,7 +1681,7 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
             "result": None,
-            "error": None
+            "error": None,
         }
 
         self.tasks[task_id] = task
@@ -1530,16 +1703,18 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
         task_id: str,
         status: str,
         result: Optional[Dict[str, Any]] = None,
-        error: Optional[str] = None
+        error: Optional[str] = None,
     ) -> None:
         """Update task status."""
         if task_id in self.tasks:
-            self.tasks[task_id].update({
-                "status": status,
-                "updated_at": datetime.now(timezone.utc),
-                "result": result,
-                "error": error
-            })
+            self.tasks[task_id].update(
+                {
+                    "status": status,
+                    "updated_at": datetime.now(timezone.utc),
+                    "result": result,
+                    "error": error,
+                }
+            )
             self.logger.info(f"Updated task {task_id} status to {status}")
 
     async def update_task_progress(
@@ -1568,18 +1743,24 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
             }
 
             # Update with new progress data
-            self.tasks[task_id].update({
-                **preserved_fields,  # Preserve existing important fields
-                "current_step": step,
-                "progress": progress,
-                "details": details,
-                "step_states": details.get("step_states", preserved_fields["step_states"]),  # Update step_states from details
-                "updated_at": datetime.now(timezone.utc),
-            })
+            self.tasks[task_id].update(
+                {
+                    **preserved_fields,  # Preserve existing important fields
+                    "current_step": step,
+                    "progress": progress,
+                    "details": details,
+                    "step_states": details.get(
+                        "step_states", preserved_fields["step_states"]
+                    ),  # Update step_states from details
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            )
 
             # Debug logging for step_states
             updated_step_states = self.tasks[task_id].get("step_states", {})
-            self.logger.info(f"Updated task {task_id} progress to {progress}% at step {step}, step_states: {updated_step_states}")
+            self.logger.info(
+                f"Updated task {task_id} progress to {progress}% at step {step}, step_states: {updated_step_states}"
+            )
 
     async def get_task(self, task_id: str) -> Optional[Dict[str, Any]]:
         """Get task information."""
@@ -1589,7 +1770,7 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
         self,
         limit: int = 50,
         user_id: Optional[str] = None,
-        status_filter: Optional[str] = None
+        status_filter: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get tasks with filtering."""
         tasks = list(self.tasks.values())
@@ -1613,8 +1794,8 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
             "filters": {
                 "user_id": user_id,
                 "status_filter": status_filter,
-                "limit": limit
-            }
+                "limit": limit,
+            },
         }
 
     async def cleanup_expired_tasks(self, max_age_hours: int = 24) -> int:
@@ -1622,7 +1803,8 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
         cutoff_time = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
 
         expired_tasks = [
-            task_id for task_id, task in self.tasks.items()
+            task_id
+            for task_id, task in self.tasks.items()
             if task["created_at"] < cutoff_time
         ]
 
@@ -1638,24 +1820,27 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
 class TemplateServiceV2(ITemplateServiceV2):
     """Template service implementation using Jinja2."""
 
-    def __init__(self, template_dir: str = "src/vpsweb/webui/web/templates", logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        template_dir: str = "src/vpsweb/webui/web/templates",
+        logger: Optional[logging.Logger] = None,
+    ):
         self.template_dir = template_dir
         self.logger = logger or logging.getLogger(__name__)
         self._templates = {}
 
         # Initialize Jinja2 environment
         from fastapi.templating import Jinja2Templates
+
         self.templates = Jinja2Templates(directory=template_dir)
 
     async def render_template(
-        self,
-        template_name: str,
-        context: Dict[str, Any],
-        request: Optional[Any] = None
+        self, template_name: str, context: Dict[str, Any], request: Optional[Any] = None
     ) -> str:
         """Render a template with context."""
         try:
             from jinja2 import Environment, FileSystemLoader
+
             env = Environment(loader=FileSystemLoader(self.template_dir))
 
             # Add custom filters
@@ -1663,20 +1848,20 @@ class TemplateServiceV2(ITemplateServiceV2):
                 """Strip leading spaces from each line in text."""
                 if text is None:
                     return ""
-                return '\n'.join(line.lstrip() for line in text.split('\n'))
+                return "\n".join(line.lstrip() for line in text.split("\n"))
 
-            env.filters['strip_leading_spaces'] = strip_leading_spaces
+            env.filters["strip_leading_spaces"] = strip_leading_spaces
             template = env.get_template(template_name)
 
             # Prepare template context with request-safe data
             template_context = context.copy()
             if request:
                 # Extract request information safely
-                template_context['current_path'] = str(request.url.path)
-                template_context['query_params'] = dict(request.query_params)
+                template_context["current_path"] = str(request.url.path)
+                template_context["query_params"] = dict(request.query_params)
             else:
-                template_context['current_path'] = '/'
-                template_context['query_params'] = {}
+                template_context["current_path"] = "/"
+                template_context["query_params"] = {}
 
             return template.render(**template_context)
 
@@ -1694,7 +1879,7 @@ class TemplateServiceV2(ITemplateServiceV2):
             "poems/list.html",
             "poems/detail.html",
             "translations/list.html",
-            "translations/detail.html"
+            "translations/detail.html",
         ]
 
         if category:
@@ -1703,9 +1888,7 @@ class TemplateServiceV2(ITemplateServiceV2):
         return templates
 
     async def validate_template_data(
-        self,
-        template_name: str,
-        data: Dict[str, Any]
+        self, template_name: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Validate template data before rendering."""
         # Basic validation
@@ -1713,12 +1896,14 @@ class TemplateServiceV2(ITemplateServiceV2):
             "valid": True,
             "template_name": template_name,
             "provided_data_keys": list(data.keys()),
-            "validation_errors": []
+            "validation_errors": [],
         }
 
         # Template-specific validation would go here
         if "poems" in template_name and not data.get("poems"):
-            result["validation_errors"].append("poems data required for poems templates")
+            result["validation_errors"].append(
+                "poems data required for poems templates"
+            )
             result["valid"] = False
 
         return result
@@ -1732,19 +1917,23 @@ class ExceptionHandlerServiceV2(IExceptionHandlerServiceV2):
         self.error_collector = ErrorCollector()
 
     async def handle_http_error(
-        self,
-        error: Exception,
-        request: Any,
-        is_web_request: bool
+        self, error: Exception, request: Any, is_web_request: bool
     ) -> Any:
         """Handle HTTP errors with appropriate formatting."""
         error_id = self.generate_error_id()
 
-        self.error_collector.add_error(error, {
-            "error_id": error_id,
-            "request_path": getattr(request, 'url', {}).path if hasattr(request, 'url') else str(request),
-            "is_web_request": is_web_request
-        })
+        self.error_collector.add_error(
+            error,
+            {
+                "error_id": error_id,
+                "request_path": (
+                    getattr(request, "url", {}).path
+                    if hasattr(request, "url")
+                    else str(request)
+                ),
+                "is_web_request": is_web_request,
+            },
+        )
 
         self.logger.error(f"HTTP Error [{error_id}]: {error}")
 
@@ -1759,8 +1948,8 @@ class ExceptionHandlerServiceV2(IExceptionHandlerServiceV2):
                     content={
                         "error": error.detail,
                         "error_id": error_id,
-                        "type": "HTTPException"
-                    }
+                        "type": "HTTPException",
+                    },
                 )
             else:
                 return JSONResponse(
@@ -1768,37 +1957,41 @@ class ExceptionHandlerServiceV2(IExceptionHandlerServiceV2):
                     content={
                         "error": "Internal server error",
                         "error_id": error_id,
-                        "type": "InternalServerError"
-                    }
+                        "type": "InternalServerError",
+                    },
                 )
 
         return {"error_id": error_id, "error": str(error)}
 
     async def handle_general_error(
-        self,
-        error: Exception,
-        request: Any,
-        error_id: str,
-        is_web_request: bool
+        self, error: Exception, request: Any, error_id: str, is_web_request: bool
     ) -> Any:
         """Handle general exceptions with logging and formatting."""
-        self.error_collector.add_error(error, {
-            "error_id": error_id,
-            "request_path": getattr(request, 'url', {}).path if hasattr(request, 'url') else str(request),
-            "is_web_request": is_web_request
-        })
+        self.error_collector.add_error(
+            error,
+            {
+                "error_id": error_id,
+                "request_path": (
+                    getattr(request, "url", {}).path
+                    if hasattr(request, "url")
+                    else str(request)
+                ),
+                "is_web_request": is_web_request,
+            },
+        )
 
         self.logger.error(f"General Error [{error_id}]: {error}", exc_info=True)
 
         if is_web_request:
             from fastapi.responses import JSONResponse
+
             return JSONResponse(
                 status_code=500,
                 content={
                     "error": "An unexpected error occurred",
                     "error_id": error_id,
-                    "type": "GeneralError"
-                }
+                    "type": "GeneralError",
+                },
             )
 
         return {"error_id": error_id, "error": str(error)}
@@ -1815,11 +2008,7 @@ class SSEServiceV2(ISSEServiceV2):
         self.logger = logger or logging.getLogger(__name__)
         self.active_connections: Dict[str, Any] = {}
 
-    async def create_sse_stream(
-        self,
-        task_id: str,
-        request: Any
-    ) -> Any:
+    async def create_sse_stream(self, task_id: str, request: Any) -> Any:
         """Create SSE stream for real-time updates."""
         try:
             # This would create a proper SSE stream
@@ -1830,7 +2019,7 @@ class SSEServiceV2(ISSEServiceV2):
                 "task_id": task_id,
                 "request": request,
                 "created_at": datetime.now(timezone.utc),
-                "last_heartbeat": time.time()
+                "last_heartbeat": time.time(),
             }
 
             self.logger.info(f"Created SSE stream {stream_id} for task {task_id}")
@@ -1843,16 +2032,14 @@ class SSEServiceV2(ISSEServiceV2):
             raise
 
     async def send_sse_event(
-        self,
-        task_id: str,
-        event_type: str,
-        data: Dict[str, Any]
+        self, task_id: str, event_type: str, data: Dict[str, Any]
     ) -> None:
         """Send SSE event to connected clients."""
         try:
             # Find active connections for this task
             connections = [
-                (stream_id, conn) for stream_id, conn in self.active_connections.items()
+                (stream_id, conn)
+                for stream_id, conn in self.active_connections.items()
                 if conn["task_id"] == task_id
             ]
 
@@ -1883,7 +2070,7 @@ class ConfigServiceV2(IConfigServiceV2):
             "debug": False,
             "max_workflows_per_user": 10,
             "default_language": "en",
-            "supported_languages": ["en", "zh-CN", "pl"]
+            "supported_languages": ["en", "zh-CN", "pl"],
         }
 
     async def get_setting(self, key: str, default: Any = None) -> Any:

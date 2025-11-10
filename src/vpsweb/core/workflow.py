@@ -155,7 +155,9 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
-                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
+                    "is_reasoning": self.providers_config.is_reasoning_model(
+                        step_config.model
+                    ),
                 }
                 progress_tracker.start_step("initial_translation", model_info)
 
@@ -247,7 +249,9 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
-                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
+                    "is_reasoning": self.providers_config.is_reasoning_model(
+                        step_config.model
+                    ),
                 }
                 progress_tracker.start_step("editor_review", model_info)
 
@@ -273,8 +277,12 @@ class TranslationWorkflow:
             editor_review.cost = self._calculate_step_cost(
                 step_config.provider, step_config.model, input_tokens, output_tokens
             )
-            logger.debug(f"Editor Review - Provider: {step_config.provider}, Model: {step_config.model}")
-            logger.debug(f"Editor Review - Input Tokens: {input_tokens}, Output Tokens: {output_tokens}")
+            logger.debug(
+                f"Editor Review - Provider: {step_config.provider}, Model: {step_config.model}"
+            )
+            logger.debug(
+                f"Editor Review - Input Tokens: {input_tokens}, Output Tokens: {output_tokens}"
+            )
             logger.debug(f"Editor Review - Calculated Cost: {editor_review.cost}")
             logger.info(f"Editor review step completed successfully")
             log_entries.append(
@@ -338,7 +346,9 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
-                    "is_reasoning": self.providers_config.is_reasoning_model(step_config.model),
+                    "is_reasoning": self.providers_config.is_reasoning_model(
+                        step_config.model
+                    ),
                 }
                 progress_tracker.start_step("translator_revision", model_info)
 
@@ -589,7 +599,9 @@ class TranslationWorkflow:
                     "provider": step_config.provider,
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
-                    "is_reasoning": str(self.providers_config.is_reasoning_model(step_config.model)),
+                    "is_reasoning": str(
+                        self.providers_config.is_reasoning_model(step_config.model)
+                    ),
                 },
                 tokens_used=usage.get("tokens_used", 0),
                 prompt_tokens=usage.get("prompt_tokens"),

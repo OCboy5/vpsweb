@@ -131,8 +131,10 @@ class Translation(Base):
     # Optional fields
     quality_rating: Mapped[Optional[int]] = mapped_column(
         Integer,
-        CheckConstraint("quality_rating >= 1 AND quality_rating <= 5"),
+        CheckConstraint("quality_rating >= 0 AND quality_rating <= 10"),
         nullable=True,
+        default=0,
+        server_default="0",
     )
     raw_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 

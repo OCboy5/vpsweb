@@ -22,7 +22,7 @@ class IPoemServiceV2(ABC):
         skip: int = 0,
         limit: int = 100,
         search: Optional[str] = None,
-        language: Optional[str] = None
+        language: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of poems with filtering options."""
         pass
@@ -38,7 +38,9 @@ class IPoemServiceV2(ABC):
         pass
 
     @abstractmethod
-    async def update_poem(self, poem_id: str, poem_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def update_poem(
+        self, poem_id: str, poem_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Update an existing poem."""
         pass
 
@@ -63,7 +65,7 @@ class ITranslationServiceV2(ABC):
         limit: int = 100,
         poem_id: Optional[str] = None,
         source_lang: Optional[str] = None,
-        target_lang: Optional[str] = None
+        target_lang: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of translations with filtering."""
         pass
@@ -79,7 +81,9 @@ class ITranslationServiceV2(ABC):
         pass
 
     @abstractmethod
-    async def create_translation(self, translation_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_translation(
+        self, translation_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Create a new translation with validation."""
         pass
 
@@ -111,7 +115,7 @@ class IPoetServiceV2(ABC):
         sort_by: str = "name",
         sort_order: str = "asc",
         min_poems: Optional[int] = None,
-        min_translations: Optional[int] = None
+        min_translations: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get paginated list of poets with statistics."""
         pass
@@ -125,7 +129,7 @@ class IPoetServiceV2(ABC):
         language: Optional[str] = None,
         has_translations: Optional[bool] = None,
         sort_by: str = "title",
-        sort_order: str = "asc"
+        sort_order: str = "asc",
     ) -> Dict[str, Any]:
         """Get detailed poet information with poems and statistics."""
         pass
@@ -151,7 +155,7 @@ class IWorkflowServiceV2(ABC):
         target_lang: str,
         workflow_mode: str,
         background_tasks: "BackgroundTasks",
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
     ) -> str:
         """Start a new translation workflow."""
         pass
@@ -171,7 +175,7 @@ class IWorkflowServiceV2(ABC):
         self,
         limit: int = 50,
         user_id: Optional[str] = None,
-        status_filter: Optional[str] = None
+        status_filter: Optional[str] = None,
     ) -> Dict[str, Any]:
         """List workflow tasks with filtering."""
         pass
@@ -183,11 +187,7 @@ class IWorkflowServiceV2(ABC):
 
     @abstractmethod
     async def validate_workflow_input(
-        self,
-        poem_id: str,
-        source_lang: str,
-        target_lang: str,
-        workflow_mode: str
+        self, poem_id: str, source_lang: str, target_lang: str, workflow_mode: str
     ) -> Dict[str, Any]:
         """Validate workflow input parameters."""
         pass
@@ -222,10 +222,7 @@ class ITemplateServiceV2(ABC):
 
     @abstractmethod
     async def render_template(
-        self,
-        template_name: str,
-        context: Dict[str, Any],
-        request: Optional[Any] = None
+        self, template_name: str, context: Dict[str, Any], request: Optional[Any] = None
     ) -> str:
         """Render a template with context."""
         pass
@@ -237,9 +234,7 @@ class ITemplateServiceV2(ABC):
 
     @abstractmethod
     async def validate_template_data(
-        self,
-        template_name: str,
-        data: Dict[str, Any]
+        self, template_name: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Validate template data before rendering."""
         pass
@@ -250,21 +245,14 @@ class IExceptionHandlerServiceV2(ABC):
 
     @abstractmethod
     async def handle_http_error(
-        self,
-        error: Exception,
-        request: Any,
-        is_web_request: bool
+        self, error: Exception, request: Any, is_web_request: bool
     ) -> Any:
         """Handle HTTP errors with appropriate formatting."""
         pass
 
     @abstractmethod
     async def handle_general_error(
-        self,
-        error: Exception,
-        request: Any,
-        error_id: str,
-        is_web_request: bool
+        self, error: Exception, request: Any, error_id: str, is_web_request: bool
     ) -> Any:
         """Handle general exceptions with logging and formatting."""
         pass
@@ -285,16 +273,13 @@ class IPerformanceServiceV2(ABC):
         path: str,
         status_code: int,
         duration: float,
-        additional_data: Optional[Dict[str, Any]] = None
+        additional_data: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log request performance metrics."""
         pass
 
     @abstractmethod
-    async def get_performance_summary(
-        self,
-        minutes: int = 60
-    ) -> Dict[str, Any]:
+    async def get_performance_summary(self, minutes: int = 60) -> Dict[str, Any]:
         """Get performance summary for specified time period."""
         pass
 
@@ -309,10 +294,7 @@ class ITaskManagementServiceV2(ABC):
 
     @abstractmethod
     async def create_task(
-        self,
-        task_type: str,
-        task_data: Dict[str, Any],
-        user_id: Optional[str] = None
+        self, task_type: str, task_data: Dict[str, Any], user_id: Optional[str] = None
     ) -> str:
         """Create a new background task."""
         pass
@@ -328,7 +310,7 @@ class ITaskManagementServiceV2(ABC):
         task_id: str,
         status: str,
         result: Optional[Dict[str, Any]] = None,
-        error: Optional[str] = None
+        error: Optional[str] = None,
     ) -> None:
         """Update task status."""
         pass
@@ -359,20 +341,13 @@ class ISSEServiceV2(ABC):
     """Interface for Server-Sent Events (SSE) functionality."""
 
     @abstractmethod
-    async def create_sse_stream(
-        self,
-        task_id: str,
-        request: Any
-    ) -> Any:
+    async def create_sse_stream(self, task_id: str, request: Any) -> Any:
         """Create SSE stream for real-time updates."""
         pass
 
     @abstractmethod
     async def send_sse_event(
-        self,
-        task_id: str,
-        event_type: str,
-        data: Dict[str, Any]
+        self, task_id: str, event_type: str, data: Dict[str, Any]
     ) -> None:
         """Send SSE event to connected clients."""
         pass

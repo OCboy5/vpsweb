@@ -24,10 +24,13 @@ import traceback
 # Async Utilities
 # ============================================================================
 
+
 class AsyncTimer:
     """Context manager for timing async operations."""
 
-    def __init__(self, name: str = "operation", logger: Optional[logging.Logger] = None):
+    def __init__(
+        self, name: str = "operation", logger: Optional[logging.Logger] = None
+    ):
         self.name = name
         self.logger = logger or logging.getLogger(__name__)
         self.start_time = None
@@ -70,7 +73,9 @@ async def timeout_context(timeout_seconds: float, operation_name: str = "operati
         async with asyncio.timeout(timeout_seconds):
             yield
     except asyncio.TimeoutError:
-        raise asyncio.TimeoutError(f"Operation '{operation_name}' timed out after {timeout_seconds}s")
+        raise asyncio.TimeoutError(
+            f"Operation '{operation_name}' timed out after {timeout_seconds}s"
+        )
 
 
 async def gather_with_errors(*tasks, return_exceptions: bool = False) -> List[Any]:
@@ -106,10 +111,7 @@ async def gather_with_errors(*tasks, return_exceptions: bool = False) -> List[An
 
 
 async def batch_process(
-    items: List[Any],
-    processor: Callable,
-    batch_size: int = 10,
-    concurrency: int = 5
+    items: List[Any], processor: Callable, batch_size: int = 10, concurrency: int = 5
 ) -> AsyncGenerator[Any, None]:
     """
     Process items in batches with controlled concurrency.
@@ -130,7 +132,7 @@ async def batch_process(
             return await processor(item)
 
     for i in range(0, len(items), batch_size):
-        batch = items[i:i + batch_size]
+        batch = items[i : i + batch_size]
         tasks = [process_with_semaphore(item) for item in batch]
         batch_results = await gather_with_errors(*tasks)
         for result in batch_results:
@@ -141,9 +143,11 @@ async def batch_process(
 # Error Handling and Resilience
 # ============================================================================
 
+
 @dataclass
 class ErrorInfo:
     """Structured error information."""
+
     error_type: str
     message: str
     traceback: Optional[str] = None
@@ -159,16 +163,14 @@ class ErrorCollector:
         self.max_errors = max_errors
 
     def add_error(
-        self,
-        error: Exception,
-        context: Optional[Dict[str, Any]] = None
+        self, error: Exception, context: Optional[Dict[str, Any]] = None
     ) -> ErrorInfo:
         """Add an error to the collector."""
         error_info = ErrorInfo(
             error_type=type(error).__name__,
             message=str(error),
             traceback=traceback.format_exc(),
-            context=context
+            context=context,
         )
 
         self.errors.append(error_info)
@@ -204,7 +206,7 @@ class ErrorCollector:
 def async_error_handler(
     error_collector: Optional[ErrorCollector] = None,
     default_return: Any = None,
-    log_errors: bool = True
+    log_errors: bool = True,
 ):
     """
     Decorator for handling errors in async functions.
@@ -214,6 +216,7 @@ def async_error_handler(
         default_return: Default return value on error
         log_errors: Whether to log errors
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -221,7 +224,7 @@ def async_error_handler(
                 return await func(*args, **kwargs)
             except Exception as e:
                 if error_collector:
-                    error_collector.add_error(e, context={'function': func.__name__})
+                    error_collector.add_error(e, context={"function": func.__name__})
 
                 if log_errors:
                     logger = logging.getLogger(func.__module__)
@@ -232,12 +235,14 @@ def async_error_handler(
                 raise
 
         return wrapper
+
     return decorator
 
 
 # ============================================================================
 # Resource Management
 # ============================================================================
+
 
 class ResourceManager:
     """Manager for cleanup of resources."""
@@ -249,7 +254,7 @@ class ResourceManager:
         self,
         resource: Any,
         cleanup_func: Optional[Callable] = None,
-        name: Optional[str] = None
+        name: Optional[str] = None,
     ) -> None:
         """
         Add a resource to be managed.
@@ -260,15 +265,20 @@ class ResourceManager:
             name: Optional resource name for debugging
         """
         resource_info = {
-            'resource': resource,
-            'cleanup_func': cleanup_func,
-            'name': name or str(resource),
-            'created_at': time.time()
+            "resource": resource,
+            "cleanup_func": cleanup_func,
+            "name": name or str(resource),
+            "created_at": time.time(),
         }
         self.resources.append(resource_info)
 
     @contextmanager
-    def managed_resource(self, resource: Any, cleanup_func: Optional[Callable] = None, name: Optional[str] = None):
+    def managed_resource(
+        self,
+        resource: Any,
+        cleanup_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+    ):
         """Context manager for a single managed resource."""
         self.add_resource(resource, cleanup_func, name)
         try:
@@ -279,7 +289,7 @@ class ResourceManager:
     def cleanup_resource(self, resource: Any) -> None:
         """Cleanup a specific resource."""
         for resource_info in reversed(self.resources):
-            if resource_info['resource'] is resource:
+            if resource_info["resource"] is resource:
                 self._cleanup_resource_info(resource_info)
                 self.resources.remove(resource_info)
                 break
@@ -292,8 +302,8 @@ class ResourceManager:
 
     def _cleanup_resource_info(self, resource_info: Dict[str, Any]) -> None:
         """Cleanup a single resource info."""
-        resource = resource_info['resource']
-        cleanup_func = resource_info['cleanup_func']
+        resource = resource_info["resource"]
+        cleanup_func = resource_info["cleanup_func"]
 
         if cleanup_func:
             try:
@@ -308,7 +318,7 @@ class ResourceManager:
                 logger.warning(f"Error cleaning up {resource_info['name']}: {e}")
 
         # Generic cleanup methods
-        for attr in ['close', 'cleanup', 'dispose']:
+        for attr in ["close", "cleanup", "dispose"]:
             if hasattr(resource, attr):
                 try:
                     method = getattr(resource, attr)
@@ -321,12 +331,15 @@ class ResourceManager:
                     break
                 except Exception as e:
                     logger = logging.getLogger(__name__)
-                    logger.warning(f"Error calling {attr} on {resource_info['name']}: {e}")
+                    logger.warning(
+                        f"Error calling {attr} on {resource_info['name']}: {e}"
+                    )
 
 
 # ============================================================================
 # Data Processing Utilities
 # ============================================================================
+
 
 def safe_json_loads(json_str: str, default: Any = None) -> Any:
     """
@@ -362,7 +375,7 @@ def safe_json_dumps(obj: Any, default: str = "{}") -> str:
         return default
 
 
-def generate_hash(data: Any, algorithm: str = 'sha256') -> str:
+def generate_hash(data: Any, algorithm: str = "sha256") -> str:
     """
     Generate hash of data.
 
@@ -379,7 +392,7 @@ def generate_hash(data: Any, algorithm: str = 'sha256') -> str:
         data_str = str(data)
 
     hash_obj = hashlib.new(algorithm)
-    hash_obj.update(data_str.encode('utf-8'))
+    hash_obj.update(data_str.encode("utf-8"))
     return hash_obj.hexdigest()
 
 
@@ -422,9 +435,7 @@ def deep_merge_dict(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, A
 
 
 def flatten_dict(
-    d: Dict[str, Any],
-    parent_key: str = '',
-    sep: str = '.'
+    d: Dict[str, Any], parent_key: str = "", sep: str = "."
 ) -> Dict[str, Any]:
     """
     Flatten a nested dictionary.
@@ -454,8 +465,10 @@ def flatten_dict(
 # Validation Utilities
 # ============================================================================
 
+
 class ValidationError(Exception):
     """Custom validation error."""
+
     pass
 
 
@@ -505,7 +518,8 @@ def validate_email(email: str) -> bool:
         True if valid, False otherwise
     """
     import re
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(pattern, email) is not None
 
 
@@ -520,7 +534,8 @@ def validate_url(url: str) -> bool:
         True if valid, False otherwise
     """
     import re
-    pattern = r'^https?://[^\s/$.?#].[^\s]*$'
+
+    pattern = r"^https?://[^\s/$.?#].[^\s]*$"
     return re.match(pattern, url) is not None
 
 
@@ -528,12 +543,14 @@ def validate_url(url: str) -> bool:
 # Performance Monitoring
 # ============================================================================
 
+
 @dataclass
 class PerformanceMetrics:
     """Performance metrics collection."""
+
     operation_count: int = 0
     total_duration: float = 0.0
-    min_duration: float = float('inf')
+    min_duration: float = float("inf")
     max_duration: float = 0.0
     error_count: int = 0
 
@@ -555,12 +572,13 @@ class PerformanceMetrics:
     def get_summary(self) -> Dict[str, Any]:
         """Get performance summary."""
         return {
-            'operation_count': self.operation_count,
-            'average_duration': self.average_duration,
-            'min_duration': self.min_duration,
-            'max_duration': self.max_duration,
-            'error_count': self.error_count,
-            'success_rate': (self.operation_count - self.error_count) / max(self.operation_count, 1)
+            "operation_count": self.operation_count,
+            "average_duration": self.average_duration,
+            "min_duration": self.min_duration,
+            "max_duration": self.max_duration,
+            "error_count": self.error_count,
+            "success_rate": (self.operation_count - self.error_count)
+            / max(self.operation_count, 1),
         }
 
 
@@ -571,10 +589,7 @@ class PerformanceMonitor:
         self.metrics: Dict[str, PerformanceMetrics] = {}
 
     def record_operation(
-        self,
-        operation_name: str,
-        duration: float,
-        success: bool = True
+        self, operation_name: str, duration: float, success: bool = True
     ) -> None:
         """Record an operation performance."""
         if operation_name not in self.metrics:
@@ -588,7 +603,7 @@ class PerformanceMonitor:
         path: str,
         status_code: int,
         duration_ms: float,
-        additional_data: Optional[Dict[str, Any]] = None
+        additional_data: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record HTTP request performance metrics."""
         operation_name = f"{method} {path}"

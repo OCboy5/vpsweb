@@ -245,9 +245,38 @@ async function createTranslationCard(translation) {
         }
     }
 
+    // Get workflow_mode for AI translations
+    let workflowMode = null;
+    if (translation.translator_type === 'ai') {
+        try {
+            const response = await fetch(`/api/v1/poems/${translation.poem_id}/translations`);
+            if (response.ok) {
+                const poemTranslations = await response.json();
+                const currentTranslation = poemTranslations.find(t => t.id === translation.id);
+                if (currentTranslation && currentTranslation.workflow_mode) {
+                    workflowMode = currentTranslation.workflow_mode;
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to fetch workflow_mode:', error);
+        }
+    }
+
     // Create translation card using shared component template logic
     const createdDate = new Date(translation.created_at).toLocaleString();
-    const qualityStars = translation.quality_rating ? '★'.repeat(translation.quality_rating) + '☆'.repeat(5 - translation.quality_rating) : 'Not rated';
+
+    // Format quality rating (0-10 scale) - matching translation_card.html logic
+    let qualityDisplay, qualityColor;
+    if (translation.quality_rating && translation.quality_rating > 0) {
+        qualityDisplay = translation.quality_rating + '/10';
+        qualityColor = translation.quality_rating >= 8 ? 'text-green-600' :
+                      translation.quality_rating >= 6 ? 'text-blue-600' :
+                      translation.quality_rating >= 4 ? 'text-yellow-600' :
+                      'text-red-600';
+    } else {
+        qualityDisplay = 'Unrated';
+        qualityColor = 'text-gray-400';
+    }
 
     // Use translated title/poet name when available, otherwise fall back to original
     const displayTitle = translation.translated_poem_title || poemInfo.title;
@@ -264,12 +293,17 @@ async function createTranslationCard(translation) {
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${translation.translator_type === 'ai' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}">
                             ${translation.translator_type}
                         </span>
+                        ${workflowMode ? `
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            ${workflowMode}
+                        </span>
+                        ` : ''}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             ${translation.target_language}
                         </span>
-                        <div class="text-yellow-400 text-sm" title="Quality Rating">
-                            ${qualityStars}
-                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${qualityColor.includes('green') ? 'bg-green-100 text-green-800' : qualityColor.includes('blue') ? 'bg-blue-100 text-blue-800' : qualityColor.includes('yellow') ? 'bg-yellow-100 text-yellow-800' : qualityColor.includes('red') ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}" title="Quality Rating">
+                            ${qualityDisplay}
+                        </span>
                     </div>
                     <h4 class="text-lg font-medium text-gray-900 mb-1">${displayTitle}</h4>
                     <p class="text-sm text-gray-500 mb-2">${displayPoet}</p>

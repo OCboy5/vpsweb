@@ -295,7 +295,7 @@ class TranslationBase(BaseSchema):
         examples=["Tao Yuanming", "陶渊明"],
     )
     quality_rating: Optional[int] = Field(
-        None, ge=1, le=5, description="Quality rating (1=Poor, 5=Excellent)"
+        None, ge=0, le=10, description="Quality rating (0=Not Rated, 1-10=Rating)"
     )
     raw_path: Optional[str] = Field(
         None, max_length=500, description="Path to raw output file"
@@ -429,7 +429,7 @@ class TranslationUpdate(BaseSchema):
     translator_info: Optional[str] = Field(None, max_length=200)
     target_language: Optional[str] = Field(None, min_length=2, max_length=10)
     translated_text: Optional[str] = Field(None, min_length=1)
-    quality_rating: Optional[int] = Field(None, ge=1, le=5)
+    quality_rating: Optional[int] = Field(None, ge=0, le=10)
     raw_path: Optional[str] = None
 
 

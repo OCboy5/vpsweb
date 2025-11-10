@@ -15,14 +15,13 @@
     {% set created_date = created_date | string %}
 {% endif %}
 
-{# Format quality rating #}
-{% set quality_stars = translation.quality_rating | string if translation.quality_rating else '' %}
-{% if quality_stars != '' %}
-    {% set full_stars = '★' * translation.quality_rating %}
-    {% set empty_stars = '☆' * (5 - translation.quality_rating) %}
-    {% set quality_display = full_stars + empty_stars %}
+{# Format quality rating (0-10 scale) #}
+{% if translation.quality_rating is defined and translation.quality_rating > 0 %}
+    {% set quality_display = translation.quality_rating|string + '/10' %}
+    {% set quality_color = 'text-green-600' if translation.quality_rating >= 8 else 'text-blue-600' if translation.quality_rating >= 6 else 'text-yellow-600' if translation.quality_rating >= 4 else 'text-red-600' %}
 {% else %}
-    {% set quality_display = 'Not rated' %}
+    {% set quality_display = 'Unrated' %}
+    {% set quality_color = 'text-gray-400' %}
 {% endif %}
 
 {# Determine Translation Notes button visibility based on AI logs existence #}
@@ -38,7 +37,7 @@
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {{ translation.target_language }}
                 </span>
-                <div class="text-yellow-400 text-sm" title="Quality Rating">
+                <div class="{{ quality_color }} text-sm font-medium" title="Quality Rating">
                     {{ quality_display }}
                 </div>
             </div>

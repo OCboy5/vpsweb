@@ -53,10 +53,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
         self.logger = logger or logging.getLogger(__name__)
         self.error_collector = ErrorCollector()
 
-    async def read_poem_from_input(
-        self,
-        input_path: Optional[str] = None
-    ) -> str:
+    async def read_poem_from_input(self, input_path: Optional[str] = None) -> str:
         """Read poem text from file or stdin."""
         try:
             if input_path:
@@ -71,7 +68,9 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 if not poem_text:
                     raise ValueError(f"Input file is empty: {input_path}")
 
-                self.logger.info(f"Read poem from file: {input_path} ({len(poem_text)} chars)")
+                self.logger.info(
+                    f"Read poem from file: {input_path} ({len(poem_text)} chars)"
+                )
                 return poem_text
 
             else:
@@ -99,10 +98,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
             raise
 
     def validate_translation_input(
-        self,
-        source_lang: str,
-        target_lang: str,
-        poem_text: str
+        self, source_lang: str, target_lang: str, poem_text: str
     ) -> Dict[str, Any]:
         """Validate translation input parameters."""
         try:
@@ -118,7 +114,9 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 errors.append("Poem text cannot be empty")
 
             if len(poem_text.strip()) < 10:
-                warnings.append("Poem text is very short, translation quality may be affected")
+                warnings.append(
+                    "Poem text is very short, translation quality may be affected"
+                )
 
             if len(poem_text.strip()) > 10000:
                 warnings.append("Poem text is very long, processing may take time")
@@ -138,7 +136,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 "source_lang": source_lang,
                 "target_lang": target_lang,
                 "poem_length": len(poem_text),
-                "validation_timestamp": datetime.now(timezone.utc).isoformat()
+                "validation_timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
             if result["valid"]:
@@ -149,11 +147,14 @@ class CLIInputServiceV2(ICLIInputServiceV2):
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                "poem_length": len(poem_text) if poem_text else 0
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "poem_length": len(poem_text) if poem_text else 0,
+                },
+            )
             self.logger.error(f"Error validating translation input: {e}")
             return {
                 "valid": False,
@@ -161,7 +162,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 "warnings": [],
                 "source_lang": source_lang,
                 "target_lang": target_lang,
-                "poem_length": len(poem_text) if poem_text else 0
+                "poem_length": len(poem_text) if poem_text else 0,
             }
 
     def create_translation_input(
@@ -169,29 +170,34 @@ class CLIInputServiceV2(ICLIInputServiceV2):
         poem_text: str,
         source_lang: str,
         target_lang: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> TranslationInput:
         """Create TranslationInput object from parameters."""
         try:
             input_data = TranslationInput(
                 original_poem=poem_text,
                 source_lang=source_lang,
-                target_lang=target_lang
+                target_lang=target_lang,
             )
 
             # Add metadata if provided
             if metadata:
                 input_data.metadata.update(metadata)
 
-            self.logger.debug(f"Created TranslationInput: {source_lang} → {target_lang}")
+            self.logger.debug(
+                f"Created TranslationInput: {source_lang} → {target_lang}"
+            )
             return input_data
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                "metadata_keys": list(metadata.keys()) if metadata else []
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "metadata_keys": list(metadata.keys()) if metadata else [],
+                },
+            )
             self.logger.error(f"Error creating TranslationInput: {e}")
             raise
 
@@ -204,9 +210,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
         self.error_collector = ErrorCollector()
 
     async def load_configuration(
-        self,
-        config_path: Optional[str] = None,
-        verbose: bool = False
+        self, config_path: Optional[str] = None, verbose: bool = False
     ) -> Dict[str, Any]:
         """Load and validate configuration."""
         try:
@@ -236,7 +240,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                 "providers_config": complete_config.providers,
                 "storage_config": complete_config.main.storage,
                 "config_path": config_path,
-                "loaded_at": datetime.now(timezone.utc).isoformat()
+                "loaded_at": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -245,8 +249,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             raise
 
     async def validate_configuration(
-        self,
-        config_path: Optional[str] = None
+        self, config_path: Optional[str] = None
     ) -> Dict[str, Any]:
         """Validate configuration files."""
         try:
@@ -259,7 +262,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                 "errors": validation_result.get("errors", []),
                 "warnings": validation_result.get("warnings", []),
                 "config_path": config_path,
-                "validated_at": datetime.now(timezone.utc).isoformat()
+                "validated_at": datetime.now(timezone.utc).isoformat(),
             }
 
             if result["valid"]:
@@ -278,7 +281,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                 "valid": False,
                 "errors": [str(e)],
                 "warnings": [],
-                "config_path": config_path
+                "config_path": config_path,
             }
 
     def get_workflow_modes(self) -> List[Dict[str, Any]]:
@@ -287,24 +290,21 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             {
                 "name": "reasoning",
                 "description": "Step-by-step reasoning with detailed analysis",
-                "recommended_for": "complex or literary poems"
+                "recommended_for": "complex or literary poems",
             },
             {
                 "name": "non_reasoning",
                 "description": "Direct translation without detailed reasoning",
-                "recommended_for": "simple or technical content"
+                "recommended_for": "simple or technical content",
             },
             {
                 "name": "hybrid",
                 "description": "Balanced approach with selective reasoning",
-                "recommended_for": "most content types"
-            }
+                "recommended_for": "most content types",
+            },
         ]
 
-    async def setup_logging(
-        self,
-        verbose: bool = False
-    ) -> None:
+    async def setup_logging(self, verbose: bool = False) -> None:
         """Setup logging configuration."""
         try:
             log_level = LogLevel.DEBUG if verbose else LogLevel.INFO
@@ -327,9 +327,7 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
         self.performance_monitor = PerformanceMonitor()
 
     async def initialize_workflow(
-        self,
-        config: Dict[str, Any],
-        workflow_mode: WorkflowMode
+        self, config: Dict[str, Any], workflow_mode: WorkflowMode
     ) -> TranslationWorkflow:
         """Initialize translation workflow."""
         try:
@@ -344,9 +342,9 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
             return workflow
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "workflow_mode": workflow_mode.value if workflow_mode else None
-            })
+            self.error_collector.add_error(
+                e, {"workflow_mode": workflow_mode.value if workflow_mode else None}
+            )
             self.logger.error(f"Error initializing workflow: {e}")
             raise
 
@@ -355,14 +353,16 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
         workflow: TranslationWorkflow,
         input_data: TranslationInput,
         workflow_mode: str,
-        show_progress: bool = True
+        show_progress: bool = True,
     ) -> TranslationOutput:
         """Execute translation workflow."""
         try:
             click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
 
             # Display original poem
-            click.echo(f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):")
+            click.echo(
+                f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):"
+            )
             click.echo("-" * 30)
             poem = input_data.original_poem
             if len(poem) > 200:
@@ -372,27 +372,32 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
             click.echo()
 
             # Execute workflow
-            translation_output = await workflow.execute(input_data, show_progress=show_progress)
+            translation_output = await workflow.execute(
+                input_data, show_progress=show_progress
+            )
 
-            self.logger.info(f"Workflow completed successfully: {translation_output.workflow_id}")
+            self.logger.info(
+                f"Workflow completed successfully: {translation_output.workflow_id}"
+            )
             return translation_output
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "workflow_mode": workflow_mode,
-                "input_data": {
-                    "source_lang": input_data.source_lang,
-                    "target_lang": input_data.target_lang,
-                    "poem_length": len(input_data.original_poem)
-                }
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "workflow_mode": workflow_mode,
+                    "input_data": {
+                        "source_lang": input_data.source_lang,
+                        "target_lang": input_data.target_lang,
+                        "poem_length": len(input_data.original_poem),
+                    },
+                },
+            )
             self.logger.error(f"Error executing workflow: {e}")
             raise
 
     async def validate_workflow_input(
-        self,
-        input_data: TranslationInput,
-        config_path: Optional[str] = None
+        self, input_data: TranslationInput, config_path: Optional[str] = None
     ) -> Dict[str, Any]:
         """Validate workflow input without execution."""
         try:
@@ -408,16 +413,18 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
                 "input_validation": {
                     "source_lang": input_data.source_lang,
                     "target_lang": input_data.target_lang,
-                    "poem_length": len(input_data.original_poem)
+                    "poem_length": len(input_data.original_poem),
                 },
-                "validated_at": datetime.now(timezone.utc).isoformat()
+                "validated_at": datetime.now(timezone.utc).isoformat(),
             }
 
             if result["valid"]:
                 click.echo("✅ Input validation passed")
                 click.echo(f"   Source: {input_data.source_lang}")
                 click.echo(f"   Target: {input_data.target_lang}")
-                click.echo(f"   Poem length: {len(input_data.original_poem)} characters")
+                click.echo(
+                    f"   Poem length: {len(input_data.original_poem)} characters"
+                )
             else:
                 for error in result["errors"]:
                     click.echo(f"❌ {error}")
@@ -438,8 +445,7 @@ class CLIStorageServiceV2(ICLIStorageServiceV2):
         self.error_collector = ErrorCollector()
 
     async def setup_storage_handler(
-        self,
-        output_dir: Optional[str] = None
+        self, output_dir: Optional[str] = None
     ) -> StorageHandler:
         """Setup storage handler for results."""
         try:
@@ -456,7 +462,7 @@ class CLIStorageServiceV2(ICLIStorageServiceV2):
         self,
         translation_output: TranslationOutput,
         workflow_mode: str,
-        include_mode_tag: bool = False
+        include_mode_tag: bool = False,
     ) -> Dict[str, Path]:
         """Save translation results to storage."""
         try:
@@ -468,19 +474,28 @@ class CLIStorageServiceV2(ICLIStorageServiceV2):
             workflow_id = translation_output.workflow_id[:8]
 
             result = {
-                "json": Path(f"outputs/json/translation_{workflow_id}_{timestamp}.json"),
-                "markdown_final": Path(f"outputs/markdown/translation_{workflow_id}_{timestamp}.md"),
-                "markdown_log": Path(f"outputs/markdown/translation_{workflow_id}_{timestamp}_log.md")
+                "json": Path(
+                    f"outputs/json/translation_{workflow_id}_{timestamp}.json"
+                ),
+                "markdown_final": Path(
+                    f"outputs/markdown/translation_{workflow_id}_{timestamp}.md"
+                ),
+                "markdown_log": Path(
+                    f"outputs/markdown/translation_{workflow_id}_{timestamp}_log.md"
+                ),
             }
 
             self.logger.info(f"Translation results saved: {len(result)} files")
             return result
 
         except Exception as e:
-            self.error_collector.add_error(e, {
-                "workflow_mode": workflow_mode,
-                "workflow_id": translation_output.workflow_id
-            })
+            self.error_collector.add_error(
+                e,
+                {
+                    "workflow_mode": workflow_mode,
+                    "workflow_id": translation_output.workflow_id,
+                },
+            )
             self.logger.error(f"Error saving translation results: {e}")
             raise
 
@@ -492,9 +507,7 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
         self.logger = logger or logging.getLogger(__name__)
 
     async def display_translation_summary(
-        self,
-        translation_output: TranslationOutput,
-        saved_files: Dict[str, Path]
+        self, translation_output: TranslationOutput, saved_files: Dict[str, Path]
     ) -> None:
         """Display translation workflow summary."""
         try:
@@ -529,10 +542,13 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
             # Editor suggestions count
             editor_suggestions = translation_output.editor_review.editor_suggestions
             if editor_suggestions:
-                suggestions_count = len([
-                    line for line in editor_suggestions.split("\n")
-                    if line.strip() and line.strip()[0].isdigit()
-                ])
+                suggestions_count = len(
+                    [
+                        line
+                        for line in editor_suggestions.split("\n")
+                        if line.strip() and line.strip()[0].isdigit()
+                    ]
+                )
                 click.echo(f"📋 Editor suggestions: {suggestions_count}")
             else:
                 click.echo(f"📋 Editor suggestions: 0")
@@ -544,14 +560,14 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
             # Don't raise - display errors shouldn't stop the workflow
 
     def format_workflow_progress(
-        self,
-        step_name: str,
-        progress_data: Dict[str, Any]
+        self, step_name: str, progress_data: Dict[str, Any]
     ) -> str:
         """Format workflow progress information."""
         try:
             if progress_data.get("status") == "in_progress":
-                return f"🔄 {step_name}: {progress_data.get('message', 'Processing...')}"
+                return (
+                    f"🔄 {step_name}: {progress_data.get('message', 'Processing...')}"
+                )
             elif progress_data.get("status") == "completed":
                 return f"✅ {step_name}: Completed"
             elif progress_data.get("status") == "error":
@@ -566,7 +582,7 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
         self,
         error_type: str,
         error_message: str,
-        context: Optional[Dict[str, Any]] = None
+        context: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Format error message for CLI display."""
         try:
@@ -576,7 +592,7 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
                 "WorkflowError": "🔄",
                 "WeChatError": "📱",
                 "StorageError": "💾",
-                "GeneralError": "⚠️"
+                "GeneralError": "⚠️",
             }
 
             emoji = type_emoji.get(error_type, "❌")
@@ -603,10 +619,7 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
         self.error_collector = ErrorCollector()
 
     def handle_cli_error(
-        self,
-        error: Exception,
-        command_context: str,
-        verbose: bool = False
+        self, error: Exception, command_context: str, verbose: bool = False
     ) -> int:
         """Handle CLI errors and return exit code."""
         try:
@@ -614,7 +627,9 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
             error_message = str(error)
 
             # Log the error
-            self.logger.error(f"CLI Error in {command_context}: {error_message}", exc_info=True)
+            self.logger.error(
+                f"CLI Error in {command_context}: {error_message}", exc_info=True
+            )
 
             # Display error to user
             formatted_message = self.format_error_message(error_type, error_message)
@@ -632,7 +647,7 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
                 "WorkflowError": 3,
                 "WeChatError": 4,
                 "StorageError": 5,
-                "GeneralError": 1
+                "GeneralError": 1,
             }
 
             return exit_codes.get(error_type, 1)
@@ -643,10 +658,7 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
             click.echo(f"❌ Critical error: {e}", err=True)
             return 1
 
-    def categorize_error(
-        self,
-        error: Exception
-    ) -> str:
+    def categorize_error(self, error: Exception) -> str:
         """Categorize error type for appropriate handling."""
         error_class = error.__class__.__name__
 
@@ -666,11 +678,7 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
 
         return class_mapping.get(error_class, "GeneralError")
 
-    def should_show_traceback(
-        self,
-        error: Exception,
-        verbose: bool
-    ) -> bool:
+    def should_show_traceback(self, error: Exception, verbose: bool) -> bool:
         """Determine if traceback should be shown."""
         # Always show in verbose mode
         if verbose:
@@ -695,24 +703,22 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
         self.logger = logger or logging.getLogger(__name__)
 
     async def setup_command_logging(
-        self,
-        command_name: str,
-        verbose: bool = False
+        self, command_name: str, verbose: bool = False
     ) -> None:
         """Setup logging for specific command."""
         try:
             log_level = LogLevel.DEBUG if verbose else LogLevel.INFO
             setup_logging(log_level)
 
-            self.logger.info(f"CLI command logging setup: {command_name} (level: {log_level.value})")
+            self.logger.info(
+                f"CLI command logging setup: {command_name} (level: {log_level.value})"
+            )
 
         except Exception as e:
             self.logger.error(f"Error setting up command logging: {e}")
 
     async def log_command_start(
-        self,
-        command_name: str,
-        parameters: Dict[str, Any]
+        self, command_name: str, parameters: Dict[str, Any]
     ) -> None:
         """Log command start with parameters."""
         try:
@@ -725,15 +731,15 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
                 else:
                     safe_params[key] = value
 
-            self.logger.info(f"CLI command started: {command_name} with params: {safe_params}")
+            self.logger.info(
+                f"CLI command started: {command_name} with params: {safe_params}"
+            )
 
         except Exception as e:
             self.logger.error(f"Error logging command start: {e}")
 
     async def log_command_success(
-        self,
-        command_name: str,
-        result: Dict[str, Any]
+        self, command_name: str, result: Dict[str, Any]
     ) -> None:
         """Log successful command completion."""
         try:
@@ -746,26 +752,27 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
             if "duration" in result:
                 summary["duration"] = f"{result['duration']:.2f}s"
 
-            self.logger.info(f"CLI command completed: {command_name} - Result: {summary}")
+            self.logger.info(
+                f"CLI command completed: {command_name} - Result: {summary}"
+            )
 
         except Exception as e:
             self.logger.error(f"Error logging command success: {e}")
 
     async def log_command_error(
-        self,
-        command_name: str,
-        error: Exception,
-        context: Dict[str, Any]
+        self, command_name: str, error: Exception, context: Dict[str, Any]
     ) -> None:
         """Log command error with context."""
         try:
             error_info = {
                 "error_type": error.__class__.__name__,
                 "error_message": str(error),
-                "context": context
+                "context": context,
             }
 
-            self.logger.error(f"CLI command error: {command_name} - {error_info}", exc_info=True)
+            self.logger.error(
+                f"CLI command error: {command_name} - {error_info}", exc_info=True
+            )
 
         except Exception as e:
             self.logger.error(f"Error logging command error: {e}")
@@ -773,6 +780,7 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
 
 # Additional service implementations would go here for WeChat operations, etc.
 # For brevity, I'll create placeholder classes for the remaining interfaces
+
 
 class CLIWeChatServiceV2(ICLIWeChatServiceV2):
     """CLI WeChat operations service."""
@@ -788,7 +796,7 @@ class CLIWeChatServiceV2(ICLIWeChatServiceV2):
         author: Optional[str] = None,
         digest: Optional[str] = None,
         model_type: Optional[str] = None,
-        dry_run: bool = False
+        dry_run: bool = False,
     ) -> Dict[str, Any]:
         """Generate WeChat article from translation."""
         # Implementation would go here
@@ -798,24 +806,18 @@ class CLIWeChatServiceV2(ICLIWeChatServiceV2):
         self,
         article_directory: Path,
         config_path: Optional[Path] = None,
-        dry_run: bool = False
+        dry_run: bool = False,
     ) -> Dict[str, Any]:
         """Publish WeChat article."""
         # Implementation would go here
         pass
 
-    def validate_article_directory(
-        self,
-        directory: Path
-    ) -> Dict[str, Any]:
+    def validate_article_directory(self, directory: Path) -> Dict[str, Any]:
         """Validate article directory structure."""
         # Implementation would go here
         pass
 
-    def extract_article_metadata(
-        self,
-        directory: Path
-    ) -> Dict[str, Any]:
+    def extract_article_metadata(self, directory: Path) -> Dict[str, Any]:
         """Extract article metadata."""
         # Implementation would go here
         pass
@@ -833,7 +835,7 @@ class CLICommandServiceV2(ICLICommandServiceV2):
         output_service: ICLIOutputServiceV2,
         wechat_service: ICLIWeChatServiceV2,
         error_handler: ICLIErrorHandlerV2,
-        logger_service: ICLILoggerServiceV2
+        logger_service: ICLILoggerServiceV2,
     ):
         self.input_service = input_service
         self.config_service = config_service
@@ -853,20 +855,23 @@ class CLICommandServiceV2(ICLICommandServiceV2):
         config_path: Optional[str],
         output_dir: Optional[str],
         verbose: bool,
-        dry_run: bool
+        dry_run: bool,
     ) -> Dict[str, Any]:
         """Execute translate command."""
         try:
             # Setup logging
             await self.logger_service.setup_command_logging("translate", verbose)
-            await self.logger_service.log_command_start("translate", {
-                "input_path": input_path,
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                "workflow_mode": workflow_mode,
-                "config_path": config_path,
-                "dry_run": dry_run
-            })
+            await self.logger_service.log_command_start(
+                "translate",
+                {
+                    "input_path": input_path,
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "workflow_mode": workflow_mode,
+                    "config_path": config_path,
+                    "dry_run": dry_run,
+                },
+            )
 
             click.echo("🎭 Vox Poetica Studio Web - Professional Poetry Translation")
             click.echo("=" * 60)
@@ -879,7 +884,9 @@ class CLICommandServiceV2(ICLICommandServiceV2):
                 source_lang, target_lang, poem_text
             )
             if not validation_result["valid"]:
-                raise ValueError(f"Input validation failed: {validation_result['errors']}")
+                raise ValueError(
+                    f"Input validation failed: {validation_result['errors']}"
+                )
 
             # Create translation input
             input_data = self.input_service.create_translation_input(
@@ -900,20 +907,28 @@ class CLICommandServiceV2(ICLICommandServiceV2):
                 return {"dry_run": True, "validation": validation_result}
 
             # Initialize and execute workflow
-            workflow = await self.workflow_service.initialize_workflow(config, workflow_mode_enum)
-            translation_output = await self.workflow_service.execute_translation_workflow(
-                workflow, input_data, workflow_mode, show_progress=True
+            workflow = await self.workflow_service.initialize_workflow(
+                config, workflow_mode_enum
+            )
+            translation_output = (
+                await self.workflow_service.execute_translation_workflow(
+                    workflow, input_data, workflow_mode, show_progress=True
+                )
             )
 
             # Setup storage and save results
-            storage_handler = await self.storage_service.setup_storage_handler(output_dir)
+            storage_handler = await self.storage_service.setup_storage_handler(
+                output_dir
+            )
             include_mode_tag = config["storage_config"].workflow_mode_tag
             saved_files = await self.storage_service.save_translation_results(
                 translation_output, workflow_mode, include_mode_tag
             )
 
             # Display summary
-            await self.output_service.display_translation_summary(translation_output, saved_files)
+            await self.output_service.display_translation_summary(
+                translation_output, saved_files
+            )
 
             # Log success
             result = {
@@ -921,19 +936,23 @@ class CLICommandServiceV2(ICLICommandServiceV2):
                 "workflow_id": translation_output.workflow_id,
                 "workflow_mode": workflow_mode,
                 "output_files": saved_files,
-                "duration": translation_output.duration_seconds
+                "duration": translation_output.duration_seconds,
             }
             await self.logger_service.log_command_success("translate", result)
 
             return result
 
         except Exception as e:
-            await self.logger_service.log_command_error("translate", e, {
-                "input_path": input_path,
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                "workflow_mode": workflow_mode
-            })
+            await self.logger_service.log_command_error(
+                "translate",
+                e,
+                {
+                    "input_path": input_path,
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "workflow_mode": workflow_mode,
+                },
+            )
             raise
 
     async def execute_generate_article_command(
@@ -944,17 +963,20 @@ class CLICommandServiceV2(ICLICommandServiceV2):
         digest: Optional[str],
         model_type: Optional[str],
         dry_run: bool,
-        verbose: bool
+        verbose: bool,
     ) -> Dict[str, Any]:
         """Execute generate-article command."""
         try:
             await self.logger_service.setup_command_logging("generate-article", verbose)
-            await self.logger_service.log_command_start("generate-article", {
-                "input_json": str(input_json),
-                "output_dir": str(output_dir) if output_dir else None,
-                "author": author,
-                "dry_run": dry_run
-            })
+            await self.logger_service.log_command_start(
+                "generate-article",
+                {
+                    "input_json": str(input_json),
+                    "output_dir": str(output_dir) if output_dir else None,
+                    "author": author,
+                    "dry_run": dry_run,
+                },
+            )
 
             result = await self.wechat_service.generate_wechat_article(
                 input_json, output_dir, author, digest, model_type, dry_run
@@ -964,27 +986,30 @@ class CLICommandServiceV2(ICLICommandServiceV2):
             return result
 
         except Exception as e:
-            await self.logger_service.log_command_error("generate-article", e, {
-                "input_json": str(input_json),
-                "output_dir": str(output_dir) if output_dir else None
-            })
+            await self.logger_service.log_command_error(
+                "generate-article",
+                e,
+                {
+                    "input_json": str(input_json),
+                    "output_dir": str(output_dir) if output_dir else None,
+                },
+            )
             raise
 
     async def execute_publish_article_command(
-        self,
-        directory: Path,
-        config_path: Optional[Path],
-        dry_run: bool,
-        verbose: bool
+        self, directory: Path, config_path: Optional[Path], dry_run: bool, verbose: bool
     ) -> Dict[str, Any]:
         """Execute publish-article command."""
         try:
             await self.logger_service.setup_command_logging("publish-article", verbose)
-            await self.logger_service.log_command_start("publish-article", {
-                "directory": str(directory),
-                "config_path": str(config_path) if config_path else None,
-                "dry_run": dry_run
-            })
+            await self.logger_service.log_command_start(
+                "publish-article",
+                {
+                    "directory": str(directory),
+                    "config_path": str(config_path) if config_path else None,
+                    "dry_run": dry_run,
+                },
+            )
 
             result = await self.wechat_service.publish_wechat_article(
                 directory, config_path, dry_run
@@ -994,8 +1019,12 @@ class CLICommandServiceV2(ICLICommandServiceV2):
             return result
 
         except Exception as e:
-            await self.logger_service.log_command_error("publish-article", e, {
-                "directory": str(directory),
-                "config_path": str(config_path) if config_path else None
-            })
+            await self.logger_service.log_command_error(
+                "publish-article",
+                e,
+                {
+                    "directory": str(directory),
+                    "config_path": str(config_path) if config_path else None,
+                },
+            )
             raise

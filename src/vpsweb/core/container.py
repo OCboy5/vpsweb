@@ -11,11 +11,12 @@ import inspect
 from enum import Enum
 
 # Generic type variable for dependency injection
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class LifetimeScope(Enum):
     """Dependency lifetime scopes."""
+
     SINGLETON = "singleton"
     TRANSIENT = "transient"
     SCOPED = "scoped"
@@ -43,7 +44,7 @@ class DIContainer:
         instance: Optional[T] = None,
         *,
         lifetime: LifetimeScope = LifetimeScope.TRANSIENT,
-        name: Optional[str] = None
+        name: Optional[str] = None,
     ) -> None:
         """
         Register a dependency in the container.
@@ -62,39 +63,68 @@ class DIContainer:
             raise ValueError(f"Dependency {key} is already registered")
 
         if sum(bool(x) for x in [implementation, factory, instance]) != 1:
-            raise ValueError("Exactly one of implementation, factory, or instance must be provided")
+            raise ValueError(
+                "Exactly one of implementation, factory, or instance must be provided"
+            )
 
         if instance and lifetime != LifetimeScope.SINGLETON:
             raise ValueError("Instance can only be registered with SINGLETON lifetime")
 
         self._registrations[key] = {
-            'interface': interface,
-            'implementation': implementation,
-            'factory': factory,
-            'instance': instance,
-            'lifetime': lifetime
+            "interface": interface,
+            "implementation": implementation,
+            "factory": factory,
+            "instance": instance,
+            "lifetime": lifetime,
         }
 
-    def register_singleton(self, interface: Type[T], implementation: Type[T], name: Optional[str] = None) -> None:
+    def register_singleton(
+        self, interface: Type[T], implementation: Type[T], name: Optional[str] = None
+    ) -> None:
         """Register a singleton dependency."""
-        self.register(interface, implementation=implementation, lifetime=LifetimeScope.SINGLETON, name=name)
+        self.register(
+            interface,
+            implementation=implementation,
+            lifetime=LifetimeScope.SINGLETON,
+            name=name,
+        )
 
-    def register_transient(self, interface: Type[T], implementation: Type[T], name: Optional[str] = None) -> None:
+    def register_transient(
+        self, interface: Type[T], implementation: Type[T], name: Optional[str] = None
+    ) -> None:
         """Register a transient dependency."""
-        self.register(interface, implementation=implementation, lifetime=LifetimeScope.TRANSIENT, name=name)
+        self.register(
+            interface,
+            implementation=implementation,
+            lifetime=LifetimeScope.TRANSIENT,
+            name=name,
+        )
 
-    def register_scoped(self, interface: Type[T], implementation: Type[T], name: Optional[str] = None) -> None:
+    def register_scoped(
+        self, interface: Type[T], implementation: Type[T], name: Optional[str] = None
+    ) -> None:
         """Register a scoped dependency."""
-        self.register(interface, implementation=implementation, lifetime=LifetimeScope.SCOPED, name=name)
+        self.register(
+            interface,
+            implementation=implementation,
+            lifetime=LifetimeScope.SCOPED,
+            name=name,
+        )
 
-    def register_factory(self, interface: Type[T], factory: Callable[[], T], name: Optional[str] = None) -> None:
+    def register_factory(
+        self, interface: Type[T], factory: Callable[[], T], name: Optional[str] = None
+    ) -> None:
         """Register a factory function."""
         self.register(interface, factory=factory, name=name)
 
-    def register_instance(self, interface: Type[T], instance: T, name: Optional[str] = None) -> None:
+    def register_instance(
+        self, interface: Type[T], instance: T, name: Optional[str] = None
+    ) -> None:
         """Register a pre-created instance."""
 
-        self.register(interface, instance=instance, lifetime=LifetimeScope.SINGLETON, name=name)
+        self.register(
+            interface, instance=instance, lifetime=LifetimeScope.SINGLETON, name=name
+        )
 
     def resolve(self, interface: Type[T], name: Optional[str] = None) -> T:
         """
@@ -109,13 +139,11 @@ class DIContainer:
         """
         key = name if name else interface
 
-
-
         if key not in self._registrations:
             raise ValueError(f"Dependency {key} is not registered")
 
         registration = self._registrations[key]
-        lifetime = registration['lifetime']
+        lifetime = registration["lifetime"]
 
         # Check singletons first
         if lifetime == LifetimeScope.SINGLETON:
@@ -147,14 +175,14 @@ class DIContainer:
 
     def _create_instance(self, registration: Dict[str, Any]) -> Any:
         """Create an instance based on registration configuration."""
-        if registration['instance']:
-            return registration['instance']
+        if registration["instance"]:
+            return registration["instance"]
 
-        elif registration['factory']:
-            return registration['factory']()
+        elif registration["factory"]:
+            return registration["factory"]()
 
-        elif registration['implementation']:
-            implementation = registration['implementation']
+        elif registration["implementation"]:
+            implementation = registration["implementation"]
 
             # Check if implementation requires constructor injection
             constructor_params = self._get_constructor_dependencies(implementation)
@@ -169,7 +197,9 @@ class DIContainer:
                 return implementation()
 
         else:
-            raise ValueError(f"No valid creation strategy for {registration['interface']}")
+            raise ValueError(
+                f"No valid creation strategy for {registration['interface']}"
+            )
 
     def _get_constructor_dependencies(self, cls: Type) -> Dict[str, Type]:
         """Analyze constructor to identify dependencies for injection."""
@@ -178,18 +208,20 @@ class DIContainer:
         dependencies = {}
 
         for param_name, param in signature.parameters.items():
-            if param_name == 'self':
+            if param_name == "self":
                 continue
 
             # Only inject dependencies for parameters without defaults
             # that have type annotations
-            if (param.annotation != inspect.Parameter.empty and
-                param.default == inspect.Parameter.empty):
+            if (
+                param.annotation != inspect.Parameter.empty
+                and param.default == inspect.Parameter.empty
+            ):
                 dependencies[param_name] = param.annotation
 
         return dependencies
 
-    def create_scope(self, scope_name: str) -> 'DIScope':
+    def create_scope(self, scope_name: str) -> "DIScope":
         """Create a new dependency scope."""
         return DIScope(self, scope_name)
 
@@ -206,9 +238,9 @@ class DIContainer:
 
             # Cleanup scoped instances
             for instance in scope_instances.values():
-                if hasattr(instance, 'cleanup'):
+                if hasattr(instance, "cleanup"):
                     try:
-                        cleanup_method = getattr(instance, 'cleanup')
+                        cleanup_method = getattr(instance, "cleanup")
                         if callable(cleanup_method):
                             cleanup_method()
                     except Exception:
@@ -239,9 +271,9 @@ class DIContainer:
         """Cleanup all resources and instances."""
         # Cleanup singletons
         for instance in self._singletons.values():
-            if hasattr(instance, 'cleanup'):
+            if hasattr(instance, "cleanup"):
                 try:
-                    cleanup_method = getattr(instance, 'cleanup')
+                    cleanup_method = getattr(instance, "cleanup")
                     if callable(cleanup_method):
                         cleanup_method()
                 except Exception:
@@ -279,10 +311,10 @@ class ServiceLocator:
     Should be used sparingly in favor of constructor injection.
     """
 
-    _instance: Optional['ServiceLocator'] = None
+    _instance: Optional["ServiceLocator"] = None
     _container: Optional[DIContainer] = None
 
-    def __new__(cls) -> 'ServiceLocator':
+    def __new__(cls) -> "ServiceLocator":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
@@ -318,7 +350,11 @@ def injectable(cls: Type[T]) -> Type[T]:
 
 
 # Utility functions for common DI patterns
-def auto_register(container: DIContainer, module: Any, lifetime: LifetimeScope = LifetimeScope.TRANSIENT) -> None:
+def auto_register(
+    container: DIContainer,
+    module: Any,
+    lifetime: LifetimeScope = LifetimeScope.TRANSIENT,
+) -> None:
     """
     Automatically register all classes in a module that implement interfaces.
 
@@ -330,15 +366,21 @@ def auto_register(container: DIContainer, module: Any, lifetime: LifetimeScope =
     for name in dir(module):
         obj = getattr(module, name)
 
-        if inspect.isclass(obj) and hasattr(obj, '__bases__'):
+        if inspect.isclass(obj) and hasattr(obj, "__bases__"):
             # Look for classes that inherit from ABC or have 'Interface' in the name
             for base in obj.__bases__:
-                if (abc := base) != ABC and hasattr(abc, '__abstractmethods__') and abc.__abstractmethods__:
+                if (
+                    (abc := base) != ABC
+                    and hasattr(abc, "__abstractmethods__")
+                    and abc.__abstractmethods__
+                ):
                     # This class implements an abstract base class
                     container.register(base, obj, lifetime=lifetime)
                     break
 
+
 _container_instance = DIContainer()
+
 
 def get_container() -> DIContainer:
     return _container_instance

@@ -72,7 +72,7 @@ def get_vpsweb_adapter(db: Session = Depends(get_db)) -> VPSWebWorkflowAdapterV2
         poem_service=poem_service,
         repository_service=repository_service,
         workflow_orchestrator=workflow_orchestrator,
-        config_service=None  # Use default config service
+        config_service=None,  # Use default config service
     )
 
 
@@ -85,7 +85,7 @@ async def generate_wechat_article(
     request: Request,
     db: Session = Depends(get_db),
     service: RepositoryService = Depends(get_repository_service),
-    adapter: VPSWebWorkflowAdapterV2= Depends(get_vpsweb_adapter),
+    adapter: VPSWebWorkflowAdapterV2 = Depends(get_vpsweb_adapter),
 ):
     """
     Generate a WeChat article from translation workflow data.

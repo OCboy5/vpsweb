@@ -21,7 +21,9 @@ class TranslationTaskManager:
         self.subscribers: Dict[str, asyncio.Queue] = {}
         self.task_retention_time = 300  # Keep completed tasks for 5 minutes
 
-    def create_task(self, task_id: str, poem_id: str, target_lang: str, workflow_mode: str) -> Dict[str, Any]:
+    def create_task(
+        self, task_id: str, poem_id: str, target_lang: str, workflow_mode: str
+    ) -> Dict[str, Any]:
         """Create a new translation task."""
         task = {
             "task_id": task_id,
@@ -36,16 +38,14 @@ class TranslationTaskManager:
             "created_at": time.time(),
             "started_at": None,
             "completed_at": None,
-            "steps": [
-                "Initial Translation",
-                "Editor Review",
-                "Translator Revision"
-            ]
+            "steps": ["Initial Translation", "Editor Review", "Translator Revision"],
         }
         self.tasks[task_id] = task
         return task
 
-    def update_task_status(self, task_id: str, status: str, message: str = None, step: int = None):
+    def update_task_status(
+        self, task_id: str, status: str, message: str = None, step: int = None
+    ):
         """Update task status and notify subscribers."""
         if task_id not in self.tasks:
             return
@@ -99,9 +99,11 @@ class TranslationTaskManager:
         current_time = time.time()
         expired_tasks = []
         for task_id, task in self.tasks.items():
-            if (task["status"] == "completed" and
-                task.get("completed_at") and
-                current_time - task["completed_at"] > self.task_retention_time):
+            if (
+                task["status"] == "completed"
+                and task.get("completed_at")
+                and current_time - task["completed_at"] > self.task_retention_time
+            ):
                 expired_tasks.append(task_id)
 
         for task_id in expired_tasks:
@@ -110,14 +112,18 @@ class TranslationTaskManager:
                 del self.subscribers[task_id]
 
 
-async def create_real_translation_events(request: Request, task_id: str, task_manager: TranslationTaskManager):
+async def create_real_translation_events(
+    request: Request, task_id: str, task_manager: TranslationTaskManager
+):
     """Create real translation progress events from actual task status."""
     try:
         # TODO: Temporarily disable cleanup to debug task retention issue
         # task_manager.cleanup_expired_tasks()
 
         # Debug: Print task manager info
-        print(f"[SSE DEBUG] TaskManager ID: {id(task_manager)}, Tasks in manager: {list(task_manager.tasks.keys())}")
+        print(
+            f"[SSE DEBUG] TaskManager ID: {id(task_manager)}, Tasks in manager: {list(task_manager.tasks.keys())}"
+        )
         print(f"[SSE DEBUG] Looking for task: {task_id}")
 
         # Check if task exists
@@ -125,11 +131,13 @@ async def create_real_translation_events(request: Request, task_id: str, task_ma
         if not task:
             yield {
                 "event": "error",
-                "data": json.dumps({
-                    "task_id": task_id,
-                    "message": "Task not found",
-                    "timestamp": asyncio.get_event_loop().time()
-                })
+                "data": json.dumps(
+                    {
+                        "task_id": task_id,
+                        "message": "Task not found",
+                        "timestamp": asyncio.get_event_loop().time(),
+                    }
+                ),
             }
             return
 
@@ -139,39 +147,45 @@ async def create_real_translation_events(request: Request, task_id: str, task_ma
         # Send initial connection event
         yield {
             "event": "connected",
-            "data": json.dumps({
-                "task_id": task_id,
-                "message": f"Connected to translation progress stream for task {task_id}",
-                "status": task["status"],
-                "progress": task["progress"],
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "message": f"Connected to translation progress stream for task {task_id}",
+                    "status": task["status"],
+                    "progress": task["progress"],
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
 
         # Send current task status
         yield {
             "event": "status",
-            "data": json.dumps({
-                "task_id": task_id,
-                "status": task["status"],
-                "current_step": task["current_step"],
-                "total_steps": task["total_steps"],
-                "progress": task["progress"],
-                "message": task["message"],
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "status": task["status"],
+                    "current_step": task["current_step"],
+                    "total_steps": task["total_steps"],
+                    "progress": task["progress"],
+                    "message": task["message"],
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
 
         # If task is already completed, send completion event and exit
         if task["status"] == "completed":
             yield {
                 "event": "completed",
-                "data": json.dumps({
-                    "task_id": task_id,
-                    "message": "✅ Translation workflow completed successfully!",
-                    "progress": 100,
-                    "timestamp": asyncio.get_event_loop().time()
-                })
+                "data": json.dumps(
+                    {
+                        "task_id": task_id,
+                        "message": "✅ Translation workflow completed successfully!",
+                        "progress": 100,
+                        "timestamp": asyncio.get_event_loop().time(),
+                    }
+                ),
             }
             return
 
@@ -189,57 +203,71 @@ async def create_real_translation_events(request: Request, task_id: str, task_ma
                 # Send update event based on task status
                 if updated_task["status"] == "running":
                     # Send step start event for new step
-                    if updated_task["current_step"] > 0 and updated_task["current_step"] <= len(updated_task["steps"]):
-                        step_name = updated_task["steps"][updated_task["current_step"] - 1]
+                    if updated_task["current_step"] > 0 and updated_task[
+                        "current_step"
+                    ] <= len(updated_task["steps"]):
+                        step_name = updated_task["steps"][
+                            updated_task["current_step"] - 1
+                        ]
                         yield {
                             "event": "step_start",
-                            "data": json.dumps({
-                                "task_id": task_id,
-                                "step": updated_task["current_step"],
-                                "message": f"Step {updated_task['current_step']}/3: {step_name}",
-                                "progress": updated_task["progress"],
-                                "timestamp": asyncio.get_event_loop().time()
-                            })
+                            "data": json.dumps(
+                                {
+                                    "task_id": task_id,
+                                    "step": updated_task["current_step"],
+                                    "message": f"Step {updated_task['current_step']}/3: {step_name}",
+                                    "progress": updated_task["progress"],
+                                    "timestamp": asyncio.get_event_loop().time(),
+                                }
+                            ),
                         }
 
                 elif updated_task["status"] == "completed":
                     # Send step complete event before completion
                     if updated_task["current_step"] > 0:
-                        step_name = updated_task["steps"][updated_task["current_step"] - 1]
+                        step_name = updated_task["steps"][
+                            updated_task["current_step"] - 1
+                        ]
                         yield {
                             "event": "step_complete",
-                            "data": json.dumps({
-                                "task_id": task_id,
-                                "step": updated_task["current_step"],
-                                "message": f"Step {updated_task['current_step']}/3: {step_name} completed",
-                                "progress": updated_task["progress"],
-                                "timestamp": asyncio.get_event_loop().time()
-                            })
+                            "data": json.dumps(
+                                {
+                                    "task_id": task_id,
+                                    "step": updated_task["current_step"],
+                                    "message": f"Step {updated_task['current_step']}/3: {step_name} completed",
+                                    "progress": updated_task["progress"],
+                                    "timestamp": asyncio.get_event_loop().time(),
+                                }
+                            ),
                         }
 
                     # Send final status update
                     yield {
                         "event": "status",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "status": updated_task["status"],
-                            "current_step": updated_task["current_step"],
-                            "total_steps": updated_task["total_steps"],
-                            "progress": updated_task["progress"],
-                            "message": updated_task["message"],
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "status": updated_task["status"],
+                                "current_step": updated_task["current_step"],
+                                "total_steps": updated_task["total_steps"],
+                                "progress": updated_task["progress"],
+                                "message": updated_task["message"],
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
 
                     # Send completion event
                     yield {
                         "event": "completed",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "message": "✅ Translation workflow completed successfully!",
-                            "progress": 100,
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "message": "✅ Translation workflow completed successfully!",
+                                "progress": 100,
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
                     # After completion, keep connection alive for a bit more for any late subscribers
                     continue
@@ -250,22 +278,26 @@ async def create_real_translation_events(request: Request, task_id: str, task_ma
                 if not current_task:
                     yield {
                         "event": "error",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "message": "Task disappeared",
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "message": "Task disappeared",
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
                     break
 
                 # Send heartbeat to keep connection alive
                 yield {
                     "event": "heartbeat",
-                    "data": json.dumps({
-                        "task_id": task_id,
-                        "message": "Task status check",
-                        "timestamp": asyncio.get_event_loop().time()
-                    })
+                    "data": json.dumps(
+                        {
+                            "task_id": task_id,
+                            "message": "Task status check",
+                            "timestamp": asyncio.get_event_loop().time(),
+                        }
+                    ),
                 }
                 # Continue loop to check for disconnection
 
@@ -273,11 +305,13 @@ async def create_real_translation_events(request: Request, task_id: str, task_ma
         print(f"Error generating translation events for task {task_id}: {e}")
         yield {
             "event": "error",
-            "data": json.dumps({
-                "task_id": task_id,
-                "message": f"Error: {str(e)}",
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "message": f"Error: {str(e)}",
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
     finally:
         # Unsubscribe when done

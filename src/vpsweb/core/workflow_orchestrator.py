@@ -46,6 +46,7 @@ from vpsweb.utils.tools_phase3a import (
 
 class WorkflowStepStatus(Enum):
     """Status of individual workflow steps."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -56,6 +57,7 @@ class WorkflowStepStatus(Enum):
 @dataclass
 class WorkflowStepResult:
     """Result of a single workflow step execution."""
+
     step_name: str
     status: WorkflowStepStatus
     result: Optional[Dict[str, Any]] = None
@@ -68,6 +70,7 @@ class WorkflowStepResult:
 @dataclass
 class WorkflowExecutionContext:
     """Context for workflow execution."""
+
     workflow_id: str
     input_data: Dict[str, Any]
     config: WorkflowConfig
@@ -95,7 +98,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         event_bus: Optional[IEventBus] = None,
         logger: Optional[ILogger] = None,
         metrics_collector: Optional[IMetricsCollector] = None,
-        retry_service: Optional[IRetryService] = None
+        retry_service: Optional[IRetryService] = None,
     ):
         """
         Initialize the workflow orchestrator.
@@ -135,13 +138,17 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         if self._llm_factory is None and self.container.is_registered(ILLMFactory):
             self._llm_factory = self.container.resolve(ILLMFactory)
 
-        if self._prompt_service is None and self.container.is_registered(IPromptService):
+        if self._prompt_service is None and self.container.is_registered(
+            IPromptService
+        ):
             self._prompt_service = self.container.resolve(IPromptService)
 
         if self._output_parser is None and self.container.is_registered(IOutputParser):
             self._output_parser = self.container.resolve(IOutputParser)
 
-        if self._config_service is None and self.container.is_registered(IConfigurationService):
+        if self._config_service is None and self.container.is_registered(
+            IConfigurationService
+        ):
             self._config_service = self.container.resolve(IConfigurationService)
 
     def _log_debug(self, message: str, **kwargs) -> None:
@@ -169,9 +176,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         if self.event_bus:
             try:
                 event = Event(
-                    name=event_name,
-                    data=data,
-                    source="WorkflowOrchestratorV2"
+                    name=event_name, data=data, source="WorkflowOrchestratorV2"
                 )
                 # Note: This should be awaited if event_bus.publish is async
                 # For now, we'll fire and forget
@@ -190,7 +195,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         self,
         config: WorkflowConfig,
         input_data: Dict[str, Any],
-        progress_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
+        progress_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None,
     ) -> WorkflowResult:
         """
         Execute a complete workflow.
@@ -216,7 +221,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             config=config,
             start_time=datetime.now(timezone.utc),
             progress_callback=progress_callback,
-            metadata={"steps_executed": 0, "total_tokens": 0}
+            metadata={"steps_executed": 0, "total_tokens": 0},
         )
 
         # Track active workflow
@@ -224,7 +229,9 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         self._workflow_results[workflow_id] = []
 
         self._log_info(f"Starting workflow execution", workflow_id=workflow_id)
-        self._emit_event("workflow.started", {"workflow_id": workflow_id, "config": config.name})
+        self._emit_event(
+            "workflow.started", {"workflow_id": workflow_id, "config": config.name}
+        )
 
         try:
             # Execute workflow with performance monitoring
@@ -242,15 +249,18 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                         await self._safe_progress_callback(
                             progress_callback,
                             step.name,
-                            {"status": "running", "progress": step_progress}
+                            {"status": "running", "progress": step_progress},
                         )
 
-                    self._emit_event("step.started", {
-                        "workflow_id": workflow_id,
-                        "step_name": step.name,
-                        "step_number": i + 1,
-                        "total_steps": total_steps
-                    })
+                    self._emit_event(
+                        "step.started",
+                        {
+                            "workflow_id": workflow_id,
+                            "step_name": step.name,
+                            "step_number": i + 1,
+                            "total_steps": total_steps,
+                        },
+                    )
 
                     # Execute step
                     step_result = await self.execute_step(step, input_data)
@@ -268,16 +278,19 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                                 {
                                     "status": "completed",
                                     "progress": step_progress,
-                                    "tokens_used": step_result.tokens_used
-                                }
+                                    "tokens_used": step_result.tokens_used,
+                                },
                             )
 
-                        self._emit_event("step.completed", {
-                            "workflow_id": workflow_id,
-                            "step_name": step.name,
-                            "duration": step_result.duration,
-                            "tokens_used": step_result.tokens_used
-                        })
+                        self._emit_event(
+                            "step.completed",
+                            {
+                                "workflow_id": workflow_id,
+                                "step_name": step.name,
+                                "duration": step_result.duration,
+                                "tokens_used": step_result.tokens_used,
+                            },
+                        )
 
                     else:
                         # Step failed
@@ -288,26 +301,31 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                             await self._safe_progress_callback(
                                 progress_callback,
                                 step.name,
-                                {"status": "failed", "error": error_msg}
+                                {"status": "failed", "error": error_msg},
                             )
 
-                        self._emit_event("step.failed", {
-                            "workflow_id": workflow_id,
-                            "step_name": step.name,
-                            "error": error_msg
-                        })
+                        self._emit_event(
+                            "step.failed",
+                            {
+                                "workflow_id": workflow_id,
+                                "step_name": step.name,
+                                "error": error_msg,
+                            },
+                        )
 
                         # Add error to collector
                         self.error_collector.add_error(
                             Exception(f"Step {step.name} failed: {error_msg}"),
-                            {"workflow_id": workflow_id, "step_name": step.name}
+                            {"workflow_id": workflow_id, "step_name": step.name},
                         )
 
                         # For now, continue execution even if a step fails
                         # This could be configurable based on step configuration
 
                 # Calculate execution time
-                execution_time = (datetime.now(timezone.utc) - context.start_time).total_seconds()
+                execution_time = (
+                    datetime.now(timezone.utc) - context.start_time
+                ).total_seconds()
 
                 # Create workflow result
                 workflow_result = WorkflowResult(
@@ -316,12 +334,16 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                     total_tokens_used=total_tokens,
                     execution_time=execution_time,
                     results=self._merge_step_results(results),
-                    errors=self._get_workflow_errors(workflow_id) if self.error_collector.has_errors() else None,
+                    errors=(
+                        self._get_workflow_errors(workflow_id)
+                        if self.error_collector.has_errors()
+                        else None
+                    ),
                     metadata={
                         **context.metadata,
                         "workflow_id": workflow_id,
-                        "performance_metrics": self.performance_monitor.get_all_metrics()
-                    }
+                        "performance_metrics": self.performance_monitor.get_all_metrics(),
+                    },
                 )
 
                 # Final progress update
@@ -329,29 +351,34 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                     await self._safe_progress_callback(
                         progress_callback,
                         "workflow_completed",
-                        {"status": "completed", "progress": 100}
+                        {"status": "completed", "progress": 100},
                     )
 
-                self._emit_event("workflow.completed", {
-                    "workflow_id": workflow_id,
-                    "status": "completed",
-                    "execution_time": execution_time,
-                    "total_tokens": total_tokens
-                })
+                self._emit_event(
+                    "workflow.completed",
+                    {
+                        "workflow_id": workflow_id,
+                        "status": "completed",
+                        "execution_time": execution_time,
+                        "total_tokens": total_tokens,
+                    },
+                )
 
                 self._log_info(
                     f"Workflow completed successfully",
                     workflow_id=workflow_id,
                     steps_executed=workflow_result.steps_executed,
                     tokens_used=workflow_result.total_tokens_used,
-                    execution_time=workflow_result.execution_time
+                    execution_time=workflow_result.execution_time,
                 )
 
                 return workflow_result
 
         except Exception as e:
             # Workflow failed
-            execution_time = (datetime.now(timezone.utc) - context.start_time).total_seconds()
+            execution_time = (
+                datetime.now(timezone.utc) - context.start_time
+            ).total_seconds()
             error_msg = str(e)
 
             self._log_error(f"Workflow execution failed: {error_msg}", exc_info=True)
@@ -362,14 +389,17 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 await self._safe_progress_callback(
                     progress_callback,
                     "workflow_failed",
-                    {"status": "failed", "error": error_msg}
+                    {"status": "failed", "error": error_msg},
                 )
 
-            self._emit_event("workflow.failed", {
-                "workflow_id": workflow_id,
-                "error": error_msg,
-                "execution_time": execution_time
-            })
+            self._emit_event(
+                "workflow.failed",
+                {
+                    "workflow_id": workflow_id,
+                    "error": error_msg,
+                    "execution_time": execution_time,
+                },
+            )
 
             return WorkflowResult(
                 status=WorkflowStatus.FAILED,
@@ -378,7 +408,10 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 execution_time=execution_time,
                 results={},
                 errors=[error_msg],
-                metadata={"workflow_id": workflow_id, "failed_at": datetime.now(timezone.utc).isoformat()}
+                metadata={
+                    "workflow_id": workflow_id,
+                    "failed_at": datetime.now(timezone.utc).isoformat(),
+                },
             )
 
         finally:
@@ -386,9 +419,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             self._cleanup_workflow(workflow_id)
 
     async def execute_step(
-        self,
-        step: WorkflowStep,
-        input_data: Dict[str, Any]
+        self, step: WorkflowStep, input_data: Dict[str, Any]
     ) -> WorkflowStepResult:
         """
         Execute a single workflow step.
@@ -428,13 +459,11 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                     max_attempts=step.retry_attempts,
                     base_delay=1.0,
                     max_delay=step.timeout,
-                    backoff_factor=2.0
+                    backoff_factor=2.0,
                 )
 
                 response = await self.retry_service.execute_with_retry(
-                    llm_provider.generate,
-                    retry_policy,
-                    request
+                    llm_provider.generate, retry_policy, request
                 )
             else:
                 response = await llm_provider.generate(request)
@@ -449,12 +478,10 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             if self.metrics_collector:
                 self.metrics_collector.increment_counter(
                     "workflow_step_executed",
-                    tags={"step_name": step.name, "provider": step.provider}
+                    tags={"step_name": step.name, "provider": step.provider},
                 )
                 self.metrics_collector.record_timing(
-                    "workflow_step_duration",
-                    duration,
-                    tags={"step_name": step.name}
+                    "workflow_step_duration", duration, tags={"step_name": step.name}
                 )
 
             return WorkflowStepResult(
@@ -466,8 +493,8 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 metadata={
                     "provider": step.provider,
                     "model": response.model,
-                    "temperature": step.temperature
-                }
+                    "temperature": step.temperature,
+                },
             )
 
         except Exception as e:
@@ -480,7 +507,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             if self.metrics_collector:
                 self.metrics_collector.increment_counter(
                     "workflow_step_failed",
-                    tags={"step_name": step.name, "error_type": type(e).__name__}
+                    tags={"step_name": step.name, "error_type": type(e).__name__},
                 )
 
             return WorkflowStepResult(
@@ -489,7 +516,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 error=error_msg,
                 duration=duration,
                 tokens_used=0,
-                metadata={"provider": step.provider, "error_type": type(e).__name__}
+                metadata={"provider": step.provider, "error_type": type(e).__name__},
             )
 
     async def get_workflow_status(self, workflow_id: str) -> Optional[WorkflowStatus]:
@@ -517,7 +544,9 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 return WorkflowStatus.FAILED
 
             # Check if all steps completed
-            completed_steps = [r for r in results if r.status == WorkflowStepStatus.COMPLETED]
+            completed_steps = [
+                r for r in results if r.status == WorkflowStepStatus.COMPLETED
+            ]
             if len(completed_steps) == len(context.config.steps):
                 return WorkflowStatus.COMPLETED
 
@@ -559,13 +588,17 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
 
         # This would depend on how workflows are stored/registered
         # For now, return a placeholder list
-        return ["translation_hybrid", "translation_reasoning", "translation_non_reasoning"]
+        return [
+            "translation_hybrid",
+            "translation_reasoning",
+            "translation_non_reasoning",
+        ]
 
     async def _safe_progress_callback(
         self,
         callback: Callable[[str, Dict[str, Any]], None],
         step_name: str,
-        data: Dict[str, Any]
+        data: Dict[str, Any],
     ) -> None:
         """Safely call progress callback without affecting main execution."""
         try:
@@ -587,15 +620,16 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         if not step.prompt_template:
             raise ValueError(f"Step {step.name} missing prompt template")
 
-    async def _create_llm_request(self, step: WorkflowStep, input_data: Dict[str, Any]) -> LLMRequest:
+    async def _create_llm_request(
+        self, step: WorkflowStep, input_data: Dict[str, Any]
+    ) -> LLMRequest:
         """Create LLM request from step configuration and input data."""
         # Render prompt template
         if not self._prompt_service:
             raise RuntimeError("Prompt service not available")
 
         system_prompt, user_prompt = await self._prompt_service.render_prompt(
-            step.prompt_template,
-            input_data
+            step.prompt_template, input_data
         )
 
         messages = []
@@ -609,17 +643,21 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             temperature=step.temperature,
             max_tokens=step.max_tokens,
             model=step.model,
-            timeout=step.timeout
+            timeout=step.timeout,
         )
 
-    async def _parse_llm_response(self, response: LLMResponse, step: WorkflowStep) -> Dict[str, Any]:
+    async def _parse_llm_response(
+        self, response: LLMResponse, step: WorkflowStep
+    ) -> Dict[str, Any]:
         """Parse and validate LLM response."""
         if not self._output_parser:
             # Fallback to basic parsing
             return {"content": response.content}
 
         try:
-            parsed = self._output_parser.parse_xml(response.content, step.required_fields)
+            parsed = self._output_parser.parse_xml(
+                response.content, step.required_fields
+            )
 
             if parsed.result_type.value == "failed":
                 raise ValueError(f"Failed to parse LLM response: {parsed.errors}")
@@ -676,12 +714,12 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             "error_collector": {
                 "has_errors": self.error_collector.has_errors(),
                 "error_count": len(self.error_collector.get_errors()),
-                "error_summary": self.error_collector.get_error_summary()
+                "error_summary": self.error_collector.get_error_summary(),
             },
             "active_workflows": len(self._active_workflows),
             "resource_manager": {
                 "managed_resources": len(self.resource_manager.resources)
-            }
+            },
         }
 
     async def cleanup(self) -> None:

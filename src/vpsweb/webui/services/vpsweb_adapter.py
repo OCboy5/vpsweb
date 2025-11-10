@@ -14,7 +14,11 @@ from datetime import datetime, timezone
 from fastapi import BackgroundTasks
 
 from vpsweb.core.interfaces import IWorkflowOrchestrator, IConfigurationService
-from vpsweb.core.workflow_orchestrator import WorkflowOrchestratorV2, WorkflowConfig, WorkflowStep
+from vpsweb.core.workflow_orchestrator import (
+    WorkflowOrchestratorV2,
+    WorkflowConfig,
+    WorkflowStep,
+)
 from vpsweb.models.translation import TranslationInput, TranslationOutput
 from vpsweb.models.config import WorkflowMode
 from vpsweb.core.container import DIContainer
@@ -59,7 +63,9 @@ class VPSWebWorkflowAdapterV2:
 
         self.logger = logging.getLogger(__name__)
 
-        self.logger.info("VPSWebWorkflowAdapterV2 initialized with dependency injection")
+        self.logger.info(
+            "VPSWebWorkflowAdapterV2 initialized with dependency injection"
+        )
 
     def _convert_language_code(self, lang_code: str) -> str:
         """
@@ -123,12 +129,10 @@ class VPSWebWorkflowAdapterV2:
                 "author": poem_data.get("author", "Unknown"),
                 "source_lang_iso": source_lang,
                 "target_lang_iso": target_lang,
-            }
+            },
         )
 
-    def _create_workflow_config_from_mode(
-        self, workflow_mode: str
-    ) -> WorkflowConfig:
+    def _create_workflow_config_from_mode(self, workflow_mode: str) -> WorkflowConfig:
         """
         Create workflow configuration from mode string.
 
@@ -209,7 +213,7 @@ class VPSWebWorkflowAdapterV2:
                     required_fields=["final_translation", "quality_rating"],
                 ),
             ],
-            metadata={"mode": workflow_mode, "adapter_version": "v2"}
+            metadata={"mode": workflow_mode, "adapter_version": "v2"},
         )
 
     async def execute_translation_workflow(
@@ -269,7 +273,7 @@ class VPSWebWorkflowAdapterV2:
 
         task_status = InMemoryTaskStatus(task_id=task_id)
         app.state.tasks[task_id] = task_status
-        app.state.task_locks[task_id] = __import__('threading').Lock()
+        app.state.task_locks[task_id] = __import__("threading").Lock()
 
         # Set initial workflow step states
         task_status.update_step(
@@ -325,7 +329,9 @@ class VPSWebWorkflowAdapterV2:
             target_lang: Target language code
             workflow_mode_str: Workflow mode as string
         """
-        self.logger.info(f"Starting refactored workflow execution for task_id: {task_id}")
+        self.logger.info(
+            f"Starting refactored workflow execution for task_id: {task_id}"
+        )
 
         # Get FastAPI app instance
         from vpsweb.webui.main import app
@@ -345,11 +351,14 @@ class VPSWebWorkflowAdapterV2:
             workflow_config = self._create_workflow_config_from_mode(workflow_mode_str)
 
             # Create progress callback for SSE compatibility
-            async def progress_callback(step_name: str, details: Dict[str, Any]) -> None:
+            async def progress_callback(
+                step_name: str, details: Dict[str, Any]
+            ) -> None:
                 # Skip updates if task is already completed or failed
                 current_task_status = app.state.tasks.get(task_id)
                 if not current_task_status or current_task_status.status in [
-                    "completed", "failed"
+                    "completed",
+                    "failed",
                 ]:
                     return
 
@@ -405,38 +414,65 @@ class VPSWebWorkflowAdapterV2:
             result = await self.workflow_orchestrator.execute_workflow(
                 workflow_config,
                 workflow_input.to_dict(),
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
             )
 
             # Process result and save to database
             if result.status.value == "completed":
                 # Debug: Log the workflow result structure
                 self.logger.info(f"🔍 [DEBUG] Workflow result type: {type(result)}")
-                self.logger.info(f"🔍 [DEBUG] Workflow result dir: {[attr for attr in dir(result) if not attr.startswith('_')]}")
+                self.logger.info(
+                    f"🔍 [DEBUG] Workflow result dir: {[attr for attr in dir(result) if not attr.startswith('_')]}"
+                )
                 self.logger.info(f"🔍 [DEBUG] Results type: {type(result.results)}")
-                self.logger.info(f"🔍 [DEBUG] Results keys: {list(result.results.keys()) if hasattr(result.results, 'keys') else 'N/A'}")
+                self.logger.info(
+                    f"🔍 [DEBUG] Results keys: {list(result.results.keys()) if hasattr(result.results, 'keys') else 'N/A'}"
+                )
 
                 # Debug each step result
-                if hasattr(result.results, 'items'):
+                if hasattr(result.results, "items"):
                     for step_name, step_data in result.results.items():
-                        self.logger.info(f"🔍 [DEBUG] Step '{step_name}' type: {type(step_data)}")
-                        if hasattr(step_data, '__dict__'):
-                            step_attrs = {k: v for k, v in step_data.__dict__.items() if not k.startswith('_')}
-                            self.logger.info(f"🔍 [DEBUG] Step '{step_name}' attrs: {list(step_attrs.keys())}")
+                        self.logger.info(
+                            f"🔍 [DEBUG] Step '{step_name}' type: {type(step_data)}"
+                        )
+                        if hasattr(step_data, "__dict__"):
+                            step_attrs = {
+                                k: v
+                                for k, v in step_data.__dict__.items()
+                                if not k.startswith("_")
+                            }
+                            self.logger.info(
+                                f"🔍 [DEBUG] Step '{step_name}' attrs: {list(step_attrs.keys())}"
+                            )
                             # Check for duration and cost specifically
-                            if 'duration' in step_attrs:
-                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' duration: {step_attrs['duration']}")
-                            if 'cost' in step_attrs:
-                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' cost: {step_attrs['cost']}")
+                            if "duration" in step_attrs:
+                                self.logger.info(
+                                    f"🔍 [DEBUG] Step '{step_name}' duration: {step_attrs['duration']}"
+                                )
+                            if "cost" in step_attrs:
+                                self.logger.info(
+                                    f"🔍 [DEBUG] Step '{step_name}' cost: {step_attrs['cost']}"
+                                )
                         elif isinstance(step_data, dict):
-                            self.logger.info(f"🔍 [DEBUG] Step '{step_name}' dict keys: {list(step_data.keys())}")
-                            if 'duration' in step_data:
-                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' duration: {step_data['duration']}")
-                            if 'cost' in step_data:
-                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' cost: {step_data['cost']}")
+                            self.logger.info(
+                                f"🔍 [DEBUG] Step '{step_name}' dict keys: {list(step_data.keys())}"
+                            )
+                            if "duration" in step_data:
+                                self.logger.info(
+                                    f"🔍 [DEBUG] Step '{step_name}' duration: {step_data['duration']}"
+                                )
+                            if "cost" in step_data:
+                                self.logger.info(
+                                    f"🔍 [DEBUG] Step '{step_name}' cost: {step_data['cost']}"
+                                )
 
                 await self._save_workflow_result(
-                    task_id, result, poem["id"], source_lang, target_lang, workflow_mode_str
+                    task_id,
+                    result,
+                    poem["id"],
+                    source_lang,
+                    target_lang,
+                    workflow_mode_str,
                 )
 
                 # Mark task as completed
@@ -457,7 +493,9 @@ class VPSWebWorkflowAdapterV2:
                 )
             else:
                 # Workflow failed
-                error_msg = "; ".join(result.errors) if result.errors else "Unknown error"
+                error_msg = (
+                    "; ".join(result.errors) if result.errors else "Unknown error"
+                )
                 with app.state.task_locks[task_id]:
                     task_status.set_failed(
                         error=error_msg,
@@ -467,7 +505,9 @@ class VPSWebWorkflowAdapterV2:
                 self.logger.error(f"Workflow {task_id} failed: {error_msg}")
 
         except Exception as e:
-            self.logger.error(f"Error in refactored workflow task {task_id}: {e}", exc_info=True)
+            self.logger.error(
+                f"Error in refactored workflow task {task_id}: {e}", exc_info=True
+            )
 
             # Update task status to failed
             if task_status:
@@ -517,7 +557,9 @@ class VPSWebWorkflowAdapterV2:
 
             # Save translation using repository service
             # Note: This would need to be adapted to match actual schema
-            self.logger.info(f"Translation data prepared for saving: {len(str(translation_data))} chars")
+            self.logger.info(
+                f"Translation data prepared for saving: {len(str(translation_data))} chars"
+            )
 
             # TODO: Implement actual database save with proper schema mapping
             # saved_translation = self.repository_service.create_translation(translation_data)
@@ -541,13 +583,16 @@ class VPSWebWorkflowAdapterV2:
         # Note: This is async in the interface, but kept sync for backward compatibility
         try:
             import asyncio
+
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 # If we're already in an async context, we can't use loop.run_until_complete
                 # This is a limitation of the current design
                 return None
             else:
-                return asyncio.run(self.workflow_orchestrator.get_workflow_status(workflow_id))
+                return asyncio.run(
+                    self.workflow_orchestrator.get_workflow_status(workflow_id)
+                )
         except Exception:
             return None
 
@@ -565,11 +610,14 @@ class VPSWebWorkflowAdapterV2:
         # Note: This is async in the interface, but kept sync for backward compatibility
         try:
             import asyncio
+
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 return False
             else:
-                return asyncio.run(self.workflow_orchestrator.cancel_workflow(workflow_id))
+                return asyncio.run(
+                    self.workflow_orchestrator.cancel_workflow(workflow_id)
+                )
         except Exception:
             return False
 
@@ -584,6 +632,7 @@ class VPSWebWorkflowAdapterV2:
         # Note: This is async in the interface, but kept sync for backward compatibility
         try:
             import asyncio
+
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 return []
@@ -595,4 +644,5 @@ class VPSWebWorkflowAdapterV2:
 
 class WorkflowExecutionError(Exception):
     """Exception for workflow execution errors."""
+
     pass

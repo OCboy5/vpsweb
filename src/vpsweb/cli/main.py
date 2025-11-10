@@ -46,7 +46,7 @@ class CLIApplicationV2:
         self,
         command_service: ICLICommandServiceV2,
         error_handler: ICLIErrorHandlerV2,
-        logger_service: ICLILoggerServiceV2
+        logger_service: ICLILoggerServiceV2,
     ):
         """
         Initialize the CLI application with injected dependencies.
@@ -62,6 +62,7 @@ class CLIApplicationV2:
 
     def get_cli_group(self) -> click.Group:
         """Get the configured Click CLI group."""
+
         @click.group()
         @click.version_option(version="0.3.12", prog_name="vpsweb")
         def cli():
@@ -81,8 +82,11 @@ class CLIApplicationV2:
 
     def _translate_command(self) -> click.Command:
         """Create the translate command."""
+
         @click.command()
-        @click.option("--input", "-i", type=click.Path(exists=True), help="Input poem file")
+        @click.option(
+            "--input", "-i", type=click.Path(exists=True), help="Input poem file"
+        )
         @click.option(
             "--source",
             "-s",
@@ -105,12 +109,17 @@ class CLIApplicationV2:
             help="Workflow mode: reasoning, non_reasoning, or hybrid (default: hybrid)",
         )
         @click.option(
-            "--config", "-c", type=click.Path(exists=True), help="Custom config directory"
+            "--config",
+            "-c",
+            type=click.Path(exists=True),
+            help="Custom config directory",
         )
         @click.option("--output", "-o", type=click.Path(), help="Output directory")
         @click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
         @click.option("--dry-run", is_flag=True, help="Validate without execution")
-        def translate(input, source, target, workflow_mode, config, output, verbose, dry_run):
+        def translate(
+            input, source, target, workflow_mode, config, output, verbose, dry_run
+        ):
             """Translate a poem using the T-E-T workflow
 
             Examples:
@@ -142,6 +151,7 @@ class CLIApplicationV2:
             try:
                 # Execute command through service layer
                 import asyncio
+
                 result = asyncio.run(
                     self.command_service.execute_translate_command(
                         input_path=input,
@@ -151,19 +161,19 @@ class CLIApplicationV2:
                         config_path=config,
                         output_dir=output,
                         verbose=verbose,
-                        dry_run=dry_run
+                        dry_run=dry_run,
                     )
                 )
 
                 if dry_run:
-                    click.echo("\n✅ Dry run completed - configuration and input are valid!")
+                    click.echo(
+                        "\n✅ Dry run completed - configuration and input are valid!"
+                    )
                 return result
 
             except Exception as e:
                 exit_code = self.error_handler.handle_cli_error(
-                    error=e,
-                    command_context="translate",
-                    verbose=verbose
+                    error=e, command_context="translate", verbose=verbose
                 )
                 sys.exit(exit_code)
 
@@ -171,6 +181,7 @@ class CLIApplicationV2:
 
     def _generate_article_command(self) -> click.Command:
         """Create the generate-article command."""
+
         @click.command()
         @click.option(
             "--input-json",
@@ -197,10 +208,14 @@ class CLIApplicationV2:
             help="Model type for translation notes: reasoning (slower, detailed) or non_reasoning (faster, efficient)",
         )
         @click.option(
-            "--dry-run", is_flag=True, help="Generate article without external API calls"
+            "--dry-run",
+            is_flag=True,
+            help="Generate article without external API calls",
         )
         @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
-        def generate_article(input_json, output_dir, author, digest, model_type, dry_run, verbose):
+        def generate_article(
+            input_json, output_dir, author, digest, model_type, dry_run, verbose
+        ):
             """Generate a WeChat article from translation JSON output.
 
             Creates a WeChat-compatible HTML article with translation notes,
@@ -235,6 +250,7 @@ class CLIApplicationV2:
             try:
                 # Execute command through service layer
                 import asyncio
+
                 result = asyncio.run(
                     self.command_service.execute_generate_article_command(
                         input_json=input_json,
@@ -243,13 +259,15 @@ class CLIApplicationV2:
                         digest=digest,
                         model_type=model_type,
                         dry_run=dry_run,
-                        verbose=verbose
+                        verbose=verbose,
                     )
                 )
 
                 # Display results (would be handled by the service)
                 click.echo("\n✅ Article generated successfully!")
-                click.echo(f"📁 Output directory: {result.get('output_directory', 'N/A')}")
+                click.echo(
+                    f"📁 Output directory: {result.get('output_directory', 'N/A')}"
+                )
                 click.echo(f"📄 Article HTML: {result.get('html_path', 'N/A')}")
                 click.echo(f"📋 Metadata: {result.get('metadata_path', 'N/A')}")
 
@@ -260,9 +278,7 @@ class CLIApplicationV2:
 
             except Exception as e:
                 exit_code = self.error_handler.handle_cli_error(
-                    error=e,
-                    command_context="generate-article",
-                    verbose=verbose
+                    error=e, command_context="generate-article", verbose=verbose
                 )
                 sys.exit(exit_code)
 
@@ -270,6 +286,7 @@ class CLIApplicationV2:
 
     def _publish_article_command(self) -> click.Command:
         """Create the publish-article command."""
+
         @click.command()
         @click.option(
             "--directory",
@@ -311,12 +328,13 @@ class CLIApplicationV2:
             try:
                 # Execute command through service layer
                 import asyncio
+
                 result = asyncio.run(
                     self.command_service.execute_publish_article_command(
                         directory=directory,
                         config_path=config,
                         dry_run=dry_run,
-                        verbose=verbose
+                        verbose=verbose,
                     )
                 )
 
@@ -329,15 +347,15 @@ class CLIApplicationV2:
                 else:
                     click.echo("\n✅ Article published successfully!")
                     click.echo(f"📋 Draft ID: {result.get('draft_id', 'N/A')}")
-                    click.echo("📝 Review and publish manually in WeChat Official Account backend")
+                    click.echo(
+                        "📝 Review and publish manually in WeChat Official Account backend"
+                    )
 
                 return result
 
             except Exception as e:
                 exit_code = self.error_handler.handle_cli_error(
-                    error=e,
-                    command_context="publish-article",
-                    verbose=verbose
+                    error=e, command_context="publish-article", verbose=verbose
                 )
                 sys.exit(exit_code)
 
@@ -365,7 +383,9 @@ class CLIFactoryV2:
 
         # Register core services as singletons
         container.register_singleton(ICLIInputServiceV2, CLIInputServiceV2)
-        container.register_singleton(ICLIConfigurationServiceV2, CLIConfigurationServiceV2)
+        container.register_singleton(
+            ICLIConfigurationServiceV2, CLIConfigurationServiceV2
+        )
         container.register_singleton(ICLIWorkflowServiceV2, CLIWorkflowServiceV2)
         container.register_singleton(ICLIStorageServiceV2, CLIStorageServiceV2)
         container.register_singleton(ICLIOutputServiceV2, CLIOutputServiceV2)
@@ -392,14 +412,14 @@ class CLIFactoryV2:
             output_service=output_service,
             wechat_service=wechat_service,
             error_handler=error_handler,
-            logger_service=logger_service
+            logger_service=logger_service,
         )
 
         # Create CLI application
         cli_app = CLIApplicationV2(
             command_service=command_service,
             error_handler=error_handler,
-            logger_service=logger_service
+            logger_service=logger_service,
         )
 
         return cli_app

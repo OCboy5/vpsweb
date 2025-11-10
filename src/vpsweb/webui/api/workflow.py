@@ -9,17 +9,25 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from src.vpsweb.repository.database import get_db
-from src.vpsweb.webui.services.interfaces import IWorkflowServiceV2, ITaskManagementServiceV2
-from src.vpsweb.webui.services.services import WorkflowServiceV2, TaskManagementServiceV2
+from src.vpsweb.webui.services.interfaces import (
+    IWorkflowServiceV2,
+    ITaskManagementServiceV2,
+)
+from src.vpsweb.webui.services.services import (
+    WorkflowServiceV2,
+    TaskManagementServiceV2,
+)
 from src.vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
 from src.vpsweb.core.container import get_container, DIContainer
 
 router = APIRouter()
 
+
 def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
     """Dependency to get workflow service instance."""
     container = DIContainer()
     return container.resolve(IWorkflowServiceV2)
+
 
 @router.post("/translate", response_model=WebAPIResponse)
 async def start_translation_workflow(
@@ -34,7 +42,9 @@ async def start_translation_workflow(
         # Fetch the poem to get the source language
         poem = workflow_service.repository_service.repo.poems.get_by_id(request.poem_id)
         if not poem:
-            raise HTTPException(status_code=404, detail=f"Poem with ID {request.poem_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Poem with ID {request.poem_id} not found"
+            )
 
         source_lang = poem.source_language
 
@@ -52,6 +62,7 @@ async def start_translation_workflow(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/tasks/{task_id}/cancel")
 async def cancel_workflow_task(
@@ -76,6 +87,8 @@ async def cancel_workflow_task(
                 }
             )
         else:
-            raise HTTPException(status_code=404, detail="Task not found or already completed.")
+            raise HTTPException(
+                status_code=404, detail="Task not found or already completed."
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

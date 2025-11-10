@@ -76,7 +76,9 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
             app.state.tasks = {}
 
         # Debug: Print app.state.tasks info
-        print(f"[SSE APP_STATE] Looking for task {task_id} in app.state.tasks. Total tasks: {len(app.state.tasks)}")
+        print(
+            f"[SSE APP_STATE] Looking for task {task_id} in app.state.tasks. Total tasks: {len(app.state.tasks)}"
+        )
         print(f"[SSE APP_STATE] Available task IDs: {list(app.state.tasks.keys())}")
 
         # Check if task exists in app.state.tasks
@@ -84,52 +86,62 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
             print(f"[SSE APP_STATE] Task {task_id} not found in app.state.tasks")
             yield {
                 "event": "error",
-                "data": json.dumps({
-                    "task_id": task_id,
-                    "message": "Task not found",
-                    "timestamp": asyncio.get_event_loop().time()
-                })
+                "data": json.dumps(
+                    {
+                        "task_id": task_id,
+                        "message": "Task not found",
+                        "timestamp": asyncio.get_event_loop().time(),
+                    }
+                ),
             }
             return
 
         task_status = app.state.tasks[task_id]
-        print(f"[SSE APP_STATE] SSE connection established for task {task_id}, current status: {task_status.get('status')}, progress: {task_status.get('progress', 0)}%")
+        print(
+            f"[SSE APP_STATE] SSE connection established for task {task_id}, current status: {task_status.get('status')}, progress: {task_status.get('progress', 0)}%"
+        )
 
         # Send initial connection event
         yield {
             "event": "connected",
-            "data": json.dumps({
-                "task_id": task_id,
-                "status": task_status.get("status", "unknown"),
-                "progress": task_status.get("progress", 0),
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "status": task_status.get("status", "unknown"),
+                    "progress": task_status.get("progress", 0),
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
 
         # Send current task status
         yield {
             "event": "status",
-            "data": json.dumps({
-                "task_id": task_id,
-                "status": task_status.get("status", "unknown"),
-                "progress": task_status.get("progress", 0),
-                "current_step": task_status.get("current_step"),
-                "step_states": task_status.get("step_states", {}),
-                "step_progress": task_status.get("step_progress", {}),
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "status": task_status.get("status", "unknown"),
+                    "progress": task_status.get("progress", 0),
+                    "current_step": task_status.get("current_step"),
+                    "step_states": task_status.get("step_states", {}),
+                    "step_progress": task_status.get("step_progress", {}),
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
 
         # If task is already completed, send completion event and exit
         if task_status.get("status") == "completed":
             yield {
                 "event": "completed",
-                "data": json.dumps({
-                    "task_id": task_id,
-                    "message": "✅ Translation workflow completed successfully!",
-                    "progress": 100,
-                    "timestamp": asyncio.get_event_loop().time()
-                })
+                "data": json.dumps(
+                    {
+                        "task_id": task_id,
+                        "message": "✅ Translation workflow completed successfully!",
+                        "progress": 100,
+                        "timestamp": asyncio.get_event_loop().time(),
+                    }
+                ),
             }
             return
 
@@ -149,11 +161,13 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
             if not current_task:
                 yield {
                     "event": "error",
-                    "data": json.dumps({
-                        "task_id": task_id,
-                        "message": "Task disappeared from app.state.tasks",
-                        "timestamp": asyncio.get_event_loop().time()
-                    })
+                    "data": json.dumps(
+                        {
+                            "task_id": task_id,
+                            "message": "Task disappeared from app.state.tasks",
+                            "timestamp": asyncio.get_event_loop().time(),
+                        }
+                    ),
                 }
                 break
 
@@ -163,20 +177,24 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
             step_changed = current_task.get("current_step") != last_step
 
             if status_changed or progress_changed or step_changed:
-                print(f"[SSE APP_STATE] Task {task_id} status changed: {current_task.get('status')}, progress: {current_task.get('progress', 0)}%, step: {current_task.get('current_step')}")
+                print(
+                    f"[SSE APP_STATE] Task {task_id} status changed: {current_task.get('status')}, progress: {current_task.get('progress', 0)}%, step: {current_task.get('current_step')}"
+                )
 
                 # Send update event
                 yield {
                     "event": "status",
-                    "data": json.dumps({
-                        "task_id": task_id,
-                        "status": current_task.get("status"),
-                        "progress": current_task.get("progress", 0),
-                        "current_step": current_task.get("current_step"),
-                        "step_states": current_task.get("step_states", {}),
-                        "step_progress": current_task.get("step_progress", {}),
-                        "timestamp": asyncio.get_event_loop().time()
-                    })
+                    "data": json.dumps(
+                        {
+                            "task_id": task_id,
+                            "status": current_task.get("status"),
+                            "progress": current_task.get("progress", 0),
+                            "current_step": current_task.get("current_step"),
+                            "step_states": current_task.get("step_states", {}),
+                            "step_progress": current_task.get("step_progress", {}),
+                            "timestamp": asyncio.get_event_loop().time(),
+                        }
+                    ),
                 }
 
                 # Send step-specific events
@@ -184,70 +202,86 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
                     # Send step_change event (frontend expects this)
                     yield {
                         "event": "step_change",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "status": current_task.get("status"),
-                            "progress": current_task.get("progress", 0),
-                            "current_step": current_task.get("current_step"),
-                            "step_states": current_task.get("step_states", {}),
-                            "step_progress": current_task.get("step_progress", {}),
-                            "step_details": current_task.get("step_details", {}),
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "status": current_task.get("status"),
+                                "progress": current_task.get("progress", 0),
+                                "current_step": current_task.get("current_step"),
+                                "step_states": current_task.get("step_states", {}),
+                                "step_progress": current_task.get("step_progress", {}),
+                                "step_details": current_task.get("step_details", {}),
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
 
                     # Create step to number mapping
                     step_to_number = {
                         "Initial Translation": 1,
                         "Editor Review": 2,
-                        "Translator Revision": 3
+                        "Translator Revision": 3,
                     }
 
-                    if current_task.get("step_states") and current_task.get("current_step") in current_task.get("step_states", {}):
-                        step_state = current_task.get("step_states", {})[current_task.get("current_step")]
-                        step_number = step_to_number.get(current_task.get("current_step"), 1)
+                    if current_task.get("step_states") and current_task.get(
+                        "current_step"
+                    ) in current_task.get("step_states", {}):
+                        step_state = current_task.get("step_states", {})[
+                            current_task.get("current_step")
+                        ]
+                        step_number = step_to_number.get(
+                            current_task.get("current_step"), 1
+                        )
 
                         if step_state == "running":
                             yield {
                                 "event": "step_start",
-                                "data": json.dumps({
-                                    "task_id": task_id,
-                                    "step": step_number,
-                                    "message": f"Step started: {current_task.get('current_step')}",
-                                    "timestamp": asyncio.get_event_loop().time()
-                                })
+                                "data": json.dumps(
+                                    {
+                                        "task_id": task_id,
+                                        "step": step_number,
+                                        "message": f"Step started: {current_task.get('current_step')}",
+                                        "timestamp": asyncio.get_event_loop().time(),
+                                    }
+                                ),
                             }
                         elif step_state == "completed":
                             yield {
                                 "event": "step_complete",
-                                "data": json.dumps({
-                                    "task_id": task_id,
-                                    "step": step_number,
-                                    "message": f"Step completed: {current_task.get('current_step')}",
-                                    "timestamp": asyncio.get_event_loop().time()
-                                })
+                                "data": json.dumps(
+                                    {
+                                        "task_id": task_id,
+                                        "step": step_number,
+                                        "message": f"Step completed: {current_task.get('current_step')}",
+                                        "timestamp": asyncio.get_event_loop().time(),
+                                    }
+                                ),
                             }
 
                 # If task completed, send completion event
                 if current_task.get("status") == "completed":
                     yield {
                         "event": "completed",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "message": "✅ Translation workflow completed successfully!",
-                            "progress": 100,
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "message": "✅ Translation workflow completed successfully!",
+                                "progress": 100,
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
                     break
                 elif current_task.get("status") == "failed":
                     yield {
                         "event": "error",
-                        "data": json.dumps({
-                            "task_id": task_id,
-                            "message": f"Translation failed: {current_task.get('current_step')}",
-                            "timestamp": asyncio.get_event_loop().time()
-                        })
+                        "data": json.dumps(
+                            {
+                                "task_id": task_id,
+                                "message": f"Translation failed: {current_task.get('current_step')}",
+                                "timestamp": asyncio.get_event_loop().time(),
+                            }
+                        ),
                     }
                     break
 
@@ -263,11 +297,13 @@ async def create_translation_events_from_app_state(request: Request, task_id: st
         print(f"[SSE APP_STATE] Error generating events for task {task_id}: {e}")
         yield {
             "event": "error",
-            "data": json.dumps({
-                "task_id": task_id,
-                "message": f"Error: {str(e)}",
-                "timestamp": asyncio.get_event_loop().time()
-            })
+            "data": json.dumps(
+                {
+                    "task_id": task_id,
+                    "message": f"Error: {str(e)}",
+                    "timestamp": asyncio.get_event_loop().time(),
+                }
+            ),
         }
 
 
@@ -290,7 +326,7 @@ class ApplicationRouterV2:
         performance_service: IPerformanceServiceV2,
         sse_service: ISSEServiceV2,
         config_service: IConfigServiceV2,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ):
         """
         Initialize the application router with injected dependencies.
@@ -323,7 +359,6 @@ class ApplicationRouterV2:
         self.logger = logger or logging.getLogger(__name__)
 
         # Initialize translation task manager for SSE
-
 
         self._configure_app()
 
@@ -367,6 +402,7 @@ class ApplicationRouterV2:
     async def _performance_middleware(self, request: Request, call_next):
         """Performance monitoring middleware."""
         import time
+
         start_time = time.time()
 
         # Process the request
@@ -383,8 +419,8 @@ class ApplicationRouterV2:
             duration=process_time,
             additional_data={
                 "user_agent": request.headers.get("user-agent"),
-                "content_length": response.headers.get("content-length")
-            }
+                "content_length": response.headers.get("content-length"),
+            },
         )
 
         # Add performance header
@@ -401,10 +437,7 @@ class ApplicationRouterV2:
 
         # Handle the error using the error service
         return await self.error_handler.handle_general_error(
-            error=exc,
-            request=request,
-            error_id=error_id,
-            is_web_request=is_web_request
+            error=exc, request=request, error_id=error_id, is_web_request=is_web_request
         )
 
     def _add_routes(self, app: FastAPI):
@@ -415,23 +448,20 @@ class ApplicationRouterV2:
             """Dashboard - List all poems in the repository."""
             try:
                 # Get poems using service layer
-                poems_result = await self.poem_service.get_poem_list(
-                    skip=0,
-                    limit=50
-                )
+                poems_result = await self.poem_service.get_poem_list(skip=0, limit=50)
 
                 # Render template
                 template_context = {
                     "request": request,
                     "poems": poems_result["poems"],
                     "total_count": poems_result["total_count"],
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "index.html",
-                    template_context,
-                    request
+                    "index.html", template_context, request
                 )
 
             except Exception as e:
@@ -439,7 +469,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/poems", response_class=HTMLResponse)
@@ -449,13 +479,13 @@ class ApplicationRouterV2:
                 # Render template
                 template_context = {
                     "request": request,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poems_list.html",
-                    template_context,
-                    request
+                    "poems_list.html", template_context, request
                 )
 
             except Exception as e:
@@ -463,7 +493,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/poets", response_class=HTMLResponse)
@@ -471,9 +501,9 @@ class ApplicationRouterV2:
             """Display list of all poets with statistics and activity metrics."""
             try:
                 # Get query parameters
-                search = request.query_params.get('search', '')
-                sort_by = request.query_params.get('sort_by', 'name')
-                sort_order = request.query_params.get('sort_order', 'asc')
+                search = request.query_params.get("search", "")
+                sort_by = request.query_params.get("sort_by", "name")
+                sort_order = request.query_params.get("sort_order", "asc")
 
                 # Get poets data with filters
                 poets_data = self.poem_service.repository_service.get_all_poets(
@@ -495,13 +525,13 @@ class ApplicationRouterV2:
                     "search": search,
                     "sort_by": sort_by,
                     "sort_order": sort_order,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poets_list.html",
-                    template_context,
-                    request
+                    "poets_list.html", template_context, request
                 )
 
             except Exception as e:
@@ -509,7 +539,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/translations", response_class=HTMLResponse)
@@ -517,14 +547,15 @@ class ApplicationRouterV2:
             """List all translations with filtering options."""
             try:
                 # Get query parameters
-                search = request.query_params.get('search', '')
-                sort_by = request.query_params.get('sort_by', 'created_at')
-                sort_order = request.query_params.get('sort_order', 'desc')
+                search = request.query_params.get("search", "")
+                sort_by = request.query_params.get("sort_by", "created_at")
+                sort_order = request.query_params.get("sort_order", "desc")
 
                 # Get translations data
-                translations_data = self.poem_service.repository_service.repo.translations.get_multi(
-                    skip=0,
-                    limit=50
+                translations_data = (
+                    self.poem_service.repository_service.repo.translations.get_multi(
+                        skip=0, limit=50
+                    )
                 )
 
                 template_context = {
@@ -533,13 +564,13 @@ class ApplicationRouterV2:
                     "search": search,
                     "sort_by": sort_by,
                     "sort_order": sort_order,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "translations_list.html",
-                    template_context,
-                    request
+                    "translations_list.html", template_context, request
                 )
 
             except Exception as e:
@@ -547,7 +578,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/poems/new", response_class=HTMLResponse)
@@ -556,13 +587,13 @@ class ApplicationRouterV2:
             try:
                 template_context = {
                     "request": request,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poem_new.html",
-                    template_context,
-                    request
+                    "poem_new.html", template_context, request
                 )
 
             except Exception as e:
@@ -570,10 +601,13 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
+
         @app.get("/poems/{poem_id}", response_class=HTMLResponse)
-        async def poem_detail(request: Request, poem_id: str, db: Session = Depends(get_db)):
+        async def poem_detail(
+            request: Request, poem_id: str, db: Session = Depends(get_db)
+        ):
             """Individual poem detail page with translations."""
             try:
                 # Use same pattern as API - fresh database session via dependency injection
@@ -590,8 +624,12 @@ class ApplicationRouterV2:
                     "source_language": poem.source_language,
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
+                    "updated_at": (
+                        poem.updated_at.isoformat() if poem.updated_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
@@ -601,13 +639,13 @@ class ApplicationRouterV2:
                     "request": request,
                     "poem_id": poem_id,
                     "poem": poem_data,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poem_detail.html",
-                    template_context,
-                    request
+                    "poem_detail.html", template_context, request
                 )
 
             except Exception as e:
@@ -615,7 +653,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         # Original working design SSE endpoints - reusing proven callback-based approach
@@ -636,7 +674,10 @@ class ApplicationRouterV2:
 
                 # Check if task exists in app.state
                 if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
-                    yield {"event": "error", "data": json.dumps({"message": "Task not found"})}
+                    yield {
+                        "event": "error",
+                        "data": json.dumps({"message": "Task not found"}),
+                    }
                     return
 
                 # Send initial status
@@ -648,7 +689,9 @@ class ApplicationRouterV2:
                 )
 
                 # Stream for updates with real-time app.state access (original working design)
-                max_iterations = 3000  # 10 minutes with 0.2-second intervals (600 / 0.2 = 3000)
+                max_iterations = (
+                    3000  # 10 minutes with 0.2-second intervals (600 / 0.2 = 3000)
+                )
                 last_status = None
                 consecutive_errors = 0
                 max_consecutive_errors = 5
@@ -678,13 +721,16 @@ class ApplicationRouterV2:
                             has_progress_change = (
                                 last_status is None
                                 or current_dict["status"] != last_status["status"]
-                                or current_dict["current_step"] != last_status["current_step"]
+                                or current_dict["current_step"]
+                                != last_status["current_step"]
                             )
 
                             # Specific step change detection - check for step status transitions
                             has_step_change = False
                             if last_status is not None:
-                                current_step_details = current_dict.get("step_details", {})
+                                current_step_details = current_dict.get(
+                                    "step_details", {}
+                                )
                                 last_step_details = last_status.get("step_details", {})
 
                                 # Check if current step status changed (running -> completed)
@@ -697,7 +743,9 @@ class ApplicationRouterV2:
                                     )
 
                                 # Check if any step states changed
-                                current_step_states = current_dict.get("step_states", {})
+                                current_step_states = current_dict.get(
+                                    "step_states", {}
+                                )
                                 last_step_states = last_status.get("step_states", {})
                                 if current_step_states != last_step_states:
                                     has_step_change = True
@@ -708,11 +756,16 @@ class ApplicationRouterV2:
                                 last_status is not None
                                 and "updated_at" in current_dict
                                 and "updated_at" in last_status
-                                and current_dict["updated_at"] != last_status["updated_at"]
+                                and current_dict["updated_at"]
+                                != last_status["updated_at"]
                             )
 
                             # Send update if any significant field changed OR timestamp changed OR step changed
-                            if has_progress_change or has_step_change or has_time_change:
+                            if (
+                                has_progress_change
+                                or has_step_change
+                                or has_time_change
+                            ):
                                 last_status = current_dict.copy()
                                 last_update_time = current_time
 
@@ -721,7 +774,10 @@ class ApplicationRouterV2:
                                 if has_step_change and last_status is not None:
                                     event_type = "step_change"
 
-                                yield {"event": event_type, "data": json.dumps(current_dict)}
+                                yield {
+                                    "event": event_type,
+                                    "data": json.dumps(current_dict),
+                                }
                                 step_states = current_dict.get("step_states", {})
                                 current_step_state = step_states.get(
                                     current_dict["current_step"], "unknown"
@@ -761,7 +817,9 @@ class ApplicationRouterV2:
                             # Task was removed from app.state
                             yield {
                                 "event": "error",
-                                "data": json.dumps({"message": "Task disappeared from memory"}),
+                                "data": json.dumps(
+                                    {"message": "Task disappeared from memory"}
+                                ),
                             }
                             break
 
@@ -777,7 +835,9 @@ class ApplicationRouterV2:
                         if consecutive_errors >= max_consecutive_errors:
                             yield {
                                 "event": "error",
-                                "data": json.dumps({"message": f"SSE stream error: {str(e)}"}),
+                                "data": json.dumps(
+                                    {"message": f"SSE stream error: {str(e)}"}
+                                ),
                             }
                             break
 
@@ -788,7 +848,9 @@ class ApplicationRouterV2:
                 if i >= max_iterations - 1:
                     yield {
                         "event": "timeout",
-                        "data": json.dumps({"message": "Workflow timed out after 10 minutes"}),
+                        "data": json.dumps(
+                            {"message": "Workflow timed out after 10 minutes"}
+                        ),
                     }
 
                 print(f"🏁 SSE stream ended for task {task_id} after {i+1} iterations")
@@ -805,12 +867,15 @@ class ApplicationRouterV2:
                     "X-Accel-Buffering": "no",  # Disable nginx buffering
                 },
             )
+
         @app.get("/poems/{poem_id}/compare", response_class=HTMLResponse)
         async def poem_compare(request: Request, poem_id: str):
             """Display comparison view for translations of a specific poem."""
             try:
                 # Get poem data directly from repository
-                poem = self.poem_service.repository_service.repo.poems.get_by_id(poem_id)
+                poem = self.poem_service.repository_service.repo.poems.get_by_id(
+                    poem_id
+                )
                 if not poem:
                     raise Exception(f"Poem with ID {poem_id} not found")
 
@@ -822,17 +887,22 @@ class ApplicationRouterV2:
                     "source_language": poem.source_language,
                     "original_text": poem.original_text,
                     "metadata_json": poem.metadata_json,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
+                    "updated_at": (
+                        poem.updated_at.isoformat() if poem.updated_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
                 }
 
                 # Get translations for this poem using the repository service through poem_service
-                translations = self.poem_service.repository_service.repo.translations.get_multi(
-                    poem_id=poem_id,
-                    limit=100
+                translations = (
+                    self.poem_service.repository_service.repo.translations.get_multi(
+                        poem_id=poem_id, limit=100
+                    )
                 )
 
                 template_context = {
@@ -840,13 +910,13 @@ class ApplicationRouterV2:
                     "poem_id": poem_id,
                     "poem": poem_data,
                     "translations": translations,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poem_compare.html",
-                    template_context,
-                    request
+                    "poem_compare.html", template_context, request
                 )
 
             except Exception as e:
@@ -854,7 +924,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/poems/{poem_id}/translate", response_class=HTMLResponse)
@@ -862,7 +932,9 @@ class ApplicationRouterV2:
             """Display translation creation page for a specific poem."""
             try:
                 # Get poem data directly from repository
-                poem = self.poem_service.repository_service.repo.poems.get_by_id(poem_id)
+                poem = self.poem_service.repository_service.repo.poems.get_by_id(
+                    poem_id
+                )
                 if not poem:
                     raise Exception(f"Poem with ID {poem_id} not found")
 
@@ -874,8 +946,12 @@ class ApplicationRouterV2:
                     "source_language": poem.source_language,
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
+                    "updated_at": (
+                        poem.updated_at.isoformat() if poem.updated_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
@@ -885,13 +961,13 @@ class ApplicationRouterV2:
                     "request": request,
                     "poem_id": poem_id,
                     "poem": poem_data,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poem_detail.html",
-                    template_context,
-                    request
+                    "poem_detail.html", template_context, request
                 )
 
             except Exception as e:
@@ -899,29 +975,46 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
+
         @app.get("/translations/{translation_id}/notes", response_class=HTMLResponse)
         async def translation_notes(request: Request, translation_id: str):
             """Display translation notes and AI workflow details for a specific translation."""
             try:
                 # Get translation data
-                translation_data = await self.translation_service.get_translation_detail(translation_id)
+                translation_data = (
+                    await self.translation_service.get_translation_detail(
+                        translation_id
+                    )
+                )
                 if not translation_data:
                     raise Exception(f"Translation with ID {translation_id} not found")
 
                 # Get workflow steps for AI translations
                 workflow_steps = []
                 translation = translation_data.get("translation")
-                if translation and translation.translator_type.lower() == 'ai' and translation.has_workflow_steps:
-                    workflow_steps = await self.translation_service.get_workflow_steps(translation_id)
+                if (
+                    translation
+                    and translation.translator_type.lower() == "ai"
+                    and translation.has_workflow_steps
+                ):
+                    workflow_steps = await self.translation_service.get_workflow_steps(
+                        translation_id
+                    )
 
                 # Calculate workflow data for Performance Summary
                 workflow_data = None
                 if workflow_steps:
-                    total_tokens = sum(step.get("tokens_used", 0) or 0 for step in workflow_steps)
-                    total_cost = sum(step.get("cost", 0) or 0 for step in workflow_steps)
-                    total_duration = sum(step.get("duration_seconds", 0) or 0 for step in workflow_steps)
+                    total_tokens = sum(
+                        step.get("tokens_used", 0) or 0 for step in workflow_steps
+                    )
+                    total_cost = sum(
+                        step.get("cost", 0) or 0 for step in workflow_steps
+                    )
+                    total_duration = sum(
+                        step.get("duration_seconds", 0) or 0 for step in workflow_steps
+                    )
 
                     workflow_data = {
                         "total_tokens": total_tokens,
@@ -936,13 +1029,13 @@ class ApplicationRouterV2:
                     "poem": translation_data.get("poem"),
                     "workflow_steps": workflow_steps,
                     "workflow_data": workflow_data,
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "translation_notes.html",
-                    template_context,
-                    request
+                    "translation_notes.html", template_context, request
                 )
 
             except Exception as e:
@@ -950,7 +1043,7 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
 
         @app.get("/poets/{poet_name}", response_class=HTMLResponse)
@@ -958,7 +1051,9 @@ class ApplicationRouterV2:
             """Display poet page with their poems and statistics."""
             try:
                 # Get poet statistics using repository service
-                stats = self.poem_service.repository_service.get_poet_statistics(poet_name)
+                stats = self.poem_service.repository_service.get_poet_statistics(
+                    poet_name
+                )
 
                 # Get poet's poems with filters
                 poems_data = self.poem_service.repository_service.get_poems_by_poet(
@@ -972,12 +1067,14 @@ class ApplicationRouterV2:
                 )
 
                 # Get poet's recent translations
-                translations_data = self.poem_service.repository_service.get_translations_by_poet(
-                    poet_name=poet_name,
-                    skip=0,
-                    limit=5,
-                    sort_by="created_at",
-                    sort_order="desc",
+                translations_data = (
+                    self.poem_service.repository_service.get_translations_by_poet(
+                        poet_name=poet_name,
+                        skip=0,
+                        limit=5,
+                        sort_by="created_at",
+                        sort_order="desc",
+                    )
                 )
 
                 template_context = {
@@ -988,13 +1085,13 @@ class ApplicationRouterV2:
                     "poems": poems_data["poems"],
                     "total_poems": poems_data["total_count"],
                     "recent_translations": translations_data["translations"],
-                    "title": await self.config_service.get_setting("app_name", "VPSWeb Repository"),
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
                 }
 
                 return await self.template_service.render_template(
-                    "poet_detail.html",
-                    template_context,
-                    request
+                    "poet_detail.html", template_context, request
                 )
 
             except Exception as e:
@@ -1002,9 +1099,8 @@ class ApplicationRouterV2:
                     error=e,
                     request=request,
                     error_id=self.error_handler.generate_error_id(),
-                    is_web_request=True
+                    is_web_request=True,
                 )
-
 
         @app.get("/health")
         async def health_check():
@@ -1022,8 +1118,8 @@ class ApplicationRouterV2:
                         "poem_service": "healthy",
                         "translation_service": "healthy",
                         "workflow_service": "healthy",
-                        "statistics_service": "healthy"
-                    }
+                        "statistics_service": "healthy",
+                    },
                 }
 
             except Exception as e:
@@ -1033,8 +1129,8 @@ class ApplicationRouterV2:
                     content={
                         "status": "unhealthy",
                         "error": str(e),
-                        "timestamp": self._get_current_timestamp()
-                    }
+                        "timestamp": self._get_current_timestamp(),
+                    },
                 )
 
         @app.get("/dashboard/stats")
@@ -1053,8 +1149,8 @@ class ApplicationRouterV2:
                     },
                     "system_info": {
                         "version": await self.config_service.get_setting("version"),
-                        "debug": await self.config_service.get_setting("debug", False)
-                    }
+                        "debug": await self.config_service.get_setting("debug", False),
+                    },
                 }
 
                 return dashboard_stats
@@ -1063,7 +1159,7 @@ class ApplicationRouterV2:
                 self.logger.error(f"Dashboard statistics error: {e}")
                 return JSONResponse(
                     status_code=500,
-                    content={"error": "Failed to load dashboard statistics"}
+                    content={"error": "Failed to load dashboard statistics"},
                 )
 
         @app.get("/api/v1/translations/{task_id}/events")
@@ -1075,8 +1171,8 @@ class ApplicationRouterV2:
                 headers={
                     "Cache-Control": "no-cache",
                     "Connection": "keep-alive",
-                    "X-Accel-Buffering": "no"  # Disable nginx buffering
-                }
+                    "X-Accel-Buffering": "no",  # Disable nginx buffering
+                },
             )
 
     def _include_api_routers(self, app: FastAPI):
@@ -1085,10 +1181,14 @@ class ApplicationRouterV2:
         app.include_router(
             translations.router, prefix="/api/v1/translations", tags=["translations"]
         )
-        app.include_router(statistics.router, prefix="/api/v1/statistics", tags=["statistics"])
+        app.include_router(
+            statistics.router, prefix="/api/v1/statistics", tags=["statistics"]
+        )
         app.include_router(poets.router, prefix="/api/v1/poets", tags=["poets"])
         app.include_router(wechat.router, prefix="/api/v1/wechat", tags=["wechat"])
-        app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["workflow"])
+        app.include_router(
+            workflow.router, prefix="/api/v1/workflow", tags=["workflow"]
+        )
 
     def _mount_static_files(self, app: FastAPI):
         """Mount static file directories."""
@@ -1097,7 +1197,7 @@ class ApplicationRouterV2:
             app.mount(
                 "/static",
                 StaticFiles(directory="src/vpsweb/webui/web/static"),
-                name="static"
+                name="static",
             )
         except Exception as e:
             self.logger.warning(f"Failed to mount static files: {e}")
@@ -1112,14 +1212,15 @@ class ApplicationRouterV2:
         # 2. Path starts with / (not /api/)
         # 3. No Accept header (likely browser)
         return (
-            "text/html" in accept_header or
-            (path.startswith("/") and not path.startswith("/api/")) or
-            not accept_header
+            "text/html" in accept_header
+            or (path.startswith("/") and not path.startswith("/api/"))
+            or not accept_header
         )
 
     def _get_current_timestamp(self) -> float:
         """Get current timestamp."""
         import time
+
         return time.time()
 
     async def _get_recent_activity_count(self, hours: int) -> int:
@@ -1152,7 +1253,7 @@ class ApplicationFactoryV2:
     @staticmethod
     def create_application(
         repository_service: Optional[RepositoryWebService] = None,
-        logger: Optional[logging.Logger] = None
+        logger: Optional[logging.Logger] = None,
     ) -> FastAPI:
         """
         Create and configure the VPSWeb application.
@@ -1182,12 +1283,16 @@ class ApplicationFactoryV2:
         app.container = container
 
         # Create and register TaskManagementServiceV2 instance
-        task_service = TaskManagementServiceV2(tasks_store=app.state.tasks, logger=app_logger)
+        task_service = TaskManagementServiceV2(
+            tasks_store=app.state.tasks, logger=app_logger
+        )
         container.register_instance(ITaskManagementServiceV2, task_service)
 
         # Register core services as singletons
         container.register_singleton(IPerformanceServiceV2, PerformanceServiceV2)
-        container.register_singleton(IExceptionHandlerServiceV2, ExceptionHandlerServiceV2)
+        container.register_singleton(
+            IExceptionHandlerServiceV2, ExceptionHandlerServiceV2
+        )
         container.register_singleton(ISSEServiceV2, SSEServiceV2)
         container.register_singleton(IConfigServiceV2, ConfigServiceV2)
 
@@ -1202,35 +1307,37 @@ class ApplicationFactoryV2:
             # Create repository service with database session dependency
             # Use create_session to get an actual session instance
             from vpsweb.repository.database import create_session
+
             repository_service = RepositoryWebService(create_session())
 
         # Register and resolve business services
-        container.register_instance(ITemplateServiceV2, TemplateServiceV2(logger=app_logger))
+        container.register_instance(
+            ITemplateServiceV2, TemplateServiceV2(logger=app_logger)
+        )
         container.register_instance(
             IPoemServiceV2,
             PoemServiceV2(
                 repository_service=repository_service,
                 performance_service=performance_service,
-                logger=app_logger
-            )
+                logger=app_logger,
+            ),
         )
         container.register_instance(
             ITranslationServiceV2,
             TranslationServiceV2(
                 repository_service=repository_service,
                 performance_service=performance_service,
-                logger=app_logger
-            )
+                logger=app_logger,
+            ),
         )
         container.register_instance(
             IStatisticsServiceV2,
             StatisticsServiceV2(
                 repository_service=repository_service,
                 performance_service=performance_service,
-                logger=app_logger
-            )
+                logger=app_logger,
+            ),
         )
-
 
         storage_handler = StorageHandler()
         container.register_instance(
@@ -1239,11 +1346,9 @@ class ApplicationFactoryV2:
                 repository_service=repository_service,
                 storage_handler=storage_handler,
                 task_service=task_service,
-                logger=app_logger
-            )
+                logger=app_logger,
+            ),
         )
-
-
 
         # Resolve all services
         poem_service = container.resolve(IPoemServiceV2)
@@ -1265,7 +1370,7 @@ class ApplicationFactoryV2:
             performance_service=performance_service,
             sse_service=sse_service,
             config_service=config_service,
-            logger=app_logger
+            logger=app_logger,
         )
 
         return router.get_app()

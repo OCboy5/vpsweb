@@ -6,7 +6,7 @@ API endpoints for translation management and workflow operations.
 
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ...repository.database import get_db
@@ -54,7 +54,9 @@ async def trigger_translation(
     """
     Trigger a new translation workflow.
     """
-    print(f"🚀 [API] Trigger endpoint called with poem_id={request.poem_id}, target_lang={request.target_lang}, workflow_mode={request.workflow_mode}")
+    print(
+        f"🚀 [API] Trigger endpoint called with poem_id={request.poem_id}, target_lang={request.target_lang}, workflow_mode={request.workflow_mode}"
+    )
     print(f"🔧 [API] workflow_service type: {type(workflow_service)}")
 
     task_id = await workflow_service.start_translation_workflow(
@@ -69,7 +71,7 @@ async def trigger_translation(
     return {
         "success": True,
         "task_id": task_id,
-        "message": "Translation workflow started successfully"
+        "message": "Translation workflow started successfully",
     }
 
 
@@ -106,7 +108,7 @@ async def list_translations(
         "translations": translations,
         "total_count": len(translations),
         "skip": skip,
-        "limit": limit
+        "limit": limit,
     }
 
 
@@ -172,6 +174,63 @@ async def update_translation(
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to update translation: {str(e)}"
+        )
+
+
+class QualityRatingUpdate(BaseModel):
+    """Schema for updating translation quality rating"""
+
+    quality_rating: int = Field(
+        ..., ge=0, le=10, description="Quality rating from 0-10 (0 = unrated)"
+    )
+
+
+@router.put("/{translation_id}/quality", response_model=WebAPIResponse)
+async def update_quality_rating(
+    translation_id: str,
+    rating_data: QualityRatingUpdate,
+    service: RepositoryWebService = Depends(get_repository_service),
+):
+    """
+    Update the quality rating of a translation.
+    """
+    existing_translation = service.repo.translations.get_by_id(translation_id)
+    if not existing_translation:
+        raise HTTPException(
+            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+        )
+
+    try:
+        # Update only the quality rating using a raw SQL statement
+        from sqlalchemy import text
+
+        result = service.db.execute(
+            text("UPDATE translations SET quality_rating = :rating WHERE id = :id"),
+            {"rating": rating_data.quality_rating, "id": translation_id},
+        )
+        service.db.commit()
+
+        if result.rowcount == 0:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Translation with ID '{translation_id}' not found",
+            )
+
+        rating_text = (
+            "unrated"
+            if rating_data.quality_rating == 0
+            else f"{rating_data.quality_rating}/10"
+        )
+        return WebAPIResponse(
+            success=True,
+            message=f"Quality rating updated to {rating_text} successfully",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        service.db.rollback()
+        raise HTTPException(
+            status_code=400, detail=f"Failed to update quality rating: {str(e)}"
         )
 
 

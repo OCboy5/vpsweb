@@ -16,9 +16,11 @@ import asyncio
 # LLM Provider Interfaces
 # ============================================================================
 
+
 @dataclass
 class LLMRequest:
     """Request object for LLM generation."""
+
     messages: List[Dict[str, str]]
     temperature: float = 0.7
     max_tokens: Optional[int] = None
@@ -31,6 +33,7 @@ class LLMRequest:
 @dataclass
 class LLMResponse:
     """Response object from LLM generation."""
+
     content: str
     model: str
     provider: str
@@ -44,6 +47,7 @@ class LLMResponse:
 @dataclass
 class LLMStreamChunk:
     """Single chunk from streaming LLM response."""
+
     content: str
     is_final: bool = False
     metadata: Optional[Dict[str, Any]] = None
@@ -66,7 +70,9 @@ class ILLMProvider(ABC):
         pass
 
     @abstractmethod
-    async def generate_stream(self, request: LLMRequest) -> AsyncGenerator[LLMStreamChunk, None]:
+    async def generate_stream(
+        self, request: LLMRequest
+    ) -> AsyncGenerator[LLMStreamChunk, None]:
         """
         Generate a streaming response from the LLM.
 
@@ -113,7 +119,9 @@ class ILLMFactory(ABC):
         pass
 
     @abstractmethod
-    def register_provider(self, name: str, provider_class: type, config: Dict[str, Any]) -> None:
+    def register_provider(
+        self, name: str, provider_class: type, config: Dict[str, Any]
+    ) -> None:
         """Register a new provider."""
         pass
 
@@ -122,9 +130,11 @@ class ILLMFactory(ABC):
 # Prompt Service Interfaces
 # ============================================================================
 
+
 @dataclass
 class PromptTemplate:
     """Prompt template definition."""
+
     name: str
     template_content: str
     variables: List[str]
@@ -139,7 +149,7 @@ class IPromptService(ABC):
         self,
         template_name: str,
         variables: Dict[str, Any],
-        template_path: Optional[str] = None
+        template_path: Optional[str] = None,
     ) -> tuple[str, str]:
         """
         Render a prompt template with variables.
@@ -187,8 +197,10 @@ class IPromptService(ABC):
 # Output Parser Interfaces
 # ============================================================================
 
+
 class ParsingResult(Enum):
     """Result of output parsing."""
+
     SUCCESS = "success"
     PARTIAL = "partial"
     FAILED = "failed"
@@ -197,6 +209,7 @@ class ParsingResult(Enum):
 @dataclass
 class ParsedOutput:
     """Result of parsing LLM output."""
+
     content: Dict[str, Any]
     result_type: ParsingResult
     errors: Optional[List[str]] = None
@@ -207,7 +220,9 @@ class IOutputParser(ABC):
     """Interface for output parsing services."""
 
     @abstractmethod
-    def parse_xml(self, output: str, expected_fields: Optional[List[str]] = None) -> ParsedOutput:
+    def parse_xml(
+        self, output: str, expected_fields: Optional[List[str]] = None
+    ) -> ParsedOutput:
         """
         Parse XML output from LLM.
 
@@ -221,7 +236,9 @@ class IOutputParser(ABC):
         pass
 
     @abstractmethod
-    def parse_json(self, output: str, expected_fields: Optional[List[str]] = None) -> ParsedOutput:
+    def parse_json(
+        self, output: str, expected_fields: Optional[List[str]] = None
+    ) -> ParsedOutput:
         """
         Parse JSON output from LLM.
 
@@ -235,7 +252,9 @@ class IOutputParser(ABC):
         pass
 
     @abstractmethod
-    def extract_code_blocks(self, output: str, language: Optional[str] = None) -> List[str]:
+    def extract_code_blocks(
+        self, output: str, language: Optional[str] = None
+    ) -> List[str]:
         """
         Extract code blocks from output.
 
@@ -249,7 +268,9 @@ class IOutputParser(ABC):
         pass
 
     @abstractmethod
-    def validate_output(self, parsed_output: ParsedOutput, schema: Dict[str, Any]) -> bool:
+    def validate_output(
+        self, parsed_output: ParsedOutput, schema: Dict[str, Any]
+    ) -> bool:
         """
         Validate parsed output against a schema.
 
@@ -267,8 +288,10 @@ class IOutputParser(ABC):
 # Workflow Orchestration Interfaces
 # ============================================================================
 
+
 class WorkflowStatus(Enum):
     """Workflow execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -279,6 +302,7 @@ class WorkflowStatus(Enum):
 @dataclass
 class WorkflowStep:
     """Single workflow step definition."""
+
     name: str
     provider: str
     model: str
@@ -293,6 +317,7 @@ class WorkflowStep:
 @dataclass
 class WorkflowConfig:
     """Workflow configuration."""
+
     name: str
     description: Optional[str] = None
     steps: List[WorkflowStep] = None
@@ -306,6 +331,7 @@ class WorkflowConfig:
 @dataclass
 class WorkflowResult:
     """Result of workflow execution."""
+
     status: WorkflowStatus
     steps_executed: int
     total_tokens_used: int
@@ -323,7 +349,7 @@ class IWorkflowOrchestrator(ABC):
         self,
         config: WorkflowConfig,
         input_data: Dict[str, Any],
-        progress_callback: Optional[callable] = None
+        progress_callback: Optional[callable] = None,
     ) -> WorkflowResult:
         """
         Execute a complete workflow.
@@ -340,9 +366,7 @@ class IWorkflowOrchestrator(ABC):
 
     @abstractmethod
     async def execute_step(
-        self,
-        step: WorkflowStep,
-        input_data: Dict[str, Any]
+        self, step: WorkflowStep, input_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Execute a single workflow step.
@@ -375,6 +399,7 @@ class IWorkflowOrchestrator(ABC):
 # ============================================================================
 # Configuration Management Interfaces
 # ============================================================================
+
 
 class IConfigurationService(ABC):
     """Interface for configuration management."""
@@ -409,9 +434,11 @@ class IConfigurationService(ABC):
 # Storage and Repository Interfaces
 # ============================================================================
 
+
 @dataclass
 class StorageResult:
     """Result of storage operations."""
+
     success: bool
     data: Optional[Any] = None
     error: Optional[str] = None
@@ -422,7 +449,9 @@ class IStorageService(ABC):
     """Interface for storage operations."""
 
     @abstractmethod
-    async def save(self, key: str, data: Any, metadata: Optional[Dict[str, Any]] = None) -> StorageResult:
+    async def save(
+        self, key: str, data: Any, metadata: Optional[Dict[str, Any]] = None
+    ) -> StorageResult:
         """Save data with a key."""
         pass
 
@@ -451,9 +480,11 @@ class IStorageService(ABC):
 # Logging and Monitoring Interfaces
 # ============================================================================
 
+
 @dataclass
 class LogEntry:
     """Log entry structure."""
+
     level: str
     message: str
     component: str
@@ -490,7 +521,9 @@ class ILogger(ABC):
         pass
 
     @abstractmethod
-    async def log_async(self, level: str, message: str, component: str, **kwargs) -> None:
+    async def log_async(
+        self, level: str, message: str, component: str, **kwargs
+    ) -> None:
         """Log a message asynchronously."""
         pass
 
@@ -499,17 +532,23 @@ class IMetricsCollector(ABC):
     """Interface for metrics collection."""
 
     @abstractmethod
-    def increment_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
+    def increment_counter(
+        self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Increment a counter metric."""
         pass
 
     @abstractmethod
-    def record_timing(self, name: str, duration: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def record_timing(
+        self, name: str, duration: float, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Record a timing metric."""
         pass
 
     @abstractmethod
-    def set_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def set_gauge(
+        self, name: str, value: float, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Set a gauge metric."""
         pass
 
@@ -523,6 +562,7 @@ class IMetricsCollector(ABC):
 # Retry and Resilience Interfaces
 # ============================================================================
 
+
 class RetryPolicy:
     """Retry policy configuration."""
 
@@ -532,7 +572,7 @@ class RetryPolicy:
         base_delay: float = 1.0,
         max_delay: float = 60.0,
         backoff_factor: float = 2.0,
-        jitter: bool = True
+        jitter: bool = True,
     ):
         self.max_attempts = max_attempts
         self.base_delay = base_delay
@@ -546,11 +586,7 @@ class IRetryService(ABC):
 
     @abstractmethod
     async def execute_with_retry(
-        self,
-        operation: callable,
-        policy: RetryPolicy,
-        *args,
-        **kwargs
+        self, operation: callable, policy: RetryPolicy, *args, **kwargs
     ) -> Any:
         """
         Execute an operation with retry logic.
@@ -567,7 +603,9 @@ class IRetryService(ABC):
         pass
 
     @abstractmethod
-    async def should_retry(self, exception: Exception, attempt: int, policy: RetryPolicy) -> bool:
+    async def should_retry(
+        self, exception: Exception, attempt: int, policy: RetryPolicy
+    ) -> bool:
         """Determine if operation should be retried."""
         pass
 
@@ -576,9 +614,11 @@ class IRetryService(ABC):
 # Event System Interfaces
 # ============================================================================
 
+
 @dataclass
 class Event:
     """Event structure."""
+
     name: str
     data: Dict[str, Any]
     source: str
