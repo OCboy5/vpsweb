@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.4.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.4.0)
+[![Version](https://img.shields.io/badge/Version-0.4.1-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.4.1)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,20 +40,13 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.4.0 - MAJOR PHASE-3 DEPENDENCY INJECTION RELEASE**
+## 🎯 Current Status: **v0.4.1 - Quality Rating UI & Translation Notes Enhancement**
 
-🏗️ **Phase-3 Architecture**: Complete dependency injection container system with service interfaces
-🔄 **Workflow Orchestrator**: Refactored workflow orchestration with clean service abstractions
-🎯 **Enhanced Modularity**: Improved separation of concerns across all application layers
-📊 **CLI Refactoring**: Complete CLI system refactoring with dependency injection support
-🌐 **WebUI Enhancements**: Improved API structure and user experience with DI
-🧪 **Testing Infrastructure**: Comprehensive testing support with dependency injection
-📈 **Performance Gains**: Optimized execution and resource management
-🛠️ **Developer Experience**: Enhanced development workflow and tooling
-🚀 **Production Ready**: Enterprise-grade stability with new architecture
-✅ **Backward Compatible**: All existing functionality preserved with enhanced architecture
-📋 **Quality Assured**: Zero-conflict merge process with comprehensive validation
-🔧 **Modern Standards**: Complete adherence to modern Python best practices
+📊 **Interactive Quality Rating System**: Manual quality rating functionality with 0-10 scale and real-time color feedback
+📝 **Enhanced Translation Notes**: Complete T-E-T workflow visualization with model evolution tracking
+🐛 **Critical Bug Fixes**: Fixed translations display issues and workflow mode badges across all pages
+🎨 **UI/UX Polish**: Header/footer updates, slider alignment, and improved visual hierarchy
+🔧 **Technical Improvements**: Service layer enhancements and API consistency updates
 
 ### **Previous v0.3.x Features**
 🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0

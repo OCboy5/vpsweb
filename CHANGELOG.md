@@ -5,6 +5,45 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-11-10
+
+### 🚀 Overview
+VPSWeb v0.4.1 - **Quality Rating UI & Translation Notes Enhancement**. This release introduces an interactive quality rating system for translations with real-time feedback, enhances the translation notes page with workflow evolution display, and includes significant UI polish across multiple components.
+
+### ✨ New Features
+
+#### 📊 Interactive Quality Rating System
+- **Translation Quality Rating**: Added manual quality rating functionality with 0-10 scale (0 = unrated) for all translations
+- **Real-time Color Feedback**: Interactive sliders with dynamic color coding based on rating values
+- **Consistent Rating Display**: Standardized quality rating badges across all translation cards (dashboard, poem details, translations landing, compare page)
+- **API Endpoint**: New `/api/v1/translations/{id}/quality` endpoint for updating quality ratings with validation
+- **Database Constraints**: Enhanced quality_rating field with proper 0-10 constraints
+
+#### 📝 Enhanced Translation Notes
+- **Workflow Evolution Display**: Added workflow mode and model evolution line showing "hybrid: model_name → model_name → model_name"
+- **Step-by-step Tracking**: Complete T-E-T (Translator→Editor→Translator) workflow visualization with specific model usage
+- **AI vs Human Attribution**: Clear identification of workflow steps and responsible models/humans
+- **Performance Summary**: Enhanced display of token usage, costs, and timing data
+
+### 🐛 Bug Fixes
+- **Translations Display Issue**: Fixed translations not showing on landing page and poem detail page due to outdated star rating logic
+- **Workflow Mode Display**: Fixed missing workflow_mode badges in translation cards across multiple pages
+- **Badge Order Consistency**: Standardized badge order as "ai → workflow_mode → target_language → quality_rating"
+- **Translation Selection Logic**: Improved dropdown selection in compare page using unique identifiers (target_language + translator_type + created_at)
+
+### 🔧 UI/UX Improvements
+- **Header & Footer Polish**: Removed "Vox Poetica Studio Web" subtitle, updated footer to Chinese copyright "© 2025 知韵VoxPoetica"
+- **Slider Alignment**: Fixed slider thumb vertical alignment for better visual centering
+- **Translation Cards**: Cleaned up display text by removing redundant model names and ratings from dropdown options
+- **Rating Section Spacing**: Optimized vertical spacing in quality rating sections for better visual hierarchy
+- **Remove Unnecessary Elements**: Eliminated redundant instructional text and improved visual clarity
+
+### 🔧 Technical Changes
+- **Service Layer Enhancement**: Enhanced `get_workflow_steps` method to properly extract model names from JSON and workflow modes from AI logs
+- **Template Optimization**: Improved Jinja2 template logic for workflow step data extraction and display
+- **API Consistency**: Updated poem detail and translations pages to use poem-specific API endpoints for better data consistency
+- **Code Quality**: Applied Black code formatting across 19 files for maintainability
+
 ## [0.3.12] - 2025-11-01
 
 ### 🚀 Overview
