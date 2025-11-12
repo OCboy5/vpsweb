@@ -5,6 +5,44 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-11-12
+
+### 🚀 Overview
+VPSWeb v0.4.2 - **Poets Landing Page Enhancement & Human Translation Notes System**. This release introduces a comprehensive human translation notes system with full CRUD operations, enhances the poets landing page with detailed AI/human translation statistics, and includes significant UI improvements for better user experience.
+
+### ✨ New Features
+
+#### 📋 Complete Human Translation Notes System
+- **CRUD Operations**: Full create, read, update, delete functionality for human translation notes
+- **Dedicated Notes Page**: Comprehensive notes viewing page with translation context and metadata
+- **Notes Management**: Add and delete notes with animated feedback and confirmation dialogs
+- **Multi-Page Integration**: Human notes functionality integrated across poem detail, compare, and dedicated notes pages
+- **API Endpoints**: New `/api/v1/translations/{id}/human-notes` endpoints for notes management
+
+#### 🎨 Enhanced Poets Landing Page
+- **Translation Statistics**: Replaced generic "Active" status with detailed AI and human translation counts
+- **Two-Column Layout**: Improved visual alignment with poems/AI counts in left column and translations/human counts in right column
+- **Consistent Display**: Always show "0 Human" for poets without human translations to maintain UI consistency
+- **Visual Distinction**: Updated icons to differentiate between translation types (AI chip icon, human person icon)
+- **Color Consistency**: Matched font colors to existing poem count styling for cohesive design
+
+### 🐛 Bug Fixes
+- **Language Code Inconsistency**: Fixed "zh" vs "zh-CN" inconsistency throughout the system, standardized to "zh-CN"
+- **Conditional Display Logic**: Corrected template logic to always show human translation counts, including zeros
+- **Translator Label Logic**: Implemented proper conditional labeling based on target language ("译者:" for zh-CN, "Translated by:" for others)
+
+### 🔧 UI/UX Improvements
+- **Visual Alignment**: Vertically aligned "2 AI" with "3 poems" and "2 Human" with "4 translations" for better readability
+- **Icon Differentiation**: Used distinct icons for different translation types to improve visual recognition
+- **Responsive Layout**: Maintained responsive design principles across all screen sizes
+- **Animation Effects**: Added smooth animations for note deletion and UI interactions
+
+### 🔧 Technical Changes
+- **Database Queries**: Enhanced repository service with SQLAlchemy CASE statements for counting translation types by poet
+- **Service Layer Updates**: Modified `get_all_poets` method to include AI and human translation counts
+- **Template Optimization**: Improved Jinja2 template structure for better maintainability and performance
+- **API Enhancement**: Added human notes management endpoints with proper validation and error handling
+
 ## [0.4.1] - 2025-11-10
 
 ### 🚀 Overview

@@ -1194,7 +1194,7 @@ class ApplicationRouterV2:
             try:
                 # Get basic health status from services
                 app_name = await self.config_service.get_setting("app_name", "VPSWeb")
-                app_version = await self.config_service.get_setting("version", "0.3.12")
+                app_version = await self.config_service.get_setting("version", "0.4.2")
 
                 return {
                     "status": "healthy",
@@ -1356,9 +1356,9 @@ class ApplicationFactoryV2:
 
         # Create FastAPI app instance first to access app.state
         app = FastAPI(
-            title="VPSWeb Repository v0.3.12",
+            title="VPSWeb Repository v0.4.2",
             description="Poetry translation repository with AI integration",
-            version="0.3.12",
+            version="0.4.2",
             docs_url="/docs",
             redoc_url="/redoc",
         )

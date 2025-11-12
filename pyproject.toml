@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vpsweb"
-version = "0.4.0"
+version = "0.4.2"
 description = "Vox Poetica Studio Web - Professional AI-powered poetry translation using a collaborative Translator→Editor→Translator workflow"
 authors = ["VPSWeb Development Team <dev@vpsweb.ai>"]
 readme = "README.md"
