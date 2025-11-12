@@ -8,7 +8,7 @@ and the service layer pattern. It replaces the monolithic main.py architecture.
 from contextlib import asynccontextmanager
 from typing import Dict, Any, Optional
 
-from fastapi import FastAPI, Request, Response, Depends
+from fastapi import FastAPI, Request, Response, Depends, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -1038,6 +1038,92 @@ class ApplicationRouterV2:
                     "translation_notes.html", template_context, request
                 )
 
+            except Exception as e:
+                return await self.error_handler.handle_general_error(
+                    error=e,
+                    request=request,
+                    error_id=self.error_handler.generate_error_id(),
+                    is_web_request=True,
+                )
+
+        @app.get("/translations/{translation_id}/notes/add", response_class=HTMLResponse)
+        async def add_human_note(request: Request, translation_id: str, db: Session = Depends(get_db)):
+            """Display page to add human notes to a translation."""
+            try:
+                # Get translation data
+                repository_service = RepositoryService(db)
+                translation = repository_service.translations.get_by_id(translation_id)
+                if not translation:
+                    raise HTTPException(status_code=404, detail="Translation not found")
+
+                # Verify it's a human translation
+                if translation.translator_type != 'human':
+                    raise HTTPException(status_code=400, detail="Human notes can only be added to human translations")
+
+                # Get poem data for context
+                poem = repository_service.poems.get_by_id(translation.poem_id)
+                if not poem:
+                    raise HTTPException(status_code=404, detail="Associated poem not found")
+
+                template_context = {
+                    "request": request,
+                    "translation": translation,
+                    "poem_title": poem.poem_title,
+                    "poem_name": poem.poet_name,
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
+                }
+
+                return await self.template_service.render_template(
+                    "add_human_note.html", template_context, request
+                )
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                return await self.error_handler.handle_general_error(
+                    error=e,
+                    request=request,
+                    error_id=self.error_handler.generate_error_id(),
+                    is_web_request=True,
+                )
+
+        @app.get("/translations/{translation_id}/human-notes", response_class=HTMLResponse)
+        async def view_human_notes(request: Request, translation_id: str, db: Session = Depends(get_db)):
+            """Display page to view human notes for a translation."""
+            try:
+                # Get translation data
+                repository_service = RepositoryService(db)
+                translation = repository_service.translations.get_by_id(translation_id)
+                if not translation:
+                    raise HTTPException(status_code=404, detail="Translation not found")
+
+                # Verify it's a human translation
+                if translation.translator_type != 'human':
+                    raise HTTPException(status_code=400, detail="Human notes can only be viewed for human translations")
+
+                # Get poem data for context
+                poem = repository_service.poems.get_by_id(translation.poem_id)
+                if not poem:
+                    raise HTTPException(status_code=404, detail="Associated poem not found")
+
+                template_context = {
+                    "request": request,
+                    "translation": translation,
+                    "poem_title": poem.poem_title,
+                    "poem_name": poem.poet_name,
+                    "title": await self.config_service.get_setting(
+                        "app_name", "VPSWeb Repository"
+                    ),
+                }
+
+                return await self.template_service.render_template(
+                    "human_notes.html", template_context, request
+                )
+
+            except HTTPException:
+                raise
             except Exception as e:
                 return await self.error_handler.handle_general_error(
                     error=e,

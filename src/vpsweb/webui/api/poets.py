@@ -8,7 +8,7 @@ Provides database-driven poet listings, poems by poet, and translation statistic
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, case
 
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.service import RepositoryWebService
@@ -57,12 +57,22 @@ async def list_poets(
     - List of poets with statistics and activity data
     """
     try:
-        # Base query with poem and translation counts
+        # Base query with poem and translation counts (separated by AI and Human)
         query = (
             service.db.query(
                 Poem.poet_name,
                 func.count(Poem.id).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
+                func.sum(
+                    case(
+                        (Translation.translator_type == 'ai', 1), else_=0
+                    )
+                ).label("ai_translation_count"),
+                func.sum(
+                    case(
+                        (Translation.translator_type == 'human', 1), else_=0
+                    )
+                ).label("human_translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
@@ -125,6 +135,8 @@ async def list_poets(
                 "poet_name": row.poet_name,
                 "poem_count": row.poem_count,
                 "translation_count": row.translation_count or 0,
+                "ai_translation_count": row.ai_translation_count or 0,
+                "human_translation_count": row.human_translation_count or 0,
                 "avg_quality_rating": (
                     float(row.avg_quality_rating) if row.avg_quality_rating else None
                 ),

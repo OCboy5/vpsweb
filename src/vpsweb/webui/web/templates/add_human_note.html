@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% block title %}Add Human Note - VPSWeb Repository{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        Poems
+                    </a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="/poems/{{ translation.poem_id }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-primary-600 md:ml-2">
+                        {{ poem_title }}
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Add Human Note</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Translation Info -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center space-x-3 mb-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    Human Translation
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ translation.target_language }}
+                </span>
+            </div>
+            <h2 class="text-xl font-medium text-gray-900 mb-2">{{ translation.translated_poem_title or 'Translation' }}</h2>
+            <p class="text-sm text-gray-500 mb-4">by {{ translation.translated_poet_name or poet_name }} • {{ translation.translator_info or 'Anonymous' }}</p>
+
+            <!-- Translation Preview -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Translation Preview:</h3>
+                <div class="poetry-text text-gray-600 whitespace-pre-wrap text-sm">{{ translation.translated_text[:200] }}{% if translation.translated_text|length > 200 %}...{% endif %}</div>
+            </div>
+
+            <div class="text-xs text-gray-400">
+                Translation ID: {{ translation.id }} • Created: {{ translation.created_at }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Note Form -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-medium text-gray-900">Add Human Note</h2>
+                <div class="flex space-x-3">
+                    <a href="/poems/{{ translation.poem_id }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to Poem
+                    </a>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-8">
+                <div class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Loading translation data...</span>
+                </div>
+            </div>
+
+            <!-- Note Form (Initially Hidden) -->
+            <div id="note-form-container" class="hidden">
+                <form id="note-form" onsubmit="submitNote(event)">
+                    <div class="space-y-6">
+                        <!-- Note Text -->
+                        <div>
+                            <label for="note-text" class="block text-sm font-medium text-gray-700 mb-2">
+                                Human Translator's Notes <span class="text-red-500">*</span>
+                            </label>
+                            <p class="text-xs text-gray-500 mb-2">Add any notes about the translation process, choices made, cultural considerations, or other relevant information.</p>
+                            <textarea
+                                id="note-text"
+                                required
+                                rows="8"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                placeholder="Enter your translator's notes here...&#10;&#10;Examples:&#10;• Translation choices and rationale&#10;• Cultural or linguistic challenges&#10;• Alternative translations considered&#10;• Context or background information"
+                            ></textarea>
+                            <div class="mt-2 text-xs text-gray-500">
+                                <span id="character-count">0</span> characters
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="mt-8 flex justify-end space-x-3">
+                        <a href="/poems/{{ translation.poem_id }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </a>
+                        <button type="submit" id="submit-btn" class="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            <span id="submit-btn-text">Add Note</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success State (Initially Hidden) -->
+            <div id="success-state" class="hidden text-center py-8">
+                <div class="mb-4">
+                    <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Note Added Successfully!</h3>
+                <p class="text-gray-600 mb-6">Your human translator's note has been added to this translation.</p>
+                <div class="flex justify-center space-x-3">
+                    <a href="/poems/{{ translation.poem_id }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to Poem
+                    </a>
+                    <button onclick="addAnotherNote()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Another Note
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+const translationId = "{{ translation.id }}";
+const poemId = "{{ translation.poem_id }}";
+
+let translationData = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadTranslationData();
+    setupCharacterCounter();
+});
+
+// Load translation data
+async function loadTranslationData() {
+    try {
+        const response = await fetch(`/api/v1/translations/${translationId}`);
+        if (response.ok) {
+            translationData = await response.json();
+            showNoteForm();
+        } else {
+            showError('Failed to load translation data');
+        }
+    } catch (error) {
+        console.error('Failed to load translation data:', error);
+        showError('Failed to load translation data');
+    }
+}
+
+function showNoteForm() {
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('note-form-container').classList.remove('hidden');
+}
+
+function showSuccessState() {
+    document.getElementById('note-form-container').classList.add('hidden');
+    document.getElementById('success-state').classList.remove('hidden');
+}
+
+function setupCharacterCounter() {
+    const textarea = document.getElementById('note-text');
+    const counter = document.getElementById('character-count');
+
+    textarea.addEventListener('input', function() {
+        counter.textContent = this.value.length;
+    });
+}
+
+async function submitNote(event) {
+    event.preventDefault();
+
+    const noteText = document.getElementById('note-text').value.trim();
+
+    if (!noteText) {
+        showError('Please enter note text');
+        return;
+    }
+
+    const submitBtn = document.getElementById('submit-btn');
+    const submitBtnText = document.getElementById('submit-btn-text');
+
+    // Update button state
+    submitBtn.disabled = true;
+    submitBtnText.textContent = 'Adding Note...';
+
+    try {
+        const response = await fetch('/api/v1/human-notes/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                translation_id: translationId,
+                note_text: noteText
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Note added successfully:', result);
+            showSuccessState();
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to add note');
+        }
+    } catch (error) {
+        console.error('Failed to submit note:', error);
+        showError('Failed to add note: ' + error.message);
+
+        // Restore button state
+        submitBtn.disabled = false;
+        submitBtnText.textContent = 'Add Note';
+    }
+}
+
+function addAnotherNote() {
+    // Reset form and show it again
+    document.getElementById('note-form').reset();
+    document.getElementById('character-count').textContent = '0';
+    document.getElementById('success-state').classList.add('hidden');
+    document.getElementById('note-form-container').classList.remove('hidden');
+
+    // Focus on the textarea
+    document.getElementById('note-text').focus();
+}
+
+function showError(message) {
+    showToast(message, 'error');
+    console.error('Error:', message);
+}
+
+// Toast notification system (reused from poem_detail.html)
+function showToast(message, type = 'info') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+
+    // Style based on type
+    const baseClasses = 'px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full';
+    let typeClasses = '';
+    let icon = '';
+
+    switch (type) {
+        case 'success':
+            typeClasses = 'bg-green-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>`;
+            break;
+        case 'error':
+            typeClasses = 'bg-red-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>`;
+            break;
+        default:
+            typeClasses = 'bg-blue-500 text-white';
+            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>`;
+    }
+
+    toast.className = `${baseClasses} ${typeClasses}`;
+    toast.innerHTML = `${icon}${message}`;
+
+    // Add click to dismiss functionality
+    toast.addEventListener('click', () => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    });
+
+    // Add hover effect to show it's clickable
+    toast.style.cursor = 'pointer';
+
+    // Add to container
+    toastContainer.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+        toast.classList.add('translate-x-0');
+    }, 10);
+
+    // Remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 4000);
+}
+</script>
+{% endblock %}

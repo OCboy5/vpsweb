@@ -208,10 +208,20 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (translation1) {
                 const slider1 = document.getElementById(`quality-slider-${translation1.id}`);
                 if (slider1) updateSliderColor(slider1, translation1.quality_rating || 0);
+
+                // Load human notes buttons for human translations
+                if (translation1.translator_type === 'human') {
+                    loadHumanNotesButton(translation1.id);
+                }
             }
             if (translation2) {
                 const slider2 = document.getElementById(`quality-slider-${translation2.id}`);
                 if (slider2) updateSliderColor(slider2, translation2.quality_rating || 0);
+
+                // Load human notes buttons for human translations
+                if (translation2.translator_type === 'human') {
+                    loadHumanNotesButton(translation2.id);
+                }
             }
         }, 100);
     }
@@ -238,7 +248,11 @@ function generateColumnHTML(translation, color, colNum) {
     }
 
     const typeClass = translation.translator_type === 'ai' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
-    const notesLink = translation.translator_type === 'ai' ? `<a href="/translations/${translation.id}/notes" class="text-sm text-blue-600 hover:text-blue-500 font-medium text-right whitespace-nowrap">Translation<br>Notes</a>` : '';
+    const notesLink = translation.translator_type === 'ai' ?
+        `<a href="/translations/${translation.id}/notes" class="text-sm text-blue-600 hover:text-blue-500 font-medium text-right whitespace-nowrap">Translation<br>Notes</a>` :
+        `<span id="notes-link-${translation.id}" class="text-right whitespace-nowrap">
+            <!-- Human notes link will be dynamically loaded here -->
+         </span>`;
 
     return `
         <div class="bg-gradient-to-r from-${color}-50 to-${color}-100 px-6 py-4 border-b border-gray-200 relative min-h-[85px]">
@@ -397,6 +411,32 @@ async function updateQualityRating(translationId, rating) {
 
         // Show error message
         alert('Failed to save quality rating. Please try again.');
+    }
+}
+
+// Load human notes button functionality for compare page
+async function loadHumanNotesButton(translationId) {
+    try {
+        const response = await fetch(`/api/v1/translations/${translationId}/human-notes`);
+        if (response.ok) {
+            const data = await response.json();
+            const notesContainer = document.getElementById(`notes-link-${translationId}`);
+
+            if (data.success && data.count > 0) {
+                // Show "Translation Notes" button with count
+                notesContainer.innerHTML = `<a href="/translations/${translationId}/human-notes" class="text-sm text-purple-600 hover:text-purple-500 font-medium whitespace-nowrap">Translation<br>Notes (${data.count})</a>`;
+            } else {
+                // No notes, hide the container
+                notesContainer.innerHTML = '';
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load human notes:', error);
+        // If there's an error, leave the container empty
+        const notesContainer = document.getElementById(`notes-link-${translationId}`);
+        if (notesContainer) {
+            notesContainer.innerHTML = '';
+        }
     }
 }
 </script>

@@ -347,14 +347,24 @@ class RepositoryWebService:
         min_translations: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get all poets with statistics and activity metrics"""
-        from sqlalchemy import func, desc
+        from sqlalchemy import func, desc, case
 
-        # Base query with poet statistics
+        # Base query with poet statistics (separated by AI and Human)
         query = (
             self.db.query(
                 Poem.poet_name,
                 func.count(func.distinct(Poem.id)).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
+                func.sum(
+                    case(
+                        (Translation.translator_type == 'ai', 1), else_=0
+                    )
+                ).label("ai_translation_count"),
+                func.sum(
+                    case(
+                        (Translation.translator_type == 'human', 1), else_=0
+                    )
+                ).label("human_translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
@@ -413,6 +423,8 @@ class RepositoryWebService:
                     "poet_name": row.poet_name,
                     "poem_count": row.poem_count,
                     "translation_count": row.translation_count or 0,
+                    "ai_translation_count": row.ai_translation_count or 0,
+                    "human_translation_count": row.human_translation_count or 0,
                     "avg_quality_rating": (
                         float(row.avg_quality_rating)
                         if row.avg_quality_rating
