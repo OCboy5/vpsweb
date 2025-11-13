@@ -2,8 +2,6 @@ name: Create Release
 
 permissions:
   contents: write
-  packages: write
-  releases: write
 
 on:
   workflow_dispatch:
