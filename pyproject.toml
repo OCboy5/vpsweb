@@ -63,9 +63,33 @@ pytest-xdist = "^3.8.0"
 black = "^24.10.0"
 flake8 = "^7.1.1"
 mypy = "^1.13.0"
+python-semantic-release = "^9.8.3"
+commitizen = "^3.27.0"
 
 [tool.poetry.scripts]
 vpsweb = "vpsweb.__main__:cli"
+
+[tool.semantic_release]
+version_variables = [
+    "src/vpsweb/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+build_command = "pip install poetry && poetry build"
+dist_path = "dist/"
+upload_to_release = true
+upload_to_pypi = false
+commit_parser = "conventional"
+major_on_zero = false
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "semver"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
 
 [build-system]
 requires = ["poetry-core"]
