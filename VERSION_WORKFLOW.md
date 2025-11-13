@@ -1,6 +1,31 @@
-# vpsweb — Automated Release Workflow
+# vpsweb — Release Process
 
-This document describes the streamlined, automated release process for `vpsweb`, managed by GitHub Actions with comprehensive validation and error handling.
+This document describes the release process for `vpsweb`.
+
+## ⚠️ **IMPORTANT: Process Update**
+
+**Current Status**: The GitHub Actions automated workflow has reliability issues due to branch protection rules and permissions.
+
+**Recommended Process**: Use **Claude-assisted manual release** - See [CLAUDE_RELEASE_PROCESS.md](./CLAUDE_RELEASE_PROCESS.md) for the complete step-by-step process.
+
+## 🚀 **Simple Release Instructions**
+
+**Just tell Claude**: `"Create release v0.4.4"`
+
+Claude will handle:
+- ✅ Repository preparation and validation
+- ✅ Local backup creation
+- ✅ Quality assurance checks
+- ✅ Version updates across all files
+- ✅ README.md and CHANGELOG.md updates
+- ✅ Commit and release creation
+- ✅ Verification and confirmation
+
+---
+
+## GitHub Actions Workflow (Legacy)
+
+> **Note**: The automated workflow is currently unreliable due to branch protection rules blocking pushes when CI checks fail. Use the Claude-assisted manual process instead.
 
 ---
 

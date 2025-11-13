@@ -192,15 +192,27 @@ vpsweb generate-article -j translation.json                   # WeChat articles
 
 ## Quick References
 
-### Release Management
-🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
+### 🚀 Release Management
 
-**Essential Steps**:
-1. Create backup: `./save-version.sh X.Y.Z`
-2. Update versions in 3 files + documentation
-3. Commit and push to main
-4. Create release: `./push-version.sh X.Y.Z "notes"`
-5. Verify release on GitHub
+🚨 **CRITICAL**: All releases MUST follow the standardized process in `CLAUDE_RELEASE_PROCESS.md`.
+
+**User Instructions**: When user requests a release (e.g., "Create release v0.4.4"), Claude will:
+
+1. **Create local backup**: `./save-version.sh X.Y.Z`
+2. **Run quality checks**: Tests, formatting, file verification
+3. **Update all version files**: pyproject.toml, __init__.py, __main__.py
+4. **Update documentation**: CHANGELOG.md + README.md
+5. **Commit and push**: All changes to main branch
+6. **Create release**: `./push-version.sh X.Y.Z "release notes"`
+7. **Verify success**: Confirm release appears on GitHub
+
+**Key Requirements**:
+- ✅ ALWAYS read `CLAUDE_RELEASE_PROCESS.md` first
+- ✅ ALWAYS create local backup before changes
+- ✅ ALWAYS update README.md with version info
+- ✅ NEVER use GitHub Actions workflow (unreliable)
+- ✅ ALWAYS use manual `push-version.sh` script
+- ✅ ALWAYS verify release before reporting success
 
 ### Emergency Procedures
 ```bash
