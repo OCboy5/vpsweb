@@ -355,15 +355,11 @@ class RepositoryWebService:
                 Poem.poet_name,
                 func.count(func.distinct(Poem.id)).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
+                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label(
+                    "ai_translation_count"
+                ),
                 func.sum(
-                    case(
-                        (Translation.translator_type == 'ai', 1), else_=0
-                    )
-                ).label("ai_translation_count"),
-                func.sum(
-                    case(
-                        (Translation.translator_type == 'human', 1), else_=0
-                    )
+                    case((Translation.translator_type == "human", 1), else_=0)
                 ).label("human_translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),

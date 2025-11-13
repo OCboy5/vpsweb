@@ -1046,8 +1046,12 @@ class ApplicationRouterV2:
                     is_web_request=True,
                 )
 
-        @app.get("/translations/{translation_id}/notes/add", response_class=HTMLResponse)
-        async def add_human_note(request: Request, translation_id: str, db: Session = Depends(get_db)):
+        @app.get(
+            "/translations/{translation_id}/notes/add", response_class=HTMLResponse
+        )
+        async def add_human_note(
+            request: Request, translation_id: str, db: Session = Depends(get_db)
+        ):
             """Display page to add human notes to a translation."""
             try:
                 # Get translation data
@@ -1057,13 +1061,18 @@ class ApplicationRouterV2:
                     raise HTTPException(status_code=404, detail="Translation not found")
 
                 # Verify it's a human translation
-                if translation.translator_type != 'human':
-                    raise HTTPException(status_code=400, detail="Human notes can only be added to human translations")
+                if translation.translator_type != "human":
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Human notes can only be added to human translations",
+                    )
 
                 # Get poem data for context
                 poem = repository_service.poems.get_by_id(translation.poem_id)
                 if not poem:
-                    raise HTTPException(status_code=404, detail="Associated poem not found")
+                    raise HTTPException(
+                        status_code=404, detail="Associated poem not found"
+                    )
 
                 template_context = {
                     "request": request,
@@ -1089,8 +1098,12 @@ class ApplicationRouterV2:
                     is_web_request=True,
                 )
 
-        @app.get("/translations/{translation_id}/human-notes", response_class=HTMLResponse)
-        async def view_human_notes(request: Request, translation_id: str, db: Session = Depends(get_db)):
+        @app.get(
+            "/translations/{translation_id}/human-notes", response_class=HTMLResponse
+        )
+        async def view_human_notes(
+            request: Request, translation_id: str, db: Session = Depends(get_db)
+        ):
             """Display page to view human notes for a translation."""
             try:
                 # Get translation data
@@ -1100,13 +1113,18 @@ class ApplicationRouterV2:
                     raise HTTPException(status_code=404, detail="Translation not found")
 
                 # Verify it's a human translation
-                if translation.translator_type != 'human':
-                    raise HTTPException(status_code=400, detail="Human notes can only be viewed for human translations")
+                if translation.translator_type != "human":
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Human notes can only be viewed for human translations",
+                    )
 
                 # Get poem data for context
                 poem = repository_service.poems.get_by_id(translation.poem_id)
                 if not poem:
-                    raise HTTPException(status_code=404, detail="Associated poem not found")
+                    raise HTTPException(
+                        status_code=404, detail="Associated poem not found"
+                    )
 
                 template_context = {
                     "request": request,

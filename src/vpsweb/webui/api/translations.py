@@ -259,12 +259,14 @@ async def delete_translation(
 # Human Note Management
 class HumanNoteCreateRequest(BaseModel):
     """Schema for creating a human note"""
+
     translation_id: str = Field(..., description="Translation ID to attach the note to")
     note_text: str = Field(..., min_length=1, description="The note text content")
 
 
 class HumanNoteResponse(BaseModel):
     """Schema for human note response"""
+
     id: str
     translation_id: str
     note_text: str
@@ -273,14 +275,18 @@ class HumanNoteResponse(BaseModel):
     @classmethod
     def model_validate(cls, obj):
         """Custom model validation to handle datetime objects"""
-        if hasattr(obj, 'created_at') and obj.created_at:
+        if hasattr(obj, "created_at") and obj.created_at:
             # Convert datetime to string
-            created_at_str = obj.created_at.isoformat() if hasattr(obj.created_at, 'isoformat') else str(obj.created_at)
+            created_at_str = (
+                obj.created_at.isoformat()
+                if hasattr(obj.created_at, "isoformat")
+                else str(obj.created_at)
+            )
             return cls(
                 id=obj.id,
                 translation_id=obj.translation_id,
                 note_text=obj.note_text,
-                created_at=created_at_str
+                created_at=created_at_str,
             )
         return super().model_validate(obj)
 
@@ -302,7 +308,7 @@ async def create_human_note(
         )
 
     # Verify it's a human translation
-    if translation.translator_type != 'human':
+    if translation.translator_type != "human":
         raise HTTPException(
             status_code=400,
             detail=f"Human notes can only be added to human translations. This translation is of type '{translation.translator_type}'",
@@ -311,8 +317,7 @@ async def create_human_note(
     try:
         # Create the human note
         human_note_create = HumanNoteCreate(
-            translation_id=note_data.translation_id,
-            note_text=note_data.note_text
+            translation_id=note_data.translation_id, note_text=note_data.note_text
         )
 
         human_note = service.repo.human_notes.create(human_note_create)
@@ -320,7 +325,7 @@ async def create_human_note(
         return {
             "success": True,
             "message": "Human note added successfully",
-            "data": HumanNoteResponse.model_validate(human_note)
+            "data": HumanNoteResponse.model_validate(human_note),
         }
     except Exception as e:
         raise HTTPException(
@@ -351,7 +356,7 @@ async def list_human_notes(
         return {
             "success": True,
             "data": [HumanNoteResponse.model_validate(note) for note in human_notes],
-            "count": len(human_notes)
+            "count": len(human_notes),
         }
     except Exception as e:
         raise HTTPException(
@@ -379,10 +384,7 @@ async def delete_human_note(
         # Delete the note
         service.repo.human_notes.delete(note_id)
 
-        return WebAPIResponse(
-            success=True,
-            message="Human note deleted successfully"
-        )
+        return WebAPIResponse(success=True, message="Human note deleted successfully")
     except HTTPException:
         raise
     except Exception as e:
