@@ -140,7 +140,7 @@ echo ""
 
 # Verification
 echo "🔍 Verifying release..."
-gh release view "$TAG" --json tagName,isLatest > /dev/null
+gh release view "$TAG" --json tagName > /dev/null
 if [ $? -eq 0 ]; then
     echo "✅ Release verified on GitHub"
 else
