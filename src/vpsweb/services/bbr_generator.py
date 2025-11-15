@@ -87,7 +87,7 @@ class BBRGenerator:
             BBRGeneratorError: If BBR configuration is not found
         """
         # Check if providers_config has BBR configuration
-        if hasattr(self.providers_config, 'bbr_generation'):
+        if hasattr(self.providers_config, "bbr_generation"):
             return self.providers_config.bbr_generation
 
         # Fallback to hardcoded config if not found in providers_config
@@ -145,7 +145,11 @@ class BBRGenerator:
                 "poem_title": poem_title,
                 "original_poem": poem_content,
                 "source_lang": source_language or "Unknown",
-                "target_lang": "Chinese" if source_language and source_language.lower() in ["english", "en"] else "English",
+                "target_lang": (
+                    "Chinese"
+                    if source_language and source_language.lower() in ["english", "en"]
+                    else "English"
+                ),
             }
 
             # Render prompt template
@@ -153,7 +157,9 @@ class BBRGenerator:
             system_prompt, user_prompt = self.prompt_service.render_prompt(
                 template_name, variables
             )
-            logger.debug(f"Rendered prompts: system({len(system_prompt)} chars), user({len(user_prompt)} chars)")
+            logger.debug(
+                f"Rendered prompts: system({len(system_prompt)} chars), user({len(user_prompt)} chars)"
+            )
 
             # Generate BBR content
             combined_prompt = system_prompt + "\n\n" + user_prompt
@@ -178,20 +184,24 @@ class BBRGenerator:
             validated_content = self._validate_bbr_content(bbr_content)
 
             # Calculate cost
-            cost = self.calculate_cost(input_tokens, output_tokens, provider_name, model_name)
+            cost = self.calculate_cost(
+                input_tokens, output_tokens, provider_name, model_name
+            )
 
             # Create BackgroundBriefingReport object
             bbr = BackgroundBriefingReport(
                 id=str(uuid.uuid4()),
                 poem_id=poem_id,
                 content=json.dumps(validated_content, ensure_ascii=False, indent=2),
-                model_info=json.dumps({
-                    "provider": provider_name,
-                    "model": model_name,
-                    "temperature": self.bbr_config["temperature"],
-                    "max_tokens": self.bbr_config["max_tokens"],
-                    "prompt_template": template_name,
-                }),
+                model_info=json.dumps(
+                    {
+                        "provider": provider_name,
+                        "model": model_name,
+                        "temperature": self.bbr_config["temperature"],
+                        "max_tokens": self.bbr_config["max_tokens"],
+                        "prompt_template": template_name,
+                    }
+                ),
                 tokens_used=tokens_used,
                 cost=cost,
                 time_spent=time_spent,
@@ -276,7 +286,10 @@ class BBRGenerator:
         """
         try:
             # Get pricing from providers_config
-            if hasattr(self.providers_config, 'pricing') and self.providers_config.pricing:
+            if (
+                hasattr(self.providers_config, "pricing")
+                and self.providers_config.pricing
+            ):
                 pricing = self.providers_config.pricing
 
                 # Get pricing for this provider and model
@@ -284,16 +297,24 @@ class BBRGenerator:
                     model_pricing = pricing[provider_name][model_name]
                     # Pricing is RMB per 1K tokens
                     input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
-                    output_cost = (output_tokens / 1000) * model_pricing.get("output", 0)
+                    output_cost = (output_tokens / 1000) * model_pricing.get(
+                        "output", 0
+                    )
                     total_cost = input_cost + output_cost
-                    logger.debug(f"Cost calculation: input={input_cost:.4f}, output={output_cost:.4f}, total={total_cost:.4f}")
+                    logger.debug(
+                        f"Cost calculation: input={input_cost:.4f}, output={output_cost:.4f}, total={total_cost:.4f}"
+                    )
                     return total_cost
 
-            logger.warning(f"No pricing information found for {provider_name}/{model_name}")
+            logger.warning(
+                f"No pricing information found for {provider_name}/{model_name}"
+            )
             return 0.0
 
         except Exception as e:
-            logger.warning(f"Failed to calculate cost for {provider_name}/{model_name}: {e}")
+            logger.warning(
+                f"Failed to calculate cost for {provider_name}/{model_name}: {e}"
+            )
             return 0.0
 
     def _validate_bbr_content(self, content: str) -> Dict[str, Any]:
@@ -311,25 +332,28 @@ class BBRGenerator:
         """
         try:
             # Try to parse as JSON first
-            if content.strip().startswith('{'):
+            if content.strip().startswith("{"):
                 parsed_content = json.loads(content)
                 self._validate_bbr_schema(parsed_content)
                 return parsed_content
 
             # If not JSON, try to extract JSON from content
             import re
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 parsed_content = json.loads(json_match.group())
                 self._validate_bbr_schema(parsed_content)
                 return parsed_content
 
             # If no valid JSON found, wrap in basic structure
-            logger.warning("No valid JSON found in BBR content, wrapping in basic structure")
+            logger.warning(
+                "No valid JSON found in BBR content, wrapping in basic structure"
+            )
             return {
                 "raw_content": content,
                 "generation_timestamp": datetime.now(UTC_PLUS_8).isoformat(),
-                "validation_warning": "Content could not be parsed as valid JSON schema"
+                "validation_warning": "Content could not be parsed as valid JSON schema",
             }
 
         except json.JSONDecodeError as e:
@@ -375,7 +399,15 @@ class BBRGenerator:
         Returns:
             List of supported language codes
         """
-        return ["English", "Chinese", "Japanese", "Korean", "French", "Spanish", "German"]
+        return [
+            "English",
+            "Chinese",
+            "Japanese",
+            "Korean",
+            "French",
+            "Spanish",
+            "German",
+        ]
 
     def estimate_generation_time(self, poem_length: int) -> float:
         """

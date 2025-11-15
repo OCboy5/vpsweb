@@ -167,7 +167,9 @@ class TranslationWorkflow:
                 pass  # Placeholder for actual BBR integration
 
             except Exception as e:
-                logger.error(f"BBR validation/generation failed for poem {poem_id}: {e}")
+                logger.error(
+                    f"BBR validation/generation failed for poem {poem_id}: {e}"
+                )
                 # For now, continue without BBR if generation fails
                 # In hybrid mode, this would be a critical error
         else:
@@ -208,7 +210,9 @@ class TranslationWorkflow:
 
             logger.debug("Calling _initial_translation")
             step_start_time = time.time()
-            initial_translation = await self._initial_translation(input_data, bbr_content)
+            initial_translation = await self._initial_translation(
+                input_data, bbr_content
+            )
             step_duration = time.time() - step_start_time
             logger.debug(f"_initial_translation completed in {step_duration:.2f}s")
             initial_translation.duration = step_duration

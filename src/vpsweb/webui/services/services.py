@@ -124,9 +124,7 @@ class PoemServiceV2(IPoemServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get translations for this poem
-            translations = self.repository_service.translations.get_by_poem(
-                poem_id
-            )
+            translations = self.repository_service.translations.get_by_poem(poem_id)
 
             result = {
                 "poem": poem,
@@ -355,9 +353,7 @@ class TranslationServiceV2(ITranslationServiceV2):
     async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
         try:
-            translation = self.repository_service.translations.get_by_id(
-                translation_id
-            )
+            translation = self.repository_service.translations.get_by_id(translation_id)
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -386,9 +382,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would implement comparison logic
             # For now, return basic data
-            translation = self.repository_service.translations.get_by_id(
-                translation_id
-            )
+            translation = self.repository_service.translations.get_by_id(translation_id)
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -429,9 +423,7 @@ class TranslationServiceV2(ITranslationServiceV2):
                 raise ValueError(f"Poem not found: {translation_data['poem_id']}")
 
             # Create translation
-            translation = self.repository_service.translations.create(
-                translation_data
-            )
+            translation = self.repository_service.translations.create(translation_data)
 
             result = {
                 "success": True,
@@ -460,9 +452,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would integrate with the workflow orchestrator
             # For now, return placeholder data
-            translation = self.repository_service.translations.get_by_id(
-                translation_id
-            )
+            translation = self.repository_service.translations.get_by_id(translation_id)
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -483,10 +473,8 @@ class TranslationServiceV2(ITranslationServiceV2):
         """Get detailed workflow steps for a translation."""
         try:
             # Get workflow steps from repository service
-            workflow_steps = (
-                self.repository_service.workflow_steps.get_by_translation(
-                    translation_id
-                )
+            workflow_steps = self.repository_service.workflow_steps.get_by_translation(
+                translation_id
             )
 
             # Convert to dictionary format for template consumption
@@ -979,9 +967,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "metadata": result.input.metadata,
             },
         )
-        translation = self.repository_service.translations.create(
-            translation_create
-        )
+        translation = self.repository_service.translations.create(translation_create)
 
         # Create AI Log with the translation_id
         ai_log_create = AILogCreate(
@@ -1387,8 +1373,8 @@ class PoetServiceV2(IPoetServiceV2):
 
             # Get last activity
             last_poem = self.repository_service.repo.poems.get_latest_by_poet(poet_name)
-            last_translation = (
-                self.repository_service.translations.get_latest_by_poet(poet_name)
+            last_translation = self.repository_service.translations.get_latest_by_poet(
+                poet_name
             )
 
             last_activity = None
@@ -2131,7 +2117,9 @@ class BBRServiceV2(IBBRServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get BBR from repository
-            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(
+                poem_id
+            )
 
             if not bbr:
                 return None
@@ -2191,7 +2179,7 @@ class BBRServiceV2(IBBRServiceV2):
                 poem_id=poem_id,
                 poem_content=poem_content,
                 poet_name=poet_name,
-                poem_title=poem_title
+                poem_title=poem_title,
             )
 
             # Save BBR to database
@@ -2204,7 +2192,11 @@ class BBRServiceV2(IBBRServiceV2):
                 "time_spent": bbr_result["time_spent"],
             }
 
-            created_bbr = self.repository_service.repo.background_briefing_reports.create(bbr_create_data)
+            created_bbr = (
+                self.repository_service.repo.background_briefing_reports.create(
+                    bbr_create_data
+                )
+            )
 
             result = {
                 "bbr": {
@@ -2215,8 +2207,16 @@ class BBRServiceV2(IBBRServiceV2):
                     "tokens_used": created_bbr.tokens_used,
                     "cost": created_bbr.cost,
                     "time_spent": created_bbr.time_spent,
-                    "created_at": created_bbr.created_at.isoformat() if created_bbr.created_at else None,
-                    "updated_at": created_bbr.updated_at.isoformat() if created_bbr.updated_at else None,
+                    "created_at": (
+                        created_bbr.created_at.isoformat()
+                        if created_bbr.created_at
+                        else None
+                    ),
+                    "updated_at": (
+                        created_bbr.updated_at.isoformat()
+                        if created_bbr.updated_at
+                        else None
+                    ),
                 },
                 "regenerated": True,
                 "message": "Background Briefing Report generated successfully",
@@ -2239,12 +2239,20 @@ class BBRServiceV2(IBBRServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Check if BBR exists
-            existing_bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+            existing_bbr = (
+                self.repository_service.repo.background_briefing_reports.get_by_poem(
+                    poem_id
+                )
+            )
             if not existing_bbr:
                 return False
 
             # Delete BBR
-            success = self.repository_service.repo.background_briefing_reports.delete_by_poem(poem_id)
+            success = (
+                self.repository_service.repo.background_briefing_reports.delete_by_poem(
+                    poem_id
+                )
+            )
 
             if success:
                 self.logger.info(f"Successfully deleted BBR for poem {poem_id}")
@@ -2261,7 +2269,9 @@ class BBRServiceV2(IBBRServiceV2):
     def has_bbr(self, poem_id: str) -> bool:
         """Check if poem has Background Briefing Report."""
         try:
-            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(
+                poem_id
+            )
             return bbr is not None
 
         except Exception as e:

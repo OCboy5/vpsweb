@@ -32,6 +32,7 @@ def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
 def get_bbr_service(db: Session = Depends(get_db)) -> IBBRServiceV2:
     """Dependency to get BBR service instance"""
     from vpsweb.webui.container import container
+
     return container.resolve(IBBRServiceV2)
 
 
@@ -418,7 +419,7 @@ async def generate_bbr(
             return WebAPIResponse(
                 success=True,
                 message="Background Briefing Report already exists",
-                data={"bbr": existing_bbr, "regenerated": False}
+                data={"bbr": existing_bbr, "regenerated": False},
             )
 
         # Generate BBR asynchronously
@@ -427,7 +428,7 @@ async def generate_bbr(
         return WebAPIResponse(
             success=True,
             message="Background Briefing Report generation started",
-            data=result
+            data=result,
         )
 
     except Exception as e:
@@ -463,13 +464,13 @@ async def get_bbr(
             return WebAPIResponse(
                 success=True,
                 message="Background Briefing Report found",
-                data={"bbr": bbr, "has_bbr": True}
+                data={"bbr": bbr, "has_bbr": True},
             )
         else:
             return WebAPIResponse(
                 success=True,
                 message="No Background Briefing Report found",
-                data={"has_bbr": False, "poem_id": poem_id}
+                data={"has_bbr": False, "poem_id": poem_id},
             )
 
     except Exception as e:
@@ -504,7 +505,7 @@ async def delete_bbr(
             return WebAPIResponse(
                 success=True,
                 message="No Background Briefing Report to delete",
-                data={"deleted": False}
+                data={"deleted": False},
             )
 
         # Delete BBR
@@ -513,7 +514,7 @@ async def delete_bbr(
             return WebAPIResponse(
                 success=True,
                 message="Background Briefing Report deleted successfully",
-                data={"deleted": True}
+                data={"deleted": True},
             )
         else:
             raise HTTPException(

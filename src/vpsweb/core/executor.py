@@ -350,7 +350,10 @@ class StepExecutor:
         }
 
     async def execute_initial_translation(
-        self, translation_input: TranslationInput, config: StepConfig, bbr_content: Optional[str] = None
+        self,
+        translation_input: TranslationInput,
+        config: StepConfig,
+        bbr_content: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Execute the initial translation step.

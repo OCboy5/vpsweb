@@ -5,6 +5,65 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-15
+
+### 🚀 Overview
+VPSWeb v0.5.0 - **Major Feature Release: Background Briefing Report (BBR) Integration & V2 Prompt Templates**. This transformative release introduces AI-powered poem analysis capabilities, advanced prompt template management, and comprehensive workflow enhancements that significantly improve translation quality and user experience.
+
+### ✨ New Features
+
+#### 🔍 Background Briefing Report (BBR) System
+- **AI-Generated Analysis**: Automatic comprehensive poem analysis providing cultural context, literary analysis, and translation insights
+- **Universal Workflow Integration**: BBR auto-generation for ALL workflow modes (reasoning, non_reasoning, hybrid)
+- **Smart Management**: Generate, view, copy, and delete BBR content with intuitive UI controls
+- **Metadata Tracking**: Complete generation metrics including time spent, tokens used, cost, and model information
+- **Database Storage**: Persistent BBR storage with proper indexing and relationships
+
+#### 📝 V2 Prompt Template System
+- **Template Restructuring**: Organized template directory system with V1 backward compatibility
+- **BBR-Enhanced Prompts**: Updated initial translation and revision templates to utilize BBR content
+- **Enhanced Editor Review**: Improved reasoning prompts with deeper contextual understanding
+- **Flexible Architecture**: Template version system supporting future prompt improvements
+
+#### 🎨 Enhanced Web UI
+- **BBR Integration**: Comprehensive BBR controls across poem detail, translation notes, and comparison pages
+- **Interactive Modals**: Rich BBR viewing experience with metadata display and management tools
+- **Responsive Design**: Consistent styling with existing Tailwind CSS patterns
+- **Step-by-Step UI**: BBR integrated as Step 0 in translation workflow visualization
+
+### 🔧 Improvements
+- **Workflow Enhancement**: Automatic BBR generation ensures all translations benefit from contextual analysis
+- **Performance Optimization**: Efficient database operations with proper indexing for BBR queries
+- **Error Handling**: Comprehensive error management and user feedback for BBR operations
+- **API Consistency**: RESTful BBR endpoints following established architectural patterns
+
+### 📚 Documentation Updates
+- **Project Tracking**: Comprehensive implementation documentation in project_tracking.md
+- **Architecture Updates**: Enhanced documentation of new BBR system and template management
+- **Development Guide**: Updated setup and configuration instructions for V2 templates
+
+### 🔧 Technical Changes
+
+#### Database Schema
+- **New Table**: `background_briefing_reports` with ULID primary keys and proper relationships
+- **Enhanced Models**: BackgroundBriefingReport model with JSON content storage and metadata fields
+- **Migration Support**: Seamless database migration from v0.4.4 with included Alembic migration
+
+#### Service Layer Architecture
+- **BBR Service**: Complete BBRServiceV2 implementation following established dependency injection patterns
+- **Enhanced CRUD Operations**: Full CRUD support for BBR with RepositoryService integration
+- **LLM Integration**: BBRGenerator service with provider abstraction and cost tracking
+
+#### API Layer
+- **RESTful Endpoints**: New BBR management endpoints (/poems/{id}/bbr/*)
+- **Service Integration**: Proper dependency injection and error handling
+- **Response Enhancement**: Updated poem responses with BBR status metadata
+
+#### Template Management
+- **Directory Restructure**: `config/prompts/` for V2 templates, `config/prompts_V1/` for legacy compatibility
+- **Enhanced Prompts**: Background briefing report template and updated workflow prompts
+- **Fallback System**: Automatic template version detection and graceful fallback support
+
 ## [0.4.4] - 2025-11-15
 
 ### 🚀 Overview

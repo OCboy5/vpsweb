@@ -20,7 +20,14 @@ from sqlalchemy import select, update, delete, func, and_, or_
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from .models import Poem, Translation, AILog, HumanNote, TranslationWorkflowStep, BackgroundBriefingReport
+from .models import (
+    Poem,
+    Translation,
+    AILog,
+    HumanNote,
+    TranslationWorkflowStep,
+    BackgroundBriefingReport,
+)
 from .schemas import (
     PoemCreate,
     PoemUpdate,
@@ -770,7 +777,9 @@ class CRUDBackgroundBriefingReport:
         )
         return self.db.execute(stmt).scalar_one_or_none()
 
-    def update(self, bbr_id: str, update_data: dict) -> Optional[BackgroundBriefingReport]:
+    def update(
+        self, bbr_id: str, update_data: dict
+    ) -> Optional[BackgroundBriefingReport]:
         """
         Update BBR by ID
 

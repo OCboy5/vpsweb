@@ -129,7 +129,11 @@ class PromptService:
                     template_file = fallback_file
                 else:
                     available_templates = list(self.prompts_dir.glob("*.yaml"))
-                    fallback_templates = list(self.fallback_dir.glob("*.yaml")) if self.fallback_dir.exists() else []
+                    fallback_templates = (
+                        list(self.fallback_dir.glob("*.yaml"))
+                        if self.fallback_dir.exists()
+                        else []
+                    )
                     available_names = [f.stem for f in available_templates]
                     fallback_names = [f.stem for f in fallback_templates]
                     raise TemplateLoadError(
@@ -396,7 +400,7 @@ class PromptService:
         poem_title: str,
         original_poem: str,
         source_lang: Optional[str] = None,
-        target_lang: Optional[str] = None
+        target_lang: Optional[str] = None,
     ) -> Tuple[str, str]:
         """
         Render the Background Briefing Report prompt with poem information.
@@ -426,7 +430,9 @@ class PromptService:
 
         return self.render_prompt("background_briefing_report", variables)
 
-    def get_prompt_template(self, template_name: str, version: Optional[str] = None) -> Dict[str, Any]:
+    def get_prompt_template(
+        self, template_name: str, version: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Get a prompt template with optional version specification.
 
@@ -477,7 +483,9 @@ class PromptService:
                     required_sections = ["<SOURCE_TEXT>", "{{ source_text }}"]
                     for section in required_sections:
                         if section not in user_content:
-                            logger.warning(f"V2 BBR template missing required section: {section}")
+                            logger.warning(
+                                f"V2 BBR template missing required section: {section}"
+                            )
                             return False
 
                 logger.debug(f"V2 template validation passed: {template_name}")
@@ -540,7 +548,9 @@ class PromptService:
             template_file = self.prompts_dir / f"{template_name}.yaml"
 
             # Determine if V1 or V2
-            is_v1 = str(self.fallback_dir) in str(self._load_template_file.__wrapped__(self, template_name))
+            is_v1 = str(self.fallback_dir) in str(
+                self._load_template_file.__wrapped__(self, template_name)
+            )
             version = "v1" if is_v1 else "v2"
 
             info = {
@@ -549,8 +559,10 @@ class PromptService:
                 "has_system": "system" in template_data,
                 "has_user": "user" in template_data,
                 "file_path": str(template_file),
-                "file_size": template_file.stat().st_size if template_file.exists() else 0,
-                "validation_status": self.validate_template(template_name)
+                "file_size": (
+                    template_file.stat().st_size if template_file.exists() else 0
+                ),
+                "validation_status": self.validate_template(template_name),
             }
 
             # Add V2-specific validation
@@ -561,16 +573,16 @@ class PromptService:
 
         except Exception as e:
             logger.error(f"Failed to get template info for {template_name}: {e}")
-            return {
-                "name": template_name,
-                "error": str(e),
-                "validation_status": False
-            }
+            return {"name": template_name, "error": str(e), "validation_status": False}
 
     def __repr__(self) -> str:
         """String representation of the service."""
         v2_count = len(list(self.prompts_dir.glob("*.yaml")))
-        v1_count = len(list(self.fallback_dir.glob("*.yaml"))) if self.fallback_dir.exists() else 0
+        v1_count = (
+            len(list(self.fallback_dir.glob("*.yaml")))
+            if self.fallback_dir.exists()
+            else 0
+        )
         return (
             f"PromptService(prompts_dir='{self.prompts_dir}', "
             f"v2_templates={v2_count}, v1_templates={v1_count})"
