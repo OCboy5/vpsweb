@@ -13,7 +13,6 @@ from typing import Dict, Any, Tuple, Optional, Set
 from jinja2 import (
     Environment,
     FileSystemLoader,
-    Template,
     TemplateError,
     UndefinedError,
 )

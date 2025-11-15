@@ -31,7 +31,6 @@ from .services.interfaces import (
 from .services.services import (
     PoemServiceV2,
     TranslationServiceV2,
-    PoetServiceV2,
     WorkflowServiceV2,
     StatisticsServiceV2,
     TemplateServiceV2,

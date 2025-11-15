@@ -20,8 +20,7 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
-config/prompts/translator_revision_nonreasoning.yaml
-config/prompts/editor_review_reasoning.yaml
-config/prompts/initial_translation_nonreasoning.yaml
-outputs/json/poets/戴望舒/戴望舒_雨巷_chinese_english_hybrid_20251031_105544_4210352d.json
-outputs/json/poets/Dylan Thomas/Dylan Thomas_do_not_go_gentle_into_that_goo_english_chinese_hybrid_20251031_142845_4f2da18e.json
+config/prompt_V2/translator_revision_nonreasoning.yaml
+config/prompt_V2/editor_review_reasoning.yaml
+config/prompt_V2/background_briefing_report.yaml
+config/prompt_V2/initial_translation_nonreasoning.yaml

@@ -262,7 +262,7 @@ def sample_translation_output():
 def mock_async_function():
     """Fixture providing a mock async function for testing."""
 
-    async def mock_async_func(*args, **kwargs):
+    async def mock_async_func(*_args, **kwargs):
         return {"result": "mock_response"}
 
     return mock_async_func
@@ -273,7 +273,7 @@ def mock_llm_factory():
     """Fixture providing a mock LLM factory for testing."""
 
     class MockLLM:
-        async def generate(self, prompt: str, **kwargs):
+        async def generate(self, _prompt: str, **kwargs):
             return {
                 "choices": [
                     {
@@ -363,7 +363,7 @@ def mock_llm_factory_integration(mocker):
             self.responses = responses
             self.call_count = 0
 
-        async def generate(self, prompt: str, **kwargs):
+        async def generate(self, _prompt: str, **kwargs):
             response = self.responses[self.call_count % len(self.responses)]
             self.call_count += 1
             return response

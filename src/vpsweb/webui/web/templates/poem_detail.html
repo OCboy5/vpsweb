@@ -770,18 +770,87 @@ function hideTranslationModal() {
     document.getElementById('translation-modal').classList.add('hidden');
 }
 
+function normalizeLanguageCode(languageInput) {
+    // Language name normalization map - convert full names to ISO codes
+    const languageNameMap = {
+        "english": "en",
+        "chinese": "zh-CN",
+        "simplified chinese": "zh-CN",
+        "traditional chinese": "zh-TW",
+        "french": "fr",
+        "german": "de",
+        "spanish": "es",
+        "japanese": "ja",
+        "korean": "ko",
+        "russian": "ru",
+        "italian": "it",
+        "portuguese": "pt",
+        "arabic": "ar",
+        "hindi": "hi",
+        "thai": "th",
+        "vietnamese": "vi",
+        "dutch": "nl",
+        "swedish": "sv",
+        "norwegian": "no",
+        "danish": "da",
+        "finnish": "fi",
+        "polish": "pl",
+        "greek": "el",
+        "hebrew": "he",
+        "turkish": "tr"
+    };
+
+    if (!languageInput) return languageInput;
+
+    const normalizedInput = languageInput.trim().toLowerCase();
+
+    // Convert full language names to ISO codes
+    if (languageNameMap[normalizedInput]) {
+        return languageNameMap[normalizedInput];
+    }
+
+    // If it's already in the right format (like "en" or "zh-CN"), return as-is
+    // Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
+    if (normalizedInput.includes('-') && normalizedInput.split('-').length === 2) {
+        const [lang, country] = normalizedInput.split('-');
+        return `${lang.toLowerCase()}-${country.toUpperCase()}`;
+    } else {
+        return normalizedInput.toLowerCase();
+    }
+}
+
 async function submitTranslation(event) {
     event.preventDefault();
 
+    // Normalize language code from full name to ISO code if needed
+    const targetLanguageInput = document.getElementById('target-language').value;
+    const normalizedTargetLanguage = normalizeLanguageCode(targetLanguageInput);
+
     const formData = {
         poem_id: '{{ poem.id }}',
-        target_language: document.getElementById('target-language').value,
-        translated_poem_title: document.getElementById('translated-poem-title').value,
-        translated_poet_name: document.getElementById('translated-poet-name').value,
-        translator_name: document.getElementById('translator-name').value || 'Anonymous',
-        translated_text: document.getElementById('translated-text').value,
-        quality_rating: document.getElementById('quality-rating').value ? parseInt(document.getElementById('quality-rating').value) : null
+        target_language: normalizedTargetLanguage,
+        translator_type: 'human',
+        translator_info: document.getElementById('translator-name').value || 'Anonymous',
+        translated_text: document.getElementById('translated-text').value
     };
+
+    // Add optional fields only if they have values
+    const translatedTitle = document.getElementById('translated-poem-title').value;
+    if (translatedTitle.trim()) {
+        formData.translated_poem_title = translatedTitle;
+    }
+
+    const translatedPoetName = document.getElementById('translated-poet-name').value;
+    if (translatedPoetName.trim()) {
+        formData.translated_poet_name = translatedPoetName;
+    }
+
+    const qualityRating = document.getElementById('quality-rating').value;
+    if (qualityRating) {
+        formData.quality_rating = parseInt(qualityRating);
+    }
+
+    console.log('Submitting translation data:', formData);
 
     try {
         const response = await fetch('/api/v1/translations/', {
@@ -798,7 +867,9 @@ async function submitTranslation(event) {
             showSuccessMessage('Translation added successfully!');
         } else {
             const error = await response.json();
-            showErrorMessage('Failed to add translation: ' + error.detail);
+            console.error('Validation error details:', error);
+            const errorMessage = error.detail || error.message || JSON.stringify(error);
+            showErrorMessage('Failed to add translation: ' + errorMessage);
         }
     } catch (error) {
         console.error('Failed to submit translation:', error);

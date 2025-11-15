@@ -14,7 +14,7 @@ import logging
 import asyncio
 import shutil
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 
 from ..models.wechat import (
     WeChatArticle,

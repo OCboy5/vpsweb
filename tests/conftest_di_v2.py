@@ -16,7 +16,6 @@ from unittest.mock import Mock, AsyncMock
 try:
     from src.vpsweb.core.container import DIContainer
     from src.vpsweb.core.interfaces import (
-        ILLMProvider,
         IPromptService,
         IOutputParser,
         IWorkflowOrchestrator,
@@ -321,7 +320,7 @@ class ITestService:
 class IMockProviderService:
     """Mock provider service interface for Phase 3 testing."""
 
-    async def generate_response(self, messages, **kwargs) -> Any:
+    async def generate_response(self, _messages, **kwargs) -> Any:
         pass
 
 

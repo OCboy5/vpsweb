@@ -12,7 +12,6 @@ from datetime import datetime
 
 from src.vpsweb.core.executor import (
     StepExecutor,
-    StepExecutorError,
     PromptRenderingError,
     LLMCallError,
     OutputParsingError,

@@ -25,7 +25,7 @@ from vpsweb.core.container import DIContainer
 
 from .poem_service import PoemService
 from vpsweb.repository.service import RepositoryWebService
-from vpsweb.repository.schemas import TaskStatus, WorkflowTaskResult, WorkflowStepType
+from vpsweb.repository.schemas import TaskStatus
 from ..task_models import TaskStatusEnum
 
 
