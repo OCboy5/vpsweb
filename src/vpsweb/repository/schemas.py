@@ -241,6 +241,12 @@ class PoemResponse(PoemBase):
     human_translation_count: Optional[int] = Field(
         0, description="Number of human translations"
     )
+    has_bbr: Optional[bool] = Field(
+        False, description="Whether poem has a Background Briefing Report"
+    )
+    bbr_metadata: Optional[Dict[str, Any]] = Field(
+        None, description="BBR metadata including generation info"
+    )
 
 
 class PoemList(BaseSchema):

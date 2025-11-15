@@ -20,7 +20,7 @@ from sqlalchemy import select, update, delete, func, and_, or_
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from .models import Poem, Translation, AILog, HumanNote, TranslationWorkflowStep
+from .models import Poem, Translation, AILog, HumanNote, TranslationWorkflowStep, BackgroundBriefingReport
 from .schemas import (
     PoemCreate,
     PoemUpdate,
@@ -694,6 +694,148 @@ class CRUDTranslationWorkflowStep:
 # for real-time in-memory storage with enhanced step progress reporting
 
 
+class CRUDBackgroundBriefingReport:
+    """CRUD operations for BackgroundBriefingReport model"""
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    def _safe_rollback(self):
+        """Gracefully handle rollback errors that occur when no transaction is active"""
+        try:
+            self.db.rollback()
+        except Exception:
+            # Ignore rollback errors - they occur when no transaction is active
+            pass
+
+    def create(self, bbr_data: dict) -> BackgroundBriefingReport:
+        """
+        Create a new Background Briefing Report
+
+        Args:
+            bbr_data: Dictionary containing BBR data
+
+        Returns:
+            Created BBR object
+        """
+        db_bbr = BackgroundBriefingReport(
+            id=bbr_data["id"],
+            poem_id=bbr_data["poem_id"],
+            content=bbr_data["content"],
+            model_info=bbr_data.get("model_info"),
+            tokens_used=bbr_data.get("tokens_used"),
+            cost=bbr_data.get("cost"),
+            time_spent=bbr_data.get("time_spent"),
+        )
+
+        try:
+            self.db.add(db_bbr)
+            self.db.commit()
+            self.db.refresh(db_bbr)
+            return db_bbr
+        except IntegrityError:
+            self._safe_rollback()
+            raise
+        except SQLAlchemyError as e:
+            self._safe_rollback()
+            raise e
+
+    def get_by_id(self, bbr_id: str) -> Optional[BackgroundBriefingReport]:
+        """
+        Get BBR by ID
+
+        Args:
+            bbr_id: BBR ID
+
+        Returns:
+            BBR object if found, None otherwise
+        """
+        stmt = select(BackgroundBriefingReport).where(
+            BackgroundBriefingReport.id == bbr_id
+        )
+        return self.db.execute(stmt).scalar_one_or_none()
+
+    def get_by_poem(self, poem_id: str) -> Optional[BackgroundBriefingReport]:
+        """
+        Get BBR by poem ID
+
+        Args:
+            poem_id: Poem ID
+
+        Returns:
+            BBR object if found, None otherwise
+        """
+        stmt = select(BackgroundBriefingReport).where(
+            BackgroundBriefingReport.poem_id == poem_id
+        )
+        return self.db.execute(stmt).scalar_one_or_none()
+
+    def update(self, bbr_id: str, update_data: dict) -> Optional[BackgroundBriefingReport]:
+        """
+        Update BBR by ID
+
+        Args:
+            bbr_id: BBR ID
+            update_data: Dictionary containing fields to update
+
+        Returns:
+            Updated BBR object if found, None otherwise
+        """
+        stmt = (
+            update(BackgroundBriefingReport)
+            .where(BackgroundBriefingReport.id == bbr_id)
+            .values(**update_data)
+            .returning(BackgroundBriefingReport)
+        )
+        result = self.db.execute(stmt).scalar_one_or_none()
+
+        if result:
+            self.db.commit()
+            self.db.refresh(result)
+
+        return result
+
+    def delete(self, bbr_id: str) -> bool:
+        """
+        Delete BBR by ID
+
+        Args:
+            bbr_id: BBR ID
+
+        Returns:
+            True if deleted, False if not found
+        """
+        stmt = delete(BackgroundBriefingReport).where(
+            BackgroundBriefingReport.id == bbr_id
+        )
+        result = self.db.execute(stmt)
+        self.db.commit()
+        return result.rowcount > 0
+
+    def delete_by_poem(self, poem_id: str) -> bool:
+        """
+        Delete BBR by poem ID
+
+        Args:
+            poem_id: Poem ID
+
+        Returns:
+            True if deleted, False if not found
+        """
+        stmt = delete(BackgroundBriefingReport).where(
+            BackgroundBriefingReport.poem_id == poem_id
+        )
+        result = self.db.execute(stmt)
+        self.db.commit()
+        return result.rowcount > 0
+
+    def count(self) -> int:
+        """Get total number of BBRs"""
+        stmt = select(func.count(BackgroundBriefingReport.id))
+        result = self.db.execute(stmt).scalar()
+        return result or 0
+
+
 # Repository service that combines all CRUD operations
 class RepositoryService:
     """Main repository service combining all CRUD operations"""
@@ -705,6 +847,7 @@ class RepositoryService:
         self.ai_logs = CRUDAILog(db)
         self.human_notes = CRUDHumanNote(db)
         self.workflow_steps = CRUDTranslationWorkflowStep(db)
+        self.background_briefing_reports = CRUDBackgroundBriefingReport(db)
         # workflow_tasks removed - now using FastAPI app.state for task tracking
 
     def get_repository_stats(self) -> Dict[str, Any]:

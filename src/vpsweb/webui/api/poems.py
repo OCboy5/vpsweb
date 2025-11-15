@@ -4,21 +4,22 @@ VPSWeb Web UI - Poem API Endpoints v0.3.1
 API endpoints for poem management operations with comprehensive CRUD functionality.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select, case
 
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import PoemCreate, PoemUpdate, PoemResponse
-from src.vpsweb.repository.models import Poem, Translation
+from src.vpsweb.repository.models import Poem, Translation, BackgroundBriefingReport
 from ..schemas import (
     PoemFormCreate,
     WebAPIResponse,
     PaginationInfo,
     PoemTranslationWithWorkflow,
 )
+from ..services.interfaces import IBBRServiceV2
 
 router = APIRouter()
 
@@ -26,6 +27,12 @@ router = APIRouter()
 def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
     """Dependency to get repository service instance"""
     return RepositoryService(db)
+
+
+def get_bbr_service(db: Session = Depends(get_db)) -> IBBRServiceV2:
+    """Dependency to get BBR service instance"""
+    from vpsweb.webui.container import container
+    return container.resolve(IBBRServiceV2)
 
 
 @router.get("/", response_model=List[PoemResponse])
@@ -375,3 +382,143 @@ async def get_poem_translations_with_workflows(
         )
 
     return result
+
+
+# BBR Endpoints - Background Briefing Report Management
+
+
+@router.post("/{poem_id}/bbr/generate", response_model=WebAPIResponse)
+async def generate_bbr(
+    poem_id: str,
+    background_tasks: BackgroundTasks,
+    bbr_service: IBBRServiceV2 = Depends(get_bbr_service),
+    repository_service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Generate a Background Briefing Report for a poem.
+
+    **Path Parameters:**
+    - **poem_id**: ULID of the poem to generate BBR for
+
+    **Returns:**
+    - Success/failure status with task information for async generation
+    """
+    try:
+        # Verify poem exists
+        poem = repository_service.repo.poems.get_by_id(poem_id)
+        if not poem:
+            raise HTTPException(
+                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
+            )
+
+        # Check if BBR already exists
+        if bbr_service.has_bbr(poem_id):
+            # Return existing BBR instead of generating new one
+            existing_bbr = await bbr_service.get_bbr(poem_id)
+            return WebAPIResponse(
+                success=True,
+                message="Background Briefing Report already exists",
+                data={"bbr": existing_bbr, "regenerated": False}
+            )
+
+        # Generate BBR asynchronously
+        result = await bbr_service.generate_bbr(poem_id, background_tasks)
+
+        return WebAPIResponse(
+            success=True,
+            message="Background Briefing Report generation started",
+            data=result
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"BBR generation failed: {str(e)}")
+
+
+@router.get("/{poem_id}/bbr", response_model=WebAPIResponse)
+async def get_bbr(
+    poem_id: str,
+    bbr_service: IBBRServiceV2 = Depends(get_bbr_service),
+    repository_service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Get the Background Briefing Report for a poem.
+
+    **Path Parameters:**
+    - **poem_id**: ULID of the poem to get BBR for
+
+    **Returns:**
+    - BBR data if it exists, or status indicating no BBR found
+    """
+    try:
+        # Verify poem exists
+        poem = repository_service.repo.poems.get_by_id(poem_id)
+        if not poem:
+            raise HTTPException(
+                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
+            )
+
+        # Get BBR
+        bbr = await bbr_service.get_bbr(poem_id)
+        if bbr:
+            return WebAPIResponse(
+                success=True,
+                message="Background Briefing Report found",
+                data={"bbr": bbr, "has_bbr": True}
+            )
+        else:
+            return WebAPIResponse(
+                success=True,
+                message="No Background Briefing Report found",
+                data={"has_bbr": False, "poem_id": poem_id}
+            )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get BBR: {str(e)}")
+
+
+@router.delete("/{poem_id}/bbr", response_model=WebAPIResponse)
+async def delete_bbr(
+    poem_id: str,
+    bbr_service: IBBRServiceV2 = Depends(get_bbr_service),
+    repository_service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Delete the Background Briefing Report for a poem.
+
+    **Path Parameters:**
+    - **poem_id**: ULID of the poem to delete BBR for
+
+    **Returns:**
+    - Success/failure status
+    """
+    try:
+        # Verify poem exists
+        poem = repository_service.repo.poems.get_by_id(poem_id)
+        if not poem:
+            raise HTTPException(
+                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
+            )
+
+        # Check if BBR exists
+        if not bbr_service.has_bbr(poem_id):
+            return WebAPIResponse(
+                success=True,
+                message="No Background Briefing Report to delete",
+                data={"deleted": False}
+            )
+
+        # Delete BBR
+        deleted = await bbr_service.delete_bbr(poem_id)
+        if deleted:
+            return WebAPIResponse(
+                success=True,
+                message="Background Briefing Report deleted successfully",
+                data={"deleted": True}
+            )
+        else:
+            raise HTTPException(
+                status_code=500, detail="Failed to delete Background Briefing Report"
+            )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete BBR: {str(e)}")

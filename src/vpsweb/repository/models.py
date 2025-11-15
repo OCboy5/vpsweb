@@ -491,5 +491,97 @@ class TranslationWorkflowStep(Base):
         return None
 
 
+class BackgroundBriefingReport(Base):
+    """BackgroundBriefingReport model for storing AI-generated poem analysis"""
+
+    __tablename__ = "background_briefing_reports"
+
+    # Primary key
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, index=True)
+
+    # Foreign key to Poem (one-to-one relationship)
+    poem_id: Mapped[str] = mapped_column(
+        String(26),
+        ForeignKey("poems.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    # Core content
+    content: Mapped[str] = mapped_column(Text, nullable=False)  # JSON content
+    model_info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Performance metrics
+    tokens_used: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True, index=True
+    )
+    cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
+    time_spent: Mapped[Optional[float]] = mapped_column(
+        Float, nullable=True, index=True
+    )  # Time in seconds for BBR generation
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
+        index=True,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(UTC_PLUS_8),
+        server_default=func.now(),
+        onupdate=lambda: datetime.now(UTC_PLUS_8),
+    )
+
+    # Relationships
+    poem: Mapped["Poem"] = relationship(
+        "Poem",
+        back_populates="background_briefing_report",
+        single_parent=True,
+    )
+
+    # Indexes for performance
+    __table_args__ = (
+        Index("idx_bbr_poem_id", "poem_id"),
+        Index("idx_bbr_created_at", "created_at"),
+        Index("idx_bbr_cost", "cost"),
+        Index("idx_bbr_time_spent", "time_spent"),
+    )
+
+    def __repr__(self) -> str:
+        return f"BackgroundBriefingReport(id={self.id}, poem_id={self.poem_id})"
+
+    @property
+    def content_data(self) -> Optional[dict]:
+        """Parse BBR content JSON if available"""
+        if self.content:
+            import json
+
+            return json.loads(self.content)
+        return None
+
+    @property
+    def model_info_data(self) -> Optional[dict]:
+        """Parse model info JSON if available"""
+        if self.model_info:
+            import json
+
+            return json.loads(self.model_info)
+        return None
+
+
+# Add relationship to Poem model
+Poem.background_briefing_report = relationship(
+    "BackgroundBriefingReport",
+    back_populates="poem",
+    uselist=False,
+    cascade="all, delete-orphan",
+    single_parent=True,
+)
+
 # WorkflowTask model removed - task tracking now handled by FastAPI app.state
 # for real-time in-memory storage with enhanced step progress reporting

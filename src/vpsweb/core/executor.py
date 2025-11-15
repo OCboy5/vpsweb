@@ -8,7 +8,7 @@ workflow by coordinating LLM providers, prompt templates, and output parsing.
 import asyncio
 import time
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from ..services.llm.factory import LLMFactory
@@ -350,7 +350,7 @@ class StepExecutor:
         }
 
     async def execute_initial_translation(
-        self, translation_input: TranslationInput, config: StepConfig
+        self, translation_input: TranslationInput, config: StepConfig, bbr_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Execute the initial translation step.
@@ -381,6 +381,11 @@ class StepExecutor:
             "poem_title": poem_title,
             "poet_name": poet_name,
         }
+
+        # Add BBR content if provided for V2 templates
+        if bbr_content:
+            input_data["background_briefing_report"] = bbr_content
+            logger.debug("BBR content added to initial translation step")
 
         return await self.execute_step("initial_translation", input_data, config)
 

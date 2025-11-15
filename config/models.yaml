@@ -107,4 +107,14 @@ wechat_translation_notes:
       max_tokens: 8192
       timeout: 60
 
+# BBR Generation Configuration
+bbr_generation:
+  provider: "tongyi"
+  model: "qwen-plus-latest"
+  temperature: 0.3
+  max_tokens: 16384
+  prompt_template: "background_briefing_report"
+  timeout: 180.0
+  retry_attempts: 2
+
   

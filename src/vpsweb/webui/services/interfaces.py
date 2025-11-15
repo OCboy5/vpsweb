@@ -376,7 +376,28 @@ class IConfigServiceV2(ABC):
         """Update configuration setting."""
         pass
 
+
+class IBBRServiceV2(ABC):
+    """Interface for Background Briefing Report business logic."""
+
     @abstractmethod
-    async def validate_setting(self, key: str, value: Any) -> bool:
-        """Validate configuration setting value."""
+    async def get_bbr(self, poem_id: str) -> Optional[Dict[str, Any]]:
+        """Get Background Briefing Report for a poem."""
+        pass
+
+    @abstractmethod
+    async def generate_bbr(
+        self, poem_id: str, background_tasks: Optional[BackgroundTasks] = None
+    ) -> Dict[str, Any]:
+        """Generate Background Briefing Report for a poem."""
+        pass
+
+    @abstractmethod
+    async def delete_bbr(self, poem_id: str) -> bool:
+        """Delete Background Briefing Report for a poem."""
+        pass
+
+    @abstractmethod
+    def has_bbr(self, poem_id: str) -> bool:
+        """Check if poem has Background Briefing Report."""
         pass

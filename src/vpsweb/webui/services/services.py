@@ -24,6 +24,7 @@ from .interfaces import (
     ITaskManagementServiceV2,
     ISSEServiceV2,
     IConfigServiceV2,
+    IBBRServiceV2,
 )
 from ...utils.language_mapper import LanguageMapper
 from vpsweb.repository.service import RepositoryWebService
@@ -123,7 +124,7 @@ class PoemServiceV2(IPoemServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get translations for this poem
-            translations = self.repository_service.repo.translations.get_by_poem(
+            translations = self.repository_service.translations.get_by_poem(
                 poem_id
             )
 
@@ -306,7 +307,7 @@ class TranslationServiceV2(ITranslationServiceV2):
     ) -> Dict[str, Any]:
         """Get paginated list of translations with filtering."""
         try:
-            translations = self.repository_service.repo.translations.get_multi(
+            translations = self.repository_service.translations.get_multi(
                 skip=skip,
                 limit=limit,
                 poem_id=poem_id,
@@ -314,7 +315,7 @@ class TranslationServiceV2(ITranslationServiceV2):
                 target_lang=target_lang,
             )
 
-            total_count = self.repository_service.repo.translations.count(
+            total_count = self.repository_service.translations.count(
                 poem_id=poem_id, source_lang=source_lang, target_lang=target_lang
             )
 
@@ -354,7 +355,7 @@ class TranslationServiceV2(ITranslationServiceV2):
     async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
         try:
-            translation = self.repository_service.repo.translations.get_by_id(
+            translation = self.repository_service.translations.get_by_id(
                 translation_id
             )
             if not translation:
@@ -385,14 +386,14 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would implement comparison logic
             # For now, return basic data
-            translation = self.repository_service.repo.translations.get_by_id(
+            translation = self.repository_service.translations.get_by_id(
                 translation_id
             )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
             # Get other translations of the same poem for comparison
-            other_translations = self.repository_service.repo.translations.get_by_poem(
+            other_translations = self.repository_service.translations.get_by_poem(
                 translation.poem_id, exclude_id=translation_id
             )
 
@@ -428,7 +429,7 @@ class TranslationServiceV2(ITranslationServiceV2):
                 raise ValueError(f"Poem not found: {translation_data['poem_id']}")
 
             # Create translation
-            translation = self.repository_service.repo.translations.create(
+            translation = self.repository_service.translations.create(
                 translation_data
             )
 
@@ -448,7 +449,7 @@ class TranslationServiceV2(ITranslationServiceV2):
     async def delete_translation(self, translation_id: str) -> bool:
         """Delete a translation."""
         try:
-            success = self.repository_service.repo.translations.delete(translation_id)
+            success = self.repository_service.translations.delete(translation_id)
             return success
         except Exception as e:
             self.error_collector.add_error(e, {"translation_id": translation_id})
@@ -459,7 +460,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would integrate with the workflow orchestrator
             # For now, return placeholder data
-            translation = self.repository_service.repo.translations.get_by_id(
+            translation = self.repository_service.translations.get_by_id(
                 translation_id
             )
             if not translation:
@@ -483,7 +484,7 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # Get workflow steps from repository service
             workflow_steps = (
-                self.repository_service.repo.workflow_steps.get_by_translation(
+                self.repository_service.workflow_steps.get_by_translation(
                     translation_id
                 )
             )
@@ -978,7 +979,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "metadata": result.input.metadata,
             },
         )
-        translation = self.repository_service.repo.translations.create(
+        translation = self.repository_service.translations.create(
             translation_create
         )
 
@@ -996,7 +997,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             runtime_seconds=result.duration_seconds,
             notes=f"Translation workflow completed using {workflow_mode} mode",
         )
-        ai_log = self.repository_service.repo.ai_logs.create(ai_log_create)
+        ai_log = self.repository_service.ai_logs.create(ai_log_create)
 
         # Create Workflow Steps
         steps_data = [
@@ -1098,7 +1099,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 translated_poet_name=step_translated_poet_name,
                 timestamp=datetime.now(timezone(timedelta(hours=8))),  # UTC+8 timezone
             )
-            self.repository_service.repo.workflow_steps.create(workflow_step_create)
+            self.repository_service.workflow_steps.create(workflow_step_create)
 
     async def _save_translation_to_json(
         self, result, poem_id, workflow_mode, input_data
@@ -1380,14 +1381,14 @@ class PoetServiceV2(IPoetServiceV2):
             poem_count = self.repository_service.repo.poems.count_by_poet(poet_name)
 
             # Get translation count
-            translation_count = self.repository_service.repo.translations.count_by_poet(
+            translation_count = self.repository_service.translations.count_by_poet(
                 poet_name
             )
 
             # Get last activity
             last_poem = self.repository_service.repo.poems.get_latest_by_poet(poet_name)
             last_translation = (
-                self.repository_service.repo.translations.get_latest_by_poet(poet_name)
+                self.repository_service.translations.get_latest_by_poet(poet_name)
             )
 
             last_activity = None
@@ -1482,14 +1483,14 @@ class StatisticsServiceV2(IStatisticsServiceV2):
         try:
             # Basic counts
             total_poems = self.repository_service.repo.poems.count()
-            total_translations = self.repository_service.repo.translations.count()
+            total_translations = self.repository_service.translations.count()
 
             # Recent activity (last 30 days)
             thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
             recent_poems = self.repository_service.repo.poems.count_since(
                 thirty_days_ago
             )
-            recent_translations = self.repository_service.repo.translations.count_since(
+            recent_translations = self.repository_service.translations.count_since(
                 thirty_days_ago
             )
 
@@ -1535,7 +1536,7 @@ class StatisticsServiceV2(IStatisticsServiceV2):
             start_date = end_date - timedelta(days=days)
 
             translations_in_period = (
-                self.repository_service.repo.translations.count_in_period(
+                self.repository_service.translations.count_in_period(
                     start_date, end_date
                 )
             )
@@ -2107,3 +2108,162 @@ class ConfigServiceV2(IConfigServiceV2):
             return value in self._settings.get("supported_languages", [])
         else:
             return True  # No validation for other settings
+
+
+class BBRServiceV2(IBBRServiceV2):
+    """Background Briefing Report service implementation."""
+
+    def __init__(
+        self,
+        repository_service: RepositoryWebService,
+        logger: Optional[logging.Logger] = None,
+    ):
+        self.repository_service = repository_service
+        self.logger = logger or logging.getLogger(__name__)
+        self.error_collector = ErrorCollector()
+
+    async def get_bbr(self, poem_id: str) -> Optional[Dict[str, Any]]:
+        """Get Background Briefing Report for a poem."""
+        try:
+            # Check if poem exists
+            poem = self.repository_service.repo.poems.get_by_id(poem_id)
+            if not poem:
+                raise ValueError(f"Poem not found: {poem_id}")
+
+            # Get BBR from repository
+            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+
+            if not bbr:
+                return None
+
+            # Convert to dictionary format
+            result = {
+                "id": bbr.id,
+                "poem_id": bbr.poem_id,
+                "content": bbr.content,
+                "model_info": bbr.model_info,
+                "tokens_used": bbr.tokens_used,
+                "cost": bbr.cost,
+                "time_spent": bbr.time_spent,
+                "created_at": bbr.created_at.isoformat() if bbr.created_at else None,
+                "updated_at": bbr.updated_at.isoformat() if bbr.updated_at else None,
+            }
+
+            return result
+
+        except Exception as e:
+            self.error_collector.add_error(e, {"poem_id": poem_id})
+            self.logger.error(f"Error getting BBR: {e}")
+            raise
+
+    async def generate_bbr(
+        self, poem_id: str, background_tasks: Optional["BackgroundTasks"] = None
+    ) -> Dict[str, Any]:
+        """Generate Background Briefing Report for a poem."""
+        try:
+            from ...services.bbr_generator import BBRGenerator
+            from vpsweb.utils.config_loader import load_config
+
+            # Check if poem exists
+            poem = self.repository_service.repo.poems.get_by_id(poem_id)
+            if not poem:
+                raise ValueError(f"Poem not found: {poem_id}")
+
+            # Check if BBR already exists
+            existing_bbr = await self.get_bbr(poem_id)
+            if existing_bbr:
+                return {
+                    "bbr": existing_bbr,
+                    "regenerated": False,
+                    "message": "Background Briefing Report already exists",
+                }
+
+            # Initialize BBR generator
+            config = load_config()
+            bbr_generator = BBRGenerator(config)
+
+            # Generate BBR content
+            poem_content = poem.original_text
+            poet_name = poem.poet_name
+            poem_title = poem.poem_title
+
+            bbr_result = bbr_generator.generate_bbr(
+                poem_id=poem_id,
+                poem_content=poem_content,
+                poet_name=poet_name,
+                poem_title=poem_title
+            )
+
+            # Save BBR to database
+            bbr_create_data = {
+                "poem_id": poem_id,
+                "content": bbr_result["content"],
+                "model_info": bbr_result["model_info"],
+                "tokens_used": bbr_result["tokens_used"],
+                "cost": bbr_result["cost"],
+                "time_spent": bbr_result["time_spent"],
+            }
+
+            created_bbr = self.repository_service.repo.background_briefing_reports.create(bbr_create_data)
+
+            result = {
+                "bbr": {
+                    "id": created_bbr.id,
+                    "poem_id": created_bbr.poem_id,
+                    "content": created_bbr.content,
+                    "model_info": created_bbr.model_info,
+                    "tokens_used": created_bbr.tokens_used,
+                    "cost": created_bbr.cost,
+                    "time_spent": created_bbr.time_spent,
+                    "created_at": created_bbr.created_at.isoformat() if created_bbr.created_at else None,
+                    "updated_at": created_bbr.updated_at.isoformat() if created_bbr.updated_at else None,
+                },
+                "regenerated": True,
+                "message": "Background Briefing Report generated successfully",
+            }
+
+            self.logger.info(f"Successfully generated BBR for poem {poem_id}")
+            return result
+
+        except Exception as e:
+            self.error_collector.add_error(e, {"poem_id": poem_id})
+            self.logger.error(f"Error generating BBR: {e}")
+            raise
+
+    async def delete_bbr(self, poem_id: str) -> bool:
+        """Delete Background Briefing Report for a poem."""
+        try:
+            # Check if poem exists
+            poem = self.repository_service.repo.poems.get_by_id(poem_id)
+            if not poem:
+                raise ValueError(f"Poem not found: {poem_id}")
+
+            # Check if BBR exists
+            existing_bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+            if not existing_bbr:
+                return False
+
+            # Delete BBR
+            success = self.repository_service.repo.background_briefing_reports.delete_by_poem(poem_id)
+
+            if success:
+                self.logger.info(f"Successfully deleted BBR for poem {poem_id}")
+            else:
+                self.logger.warning(f"Failed to delete BBR for poem {poem_id}")
+
+            return success
+
+        except Exception as e:
+            self.error_collector.add_error(e, {"poem_id": poem_id})
+            self.logger.error(f"Error deleting BBR: {e}")
+            return False
+
+    def has_bbr(self, poem_id: str) -> bool:
+        """Check if poem has Background Briefing Report."""
+        try:
+            bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
+            return bbr is not None
+
+        except Exception as e:
+            self.logger.error(f"Error checking BBR existence: {e}")
+            return False

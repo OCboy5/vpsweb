@@ -27,6 +27,7 @@ from .services.interfaces import (
     IPerformanceServiceV2,
     ISSEServiceV2,
     IConfigServiceV2,
+    IBBRServiceV2,
 )
 from .services.services import (
     PoemServiceV2,
@@ -39,6 +40,7 @@ from .services.services import (
     TaskManagementServiceV2,
     SSEServiceV2,
     ConfigServiceV2,
+    BBRServiceV2,
 )
 from .services.interfaces import ITaskManagementServiceV2
 from vpsweb.core.container import DIContainer
@@ -1449,6 +1451,13 @@ class ApplicationFactoryV2:
                 repository_service=repository_service,
                 storage_handler=storage_handler,
                 task_service=task_service,
+                logger=app_logger,
+            ),
+        )
+        container.register_instance(
+            IBBRServiceV2,
+            BBRServiceV2(
+                repository_service=repository_service,
                 logger=app_logger,
             ),
         )

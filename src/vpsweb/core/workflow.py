@@ -135,6 +135,44 @@ class TranslationWorkflow:
         if self._cancelled:
             return
 
+        # Universal BBR Validation and Generation
+        bbr_content = None
+        if input_data.metadata and "poem_id" in input_data.metadata:
+            poem_id = input_data.metadata["poem_id"]
+            logger.info(f"Checking BBR for poem {poem_id}")
+
+            try:
+                # Check if BBR exists for this poem
+                # This would integrate with the database/repository service
+                # For now, we'll implement the structure for future integration
+                # bbr_service = BBRService()  # Would be injected via constructor
+                # bbr = await bbr_service.get_bbr(poem_id)
+
+                # if bbr:
+                #     bbr_content = bbr.content_data
+                #     logger.info(f"Found existing BBR for poem {poem_id}")
+                # else:
+                #     logger.info(f"No BBR found for poem {poem_id}, generating new one...")
+                #     bbr_generator = BBRGenerator(llm_factory, prompt_service, providers_config)
+                #     new_bbr = await bbr_generator.generate_bbr(
+                #         poem_id=poem_id,
+                #         poem_content=input_data.original_poem,
+                #         poet_name=input_data.metadata.get("author", "Unknown"),
+                #         poem_title=input_data.metadata.get("title", "Untitled"),
+                #         source_language=input_data.source_lang
+                #     )
+                #     bbr_content = new_bbr.content_data
+                #     logger.info(f"Generated new BBR for poem {poem_id}")
+
+                pass  # Placeholder for actual BBR integration
+
+            except Exception as e:
+                logger.error(f"BBR validation/generation failed for poem {poem_id}: {e}")
+                # For now, continue without BBR if generation fails
+                # In hybrid mode, this would be a critical error
+        else:
+            logger.warning("No poem_id available for BBR validation")
+
         try:
             log_entries.append(
                 f"=== STEP 1: INITIAL TRANSLATION ({self.workflow_mode.value.upper()} MODE) ==="
@@ -170,7 +208,7 @@ class TranslationWorkflow:
 
             logger.debug("Calling _initial_translation")
             step_start_time = time.time()
-            initial_translation = await self._initial_translation(input_data)
+            initial_translation = await self._initial_translation(input_data, bbr_content)
             step_duration = time.time() - step_start_time
             logger.debug(f"_initial_translation completed in {step_duration:.2f}s")
             initial_translation.duration = step_duration
@@ -482,13 +520,14 @@ class TranslationWorkflow:
             raise WorkflowError(f"Translation workflow failed: {e}")
 
     async def _initial_translation(
-        self, input_data: TranslationInput
+        self, input_data: TranslationInput, bbr_content: Optional[str] = None
     ) -> InitialTranslation:
         """
         Execute initial translation step.
 
         Args:
             input_data: Translation input data
+            bbr_content: Optional Background Briefing Report content for V2 templates
 
         Returns:
             Initial translation with notes
@@ -505,6 +544,11 @@ class TranslationWorkflow:
                 "source_lang": input_data.source_lang,
                 "target_lang": input_data.target_lang,
             }
+
+            # Add BBR content if provided for V2 templates
+            if bbr_content:
+                input_context["background_briefing_report"] = bbr_content
+                logger.debug("BBR content added to initial translation step")
 
             # Execute step
             result = await self.step_executor.execute_initial_translation(

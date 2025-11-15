@@ -64,6 +64,9 @@ class PromptService:
         self.prompts_dir = Path(prompts_dir)
         self.templates_dir = self.prompts_dir
 
+        # Initialize fallback directory for V1 templates
+        self.fallback_dir = self.prompts_dir.parent / "prompts_V1"
+
         # Validate prompts directory exists
         if not self.prompts_dir.exists():
             raise TemplateLoadError(f"Prompts directory not found: {self.prompts_dir}")
@@ -90,6 +93,8 @@ class PromptService:
         logger.info(
             f"Initialized PromptService with prompts directory: {self.prompts_dir}"
         )
+        if self.fallback_dir.exists():
+            logger.info(f"V1 fallback directory available: {self.fallback_dir}")
 
     def _setup_custom_filters(self) -> None:
         """Setup custom Jinja2 filters."""
@@ -116,12 +121,28 @@ class PromptService:
         template_file = self.prompts_dir / f"{template_name}.yaml"
 
         if not template_file.exists():
-            available_templates = list(self.prompts_dir.glob("*.yaml"))
-            available_names = [f.stem for f in available_templates]
-            raise TemplateLoadError(
-                f"Template file '{template_name}.yaml' not found in {self.prompts_dir}. "
-                f"Available templates: {available_names}"
-            )
+            # Try fallback to V1 templates directory
+            if self.fallback_dir.exists():
+                fallback_file = self.fallback_dir / f"{template_name}.yaml"
+                if fallback_file.exists():
+                    logger.debug(f"Loading V1 template from fallback: {template_name}")
+                    template_file = fallback_file
+                else:
+                    available_templates = list(self.prompts_dir.glob("*.yaml"))
+                    fallback_templates = list(self.fallback_dir.glob("*.yaml")) if self.fallback_dir.exists() else []
+                    available_names = [f.stem for f in available_templates]
+                    fallback_names = [f.stem for f in fallback_templates]
+                    raise TemplateLoadError(
+                        f"Template file '{template_name}.yaml' not found in {self.prompts_dir} "
+                        f"or {self.fallback_dir}. Available: {available_names}, V1 fallbacks: {fallback_names}"
+                    )
+            else:
+                available_templates = list(self.prompts_dir.glob("*.yaml"))
+                available_names = [f.stem for f in available_templates]
+                raise TemplateLoadError(
+                    f"Template file '{template_name}.yaml' not found in {self.prompts_dir}. "
+                    f"Available templates: {available_names}"
+                )
 
         try:
             with open(template_file, "r", encoding="utf-8") as f:
@@ -132,7 +153,12 @@ class PromptService:
                     f"Template file '{template_name}.yaml' is empty"
                 )
 
-            logger.debug(f"Loaded template: {template_name}")
+            # Log which version was loaded
+            if str(self.fallback_dir) in str(template_file):
+                logger.debug(f"Loaded V1 template: {template_name}")
+            else:
+                logger.debug(f"Loaded V2 template: {template_name}")
+
             return template_data
 
         except yaml.YAMLError as e:
@@ -167,7 +193,17 @@ class PromptService:
             List of template names (without extensions)
         """
         yaml_files = self.prompts_dir.glob("*.yaml")
-        return sorted([f.stem for f in yaml_files])
+        template_names = sorted([f.stem for f in yaml_files])
+
+        # Include V1 fallback templates if available
+        if self.fallback_dir.exists():
+            fallback_files = self.fallback_dir.glob("*.yaml")
+            fallback_names = sorted([f.stem for f in fallback_files])
+            # Combine and deduplicate
+            all_names = list(set(template_names + fallback_names))
+            return sorted(all_names)
+
+        return template_names
 
     def _extract_jinja_variables(self, template_str: str) -> Set[str]:
         """
@@ -339,6 +375,121 @@ class PromptService:
 
             return system_prompt, user_prompt
 
+    def load_bbr_prompt(self) -> Dict[str, Any]:
+        """
+        Load the Background Briefing Report prompt template.
+
+        Returns:
+            BBR template data dictionary
+
+        Raises:
+            TemplateLoadError: If BBR template cannot be loaded
+        """
+        try:
+            return self.get_template("background_briefing_report")
+        except TemplateLoadError as e:
+            raise TemplateLoadError(f"BBR template not available: {e}")
+
+    def render_bbr_prompt(
+        self,
+        poet_name: str,
+        poem_title: str,
+        original_poem: str,
+        source_lang: Optional[str] = None,
+        target_lang: Optional[str] = None
+    ) -> Tuple[str, str]:
+        """
+        Render the Background Briefing Report prompt with poem information.
+
+        Args:
+            poet_name: Name of the poet
+            poem_title: Title of the poem
+            original_poem: Full text of the original poem
+            source_lang: Source language (optional)
+            target_lang: Target language (optional)
+
+        Returns:
+            Tuple of (system_prompt, user_prompt)
+
+        Raises:
+            TemplateLoadError: If BBR template cannot be loaded
+            TemplateVariableError: If required variables are missing
+            TemplateError: If template rendering fails
+        """
+        variables = {
+            "poet_name": poet_name,
+            "poem_title": poem_title,
+            "original_poem": original_poem,
+            "source_lang": source_lang or "Unknown",
+            "target_lang": target_lang or "Chinese",
+        }
+
+        return self.render_prompt("background_briefing_report", variables)
+
+    def get_prompt_template(self, template_name: str, version: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get a prompt template with optional version specification.
+
+        Args:
+            template_name: Name of the template
+            version: Optional version ("v1" or "v2", defaults to v2)
+
+        Returns:
+            Template data dictionary
+
+        Raises:
+            TemplateLoadError: If template cannot be loaded
+        """
+        if version == "v1" and self.fallback_dir.exists():
+            # Force loading from V1 directory
+            template_file = self.fallback_dir / f"{template_name}.yaml"
+            if template_file.exists():
+                try:
+                    with open(template_file, "r", encoding="utf-8") as f:
+                        template_data = yaml.safe_load(f)
+                    if template_data:
+                        logger.debug(f"Loaded V1 template: {template_name}")
+                        return template_data
+                except Exception as e:
+                    logger.warning(f"Failed to load V1 template {template_name}: {e}")
+
+        # Default to regular loading (V2 priority with V1 fallback)
+        return self.get_template(template_name)
+
+    def validate_v2_template(self, template_name: str) -> bool:
+        """
+        Validate that a V2 template follows the expected structure.
+
+        Args:
+            template_name: Name of the V2 template to validate
+
+        Returns:
+            True if template is valid V2 format, False otherwise
+        """
+        try:
+            template_data = self.get_template(template_name)
+
+            # Check for V2-specific structure
+            if "system" in template_data and "user" in template_data:
+                # Check for V2-specific variables in BBR templates
+                if template_name == "background_briefing_report":
+                    user_content = template_data.get("user", "")
+                    required_sections = ["<SOURCE_TEXT>", "{{ source_text }}"]
+                    for section in required_sections:
+                        if section not in user_content:
+                            logger.warning(f"V2 BBR template missing required section: {section}")
+                            return False
+
+                logger.debug(f"V2 template validation passed: {template_name}")
+                return True
+            else:
+                logger.warning(f"Template {template_name} does not follow V2 structure")
+                return False
+
+        except Exception as e:
+            logger.error(f"V2 template validation failed for {template_name}: {e}")
+            return False
+
     def clear_cache(self) -> None:
         """
         Clear the template cache.
@@ -374,6 +525,53 @@ class PromptService:
             logger.error(f"Template validation failed for {template_name}: {e}")
             return False
 
+    def get_template_info(self, template_name: str) -> Dict[str, Any]:
+        """
+        Get information about a template including its version and metadata.
+
+        Args:
+            template_name: Name of the template
+
+        Returns:
+            Dictionary with template information
+        """
+        try:
+            template_data = self.get_template(template_name)
+            template_file = self.prompts_dir / f"{template_name}.yaml"
+
+            # Determine if V1 or V2
+            is_v1 = str(self.fallback_dir) in str(self._load_template_file.__wrapped__(self, template_name))
+            version = "v1" if is_v1 else "v2"
+
+            info = {
+                "name": template_name,
+                "version": version,
+                "has_system": "system" in template_data,
+                "has_user": "user" in template_data,
+                "file_path": str(template_file),
+                "file_size": template_file.stat().st_size if template_file.exists() else 0,
+                "validation_status": self.validate_template(template_name)
+            }
+
+            # Add V2-specific validation
+            if version == "v2":
+                info["v2_validation"] = self.validate_v2_template(template_name)
+
+            return info
+
+        except Exception as e:
+            logger.error(f"Failed to get template info for {template_name}: {e}")
+            return {
+                "name": template_name,
+                "error": str(e),
+                "validation_status": False
+            }
+
     def __repr__(self) -> str:
         """String representation of the service."""
-        return f"PromptService(prompts_dir='{self.prompts_dir}', templates_loaded={len(self.list_templates())})"
+        v2_count = len(list(self.prompts_dir.glob("*.yaml")))
+        v1_count = len(list(self.fallback_dir.glob("*.yaml"))) if self.fallback_dir.exists() else 0
+        return (
+            f"PromptService(prompts_dir='{self.prompts_dir}', "
+            f"v2_templates={v2_count}, v1_templates={v1_count})"
+        )
