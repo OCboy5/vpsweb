@@ -5,6 +5,51 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2025-11-15
+
+### 🚀 Overview
+VPSWeb v0.4.4 - **Enhanced Configuration System & Development Workflow Improvements**. This release introduces a new V2 prompt configuration system, improved development tooling, enhanced web UI components, and streamlined service configurations for better maintainability and developer experience.
+
+### ✨ New Features
+
+#### 📝 Advanced Prompt Configuration System V2
+- **New Prompt Templates**: Comprehensive V2 prompt system with specialized templates for different workflow phases
+- **Enhanced Background Briefing**: Detailed context and style guidance for improved translation quality
+- **Reasoning Integration**: Separate reasoning and non-reasoning prompt variants for optimal LLM performance
+- **Few-Shot Examples**: Structured example system for better in-context learning and consistency
+
+#### 🛠️ Development Tooling Enhancements
+- **Code Quality Tools**: Vulture dead code elimination whitelist for cleaner codebase
+- **Enhanced Testing**: Improved test configuration and workflow orchestration
+- **Service Optimization**: Streamlined web UI adapters and container management
+- **Phase 3a Tools**: Advanced utility functions for enhanced workflow processing
+
+### 🔧 Improvements
+
+#### 🎨 Web UI Enhancements
+- **Template Improvements**: Enhanced poem detail templates with better responsive design
+- **Service Layer**: Optimized VPSWeb adapter with improved error handling
+- **Container Management**: Enhanced dependency injection and service lifecycle management
+
+#### 📚 Configuration Management
+- **Prompt V2 System**: Modular, extensible prompt configuration architecture
+- **Service Configuration**: Refined service layer configurations for better performance
+- **Environment Setup**: Improved development environment initialization
+
+### 🔧 Technical Changes
+
+#### 🔄 Architecture Updates
+- **Service Layer**: Refactored service configurations for better modularity
+- **Utility Functions**: Enhanced article generation and phase 3a workflow tools
+- **Test Infrastructure**: Improved test configuration and dependency injection setup
+
+#### 🧪 Development Workflow
+- **Code Quality**: Added vulture whitelist for proactive dead code management
+- **Testing**: Enhanced conftest configurations for better test isolation
+- **Documentation**: Improved code comments and documentation throughout
+
+---
+
 ## [0.4.2] - 2025-11-12
 
 ### 🚀 Overview

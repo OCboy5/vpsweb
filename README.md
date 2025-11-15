@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.4.1-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.4.1)
+[![Version](https://img.shields.io/badge/Version-0.4.4-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.4.4)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,13 +40,13 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.4.1 - Quality Rating UI & Translation Notes Enhancement**
+## 🎯 Current Status: **v0.4.4 - Enhanced Configuration System & Development Workflow**
 
-📊 **Interactive Quality Rating System**: Manual quality rating functionality with 0-10 scale and real-time color feedback
-📝 **Enhanced Translation Notes**: Complete T-E-T workflow visualization with model evolution tracking
-🐛 **Critical Bug Fixes**: Fixed translations display issues and workflow mode badges across all pages
-🎨 **UI/UX Polish**: Header/footer updates, slider alignment, and improved visual hierarchy
-🔧 **Technical Improvements**: Service layer enhancements and API consistency updates
+📝 **Advanced Prompt Configuration System V2**: Comprehensive V2 prompt system with specialized templates for different workflow phases
+🛠️ **Development Tooling Enhancements**: Vulture dead code elimination whitelist, improved test configuration, and streamlined service configurations
+🎨 **Web UI Enhancements**: Enhanced poem detail templates with better responsive design and optimized VPSWeb adapter
+📚 **Configuration Management**: Modular, extensible prompt configuration architecture for better maintainability
+🔧 **Architecture Updates**: Refactored service layer for better modularity and enhanced utility functions
 
 ### **Previous v0.3.x Features**
 🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0
