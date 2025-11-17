@@ -252,6 +252,20 @@ class PaginationInfo(WebUIBase):
     previous_page_url: Optional[str] = Field(None, description="Previous page URL")
 
 
+class PaginatedPoemResponse(WebUIBase):
+    """Schema for paginated poem list response"""
+
+    poems: List[PoemResponse] = Field(..., description="List of poems")
+    pagination: PaginationInfo = Field(..., description="Pagination information")
+
+
+class PoemFilterOptions(WebUIBase):
+    """Schema for poem filter options"""
+
+    poets: List[str] = Field(..., description="List of available poet names")
+    languages: List[str] = Field(..., description="List of available language codes")
+
+
 # Flash message schemas
 class FlashMessage(WebUIBase):
     """Schema for flash messages"""

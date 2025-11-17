@@ -267,6 +267,9 @@ class ProvidersConfig(BaseModel):
     pricing: Optional[Dict[str, Any]] = Field(
         None, description="Pricing information for cost calculation"
     )
+    bbr_generation: Optional[Dict[str, Any]] = Field(
+        None, description="Background Briefing Report generation configuration"
+    )
 
     @field_validator("providers")
     @classmethod

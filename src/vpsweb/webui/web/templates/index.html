@@ -217,9 +217,10 @@ async function loadDashboardStats() {
 
 async function loadRecentPoems() {
     try {
-        const response = await fetch('/api/v1/poems/?limit=6');
+        const response = await fetch('/api/v1/poems/?page_size=6');
         if (response.ok) {
-            const poems = await response.json();
+            const result = await response.json();
+            const poems = result.poems; // Extract poems array from paginated response
             displayPoems(poems);
         } else {
             showError();

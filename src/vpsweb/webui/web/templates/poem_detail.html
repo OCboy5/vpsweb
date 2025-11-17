@@ -389,6 +389,7 @@ let currentFilters = {
     language: '',
     type: ''
 };
+let currentBBR = null;
 
 // Load poem data on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -2489,12 +2490,16 @@ function updateBBRButton() {
     const bbrButton = document.getElementById('bbr-button');
     const bbrButtonText = document.getElementById('bbr-button-text');
 
+    // Remove any loading/disabled state classes
+    bbrButton.className = bbrButton.className.replace(/cursor-not-allowed|opacity-75/g, '');
+    bbrButton.disabled = false;
+
     if (poem.has_bbr) {
         // Show "View BBR" button
         bbrButtonText.textContent = 'View BBR';
         bbrButton.className = bbrButton.className.replace(
             'text-gray-700 bg-white hover:bg-gray-50',
-            'text-blue-700 bg-blue-600 hover:bg-blue-700'
+            'text-white bg-blue-600 hover:bg-blue-700'
         );
     } else {
         // Show "Generate BBR" button
@@ -2545,7 +2550,7 @@ async function generateBBR() {
         const result = await response.json();
 
         if (response.ok) {
-            showSuccess(result.message || 'Background Briefing Report generated successfully');
+            showSuccessMessage(result.message || 'Background Briefing Report generated successfully');
             // Reload poem data to update BBR status
             await loadPoemData();
         } else {
@@ -2567,8 +2572,9 @@ async function viewBBR() {
 
         if (response.ok) {
             const result = await response.json();
-            if (result.has_bbr && result.bbr) {
-                showBBRModal(result.bbr);
+            // BBR data is nested under result.data
+            if (result.data && result.data.has_bbr && result.data.bbr) {
+                showBBRModal(result.data.bbr);
             } else {
                 showError('No Background Briefing Report found');
             }
@@ -2582,6 +2588,9 @@ async function viewBBR() {
 }
 
 function showBBRModal(bbr) {
+    // Store current BBR data for copying
+    currentBBR = bbr;
+
     // Create modal HTML
     const modalHtml = `
         <div id="bbr-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeBBRModal(event)">
@@ -2616,7 +2625,7 @@ function showBBRModal(bbr) {
 
                     <!-- Action Buttons -->
                     <div class="flex justify-end space-x-2">
-                        <button onclick="copyBBRToClipboard('${encodeURIComponent(JSON.stringify(bbr))}')"
+                        <button onclick="copyCurrentBBR()"
                                 class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -2661,7 +2670,7 @@ async function deleteBBR() {
         const result = await response.json();
 
         if (response.ok) {
-            showSuccess(result.message || 'Background Briefing Report deleted successfully');
+            showSuccessMessage(result.message || 'Background Briefing Report deleted successfully');
             closeBBRModal();
             // Reload poem data to update BBR status
             await loadPoemData();
@@ -2674,13 +2683,77 @@ async function deleteBBR() {
     }
 }
 
+function copyCurrentBBR() {
+    if (!currentBBR) {
+        showError('No BBR data available to copy');
+        return;
+    }
+
+    try {
+        const formattedText = JSON.stringify(currentBBR, null, 2);
+
+        // Use modern clipboard API with fallback
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(formattedText).then(() => {
+                showSuccessMessage('BBR content copied to clipboard');
+            }).catch(err => {
+                console.error('Clipboard API failed:', err);
+                fallbackCopyToClipboard(formattedText);
+            });
+        } else {
+            // Fallback for older browsers or non-HTTPS
+            fallbackCopyToClipboard(formattedText);
+        }
+    } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        showError('Failed to copy BBR content');
+    }
+}
+
 function copyBBRToClipboard(encodedBBR) {
     try {
         const bbrData = JSON.parse(decodeURIComponent(encodedBBR));
-        navigator.clipboard.writeText(JSON.stringify(bbrData, null, 2));
-        showSuccess('BBR content copied to clipboard');
+        const formattedText = JSON.stringify(bbrData, null, 2);
+
+        // Use modern clipboard API with fallback
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(formattedText).then(() => {
+                showSuccessMessage('BBR content copied to clipboard');
+            }).catch(err => {
+                console.error('Clipboard API failed:', err);
+                fallbackCopyToClipboard(formattedText);
+            });
+        } else {
+            // Fallback for older browsers or non-HTTPS
+            fallbackCopyToClipboard(formattedText);
+        }
     } catch (error) {
         console.error('Error copying to clipboard:', error);
+        showError('Failed to copy BBR content');
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (successful) {
+            showSuccessMessage('BBR content copied to clipboard');
+        } else {
+            showError('Failed to copy BBR content');
+        }
+    } catch (error) {
+        console.error('Fallback copy failed:', error);
         showError('Failed to copy BBR content');
     }
 }

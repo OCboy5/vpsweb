@@ -52,6 +52,9 @@ from vpsweb.repository.database import get_db
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.config import WorkflowConfig, WorkflowMode
 from vpsweb.utils.config_loader import load_config
+from vpsweb.services.llm.factory import LLMFactory
+from vpsweb.services.prompts import PromptService
+from vpsweb.models.config import ProvidersConfig
 from vpsweb.webui.api import poems, translations, statistics, poets, wechat, workflow
 from .task_models import TaskStatus, TaskStatusEnum
 
@@ -1454,10 +1457,20 @@ class ApplicationFactoryV2:
                 logger=app_logger,
             ),
         )
+
+        # Load config for BBR service
+        config = load_config()
+        providers_config = config.providers
+        prompt_service = PromptService()
+        llm_factory = LLMFactory(providers_config)
+
         container.register_instance(
             IBBRServiceV2,
             BBRServiceV2(
                 repository_service=repository_service,
+                llm_factory=llm_factory,
+                prompt_service=prompt_service,
+                providers_config=providers_config,
                 logger=app_logger,
             ),
         )

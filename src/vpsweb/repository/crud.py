@@ -150,6 +150,36 @@ class CRUDPoem:
         result = self.db.execute(stmt).scalars().all()
         return result
 
+    def count(
+        self,
+        poet_name: Optional[str] = None,
+        language: Optional[str] = None,
+        title_search: Optional[str] = None,
+    ) -> int:
+        """
+        Get total number of poems with optional filtering
+
+        Args:
+            poet_name: Filter by poet name
+            language: Filter by source language
+            title_search: Search in poem title
+
+        Returns:
+            Total count of poems matching criteria
+        """
+        stmt = select(func.count(Poem.id))
+
+        # Apply filters
+        if poet_name:
+            stmt = stmt.where(Poem.poet_name.ilike(f"%{poet_name}%"))
+        if language:
+            stmt = stmt.where(Poem.source_language == language)
+        if title_search:
+            stmt = stmt.where(Poem.poem_title.ilike(f"%{title_search}%"))
+
+        result = self.db.execute(stmt).scalar()
+        return result
+
     def update(self, poem_id: str, poem_data: PoemUpdate) -> Optional[Poem]:
         """
         Update existing poem
@@ -195,12 +225,6 @@ class CRUDPoem:
         result = self.db.execute(stmt)
         self.db.commit()
         return result.rowcount > 0
-
-    def count(self) -> int:
-        """Get total number of poems"""
-        stmt = select(func.count(Poem.id))
-        result = self.db.execute(stmt).scalar()
-        return result
 
     def get_by_poet(self, poet_name: str) -> List[Poem]:
         """Get all poems by a specific poet"""

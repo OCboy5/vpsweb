@@ -18,6 +18,8 @@ from ..schemas import (
     WebAPIResponse,
     PaginationInfo,
     PoemTranslationWithWorkflow,
+    PaginatedPoemResponse,
+    PoemFilterOptions,
 )
 from ..services.interfaces import IBBRServiceV2
 
@@ -36,11 +38,11 @@ def get_bbr_service(db: Session = Depends(get_db)) -> IBBRServiceV2:
     return container.resolve(IBBRServiceV2)
 
 
-@router.get("/", response_model=List[PoemResponse])
+@router.get("/", response_model=PaginatedPoemResponse)
 async def list_poems(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        100, ge=1, le=100, description="Maximum number of records to return"
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(
+        20, ge=1, le=100, description="Number of items per page (default: 20, max: 100)"
     ),
     poet_name: Optional[str] = Query(None, description="Filter by poet name"),
     language: Optional[str] = Query(None, description="Filter by source language"),
@@ -51,18 +53,29 @@ async def list_poems(
     Get list of poems with optional filtering and pagination.
 
     **Parameters:**
-    - **skip**: Number of records to skip (for pagination)
-    - **limit**: Maximum number of records to return (1-100)
+    - **page**: Page number (starting from 1)
+    - **page_size**: Number of items per page (1-100, default: 20)
     - **poet_name**: Filter poems by poet name
     - **language**: Filter poems by source language
     - **title_search**: Search poems by title (partial match)
 
     **Returns:**
-    - List of poems matching the criteria
+    - Paginated list of poems with pagination metadata
     """
+    # Convert page-based pagination to skip/limit
+    skip = (page - 1) * page_size
+
+    # Get total count for pagination
+    total_count = service.poems.count(
+        poet_name=poet_name,
+        language=language,
+        title_search=title_search,
+    )
+
+    # Get poems for current page
     poems = service.poems.get_multi(
         skip=skip,
-        limit=limit,
+        limit=page_size,
         poet_name=poet_name,
         language=language,
         title_search=title_search,
@@ -106,7 +119,49 @@ async def list_poems(
         }
         response_data.append(poem_dict)
 
-    return response_data
+    # Calculate pagination info
+    total_pages = (total_count + page_size - 1) // page_size  # Ceiling division
+    has_next = page < total_pages
+    has_previous = page > 1
+
+    # Build pagination URLs
+    base_query_params = []
+    if poet_name:
+        base_query_params.append(f"poet_name={poet_name}")
+    if language:
+        base_query_params.append(f"language={language}")
+    if title_search:
+        base_query_params.append(f"title_search={title_search}")
+    if page_size != 20:  # Include page_size if not default
+        base_query_params.append(f"page_size={page_size}")
+
+    query_string = "&".join(base_query_params) if base_query_params else ""
+
+    next_page_url = None
+    if has_next:
+        next_params = base_query_params + [f"page={page + 1}"]
+        next_page_url = f"/api/v1/poems/?{'&'.join(next_params)}"
+
+    previous_page_url = None
+    if has_previous:
+        prev_params = base_query_params + [f"page={page - 1}"]
+        previous_page_url = f"/api/v1/poems/?{'&'.join(prev_params)}"
+
+    pagination = PaginationInfo(
+        current_page=page,
+        total_pages=total_pages,
+        total_items=total_count,
+        page_size=page_size,
+        has_next=has_next,
+        has_previous=has_previous,
+        next_page_url=next_page_url,
+        previous_page_url=previous_page_url,
+    )
+
+    return PaginatedPoemResponse(
+        poems=response_data,
+        pagination=pagination,
+    )
 
 
 @router.post("/", response_model=PoemResponse)
@@ -143,9 +198,43 @@ async def create_poem(
         raise HTTPException(status_code=400, detail=f"Failed to create poem: {str(e)}")
 
 
+@router.get("/filter-options", response_model=PoemFilterOptions)
+async def get_filter_options(
+    service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Get global filter options for poems (all poets and languages in the database).
+
+    **Returns:**
+    - List of all available poets and languages for filtering
+    """
+    try:
+        # Get all unique poets from database
+        poets_query = select(Poem.poet_name).distinct().order_by(Poem.poet_name)
+        poets_result = service.db.execute(poets_query).scalars().all()
+        poets = [poet for poet in poets_result if poet]  # Filter out None values
+
+        # Get all unique languages from database
+        languages_query = select(Poem.source_language).distinct().order_by(Poem.source_language)
+        languages_result = service.db.execute(languages_query).scalars().all()
+        languages = [lang for lang in languages_result if lang]  # Filter out None values
+
+        return PoemFilterOptions(
+            poets=poets,
+            languages=languages,
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get filter options: {str(e)}"
+        )
+
+
 @router.get("/{poem_id}", response_model=PoemResponse)
 async def get_poem(
-    poem_id: str, service: RepositoryService = Depends(get_repository_service)
+    poem_id: str,
+    service: RepositoryService = Depends(get_repository_service),
+    bbr_service: IBBRServiceV2 = Depends(get_bbr_service)
 ):
     """
     Get detailed information about a specific poem.
@@ -161,7 +250,16 @@ async def get_poem(
         raise HTTPException(
             status_code=404, detail=f"Poem with ID '{poem_id}' not found"
         )
-    return poem
+
+    # Check if BBR exists
+    has_bbr = bbr_service.has_bbr(poem_id)
+
+    # Convert poem to dict and add BBR status
+    poem_dict = poem.__dict__.copy()
+    poem_dict['has_bbr'] = has_bbr
+
+    # Convert to PoemResponse model
+    return PoemResponse(**poem_dict)
 
 
 @router.put("/{poem_id}", response_model=PoemResponse)
@@ -406,7 +504,7 @@ async def generate_bbr(
     """
     try:
         # Verify poem exists
-        poem = repository_service.repo.poems.get_by_id(poem_id)
+        poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
             raise HTTPException(
                 status_code=404, detail=f"Poem with ID '{poem_id}' not found"
@@ -452,7 +550,7 @@ async def get_bbr(
     """
     try:
         # Verify poem exists
-        poem = repository_service.repo.poems.get_by_id(poem_id)
+        poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
             raise HTTPException(
                 status_code=404, detail=f"Poem with ID '{poem_id}' not found"
@@ -494,7 +592,7 @@ async def delete_bbr(
     """
     try:
         # Verify poem exists
-        poem = repository_service.repo.poems.get_by_id(poem_id)
+        poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
             raise HTTPException(
                 status_code=404, detail=f"Poem with ID '{poem_id}' not found"
@@ -523,3 +621,5 @@ async def delete_bbr(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete BBR: {str(e)}")
+
+

@@ -140,16 +140,33 @@ class BBRGenerator:
             logger.debug(f"Using provider: {provider_name}, model: {model_name}")
 
             # Prepare prompt variables
+            def get_friendly_language_name(lang_code):
+                """Convert language code to friendly name."""
+                if not lang_code:
+                    return "Unknown"
+                lang_code = lang_code.lower()
+                if lang_code in ["en", "english"]:
+                    return "English"
+                elif lang_code in ["zh", "zh-cn", "zh-tw", "chinese"]:
+                    return "Chinese"
+                elif lang_code in ["fr", "french"]:
+                    return "French"
+                elif lang_code in ["de", "german"]:
+                    return "German"
+                elif lang_code in ["es", "spanish"]:
+                    return "Spanish"
+                else:
+                    return lang_code.upper()
+
+            friendly_source_lang = get_friendly_language_name(source_language)
+            target_lang = "Chinese" if friendly_source_lang == "English" else "English"
+
             variables = {
                 "poet_name": poet_name,
                 "poem_title": poem_title,
-                "original_poem": poem_content,
-                "source_lang": source_language or "Unknown",
-                "target_lang": (
-                    "Chinese"
-                    if source_language and source_language.lower() in ["english", "en"]
-                    else "English"
-                ),
+                "source_text": poem_content,
+                "source_lang": friendly_source_lang,
+                "target_lang": target_lang,
             }
 
             # Render prompt template
@@ -162,23 +179,26 @@ class BBRGenerator:
             )
 
             # Generate BBR content
-            combined_prompt = system_prompt + "\n\n" + user_prompt
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+
             response = await provider.generate(
-                prompt=combined_prompt,
+                messages=messages,
                 model=model_name,
                 temperature=self.bbr_config["temperature"],
                 max_tokens=self.bbr_config["max_tokens"],
-                timeout=self.bbr_config["timeout"],
             )
 
             # Calculate time spent
             time_spent = time.time() - start_time
 
             # Extract content and metadata
-            bbr_content = response.get("content", "")
-            tokens_used = response.get("tokens_used", 0)
-            input_tokens = response.get("input_tokens", 0)
-            output_tokens = response.get("output_tokens", 0)
+            bbr_content = response.content
+            tokens_used = response.tokens_used
+            input_tokens = response.prompt_tokens
+            output_tokens = response.completion_tokens
 
             # Validate BBR content
             validated_content = self._validate_bbr_content(bbr_content)
