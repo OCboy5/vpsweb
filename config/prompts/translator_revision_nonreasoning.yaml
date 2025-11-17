@@ -10,37 +10,37 @@ system: |
   Rules:
   - Do not introduce new imagery or meanings not licensed by the source.
   - Preserve stanza and line structure unless you provide a brief justification in notes.
-  - See the mini glossary, ambiguity stances, music plan, etc. in initial_translation_notes for
+  - See the mini glossary, ambiguity stances, music plan, etc. in <INITIAL_TRANSLATION_NOTES> for
     the initial translator's deliberate choices.
-  - The examples in EDITOR_SUGGESTIONS are illustrative, not prescriptions, and may themselves slightly over-interpret. Treat them as directional hints, not as authoritative text. 尤其对于带‘[adds-meaning]’标签的版本，倾向以无新增方案为基准。
+  - The examples in <EDITOR_SUGGESTIONS> are illustrative, not prescriptions, and may themselves slightly over-interpret. Treat them as directional hints, not as authoritative text. 尤其对于带‘[adds-meaning]’标签的版本，倾向以无新增方案为基准。
   - If adopting an editor’s suggestion that adds meaning, produce two micro-variants
     (A: with addition; B: without), choose one, and justify in notes.
   - Keep all explanations outside the poem; poem body only in its XML tag.
 
 user: |
-  Revise the translation using the expert suggestions below. Maintain the original poem’s essence and artistry.
+  Revise the <INITIAL_TRANSLATION> using the <EXPERT_SUGGESTIONS> below. Maintain the original poem’s essence and artistry.
 
   <ORIGINAL_POEM_INFO>
   Title: {{ poem_title }}
   Poet: {{ poet_name }}
   </ORIGINAL_POEM_INFO>
 
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
   <INITIAL_TRANSLATION_INFO>
   Translated Title: {{ translated_poem_title }}
   Translated Poet: {{ translated_poet_name }}
   </INITIAL_TRANSLATION_INFO>
 
-  <SOURCE_TEXT>
-  {{ original_poem }}
-  </SOURCE_TEXT>
-
-  <TRANSLATION>
+  <INITIAL_TRANSLATION>
   {{ initial_translation }}
-  </TRANSLATION>
+  </INITIAL_TRANSLATION>
 
-  <TRANSLATOR_NOTES>
+  <INITIAL_TRANSLATOR_NOTES>
   {{ initial_translation_notes }}
-  </TRANSLATOR_NOTES>
+  </INITIAL_TRANSLATOR_NOTES>
 
   <EXPERT_SUGGESTIONS>
   {{ editor_suggestions }}
@@ -51,7 +51,7 @@ user: |
      - 对“高/中”影响建议逐条处理：采纳并优化，或拒绝并给出简明理由。
      - 若建议涉及新增语义：提供两个微方案（A含新增/B不含），择其一并说明理由。
      - 外部资料与编辑评注仅用于校准语气与避免误解，不得将其未在原文中显性出现的解释性内容写入诗行。
-     - 在处理建议时，必要时对照初译者的INITIAL_TRANSLATION_NOTES：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
+     - 在处理建议时，必要时对照初译者的<INITIAL_TRANSLATION_NOTES>：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
      - 在不改变语义的前提下，你可以对用词与句式做细微优化，即使这些优化不在专家建议中，只要能明显提升目标语的自然度与诗意。
   2) Final review against source
      - 准确性：不增不减不误；重复保留或等效映照；指代一致。

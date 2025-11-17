@@ -792,6 +792,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 workflow_mode=workflow_mode_enum,
                 task_service=self.task_service,
                 task_id=task_id,
+                repository_service=self.repository_service,
             )
             await self.task_service.update_task(task_id, {"workflow": workflow})
             workflow.progress_callback = progress_callback

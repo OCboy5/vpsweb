@@ -54,17 +54,36 @@ class StepExecutor:
     to execute workflow steps with proper error handling and retry logic.
     """
 
-    def __init__(self, llm_factory: LLMFactory, prompt_service: PromptService):
+    def __init__(self, llm_factory: LLMFactory, prompt_service: PromptService, system_config: Optional[Dict[str, Any]] = None):
         """
         Initialize the step executor.
 
         Args:
             llm_factory: Factory for creating LLM providers
             prompt_service: Service for loading and rendering prompt templates
+            system_config: Optional system configuration with strategy dials
         """
         self.llm_factory = llm_factory
         self.prompt_service = prompt_service
+        self.system_config = system_config or {}
         logger.info("Initialized StepExecutor with LLM factory and prompt service")
+
+    def _get_strategy_value(self, key: str, default: str) -> str:
+        """
+        Get strategy value from system configuration with fallback to default.
+
+        Args:
+            key: Strategy key (e.g., 'adaptation_level', 'repetition_policy')
+            default: Default value if not found in config
+
+        Returns:
+            Strategy value from config or default
+        """
+        strategy_config = self.system_config.get('translation_strategy', {})
+        value = strategy_config.get(key, default)
+        # Debug: Print strategy values being used
+        print(f"🎛️ Strategy {key}: {value} (from {'config' if key in strategy_config else 'default'})")
+        return value
 
     async def execute_step(
         self, step_name: str, input_data: Dict[str, Any], config: StepConfig
@@ -184,6 +203,17 @@ class StepExecutor:
             system_prompt, user_prompt = self.prompt_service.render_prompt(
                 template_name, input_data
             )
+
+            # DEBUG: Print the rendered prompts for verification
+            print(f"\n=== {step_name.upper()} PROMPT DEBUG ===")
+            print(f"Step: {step_name}")
+            print(f"Template: {template_name}")
+            print(f"Variables: {list(input_data.keys())}")
+            print(f"System Prompt ({len(system_prompt)} chars):")
+            print(system_prompt)
+            print(f"User Prompt ({len(user_prompt)} chars):")
+            print(user_prompt)
+            print(f"=== END {step_name.upper()} PROMPT DEBUG ===\n")
 
             return system_prompt, user_prompt
 
@@ -383,12 +413,21 @@ class StepExecutor:
             "target_lang": translation_input.target_lang,
             "poem_title": poem_title,
             "poet_name": poet_name,
+            # Add strategy values from configuration
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
+            "few_shots": self._get_strategy_value("few_shots", ""),
         }
 
         # Add BBR content if provided for V2 templates
         if bbr_content:
             input_data["background_briefing_report"] = bbr_content
             logger.debug("BBR content added to initial translation step")
+        else:
+            # Add empty BBR content if not available to satisfy template requirements
+            input_data["background_briefing_report"] = "No background briefing report available."
 
         return await self.execute_step("initial_translation", input_data, config)
 
@@ -431,6 +470,11 @@ class StepExecutor:
             "translated_poet_name": initial_translation.translated_poet_name,
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
+            # Add strategy values from configuration
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
         }
 
         return await self.execute_step("editor_review", input_data, config)
@@ -477,6 +521,11 @@ class StepExecutor:
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
             "editor_suggestions": editor_review.editor_suggestions,
+            # Add strategy values from configuration
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
         }
 
         return await self.execute_step("translator_revision", input_data, config)

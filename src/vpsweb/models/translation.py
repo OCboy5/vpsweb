@@ -80,6 +80,50 @@ class TranslationInput(BaseModel):
         return cls(**data)
 
 
+class BackgroundBriefingReport(BaseModel):
+    """Background Briefing Report with contextual analysis for translation."""
+
+    content: str = Field(..., description="BBR content with contextual analysis")
+    timestamp: datetime = Field(
+        default_factory=datetime.now,
+        description="Timestamp when BBR was created or retrieved",
+    )
+    model_info: Optional[Dict[str, str]] = Field(
+        None, description="Model provider and version information used to generate BBR"
+    )
+    tokens_used: Optional[int] = Field(
+        None, ge=0, description="Number of tokens used to generate this BBR"
+    )
+    prompt_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of input tokens used for BBR generation"
+    )
+    completion_tokens: Optional[int] = Field(
+        None, ge=0, description="Number of output tokens used for BBR generation"
+    )
+    duration: Optional[float] = Field(
+        None, ge=0.0, description="Time taken to generate BBR in seconds"
+    )
+    cost: Optional[float] = Field(
+        None, ge=0.0, description="Cost in RMB for BBR generation"
+    )
+    poem_id: Optional[str] = Field(
+        None, description="ID of the poem this BBR belongs to"
+    )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with ISO format timestamp."""
+        data = self.model_dump()
+        data["timestamp"] = self.timestamp.isoformat()
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "BackgroundBriefingReport":
+        """Create from dictionary, parsing ISO timestamp."""
+        if "timestamp" in data and isinstance(data["timestamp"], str):
+            data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+        return cls(**data)
+
+
 class InitialTranslation(BaseModel):
     """Output from initial translation step with XML structure from vpts.yml."""
 
@@ -288,23 +332,41 @@ class TranslationOutput(BaseModel):
     total_cost: Optional[float] = Field(
         None, ge=0.0, description="Total cost in RMB for the entire workflow"
     )
+    background_briefing_report: Optional[BackgroundBriefingReport] = Field(
+        None, description="Background Briefing Report with contextual analysis"
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with proper serialization."""
-        return {
+        result = {
             "workflow_id": self.workflow_id,
             "workflow_mode": self.workflow_mode,
             "input": self.input.to_dict(),
+        }
+
+        # Add BBR if available (after input section, before workflow steps)
+        if self.background_briefing_report:
+            result["background_briefing_report"] = self.background_briefing_report.to_dict()
+
+        # Add workflow step sections
+        result.update({
             "initial_translation": self.initial_translation.to_dict(),
             "editor_review": self.editor_review.to_dict(),
             "revised_translation": self.revised_translation.to_dict(),
             "total_tokens": self.total_tokens,
             "duration_seconds": self.duration_seconds,
-        }
+        })
+
+        return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TranslationOutput":
         """Create from dictionary with proper deserialization."""
+        # Handle optional BBR
+        bbr = None
+        if "background_briefing_report" in data and data["background_briefing_report"]:
+            bbr = BackgroundBriefingReport.from_dict(data["background_briefing_report"])
+
         return cls(
             workflow_id=data["workflow_id"],
             workflow_mode=data.get("workflow_mode"),
@@ -316,6 +378,7 @@ class TranslationOutput(BaseModel):
             revised_translation=RevisedTranslation.from_dict(
                 data["revised_translation"]
             ),
+            background_briefing_report=bbr,
             total_tokens=data["total_tokens"],
             duration_seconds=data["duration_seconds"],
         )

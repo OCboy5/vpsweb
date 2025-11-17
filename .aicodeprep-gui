@@ -20,7 +20,11 @@ preview_window_enabled=false
 syntax_highlight_enabled=false
 
 [files]
-config/prompt_V2/translator_revision_nonreasoning.yaml
-config/prompt_V2/editor_review_reasoning.yaml
-config/prompt_V2/background_briefing_report.yaml
-config/prompt_V2/initial_translation_nonreasoning.yaml
+config/prompts/translator_revision_nonreasoning.yaml
+config/prompts/editor_review_reasoning.yaml
+config/prompts/background_briefing_report.yaml
+config/prompts/initial_translation_nonreasoning.yaml
+outputs/json/poets/张枣/张枣_镜中_chinese_english_hybrid_20251117_222522_6a42eb42.json
+outputs/json/poets/Emily Dickinson/Emily Dickinson_snow_flakes_english_chinese_hybrid_20251117_224614_a18c5dd0.json
+outputs/json/poets/李商隱/李商隱_天涯_chinese_english_hybrid_20251117_224923_96ed0470.json
+outputs/json/poets/Ted Hughes/Ted Hughes_the_thought-fox_english_chinese_hybrid_20251117_222919_ebb9597e.json

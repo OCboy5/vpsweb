@@ -4,6 +4,23 @@
 # Workflow mode selection: 'reasoning', 'non_reasoning', or 'hybrid'
 workflow_mode: "hybrid"  # Default to balanced approach
 
+# Translation Strategy Dials (Global Configuration)
+translation_strategy:
+  # Cultural adaptation approach
+  adaptation_level: "balanced"  # options: "foreignizing" | "balanced" | "domesticating"
+
+  # How to handle repetitions in the original poem
+  repetition_policy: "strict"  # options: "strict" | "adaptive"
+
+  # Policy for semantic additions (when translator adds meaning not in source)
+  additions_policy: "forbid"  # options: "forbid" | "allow_with_alt"
+
+  # Prosody and rhythm target for translation
+  prosody_target: "free verse, cadence-aware"  # e.g., "free verse, cadence-aware", "preserve rhyme", "free verse"
+
+  # Optional exemplars (few-shot examples) - typically left empty
+  few_shots: ""  # Can contain example translations for few-shot learning
+
 workflow:
   name: "vox_poetica_translation"
   version: "2.0.0"

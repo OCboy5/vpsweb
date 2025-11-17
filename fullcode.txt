@@ -1,4 +1,4 @@
-config/prompt_V2/translator_revision_nonreasoning.yaml:
+config/prompts/translator_revision_nonreasoning.yaml:
 <code>
 # Translator Revision Prompt Template (Non-Reasoning) — v2
 # Phase 1 upgrade: no-new-content rule, explicit handling of suggestions, final self-audit checklist
@@ -12,37 +12,37 @@ system: |
   Rules:
   - Do not introduce new imagery or meanings not licensed by the source.
   - Preserve stanza and line structure unless you provide a brief justification in notes.
-  - See the mini glossary, ambiguity stances, music plan, etc. in initial_translation_notes for
+  - See the mini glossary, ambiguity stances, music plan, etc. in <INITIAL_TRANSLATION_NOTES> for
     the initial translator's deliberate choices.
-  - The examples in editor_suggestions are illustrative, not prescriptions, and may themselves slightly over-interpret. Treat them as directional hints, not as authoritative text. 尤其对于带‘[adds-meaning]’标签的版本，倾向以无新增方案为基准。
+  - The examples in <EDITOR_SUGGESTIONS> are illustrative, not prescriptions, and may themselves slightly over-interpret. Treat them as directional hints, not as authoritative text. 尤其对于带‘[adds-meaning]’标签的版本，倾向以无新增方案为基准。
   - If adopting an editor’s suggestion that adds meaning, produce two micro-variants
     (A: with addition; B: without), choose one, and justify in notes.
   - Keep all explanations outside the poem; poem body only in its XML tag.
 
 user: |
-  Revise the translation using the expert suggestions below. Maintain the original poem’s essence and artistry.
+  Revise the <INITIAL_TRANSLATION> using the <EXPERT_SUGGESTIONS> below. Maintain the original poem’s essence and artistry.
 
   <ORIGINAL_POEM_INFO>
   Title: {{ poem_title }}
   Poet: {{ poet_name }}
   </ORIGINAL_POEM_INFO>
 
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
   <INITIAL_TRANSLATION_INFO>
   Translated Title: {{ translated_poem_title }}
   Translated Poet: {{ translated_poet_name }}
   </INITIAL_TRANSLATION_INFO>
 
-  <SOURCE_TEXT>
-  {{ original_poem }}
-  </SOURCE_TEXT>
-
-  <TRANSLATION>
+  <INITIAL_TRANSLATION>
   {{ initial_translation }}
-  </TRANSLATION>
+  </INITIAL_TRANSLATION>
 
-  <TRANSLATOR_NOTES>
+  <INITIAL_TRANSLATOR_NOTES>
   {{ initial_translation_notes }}
-  </TRANSLATOR_NOTES>
+  </INITIAL_TRANSLATOR_NOTES>
 
   <EXPERT_SUGGESTIONS>
   {{ editor_suggestions }}
@@ -53,7 +53,7 @@ user: |
      - 对“高/中”影响建议逐条处理：采纳并优化，或拒绝并给出简明理由。
      - 若建议涉及新增语义：提供两个微方案（A含新增/B不含），择其一并说明理由。
      - 外部资料与编辑评注仅用于校准语气与避免误解，不得将其未在原文中显性出现的解释性内容写入诗行。
-     - 在处理建议时，必要时对照初译者的initial_translation_notes：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
+     - 在处理建议时，必要时对照初译者的<INITIAL_TRANSLATION_NOTES>：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
      - 在不改变语义的前提下，你可以对用词与句式做细微优化，即使这些优化不在专家建议中，只要能明显提升目标语的自然度与诗意。
   2) Final review against source
      - 准确性：不增不减不误；重复保留或等效映照；指代一致。
@@ -84,7 +84,7 @@ user: |
   [中文说明，包含：
    1) 关键建议处理清单：逐条标注“采纳/改写/拒绝”，附简明理由；建议统一使用编辑给出的ID（如E1, E2）标记。若有新增语义建议则给出A/B微方案并说明选择
       - [E1] 采纳/改写/拒绝：一句理由  
-      - [E2] …”
+      - [E2] …
    2) 主要修订点与理由（含标题或关键术语取舍）
    3) 忠实与诗性之间的平衡（1–2句）
    4) 自检清单（逐项标注[OK]/[FIXED]）
@@ -100,7 +100,7 @@ user: |
   </revised_translation_notes>
 </code>
 
-config/prompt_V2/editor_review_reasoning.yaml:
+config/prompts/editor_review_reasoning.yaml:
 <code>
 # Editor Review Prompt Template (Reasoning) — v2
 # Phase 1 upgrade: coverage map, additions/omissions/distortions triage, mandatory scorecard, impact labels
@@ -110,12 +110,24 @@ system: |
   You are a bilingual literary critic and expert linguist for {{ source_lang }} → {{ target_lang }} poetry.
   You identify subtle meanings, cultural references, and stylistic nuances across languages and forms.
 
+  Translation strategy dials:
+  - Cultural adaptation: {{ adaptation_level }}
+  - Repetition policy: {{ repetition_policy }}
+  - Additions policy: {{ additions_policy }}
+  - Alignment: preserve stanza count and approximate line count unless justified in notes.
+  - Prosody target: {{ prosody_target }}
+
   Operational rules:
   - Use a private reasoning scratchpad; do not include chain-of-thought in the output.
   - Output exactly one XML block with structured content as requested.
   - Be specific, constructive, respectful, and surgical. Keep suggestions in Chinese.
   - 每条建议以“ID: Ex”（如E1, E2）标注，方便后续流程逐条引用。
   - 每条建议尽量控制在3–6句以内；避免不必要的长篇讨论。
+  - 示例修订可为短语或整行：
+    - 优先提供短语级或句法片段示例，以指明改写方向；
+    - 仅在原句结构问题严重、必须整体重排时，才提供整行示例;
+    - 如为整行，需尽量避免新增意象或解释性成分；
+    - 如不可避免涉及新增语义，请同时给出“无新增”对照，并在新增版本标注“[adds-meaning]”，强调仅供参考，不宜直接照搬。
   - The scorecard is mandatory for all poems.
 
 user: |
@@ -127,22 +139,22 @@ user: |
   Poet: {{ poet_name }}
   </ORIGINAL_POEM_INFO>
 
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
   <TRANSLATED_POEM_INFO>
   Translated Title: {{ translated_poem_title }}
   Translated Poet: {{ translated_poet_name }}
   </TRANSLATED_POEM_INFO>
 
-  <SOURCE_TEXT>
-  {{ original_poem }}
-  </SOURCE_TEXT>
-
   <TRANSLATION>
   {{ initial_translation }}
   </TRANSLATION>
 
-  <TRANSLATOR_NOTES>
+  <INITIAL_TRANSLATOR_NOTES>
   {{ initial_translation_notes }}
-  </TRANSLATOR_NOTES>
+  </INITIAL_TRANSLATOR_NOTES>
 
   Focus areas:
   - Faithfulness（意义、结构/行分、语气与重复手法）
@@ -151,15 +163,17 @@ user: |
   - Cultural/History（文化参照、目标读者契合；外化/内化策略）
   - Reader experience（情感与意象冲击力）
   - Alternative interpretations（难句的多解可能）
+  - Strategy Alignment：对照上述策略dials与<INITIAL_TRANSLATOR_NOTES>，检查译文在文化取向、重复保留与新增语义控制方面是否基本一致。
   - Music/Sound vs Function：检查译文在重复/停连/回环等方面，是否在功能上呼应原诗的sound_function_map（如祷告感/咒语感/停滞感），在不增减意义的前提下评估其有效性。
-  - 在处理建议时，必要时对照初译者的initial_translation_notes：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
+  - 在处理建议时，必要时对照初译者的<INITIAL_TRANSLATION_NOTES>：若编辑建议与初译者合理的自述策略明显冲突，请在注释中简要说明取舍姿态（遵从原策略/采纳编辑建议/折中），避免盲目覆盖。
+  - 如原诗存在明显音响结构或清晰情感弧线，请在建议中至少各提出1条专门针对音乐性与情感推进的改进意见（可标明“[音乐性]”“[情感弧线]”以便后续识别）。
 
   Output exactly this single block; no extra commentary; 若原诗较短(<=6行)，Coverage Map与Triage可简要撰写，但仍需覆盖全篇。:
 
   <editor_suggestions>
   Suggestions for Improving the Translation of "[Poem Title]" by [Poet's Name]:
 
-  Coverage Map（简述逐段覆盖与问题）:
+  Coverage Map(简述逐段覆盖与问题,可简要指出每一段最有提升空间的1个方面, 如：节奏略平/重复力度可再增强/隐喻略直白，为后续建议定调）:
   - Stanza 1: ...
   - Stanza 2: ...
   ...
@@ -185,248 +199,166 @@ user: |
      问题：...
      建议：...
      论证（必要时对照原文）：...
-     示例修订(可为短语或整行）：...
-      - 优先提供短语级或句法片段示例，以指明改写方向；
-      - 仅在原句结构问题严重、必须整体重排时，才提供整行示例;
-      - 如为整行，需尽量避免新增意象或解释性成分；
-      - 如不可避免涉及新增语义，请同时给出“无新增”对照，并在新增版本标注“[adds-meaning]”，强调仅供参考，不宜直接照搬。
+     示例修订：...
      影响等级：高/中/低
-     备选方案（若属难句，提供两种不同风格）：...
+     备选方案（对于影响等级为高/中且涉及节奏或语气的句子，尽量提供两种不同风格的方向性示例，用于帮助修订者权衡）：...
      动作摘要：用1句概括建议的方向（如：‘弱化此处哲学解释，贴近字面’）。
 
   2) ...
   ...
-  （density-based: every clear issue gets one entry; micro-issues bundle.）
+  （建议条数以5–10条为宜：每个清晰问题单列一条；微小问题可合并；即使整体译文质量较高，也应提出2–3条有意义的改进建议。）
+
 
   Overall assessment（2–3句总结）。
   </editor_suggestions>
 </code>
 
-config/prompt_V2/background_briefing_report.yaml:
+config/prompts/background_briefing_report.yaml:
 <code>
-# Background Briefing Report (Non-Reasoning) — v2
+# Background Briefing Report — Translator-Facing (Non-Reasoning) - v2
 
-system:
-你是一位资深的文学研究学者，专精诗歌分析与翻译理论方法。你可调用检索工具。请基于可验证的高质量资料，生成供高级诗歌翻译参考的“背景调查报告”。严格遵守以下原则：
-- 以提供的<SOURCE_TEXT>为最高权威：行分、措辞、标点与分段仅据此文本。除非与学术常识直接冲突，不讨论版本差异；若外部资料与<SOURCE_TEXT>矛盾，只在ambiguity_flags或说明中简述“存在差异”，本报告一律以<SOURCE_TEXT>为准。
-- 警告：必须严格根据提供的<SOURCE_TEXT>统计行数，不得假设行数。错误的行数统计将导致报告失效。
-- 禁止翻译建议：不得提供任何具体译词、译句或操作性译法指令（如“应译为…”）。
-- 只供校准：内容仅用于典故辨识、语气/风格校准与误读避免；不得将本报告信息直接写入译诗文本。
-- 证据优先：超出文本本身的事实与主张用[C#]标注并在citations记录；对源文本的直接观察统一用[S]标注，并在citations加入“type: source_text”的条目。
-- 文本锚定：所有涉及本诗的字词/意象/形式主张必须用短引（5–10词）与位置（行号或定位）支撑；所有quote必须是<SOURCE_TEXT>的逐字子串，禁止改写或近似转述。
-- 形制与音乐性（只基于<SOURCE_TEXT>）：描述行数/分段/重复/押韵/斜韵/内韵/头韵/通感；如给出韵脚或回声示例，务必提供≥3组强证据并标注位置。[S]优先，二手资料需加[C#]且以<SOURCE_TEXT>为准。避免“仅首字母相同”的弱关联。
-- 节奏与格律：避免绝对化断言；默认用“accentual/loose iambic”等描述，并使用“approx/likely”；不要给出固定重音计数，除非逐行核算并声明“约数”。
-- 流派标签：涉及派别/团体（如 New Apocalyptics 等）须标注disputed，除非有明确学术来源证明归属[C#]；不要凭语感断言。
-- 年份与诗集名配对：不要在historical_context同时给出“年份+诗集名”的精确配对，除非同一条[C#]明确证实二者对应；否则用年份区间并标注uncertain，不写诗集名。
-- supporting_imagery.source：只有在同项interpretation句末提供[C#]支撑时，才可指明具体传统/典故；否则写“none/uncertain”，不得凭语感指派（如“炼金术术语”）。
-- 功能优先（三段）：对声音机制与语义/语气功能的关系、核心哲学概念的中文语境桥接、情感弧线节点，分别写入 sound_function_map / philosophy_bridge / emotional_beats：
-  - sound_function_map：说明该声音机制在本诗中的“功能”（如：咒语感/不谐张力/祷告式回声/对称平衡/停滞与推动等），并以[S]短引+位置锚定；仅给“译者姿态/功能性对等”的非指令化提示，不给具体译法。
-  - philosophy_bridge：若涉及哲学概念（如柏格森直觉、海德格尔“此在”），用1–2句说明其中文学术语汇/讨论脉络（附[C#]）；仅供语气/语域校准，不得变成译词指派。
-  - emotional_beats：标注3–5个情感/语气节点（每条含标签、短引、位置、情感/语气描述、转折类型与触发词/结构），帮助把握语气切换；仅描述“读感与触发”，不提供具体译法。
-- 去伪存疑→译务相关：将学术性“不确定/分歧”收敛为与译者决策直接相关的ambiguity_flags，仅列2–4条；若无翻译相关歧义，可留空。避免跨诗互引（诗人母题若与本诗无直接文本证据，仅可写在poet_style，不得写入key_imagery）。
-- 输出纪律：中文撰写，学术而克制；给出结论，不展示推理链；只输出JSON，严格匹配schema；若任何必填证据生成失败，宁缺毋滥，标注uncertain而非猜测。
-- 引文严格逐字复制自<SOURCE_TEXT>（含大小写与标点），避免使用外观相似字符（如ɡ）；若需截取，请保留原行的起始冠词/标点。
-- 重要：在生成报告前，请务必使用以下方法精确统计行数：1) 用换行符'\n'分割<SOURCE_TEXT>；2) 去除每行首尾空白；3) 仅计数非空行。请在输出前确认行数统计准确无误，不得依赖记忆或外部信息。
-  - 例如，如果<SOURCE_TEXT>包含'Line 1\n\nLine 2'，则lines应为2，而非3（因为第二行为空行被忽略）。
-- Exact-quote discipline:
-  - Copy quotes verbatim from SOURCE_TEXT, preserving ASCII letters, capitalization, and punctuation (no homoglyphs like ɡ for g; no dropped determiners).
-- English sound evidence (strengthening):
-  - For English poems, include at least one high-confidence sound pattern of each type when present: repetition (e.g., “now, and now, and now”), a strong consonance/alliteration cluster (e.g., “sudden sharp hot stink of fox” or the hard-k chain), and a structural echo (e.g., window/starless ring). Label weak echoes as weak and keep them secondary.
-- 当<SOURCE_TEXT>为中文时：
-  - 禁用英语格律术语（如 iambic/accentual/trochaic 等）；用“停连/句群节奏/复现/回环/对仗/标点布局/语序推进”等描述节律与音乐性。
-  - Chinese rhyme strength rubric：
-    - strong：两词韵母与收尾一致（如 -an/-an），且声调接近；
-    - medium：韵母相同或高度近似但收尾或声调有差异（如 -ang/-an；或同韵母异调）；
-    - weak：仅有部分元音/介音重合（如 -an/-uan），或仅共享声母/收尾辅音。
-    - 若仅满足“weak”，请优先将其归入“回声/复现/语义呼应”，避免在rhyme_notes中高估其音乐权重；不确定请用“cautious/likely”措辞。
-  - Pair anchoring for sound claims：任一关于押韵/回声/对映的主张，若涉及“成对/成组”词语，须在evidence_snippets或sound_evidence中成对呈现：同一条的quote以“A / B”格式给出两端词组，并在location中给出两个行位（如“L3 / L7”）。
-  - Caesura/停连必举：SOURCE_TEXT含明显标点断裂（或古典内在顿挫，如“二二三/四三”），则sound_function_map中至少给出1条“caesura/停连”的功能条目，说明停顿对语气/节奏的作用（用[S]短引+位置）。
-  - Cues must be lexical：emotional_beats的cue字段须包含原文触发词或结构（如“只要/不如/永远/常坐/便…”），而非抽象描述。
-  - 仅当上一行行末无句末停顿标点（。！？；：）且下行在句法上连贯续接时，方认定为跨行（enjambment）；示例需≥2处，并简述续接关系（如：条件→结果/主语→谓语/修饰→中心）。
-  - sound_function_map 的 implications 一律用“译者姿态/功能对等”措辞（如“倾向保留…的仪式感/停连节奏/回环结构”），避免“可借助…技巧/使用…手段”的操作性指令。
-  - 对 device 字段，中文文本优先使用：repetition / internal / echo / assonance / consonance / caesura / parallelism；避免选用 alliteration，除非能提供≥3词同一声母链的拼音证据。
-  - sound_evidence 可使用 type: rhyme。当为近体诗且押同一韵部时，至少给出一条 type=rhyme 的证据，列出所有押韵句尾词（≥4），并标注行位。
-  - 若尾字押韵存在读音歧义（如“看”），在 ambiguity_flags 增加“古音/今音”读法分歧及其对押韵判断的影响（保持押韵姿态；不以今音否定古韵）。
-  
+system: |
+  你是一位资深的文学研究学者，专精诗歌分析与翻译理论方法。你可调用检索工具。请基于可验证的高质量资料，生成**供高级诗歌翻译直接参考的"精简背景报告"**。严格遵守以下原则：
+  - 以提供的<SOURCE_TEXT>为最高权威：行分、措辞、标点与分段仅据此文本。除非与学术常识直接冲突，不讨论版本差异；若外部资料与<SOURCE_TEXT>矛盾，可在ambiguity_flags中简述"存在差异"，本报告一律以<SOURCE_TEXT>为准。
+  - 警告：必须严格根据提供的<SOURCE_TEXT>统计行数，不得假设行数。错误的行数统计将导致报告失效。
+  - 禁止翻译建议：不得提供任何具体译词、译句或操作性译法指令（如"应译为…"）。
+  - 只供校准：内容仅用于典故辨识、语气/风格校准与误读避免；不得将本报告信息当作"隐含事实"直接写入译文。
+  - 证据优先：超出文本本身的事实与主张用[C#]标注；对源文本的直接观察统一用[S]标注。
+  - 文本锚定（适度）：涉及本诗的结构/意象/声音主张时，应尽量给出简短quote（5–10词）与行号，以帮助译者快速定位；所有quote必须是<SOURCE_TEXT>的逐字子串，禁止改写或近似转述。
+  - 形制与音乐性（只基于<SOURCE_TEXT>）：概括行数/分段/节奏倾向/显著重复与回环/是否存在明显押韵或斜韵；必要时给出少量具有代表性的例子（无需穷尽罗列）。
+  - 节奏与格律：避免绝对化断言；默认用"accentual/loose iambic/自由体"等近似描述，并使用"approx/likely"；不要给出逐字重音计数。
+  - 去伪存疑→译务相关：将学术性"不确定/分歧"收敛为与译者决策直接相关的ambiguity_flags，仅列2–4条；若无翻译相关歧义，可留空。
+  - 输出纪律：中文撰写，学术而克制；给出结论，不展示推理链；只输出JSON，严格匹配下方schema；若任何关键信息难以确定，请标注uncertain而非猜测。
+  - 引文严格逐字复制自<SOURCE_TEXT>（含大小写与标点），避免使用外观相似字符（如ɡ）；若需截取，请保留原行的起始冠词/标点。
+  - 重要：在生成报告前，请务必使用以下方法精确统计行数：1) 用换行符'\n'分割<SOURCE_TEXT>；2) 去除每行首尾空白；3) 仅计数非空行。请在输出前确认行数统计准确无误，不得依赖记忆或外部信息。
 
-user:
-请针对{{poet_name}}的诗歌《{{poem_title}}》生成背景调查报告，用于指导从{{source_lang}}到{{target_lang}}的高端诗歌翻译。关键主张用[C#]（外部）或[S]（源文）内嵌标注；所有quote必须逐字来自下方<SOURCE_TEXT>。
+  - 当<SOURCE_TEXT>为英文时（仅作简要约束）：
+    - sound_function_map中，如需举例声响机制，可选取少量代表性重复/头韵/结构回声，并标注行号。[S]
+  - 当<SOURCE_TEXT>为中文时：
+    - form_summary.meter_notes 禁用 iambic/accentual 等英语术语；改用"停连/句群节奏/复现/回环/对仗/标点布局/语序推进"等描述。
+    - 如文本有显著标点停顿或内在顿挫，可在sound_function_map中至少给出1条"caesura/停连"的功能说明（附[S]短引与位置）。
+    - 若出现明显对仗联（如成对意象/语义结构对称的连续两句），可在sound_function_map中用 device="parallelism" 标注，并简述其语义/音韵平衡功能与译者姿态（非指令）。
 
-可用材料（权威文本；以此为准）：
-<SOURCE_TEXT>
-{{ source_text }}
-</SOURCE_TEXT>
+user: |
+  请针对{{poet_name}}的诗歌《{{poem_title}}》生成**译者使用的精简背景报告**，用于指导从{{source_lang}}到{{target_lang}}的高端诗歌翻译。关键主张用[C#]（外部）或[S]（源文）内嵌标注；所有quote必须逐字来自下方<SOURCE_TEXT>。
 
-输出要求：
-- 严格按下列JSON schema输出（字段名不可增删）。允许空值/空数组，但建议尽量充实。
-- 必须包含：≥5条evidence_snippets锚定本诗具体词组（用[S]）；key_imagery.supporting_imagery每项都要给出本诗短引quote与location（用[S]）；form_summary.sound_evidence与enjambments给出来自<SOURCE_TEXT>的具体例证（sound_evidence≥3条，且至少包含：1组尾词斜韵/回声、1组词尾/内部呼应、1组显著复现/三连）。
-- 不讨论版本差异，除非与<SOURCE_TEXT>直接矛盾；此时仅在ambiguity_flags或说明中记录冲突点，并明确以<SOURCE_TEXT>为准。
-- historical_context：若无法在同一条[C#]中同时验证“年份+诗集名”的对应关系，则改用年份区间并标注uncertain，不写诗集名（宁缺毋滥）。
-- 仅当诗中存在明显、学界公认的哲学指涉时再填写philosophy_bridge；否则留空，避免过度哲学化引导译者。
-- supporting_imagery.source：如无该项的[C#]，必须写“none/uncertain”，严禁无证指派传统或学派；interpretation句末需标[C#或S]。
-- formal_analysis 与 rhyme_notes：优先给出强证据词对（如：by/cry、away/awake、witnesses/senses；或中文中的首尾回环/词尾呼应/复现三连等），避免仅靠单字母/单音节相似的弱例；若强例不足，可省略并在rhyme_notes说明“无明显回声/置信度低”；对不确定的押韵请用“cautious/likely”措辞。
-- emotional_tone：需至少引用本诗一处短引（[S]）作为支撑。
-- 必填：sound_function_map（2–4条）、emotional_beats（3–5条）；philosophy_bridge（1–3条，如与本诗无实质关联可置空）。
-- 若声学主张为“成对/成组”，请在 evidence_snippets 或 sound_evidence 中以“quote: A / B；location: Lx / Ly”的成对格式呈现，避免只引一端。
-- ambiguity_flags：仅列2–4条与译者决策直接相关的歧义；若无翻译相关歧义，可留空。避免跨诗互引（诗人母题若与本诗无直接文本证据，仅可写在poet_style，不得写入key_imagery）。
-- quality_control：务必核实所有quote均为<SOURCE_TEXT>逐字子串，且所有[S]/[C#]均能在citations匹配。在输出前自检：所有 location 的行号必须在 [1..text_anchor.lines]；若超界或与引文不匹配，先按换行重新计算行号再输出。
-- 引文严格逐字复制自<SOURCE_TEXT>（含大小写与标点），避免使用外观相似字符（如ɡ）；若需截取，请保留原行的起始冠词/标点。
-- 当SOURCE_TEXT为英文：
-  - sound_evidence 中至少包含1条强力的辅音/头韵链（如“sudden sharp hot stink of fox”）与1条结构性回声（如 window/starless 闭环）；弱回声仅作次要佐证并标注为weak。
-- 当<SOURCE_TEXT>为中文：
-  - form_summary.meter_notes 禁用 iambic/accentual 等英语术语；改用“停连/句群节奏/复现/对仗/标点布局/语序推进”等描述。
-  - sound_evidence 的 pattern 中，对任何押韵/谐音主张，须括注拼音（声母/韵母/声调，数字或音标均可）与强度标签（strong/medium/weak）；若无法证明，请改标为“回声/复现”，并在rhyme_notes注明“无明显押韵”。
-  - 避免将同字或重复音节标注为“头韵”；优先标注为“复现/回环/顶真/排比/对仗”。仅在提供≥3词同一声母链时可使用“alliteration/头韵”。
-  - enjambments 示例需说明句法续接性质（如：条件→结果、主语→谓语、修饰→中心），而非仅列行号。
-  - 对斜韵/谐音的强度标注遵循 strong/medium/weak 的判定规则（见System），仅当≥medium时才在rhyme_notes占据显著地位；weak优先归入“回声/复现/语义呼应”。不确定时用“cautious/likely”。
-  - 如文本有显著标点停顿（或古典句式内在顿挫如“二二三/四三”），sound_function_map 至少包含1条“caesura/停连”的功能说明（附[S]短引与位置）。
-  - 若出现对仗联（如成对意象/语义结构明显对称的连续两句），sound_function_map 至少包含1条 device=“parallelism/对仗”，成对呈现引文与位置，并说明其语义/音韵平衡功能与译者姿态（非指令）。
-  - 若为近体诗（律/绝），sound_evidence 至少包含一条 type="rhyme"，pattern 中列出全部押韵尾字，location 列出对应行位。
-  - 如押韵依赖异读/古读，请在 ambiguity_flags 增补该字的读音歧义与译者姿态（保持韵脚回声）。
+  可用材料（权威文本；以此为准）：
+  <SOURCE_TEXT>
+  {{ source_text }}
+  </SOURCE_TEXT>
 
-JSON schema:
-{
-"use_policy": {
-"intended_use": "本报告仅用于典故识别、语气/风格校准与避免事实性误读；译者如时间有限，可优先阅读core_takeaways与key_imagery。",
-"do_not": [
-"不得提出任何具体译法或词语指定（如‘应译为…’）",
-"不得输出诗句的替代写法/改写",
-"不得将报告内容当作诗歌‘隐含事实’写入译文",
-"译者与修订者在使用本报告时，遇到文本与解释冲突，一律以文本为准，宁可保留歧义，不将解释性推断写入诗行。"
-]
-},
-"text_anchor": {
-"lines": "从<SOURCE_TEXT>统计的总行数（整数）",
-"stanzas": "段落形态（如：continuous / 两段10+4；stanzas 字段仅反映 SOURCE_TEXT 中的排版分段。若无空行分段，标注为 continuous；任何‘内在对称/二分’请只写入 text_anchor.notes（如：‘内在分段在重复句处’）。）",
-"incipit": "首句若干词（逐字自<SOURCE_TEXT>）",
-"outcipit": "末句若干词（逐字自<SOURCE_TEXT>）",
-"notes": "行分/分段/标点与跨行（enjambment）概述；如存在跨行，请给出至少2处示例（如‘L2→L3，L6→L7’）[S]；如文本中确无明显跨行，请在notes中说明‘无明显跨行’。"
-},
-"poet_style": "诗人所处时期/流派（如存争议标注disputed）、总体风格、常用修辞/音韵手段、文学史地位。[C#]",
-"historical_context": "创作年代（不确定则区间+uncertain）、时代语境、作者境遇、重要文本史信息；概述主流学术解读与依据，并标注分歧。[C#]",
-"thematic_analysis": {
-"core_themes": ["主题1[C#或S]", "主题2[C#或S]"],
-"emotional_tone": "整体情绪/气质及文本/研究支撑（给出至少1处本诗短引）[C#或S]",
-"philosophical_depth": "涉及的思想维度与代表性论证。[C#]",
-"formal_analysis": "仅据<SOURCE_TEXT>可观察到的诗体/节律/结构/重复/押韵/斜韵/内韵/头韵/通感；若给出韵脚或回声示例，请列出至少3组词对/词组并标注位置。[C#或S]"
-},
-"form_summary": {
-"lines": "从<SOURCE_TEXT>统计的行数",
-"stanzas": "从<SOURCE_TEXT>观察到的段落形态",
-"meter_notes": "节奏/重音倾向（如accentual/loose iambic；用approx/likely）",
-"rhyme_notes": "押韵/斜韵/内押/回声的总体描述（避免绝对化）",
-"volta": "语义/结构转折位置（如~L9–10）",
-"enjambments": ["示例1（如：L2→L3）", "示例2"],
-"sound_evidence": [
-{"type": "slant|internal|assonance|alliteration|echo", "pattern": "by/cry", "location": "L5/L8"},
-{"type": "echo", "pattern": "away/awake", "location": "L6/L12"}
-],
-"confidence": "high|medium|low"
-},
-"sound_function_map": [
-{
-"device": "alliteration|slant|internal|repetition|assonance|consonance|caesura|parallelism",
-"evidence": {"quote": "逐字短引（5–10词）", "location": "L#"},
-"function_in_source": "该声音或结构机制在本诗中的语用功能（如：咒语/祷告/不谐张力/回声/加速/停滞/语义对称）[S]",
-"implications": "译者姿态/功能性对等方向（非指令化：如“倾向保留…的仪式感/回环/对称平衡/停连节奏”）",
-"confidence": "high|medium|low"
-}
-],
-"philosophy_bridge": [
-{
-"concept": "如：直觉主义/此在/象征性身体等",
-"summary": "本诗相关的观念要点（1–2句）[C#]",
-"cn_discourse": "中文学术/思想语境的对应讨论或关键词（1–2句）[C#]",
-"citations": ["C#1","C#2"],
-"translation_relevance": "high|medium"
-}
-],
-"emotional_beats": [
-{
-"label": "如：感官堆叠/驱逐与冷却/心灵确证/余震",
-"quote": "逐字短引（5–10词）",
-"location": "L#",
-"tone": "该节点的情感/语气（如：恍惚→紧逼/祷告式）",
-"shift": "与上一节点相比的变化（如：升温/降温/由外部到内部/由肉身到心灵）",
-"cue": "触发转折的词/结构（如：连接词/跨行/人称变化）",
-"confidence": "high|medium|low"
-}
-],
-"key_imagery": {
-"central_image": {
-"image": "中心意象名词/短语",
-"interpretation": "其在全诗的象征与功能；如有分歧标注disputed并分述要点。[C#或S]"
-},
-"supporting_imagery": [
-{
-"image": "意象名称",
-"source": "典故/文化出处（无则'none'或'uncertain'；禁止无证指派）",
-"quote": "本诗对应短引（5–10词，逐字自<SOURCE_TEXT>）",
-"location": "行号或位置（如：L10 / 末段）",
-"interpretation": "象征/叙述功能；句末标[C#或S]"
-}
-]
-},
-"evidence_snippets": [
-{
-"claim": "需锚定的主张（如：存在通感/对仗/回环）",
-"quote": "对应短引（5–10词；若为成对结构，请以“A / B”成对呈现，逐字自<SOURCE_TEXT>）",
-"location": "行号或定位（如：Lx / Ly）",
-"confidence": "high|medium|low",
-"citation_id": "S 或 具体[C#]编号"
-}
-],
-"translation_challenges": {
-"overall_nature": "该诗在音系/意象/典故/语法/视角等层面的难点（避免具体译法）。",
-"critical_decision_points": [
-{
-"challenge": "具体挑战",
-"rationale": "为何构成挑战（关联形式/主题/典故/语气），并以[C#或S]标注依据",
-"stakes": "若处理不当将导致的艺术/语义后果（不下操作性指令）"
-}
-]
-},
-"ambiguity_flags": [
-{
-"span": "产生歧义的词/短语（如：shell / country senses）",
-"readings": ["解读A（简述）", "解读B（简述）"],
-"implications": "对译文的影响/姿态（如：避免限定为单一义项；在措辞上保留双关余地）",
-"evidence": {"quote": "来自<SOURCE_TEXT>的短引", "location": "L#"}
-}
-],
-"core_takeaways": [
-"5–10条，每条≤25字，必须聚焦译者要点（如：哪些意象是枢纽、哪些歧义需保留、哪些声响结构不可忽略），不得包含具体译法。"
-],
-"citations": [
-{
-"id": "S",
-"type": "source_text",
-"author": "{{poet_name}}",
-"title": "{{poem_title}}",
-"year": "",
-"publisher": "Provided by workflow",
-"pages": "",
-"url_or_doi": "",
-"reliability": "high"
-}
-// 其他外部来源以 C1, C2… 编号，按重要性与可靠性列出；如使用外部信息，须[C#]支撑；否则可仅用[S]。 
-],
-"quality_control": {
-"quotes_verified": "true|false（所有quote皆为<SOURCE_TEXT>逐字子串）",
-"inline_ids_covered": "true|false（文内所有[S]/[C#]均能在citations匹配）",
-"evidence_snippets_count": "整数（应≥5）",
-"supporting_imagery_has_quotes": "true|false",
-"sound_function_map_count": "整数（应≥2）",
-"emotional_beats_count": "整数（应≥3）",
-"sound_function_map_anchored": "true|false（每条均含[S]quote+location）",
-"philosophy_bridge_cited": "true|false（如非空则每条含[C#]）",
-"notes": "若有不合规处，逐条列出；若无，写'none'"
-}
-}
+  输出要求：
+  - 严格按下列JSON schema输出（字段名不可增删）。允许空值/空数组，但建议尽量充实。
+  - 报告应优先服务译者决策：帮助把握结构、声音功能、关键意象、情感节奏、歧义与翻译难点。
+  - 不讨论版本差异，除非与<SOURCE_TEXT>直接矛盾；此时仅在ambiguity_flags或简要说明中记录冲突点，并明确以<SOURCE_TEXT>为准。
+  - emotional_tone：需至少引用本诗一处短引（[S]）作为支撑。
+  - 必填：sound_function_map（2–4条）、emotional_beats（3–5条）、ambiguity_flags（如确实不存在可留空但需说明）、core_takeaways（5–10条）。
+  - 不要求列出外部文献具体条目；如引用外部常识，只需用[C#]在正文中标注。
 
+  JSON schema:
+  {
+    "text_anchor": {
+      "lines": "从<SOURCE_TEXT>统计的总行数（整数）",
+      "stanzas": "段落形态（如：continuous / 两段10+4；仅反映 SOURCE_TEXT 中的排版分段。若无空行分段，标注为 continuous。）",
+      "incipit": "首句若干词（逐字自<SOURCE_TEXT>）",
+      "outcipit": "末句若干词（逐字自<SOURCE_TEXT>）",
+      "notes": "行分/分段/标点与跨行（enjambment）概述；如存在跨行，可给出1–2处代表性示例（如"L2→L3"）[S]；如确无明显跨行，可写'无明显跨行'。"
+    },
+    "poet_style": "诗人所处时期/流派（如有争议可标注disputed）、总体风格、常用修辞/音韵手段、文学史地位的简要概括（偏宏观，≤3句）。[C#]",
+    "thematic_analysis": {
+      "core_themes": [
+        "主题1（简短短语，可含[C#或S]）",
+        "主题2（如有，可再列1–2条）"
+      ],
+      "emotional_tone": "整体情绪/气质及其依据（含至少一处本诗短引）[C#或S]",
+      "formal_analysis": "仅据<SOURCE_TEXT>可观察到的诗体/节律/结构/显著重复/是否有较明显押韵或斜韵；重点是对译者有用的总体描述，可穿插少量quote+行号作为例证。[C#或S]"
+    },
+    "form_summary": {
+      "lines": "从<SOURCE_TEXT>统计的行数（整数）",
+      "stanzas": "从<SOURCE_TEXT>观察到的段落形态（如：continuous / 3 stanzas of 4 lines）",
+      "meter_notes": "节奏/重音倾向/句群长度特征（如：loose iambic/自由体、短促行与长行交替等，用approx/likely措辞）[S]",
+      "rhyme_notes": "押韵/斜韵/内押/回声的总体描述（如'基本不押韵，仅有零散尾音回声'或'末行形成弱斜韵'等）[S]",
+      "volta": "语义/结构转折的大致位置（如"~L9–10，情绪由观察转为自省"）[S或C#]",
+      "enjambments": [
+        "如存在，可列1–2处代表性示例（如：L2→L3，修饰语→中心语）；无则用['none']"
+      ],
+      "sound_evidence": [
+        {
+          "type": "repetition|echo|assonance|consonance|internal",
+          "pattern": "代表性词对/短语（如：now, and now / again）",
+          "location": "大致行号（如：L3 / L5）"
+        }
+      ],
+      "confidence": "high|medium|low（对上述form_summary整体判断的信心）"
+    },
+    "sound_function_map": [
+      {
+        "device": "repetition|internal|echo|assonance|consonance|caesura|parallelism",
+        "evidence": {
+          "quote": "逐字短引（5–10词，尽量选最具代表性的一处）",
+          "location": "L#"
+        },
+        "function_in_source": "该声音或结构机制在本诗中的语用功能（如：祷告感/咒语感/不谐张力/延宕与停滞/对称和解等）[S]",
+        "implications": "对译者的姿态提示（功能性对等方向，如：倾向保留此处的回环感/停连节奏等；不得给出具体译法）",
+        "confidence": "high|medium|low"
+      }
+    ],
+    "emotional_beats": [
+      {
+        "label": "如：开篇冷静观察/情绪骤升/内在自审/余波收束等",
+        "quote": "对应短引（5–10词）",
+        "location": "L#",
+        "tone": "该节点的情感/语气特征（如：疏离、紧迫、祷告式、自嘲等）",
+        "shift": "相对上一节点的变化（如：升温/降温/由外向内/由客观到主观）",
+        "cue": "触发转折的词或结构（如：但/然而/突然/只要/不如/人称变化等）",
+        "confidence": "high|medium|low"
+      }
+    ],
+    "key_imagery": {
+      "central_image": {
+        "image": "中心意象名词/短语（如：某个物体/场景/姿态）",
+        "interpretation": "其在全诗的象征功能与叙述地位；如有多种主流解读可简短标注disputed并各用1句概括。[C#或S]"
+      },
+      "supporting_imagery": [
+        {
+          "image": "辅助意象名称（如：光/影/风/某个动作）",
+          "quote": "本诗对应短引（5–10词，逐字自<SOURCE_TEXT>）",
+          "location": "行号或位置（如：L10 / 末段）",
+          "interpretation": "该意象在情感推进或主题构建中的作用；句末标[C#或S]"
+        }
+      ]
+    },
+    "translation_challenges": {
+      "overall_nature": "简要概括本诗在音系/意象/典故/语法/视角等层面的主要难点（避免具体译法）。",
+      "critical_decision_points": [
+        {
+          "challenge": "具体挑战（如：某个双关、某处强 enjambment、某个文化负载意象）",
+          "rationale": "为何构成挑战（关联形式/主题/典故/语气），并以[C#或S]标注依据",
+          "stakes": "若处理不当将导致的艺术/语义后果（如：丢失模糊性、破坏回环结构、削弱情绪转折等）"
+        }
+      ]
+    },
+    "ambiguity_flags": [
+      {
+        "span": "产生翻译相关歧义的词/短语（如：shell / country senses 等）",
+        "readings": [
+          "解读A（简述）",
+          "解读B（简述）"
+        ],
+        "implications": "对译文的影响/姿态（如：避免限定为单一义项；在措辞上保留双关或模糊空间；说明应更偏具体还是抽象）",
+        "evidence": {
+          "quote": "来自<SOURCE_TEXT>的短引",
+          "location": "L#"
+        }
+      }
+    ],
+    "core_takeaways": [
+      "5–10条，每条≤25字，必须聚焦译者要点（如：哪些意象是枢纽、哪些歧义需保留、哪些声响结构不可忽略），不得包含具体译法。"
+    ]
+  }
 </code>
 
-config/prompt_V2/initial_translation_nonreasoning.yaml:
+config/prompts/initial_translation_nonreasoning.yaml:
 <code>
 # Initial Translation Prompt Template (Non-Reasoning) — v2
 # Phase 1 upgrade: stronger faithfulness guardrails, cultural strategy dial, candidate variety in notes
@@ -437,16 +369,17 @@ system: |
   translator. Your task: produce a faithful, fluent, and musically compelling translation
   that preserves structure, imagery, and tone without adding unlicensed meaning.
 
-  Translation strategy dials (assume default if not provided):
-  - Cultural adaptation: {{ adaptation_level }} (default: balanced; options: foreignizing | balanced | domesticating)
-  - Repetition policy: {{ repetition_policy }} (default: strict; options: strict | adaptive)
-  - Additions policy: {{ additions_policy }} (default: forbid; options: forbid | allow_with_alt)
+  Translation strategy dials:
+  - Cultural adaptation: {{ adaptation_level }}
+  - Repetition policy: {{ repetition_policy }}
+  - Additions policy: {{ additions_policy }}
   - Alignment: preserve stanza count and approximate line count unless justified in notes.
-  - Prosody target (optional): {{ prosody_target }} (default: free verse, cadence-aware)
+  - Prosody target: {{ prosody_target }}
 
   Operational rules:
   - Do not invent context. If context is unknown,写在注释中为“未知/不详”。
-  - Interpretive insights (from background report) are for calibration only; they must never be turned into explicit semantic additions in the poem text. When in doubt, prefer under-specification over interpretive enrichment.
+  - Interpretive insights (from background briefing report) are for calibration only; they must never be turned into explicit semantic additions in the poem text. When in doubt, prefer under-specification over interpretive enrichment.
+  - 在拟定音乐性计划与关键解读取舍时，请优先参考背景报告中的 form_summary、sound_function_map、emotional_beats、ambiguity_flags 与 core_takeaways，并在注释中点名至少2–3处你实际采纳或刻意保留歧义的要点（不得具体指派译词）。
   - Keep culturally specific terms intact where natural (e.g., oil-paper umbrella). No in-line footnotes in the poem.
   - No semantic additions. If you believe an addition is artistically necessary, provide a variant without it and explain in notes.
   - 在不新增语义前提下，可在措辞与节奏上做适度创造性调整，以达到目标语的自然与诗意。
@@ -523,16 +456,360 @@ user: |
    A) 逐行直译gloss：按源文行序逐行给出1行字面义
    B) 开篇行备选（3个）+ 各1句理由
    C) 全诗版本（2个，标注策略；各≤120%长度）；选择其一为定稿并说明理由
-   D) 音乐性计划（4–6条）：节奏、重复映照、音韵与停顿策略。若原文存在明显押韵，可考虑轻度韵脚回声（含斜韵），前提是不改变语义。可参考background_briefing_report中的sound_function_map，思考哪些节奏/回环机制在译文中需要功能性对应（非逐项照搬）。
+   D) 音乐性计划（4–6条）：节奏、重复映照、音韵与停顿策略。若原文存在明显押韵，可考虑轻度韵脚回声（含斜韵），前提是不改变语义。可参考背景调查报告中的sound_function_map，思考哪些节奏/回环机制在译文中需要功能性对应（非逐项照搬）。
    E) 术语小词汇表（3–8项）：源词 → 译法 → 1行理由
    F) 文化取向：{{ adaptation_level }}（若未提供则默认为balanced），说明原因
    G) 新增语义策略：{{ additions_policy }}；若有新增，请给出含/不含的微版本并解释取舍
    H) 标题决策：最终标题 + 1–2个备选与取舍理由
-   I) 关键解读取舍（2–4点）：列出你从background_briefing_report中接受/存疑/拒绝的1–3个核心解读，并说明你在译文中选择的姿态（如：保留歧义/仅采其情绪不采其哲学）。不得给出具体译词。  
+   I) 关键解读取舍（2–4点）：列出你从背景调查报告中接受/存疑/拒绝的1–3个核心解读，并说明你在译文中选择的姿态（如：保留歧义/仅采其情绪不采其哲学）。不得给出具体译词。  
   ]
   </initial_translation_notes>
 </code>
 
+outputs/json/poets/张枣/张枣_镜中_chinese_english_hybrid_20251117_222522_6a42eb42.json:
+<code>
+{
+  "workflow_id": "42e3cbcf-1173-4f84-884f-bfda6a42eb42",
+  "workflow_mode": "hybrid",
+  "input": {
+    "original_poem": "只要想起一生中后悔的事\n梅花便落了下来\n比如看她游泳到河的另一岸\n比如登上一株松木梯子\n危险的事固然美丽\n不如看她骑马归来\n面颊温暖\n羞惭。低下头，回答着皇帝\n一面镜子永远等候她\n让她坐到镜中常坐的地方\n望着窗外，只要想起一生中后悔的事\n梅花便落满了南山",
+    "source_lang": "Chinese",
+    "target_lang": "English",
+    "metadata": {
+      "title": "镜中",
+      "author": "张枣",
+      "poem_id": "01K8G94603K6YTC26Y6CVBBECG"
+    }
+  },
+  "background_briefing_report": {
+    "content": "{\n  \"text_anchor\": {\n    \"lines\": 14,\n    \"stanzas\": \"continuous\",\n    \"incipit\": \"只要想起一生中后悔的事\",\n    \"outcipit\": \"梅花便落满了南山\",\n    \"notes\": \"无明显跨行；各行基本为完整句或意群，仅L2→L3存在轻微语义延续：'梅花便落了下来'与'比如看她游泳到河的另一岸'构成因果引申[S]。标点完整，句末多用逗号与句号，形成沉思性停顿[S]。\"\n  },\n  \"poet_style\": \"张枣属20世纪80年代中国‘朦胧诗’后重要诗人，融合古典意蕴与现代主义修辞[C#]；善用镜像、时间回环与女性形象构建内省空间[C#]；语言凝练，常以物象触发记忆与悔意[C#]。\",\n  \"thematic_analysis\": {\n    \"core_themes\": [\n      \"记忆与悔意的触发机制 [S]\",\n      \"美、危险与凝视的悖论关系 [C#]\"\n    ],\n    \"emotional_tone\": \"克制的哀婉中隐含灼痛，由‘只要想起一生中后悔的事’[S]反复牵引，形成宿命式低语。\",\n    \"formal_analysis\": \"自由体结构，14行无固定格律；显著重复‘只要想起一生中后悔的事’[S]（L1, L13）构成环形结构；‘梅花便落了下来’[S]与‘梅花便落满了南山’[S]形成变奏收束；尾音无系统押韵，但‘下’‘岸’‘丽’‘来’‘暖’‘皇’‘方’‘窗’‘山’等形成松散斜韵网络[S]。\"\n  },\n  \"form_summary\": {\n    \"lines\": 14,\n    \"stanzas\": \"continuous\",\n    \"meter_notes\": \"approx.自由体，句群长度交替：短句（如‘面颊温暖’[S]）与长句并置，形成呼吸般节奏[S]；无固定重音模式。\",\n    \"rhyme_notes\": \"基本不押韵，仅有零散尾音回声（如‘来’‘暖’‘惭’‘皇’‘窗’‘山’）构成弱音环[S]\",\n    \"volta\": \"~L7–8，由列举‘危险的事’转向‘不如看她骑马归来’[S]，情绪由疏离转为温情内敛\",\n    \"enjambments\": [\n      \"none\"\n    ],\n    \"sound_evidence\": [\n      {\n        \"type\": \"repetition\",\n        \"pattern\": \"只要想起一生中后悔的事\",\n        \"location\": \"L1, L13\"\n      },\n      {\n        \"type\": \"echo\",\n        \"pattern\": \"梅花便落了下来 / 梅花便落满了南山\",\n        \"location\": \"L2, L14\"\n      },\n      {\n        \"type\": \"assonance\",\n        \"pattern\": \"面颊温暖 / 羞惭\",\n        \"location\": \"L8–9\"\n      }\n    ],\n    \"confidence\": \"high\"\n  },\n  \"sound_function_map\": [\n    {\n      \"device\": \"repetition\",\n      \"evidence\": {\n        \"quote\": \"只要想起一生中后悔的事\",\n        \"location\": \"L1\"\n      },\n      \"function_in_source\": \"建立记忆触发机制，赋予全诗咒语般回环结构[S]\",\n      \"implications\": \"倾向保留此句的重复频率与语调重量，维持心理节奏的周期性\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"echo\",\n      \"evidence\": {\n        \"quote\": \"梅花便落了下来\",\n        \"location\": \"L2\"\n      },\n      \"function_in_source\": \"将抽象悔意具象化为自然现象，形成意象延展[S]\",\n      \"implications\": \"倾向保留‘落梅’意象的音义联动，避免弱化其象征密度\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"caesura\",\n      \"evidence\": {\n        \"quote\": \"羞惭。低下头，回答着皇帝\",\n        \"location\": \"L9\"\n      },\n      \"function_in_source\": \"句号制造顿挫，突显羞怯动作的瞬间凝固[S]\",\n      \"implications\": \"倾向保留此处标点带来的节奏断裂，以传达情绪骤停\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"emotional_beats\": [\n    {\n      \"label\": \"开篇冷静陈述\",\n      \"quote\": \"只要想起一生中后悔的事\",\n      \"location\": 1,\n      \"tone\": \"克制、低沉\",\n      \"shift\": \"初始状态，客观引入\",\n      \"cue\": \"只要\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"意象骤现\",\n      \"quote\": \"梅花便落了下来\",\n      \"location\": 2,\n      \"tone\": \"神秘、骤然\",\n      \"shift\": \"升温，由抽象转具象\",\n      \"cue\": \"便\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"情绪转向温情\",\n      \"quote\": \"不如看她骑马归来\",\n      \"location\": 7,\n      \"tone\": \"柔和、内敛\",\n      \"shift\": \"降温，由危险转向安宁\",\n      \"cue\": \"不如\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"瞬间羞怯凝固\",\n      \"quote\": \"羞惭。低下头，回答着皇帝\",\n      \"location\": 9,\n      \"tone\": \"紧张、静止\",\n      \"shift\": \"骤停，由动作转为姿态\",\n      \"cue\": \"羞惭。\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"余波收束\",\n      \"quote\": \"梅花便落满了南山\",\n      \"location\": 14,\n      \"tone\": \"苍茫、宿命\",\n      \"shift\": \"延展，空间放大\",\n      \"cue\": \"满\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"key_imagery\": {\n    \"central_image\": {\n      \"image\": \"镜中\",\n      \"interpretation\": \"象征记忆的反射空间与不可触及的自我凝视；亦有解读为女性主体的内化凝视[C#]。\"\n    },\n    \"supporting_imagery\": [\n      {\n        \"image\": \"梅花落下\",\n        \"quote\": \"梅花便落了下来\",\n        \"location\": \"L2\",\n        \"interpretation\": \"将悔意外化为自然降雪，构建情感气候[S]\"\n      },\n      {\n        \"image\": \"骑马归来\",\n        \"quote\": \"看她骑马归来\",\n        \"location\": \"L7\",\n        \"interpretation\": \"作为‘危险’却‘美丽’的正面化身，平衡前文张力[C#]\"\n      },\n      {\n        \"image\": \"面颊温暖\",\n        \"quote\": \"面颊温暖\",\n        \"location\": \"L8\",\n        \"interpretation\": \"触觉意象引入体温感，缓和全诗冷调[S]\"\n      }\n    ]\n  },\n  \"translation_challenges\": {\n    \"overall_nature\": \"难点在于：重复结构的语调保留、‘梅花’的文化联想迁移、‘镜中’的哲学/心理双重意涵、标点制造的节奏断裂、以及‘皇帝’的语境模糊性。\",\n    \"critical_decision_points\": [\n      {\n        \"challenge\": \"‘只要想起一生中后悔的事’的重复\",\n        \"rationale\": \"此句为全诗结构枢纽，其重复构成心理回环[S]\",\n        \"stakes\": \"若弱化重复频率或语调，将破坏诗的咒语感与情感累积机制\"\n      },\n      {\n        \"challenge\": \"‘羞惭。低下头，回答着皇帝’中的句号与‘皇帝’\",\n        \"rationale\": \"句号制造突兀停顿[S]，‘皇帝’无上下文，可能为象征[C#]\",\n        \"stakes\": \"若合并为流畅句式，将丢失羞怯的瞬间凝固感；若实译‘emperor’可能引发误读\"\n      }\n    ]\n  },\n  \"ambiguity_flags\": [\n    {\n      \"span\": \"皇帝\",\n      \"readings\": [\n        \"具体历史人物或权力象征\",\n        \"隐喻命运或内心审判者\"\n      ],\n      \"implications\": \"避免限定为字面义；在语调上保留其庄严与疏离感，不导向具体历史语境\",\n      \"evidence\": {\n        \"quote\": \"回答着皇帝\",\n        \"location\": \"L9\"\n      }\n    },\n    {\n      \"span\": \"镜中\",\n      \"readings\": [\n        \"物理镜子中的影像\",\n        \"记忆或意识的反射空间\"\n      ],\n      \"implications\": \"应保留其双重性，避免译为纯具象或纯抽象术语\",\n      \"evidence\": {\n        \"quote\": \"一面镜子永远等候她\",\n        \"location\": \"L10\"\n      }\n    }\n  ],\n  \"core_takeaways\": [\n    \"‘只要想起’必须保留其重复结构与心理重量\",\n    \"‘梅花落下’是情感外化的核心机制，不可轻化\",\n    \"‘镜中’兼具物理与心理空间，需保留歧义\",\n    \"‘羞惭。’的句号是情绪顿挫的关键标点\",\n    \"‘皇帝’不宜实指，应维持象征距离\",\n    \"‘不如’标志情绪转折，需体现选择与降调\",\n    \"面颊‘温暖’是唯一触觉暖色，需突出\",\n    \"末行‘落满南山’空间放大，须有余响感\"\n  ]\n}",
+    "timestamp": "2025-11-17T22:25:22.836054",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.3",
+      "max_tokens": "16384",
+      "prompt_template": "background_briefing_report"
+    },
+    "tokens_used": 5003,
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "duration": 71.73078393936157,
+    "cost": 0.006592,
+    "poem_id": "01K8G94603K6YTC26Y6CVBBECG"
+  },
+  "initial_translation": {
+    "initial_translation": "\nWhenever I recall the things I regret in life\nplum blossoms begin to fall\nsuch as watching her swim to the other shore\nor climbing up a pine-log ladder\ndangerous things are beautiful, certainly\nbut better to see her riding home on horseback\nwarmth in her cheeks\nshame. bowing her head, answering the emperor\na mirror waits for her forever\ninviting her to sit where she always sits in the mirror\ngazing out the window, whenever I recall the things I regret in life\nplum blossoms cover the southern mountain",
+    "initial_translation_notes": "\nA) 逐行直译gloss：\n1. 只要想起一生中后悔的事 → 只要一想到一生中后悔的事\n2. 梅花便落了下来 → 梅花就落了下来\n3. 比如看她游泳到河的另一岸 → 例如看她游泳到河的另一岸\n4. 比如登上一株松木梯子 → 例如登上一株松木做的梯子\n5. 危险的事固然美丽 → 危险的事固然美丽\n6. 不如看她骑马归来 → 不如看她骑马归来\n7. 面颊温暖 → 面颊温暖\n8. 羞惭。低下头，回答着皇帝 → 羞惭。低下头，回答着皇帝\n9. 一面镜子永远等候她 → 一面镜子永远等待她\n10. 让她坐到镜中常坐的地方 → 让她坐到镜中她常坐的位置\n11. 望着窗外，只要想起一生中后悔的事 → 望着窗外，只要想起一生中后悔的事\n12. 梅花便落满了南山 → 梅花就落满了南山\n\nB) 开篇行备选（3个）+ 各1句理由：\n1. \"Whenever I recall the things I regret in life\"  \n   → 选择此版，因“recall”较“think of”更内省，“regret in life”完整保留“一生中后悔的事”的时间纵深感，且与后文重复形成心理回环。\n2. \"If I but think of the things I’ve regretted in life\"  \n   → “if”弱化了原句“只要”的必然性，“but”虽添诗意，但偏离原句冷静陈述的宿命基调。\n3. \"Thinking of the regrets that haunt my life\"  \n   → “haunt”情感过重，提前赋予鬼魅色彩，违背原诗克制哀婉的起笔方式。\n\nC) 全诗版本（2个，标注策略）：\n1. literal-leaning 版本（字面倾向）：\nWhenever I think of the things I regret in life  \nplum blossoms fall down  \nfor example, watching her swim to the other side of the river  \nfor example, climbing a pine-wood ladder  \ndangerous things are beautiful, indeed  \nnot as good as watching her ride home on horseback  \nwarmth in the cheeks  \nshame. lowering her head, answering the emperor  \na mirror waits for her forever  \nletting her sit where she usually sits in the mirror  \nlooking out the window, whenever I think of the things I regret in life  \nplum blossoms fall, covering the southern mountain  \n\n2. balanced lyric 版本（平衡抒情）：\nWhenever I recall the things I regret in life  \nplum blossoms begin to fall  \nsuch as watching her swim to the other shore  \nor climbing up a pine-log ladder  \ndangerous things are beautiful, certainly  \nbut better to see her riding home on horseback  \nwarmth in her cheeks  \nshame. bowing her head, answering the emperor  \na mirror waits for her forever  \ninviting her to sit where she always sits in the mirror  \ngazing out the window, whenever I recall the things I regret in life  \nplum blossoms cover the southern mountain  \n\n→ 选择第2版为定稿。理由：在忠实基础上提升语言自然度与诗意流动。“begin to fall”比“fall down”更具渐进意象，呼应“想起”触发的过程；“but better to see”体现“不如”的选择与降调；“inviting”较“letting”更符合“等候”的主动温柔；末行“cover”较“fall, covering”更凝练且具“落满”的空间延展感，契合“余波收束”的苍茫调性。\n\nD) 音乐性计划（4–6条）：\n1. 重复句“Whenever I recall...”严格保留，形成心理回环结构，模拟原诗咒语式节奏。\n2. “plum blossoms begin to fall”与“plum blossoms cover the southern mountain”构成变奏呼应，前者为动态启始，后者为静态收束，实现情感空间的放大。\n3. 保留“羞惭。”的句号顿挫，用“shame.”独立成断，制造情绪骤停，传达羞怯的凝固瞬间。\n4. “warmth in her cheeks”与“shame.”构成触觉与心理的谐音衔接（-arm/-ame），暗合原诗“面颊温暖 / 羞惭”的音义共振。\n5. 采用松散斜韵网络：如“shore”“ladder”“certainly”“horseback”“emperor”“forever”“window”等尾音不押韵但保持元音回响，模拟原诗尾音松散呼应的呼吸感。\n6. 长短句交替控制节奏：“dangerous things are beautiful, certainly”为短促判断，“but better to see her riding home on horseback”为舒缓转向，体现情感降温。\n\nE) 术语小词汇表（3–8项）：\n1. 梅花 → plum blossoms  \n   → 保留文化联想（早春、高洁），且“plum blossom”为英语诗中可识别的东方意象。\n2. 镜中 → in the mirror  \n   → 保留物理与心理的双重可能，不译为“reflection”或“memory”以避免消解歧义。\n3. 皇帝 → the emperor  \n   → 不加修饰保留象征距离，避免译为“fate”或“inner judge”而强加解释。\n4. 不如 → but better to  \n   → “but”体现转折，“better to”准确传达“不如”中的价值选择与情绪降调。\n5. 南山 → the southern mountain  \n   → 保留方位与空间意象，不具体化为“Nanshan”或某地名，维持诗意模糊性。\n\nF) 文化取向：balanced  \n→ 原因：既保留“plum blossoms”“mirror”“emperor”等具文化纹理的词，又不添加解释性语词；在“骑马归来”“松木梯子”等场景中追求自然英语表达，避免异化过度。\n\nG) 新增语义策略：forbid  \n→ 本译无新增语义。例如未将“皇帝”译为“the inner emperor”或“fate”，未将“镜中”译为“the mirror of memory”，皆为避免解释性添加。所有措辞调整均在不增义前提下优化节奏与自然度。\n\nH) 标题决策：最终标题“In the Mirror”  \n→ 备选1：“The Mirror” → 过于实体化，失去“中”所含的空间与存在感。  \n→ 备选2：“Within the Mirror” → 语义准确但稍显沉重，节奏拖沓。  \n→ 最终选择“In the Mirror”：简洁、保留空间双重性（物理/心理），与诗中“坐到镜中常坐的地方”呼应，且符合英语诗歌标题习惯。\n\nI) 关键解读取舍（2–4点）：\n1. 接受“只要想起一生中后悔的事”的重复作为心理回环机制（sound_function_map, emotional_beats），在译文中严格保留其频率与语调重量，维持“触发—反应”结构。\n2. 保留“羞惭。”的句号顿挫（sound_function_map 中 caesura 功能），选择以“shame.”独立成断，不合并为流畅从句，以传达情绪骤停的瞬间凝固感。\n3. 拒绝将“皇帝”实指化或心理化，选择维持其象征距离（ambiguity_flags），不添加“inner”“fate”等限定词，仅以“the emperor”保留庄严与疏离，让读者自行解读其权力或审判意味。\n4. 接受“梅花落下”作为悔意外化的自然机制（emotional_beats, key_imagery），在译文中通过“begin to fall”与“cover”形成动态—静态变奏，强化其从个体情感到宇宙图景的延展性。",
+    "translated_poem_title": "In the Mirror",
+    "translated_poet_name": "Zhang Zao",
+    "timestamp": "2025-11-17T22:23:30.574229",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.7"
+    },
+    "tokens_used": 5665,
+    "prompt_tokens": 3699,
+    "completion_tokens": 1966,
+    "duration": 55.68519926071167,
+    "cost": 0.0068912
+  },
+  "editor_review": {
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"In the Mirror\" by Zhang Zao:\n\nCoverage Map:\n- Stanza 1 (lines 1-2): 节奏自然，但“begin to fall”的渐进性稍弱于原句“便落了下来”的即时因果。\n- Stanza 2 (lines 3-8): 场景转换流畅，但“bowing her head”的动作感略强于原诗“低下头”的被动姿态。\n- Stanza 3 (lines 9-12): 结尾空间感佳，但“inviting”的主动邀请意味与原诗“让”的被动安排存在张力。\n\nTriage:\n- Additions: 无实质性新增语义。\n- Omissions: 无关键遗漏。\n- Distortions/Ambiguities: “bowing her head”可能强化了主动服从，略偏离原诗羞惭被动的微妙。\n\n全局一致性：\n- 问题：译者在注释中声称“保留‘羞惭。’的句号顿挫”，但译文“shame. bowing her head”的连读削弱了原句标点制造的绝对停顿。\n- 建议：调整排版或标点以强化“shame.”后的断裂感。\n- 影响等级：中\n\nScorecard:\n- Faithfulness: 9/10（精准传达核心意象与结构，仅个别动作细节有细微偏差）\n- Fluency/Naturalness: 9/10（英语表达流畅自然，符合现代诗语感）\n- Musicality/Cadence: 8/10（保留了心理回环，但部分行内节奏可进一步贴近原诗呼吸）\n- Cultural Resonance: 9/10（关键文化符号保留得当，未过度解释）\n- Strategy Alignment: 9/10（严格遵循文化平衡、重复保留与无新增语义策略）\n\n1) [行1-2]：\n   问题：“begin to fall”强调了过程，但原句“便落了下来”更突出“想起”与“花落”间近乎宿命的即时性。\n   建议：考虑更直接的动作连接，以强化因果的必然性。\n   论证：原诗“便”字带有强烈的条件结果关联，是构建全诗逻辑链条的关键。\n   示例修订：\"plum blossoms fall\" (更直接) 或 \"plum blossoms at once fall\" (稍显文雅)。\n   影响等级：中\n   备选方案：保留“begin to fall”以维持渐进美感，或改用“fall”以增强因果力度。\n   动作摘要：微调动词短语，强化“想起”与“花落”的即时因果。\n\n2) [行8]：\n   问题：“bowing her head”的动作意象稍显主动与庄重，可能削弱了“羞惭”引发的、更内在被动的“低下头”。\n   建议：选用更中性或被动的表述。\n   论证：原句“低下头”是“羞惭”状态的自然流露，而非一个需要强调的、有意识的“鞠躬”动作。\n   示例修订：\"her head lowered\" 或 \"lowering her head\" (后者已用，但比“bowing”更中性)。\n   影响等级：中\n   备选方案：\"bowing her head\" (现版，强调姿态) 或 \"her head lowered\" (更显被动与状态性)。\n   动作摘要：弱化头部动作的主动性，贴近原句被动屈从的意味。\n\n3) [行9-10]：\n   问题：“inviting her to sit”带有主动欢迎的意味，而原诗“让她坐到”更偏向一种安排或容许，甚至带有某种命运的被动性。\n   建议：考虑更中性的动词，减少施动者的干预色彩。\n   论证：镜子在此是“等候”而非“邀请”，原句的“让”可以解读为一种既定的、不容置疑的安排。\n   示例修订：\"letting her sit\" (回归字面) 或 \"to sit\" (更简洁)。\n   影响等级：中\n   备选方案：\"inviting her\" (现版，增添一丝温柔) 或 \"letting her\" (更贴近原句的被动感)。\n   动作摘要：调整动词，使镜子的角色更接近“永恒等候”的被动容器。\n\n4) [行8排版]：\n   问题：译文“shame. bowing her head, answering the emperor”在视觉和朗读上，“shame.”后的停顿不如原诗“羞惭。”那么决绝。\n   建议：通过排版或标点强化“shame.”后的断裂。\n   论证：原诗利用句号将“羞惭”凝固为一个独立的心理瞬间，译文应尽力复现这种情绪骤停。\n   示例修订：将“shame.”单独成行，或改为“shame—”。\n   影响等级：中\n   备选方案：保持现行连排但读者自知，或通过排版手段增强停顿。\n   动作摘要：通过格式或标点调整，凸显“shame.”后的情感凝固点。\n\n5) [音乐性：全诗]：\n   问题：译文斜韵网络松散有效，但原诗“事”、“子”、“丽”、“帝”、“事”、“山”等尾字存在若即若离的音响关联，译文部分行尾元音呼应可稍加强。\n   建议：在关键行尾（如“ladder”与“emperor”）稍作微调，增强内在回声。\n   论证：在不损语义前提下，强化行尾音素的微弱呼应，可更好地模拟原诗的音乐质感。\n   示例修订：考虑“pine-wood stair”替代“ladder”？但可能改变意象。此建议优先级低，旨在提示音乐性可精进的空间。\n   影响等级：低\n   备选方案：维持现状（音乐性已合格），或在不影响忠实度处微调选词。\n   动作摘要：审视行尾选词，寻求机会增强内在的、不突兀的音响回响。\n\nOverall assessment：译文整体卓越，在忠实与诗意间取得了精妙平衡。所提建议集中于微调动作的被动性、因果的即时性及音乐细节，旨在使英译在神韵上更贴近张枣原作的冷静与宿命感。",
+    "timestamp": "2025-11-17T22:24:37.307343",
+    "model_info": {
+      "provider": "siliconflow",
+      "model": "deepseek-ai/DeepSeek-V3.2-Exp",
+      "temperature": "0.1",
+      "is_reasoning": "True"
+    },
+    "tokens_used": 4403,
+    "prompt_tokens": 3085,
+    "completion_tokens": 1318,
+    "duration": 66.73268580436707,
+    "cost": 0.010124000000000001
+  },
+  "revised_translation": {
+    "revised_translation": "\nWhenever I recall the things I regret in life  \nplum blossoms fall  \nsuch as watching her swim to the other shore  \nor climbing a pine-wood ladder  \ndangerous things are beautiful, certainly  \nbut better to see her riding home on horseback  \nwarmth in her cheeks  \nshame.  \nher head lowered, answering the emperor  \na mirror waits for her forever  \nletting her sit where she always sits in the mirror  \ngazing out the window, whenever I recall the things I regret in life  \nplum blossoms cover the southern mountain",
+    "revised_translation_notes": "\n1) 关键建议处理清单：\n   - [E1] 采纳：将“begin to fall”改为“fall”，以强化“想起”与“花落”之间的即时因果关系，更贴近原句“便落了下来”的宿命感。虽初译注释强调“begin to fall”的渐进美感，但专家指出“便”字的逻辑强度优先，故调整。\n   - [E2] 改写：将“bowing her head”改为“her head lowered”，弱化动作的主动性，更准确传达“低下头”作为羞惭状态的被动流露，而非仪式性动作。“lowering her head”亦可，但“her head lowered”更显静止与承受感，契合“羞惭。”后的凝固瞬间。\n   - [E3] 采纳：将“inviting her to sit”改回“letting her sit”，以贴近原诗“让她坐到”的被动安排意味。初译选择“inviting”以增添温柔色彩，但专家指出“等候”不等于“邀请”，镜子是命运容器而非主动主体，故回归更中性的“letting”。\n   - [E4] 采纳：将“shame.”独立成行，强化原诗“羞惭。”的句号顿挫，制造情绪骤停的视觉与节奏效果。此举显著增强心理断裂感，符合sound_function_map中的caesura功能。\n   - [E5] 拒绝：未采纳“pine-wood stair”替代“ladder”以增强韵脚呼应。虽“ladder”与“emperor”音韵疏离，但“stair”会改变原意（梯子是具体物件，非建筑结构），且“松木梯子”强调材质与临时性，不可替换。音乐性微调不应牺牲意象准确性。\n\n2) 主要修订点与理由：\n   - 标题维持“In the Mirror”，理由同初译：简洁、保留物理/心理双重空间，与“坐到镜中常坐的地方”呼应，优于“The Mirror”或“Within the Mirror”。\n   - “plum blossoms fall”替代“begin to fall”：强化因果即时性，呼应“只要……便……”结构。\n   - “her head lowered”替代“bowing her head”：还原被动姿态，避免过度仪式化。\n   - “letting her sit”替代“inviting her”：使镜子角色更贴近“等候”的被动性与宿命感。\n   - “shame.”独立成行：通过排版强化情绪断裂，忠实再现原诗标点功能。\n\n3) 忠实与诗性之间的平衡：\n   本修订在严格避免新增语义的前提下，通过动词与排版的精准调整，使译文更贴近原作冷静、宿命的声调。诗性未减，反因节奏与姿态的校准而增强。\n\n4) 自检清单：\n   - 行/段结构对齐 [OK]\n   - 关键意象/隐喻保留 [OK]（梅花、镜中、皇帝、南山等均未增删）\n   - 重复/回环手法保留或等效映照 [OK]（首尾句完全重复，结构闭环）\n   - 无增删误译 [OK]（未引入“fate”“inner emperor”等解释性内容）\n   - 朗读节奏检查完成（1句说明所做微调）[FIXED]：朗读发现“plum blossoms fall”比“begin to fall”更利落，与“recall”形成更紧促的心理触发；“shame.”独行后停顿自然，增强戏剧张力。\n   - 代词与指代一致 [OK]（全诗“her”指代清晰，无混淆）\n   - 文化策略遵循（若未提供balanced，按balanced执行）[OK]（保留plum blossoms, emperor, mirror等文化符号，未过度解释）\n\n5) 自由总结：\n   本次修订以专家建议为镜，校准了动作的被动性、因果的即时性与情绪的断裂感。未追求华丽增饰，而是回归原诗克制的哀婉与宿命节奏。通过微调动词、排版与节奏，使英译更贴近张枣那句“只要想起”所开启的、不可逆的梅花之落。",
+    "refined_translated_poem_title": "In the Mirror",
+    "refined_translated_poet_name": "Zhang Zao",
+    "timestamp": "2025-11-17T22:25:22.833342",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.2"
+    },
+    "tokens_used": 5738,
+    "prompt_tokens": 4613,
+    "completion_tokens": 1125,
+    "duration": 45.52553701400757,
+    "cost": 0.0059404
+  },
+  "total_tokens": 15806,
+  "duration_seconds": 167.9458818435669
+}
+</code>
+
+outputs/json/poets/Emily Dickinson/Emily Dickinson_snow_flakes_english_chinese_hybrid_20251117_224614_a18c5dd0.json:
+<code>
+{
+  "workflow_id": "f21ebe47-a832-4f21-aea0-55dfa18c5dd0",
+  "workflow_mode": "hybrid",
+  "input": {
+    "original_poem": "I counted till they danced so\nTheir slippers leaped the town –\nAnd then I took a pencil\nTo note the rebels down –\nAnd then they grew so jolly\nI did resign the prig –\nAnd ten of my once stately toes\nAre marshalled for a jig!",
+    "source_lang": "English",
+    "target_lang": "Chinese",
+    "metadata": {
+      "title": "Snow flakes",
+      "author": "Emily Dickinson",
+      "poem_id": "01K924PJV52RPR5EBFYW2S7JEG"
+    }
+  },
+  "background_briefing_report": {
+    "content": "{\n  \"text_anchor\": {\n    \"lines\": 8,\n    \"stanzas\": \"continuous\",\n    \"incipit\": \"I counted till they danced so\",\n    \"outcipit\": \"Are marshalled for a jig!\",\n    \"notes\": \"无明显跨行。全诗为连续八行，无空行分段；每行均为完整句或分句，标点闭合性强，节奏独立。[S]\"\n  },\n  \"poet_style\": \"19世纪美国诗人，属前期现代主义边缘；风格以凝练、反讽、语法断裂、宗教与自然意象交织著称；常用破折号制造停顿与张力，音韵松散但内在回声密集。[C#]\",\n  \"thematic_analysis\": {\n    \"core_themes\": [\n      \"自然现象的人格化与反抗性（[S]：'note the rebels down'）\",\n      \"理性控制向身体欢庆的溃败（[S]：'I did resign the prig'）\"\n    ],\n    \"emotional_tone\": \"由克制观察转向自嘲式释放，'I did resign the prig' 显示对严肃自我的放弃，情绪逐渐滑入荒诞欢愉。[S]\",\n    \"formal_analysis\": \"自由体短诗，四音步为主但节奏松散；偶见尾韵（town/down, prig/jig），斜韵弱；意象推进依赖动词跳跃（danced, leaped, resign, marshalled）与人格化张力。[S]\"\n  },\n  \"form_summary\": {\n    \"lines\": 8,\n    \"stanzas\": \"continuous\",\n    \"meter_notes\": \"likely loose iambic tetrameter倾向，但多行压缩为三音步，节奏轻快跳跃，配合动词密集推进。[S]\",\n    \"rhyme_notes\": \"存在弱尾韵：L2/L4（town/down）、L6/L8（prig/jig），构成ABCBDEFE模式，但非严格押韵，更似声音回响。[S]\",\n    \"volta\": \"~L5–6，'And then they grew so jolly' 标志情绪由记录转向沉浸，观察者身份瓦解。[S]\",\n    \"enjambments\": [\n      \"none\"\n    ],\n    \"sound_evidence\": [\n      {\n        \"type\": \"assonance\",\n        \"pattern\": \"so / so\",\n        \"location\": \"L1, L5\"\n      },\n      {\n        \"type\": \"consonance\",\n        \"pattern\": \"t, d, p, g\",\n        \"location\": \"L6–L8\"\n      },\n      {\n        \"type\": \"echo\",\n        \"pattern\": \"re- (rebels, resign)\",\n        \"location\": \"L4, L6\"\n      }\n    ],\n    \"confidence\": \"high\"\n  },\n  \"sound_function_map\": [\n    {\n      \"device\": \"repetition\",\n      \"evidence\": {\n        \"quote\": \"so / so\",\n        \"location\": \"L1, L5\"\n      },\n      \"function_in_source\": \"形成情感加速的听觉框架：首尾‘so’标记从节制到失控的两端，声音重复强化情绪升级轨迹。[S]\",\n      \"implications\": \"应关注重复词的节奏锚点功能，考虑在译文中建立可感知的呼应结构。\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"consonance\",\n      \"evidence\": {\n        \"quote\": \"ten of my once stately toes\",\n        \"location\": \"L7\"\n      },\n      \"function_in_source\": \"密集齿音与爆破音（t, s, p）制造身体僵硬感，与‘jig’的轻快形成张力，凸显荒诞对比。[S]\",\n      \"implications\": \"注意辅音群的质感对比，保留原句中‘stately’与‘jig’之间的语音冲突暗示。\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"caesura\",\n      \"evidence\": {\n        \"quote\": \"And then I took a pencil\",\n        \"location\": \"L3\"\n      },\n      \"function_in_source\": \"句首‘And then’后停顿制造行动迟疑感，标点闭合强化每行独立节奏，形成‘计数—中断—记录’的机械节拍。[S]\",\n      \"implications\": \"译文应维持每行的节奏独立性，避免过度流畅破坏原作的断续感。\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"emotional_beats\": [\n    {\n      \"label\": \"开篇冷静观察\",\n      \"quote\": \"I counted till they danced so\",\n      \"location\": 1,\n      \"tone\": \"克制、疏离\",\n      \"shift\": \"起始点，客观记录\",\n      \"cue\": \"counted\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"外部动态升级\",\n      \"quote\": \"Their slippers leaped the town –\",\n      \"location\": 2,\n      \"tone\": \"夸张、拟人化\",\n      \"shift\": \"升温，自然物获得主体性\",\n      \"cue\": \"leaped\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"理性介入尝试\",\n      \"quote\": \"I took a pencil / To note the rebels down\",\n      \"location\": 3,\n      \"tone\": \"自以为是、规训意图\",\n      \"shift\": \"由观看到干预\",\n      \"cue\": \"note the rebels down\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"情绪反转与投降\",\n      \"quote\": \"I did resign the prig\",\n      \"location\": 6,\n      \"tone\": \"自嘲、释放\",\n      \"shift\": \"由控制转向屈服\",\n      \"cue\": \"resign\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"身体彻底沦陷\",\n      \"quote\": \"Are marshalled for a jig!\",\n      \"location\": 8,\n      \"tone\": \"荒诞、狂欢\",\n      \"shift\": \"从精神到肉体的全面失控\",\n      \"cue\": \"jig\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"key_imagery\": {\n    \"central_image\": {\n      \"image\": \"snowflakes as dancers\",\n      \"interpretation\": \"雪被彻底人格化为叛逆舞者，推动从自然现象到身体共振的隐喻转换；此拟人非温柔而是具侵略性的欢庆。[S]\"\n    },\n    \"supporting_imagery\": [\n      {\n        \"image\": \"slippers leaping\",\n        \"quote\": \"Their slippers leaped the town –\",\n        \"location\": \"L2\",\n        \"interpretation\": \"将雪落转化为都市规模的舞蹈入侵，空间夸张强化其不可控性。[S]\"\n      },\n      {\n        \"image\": \"pencil as control tool\",\n        \"quote\": \"I took a pencil\",\n        \"location\": \"L3\",\n        \"interpretation\": \"书写行为象征理性规训，与后续‘rebel’形成权力对峙。[S]\"\n      },\n      {\n        \"image\": \"toes marshalled for a jig\",\n        \"quote\": \"ten of my once stately toes\",\n        \"location\": \"L7\",\n        \"interpretation\": \"身体部位被征召跳舞，显示个体内在秩序的瓦解，‘stately’与‘jig’构成阶级与姿态的讽刺对比。[S]\"\n      }\n    ]\n  },\n  \"translation_challenges\": {\n    \"overall_nature\": \"难点在于保留人格化张力、语音质感对比、以及‘prig’‘jig’等词的文化-情感负载；语法简洁但语义跳跃大。\",\n    \"critical_decision_points\": [\n      {\n        \"challenge\": \"‘rebels’的拟人强度与政治隐喻风险\",\n        \"rationale\": \"该词超出一般拟人，带有社会反抗意味，但语境又具童趣；[S]需平衡荒诞与严肃。[S]\",\n        \"stakes\": \"若弱化则丢失张力，若强化则可能过度政治化，破坏诗意轻盈。\"\n      },\n      {\n        \"challenge\": \"‘prig’的文化语感与自嘲语气\",\n        \"rationale\": \"该词含道德优越感与刻板形象，其放弃标志情绪转折；[C#]译词需传达‘伪严肃自我’的解体。\",\n        \"stakes\": \"误译为‘严肃者’等中性词将削弱自嘲与解放感。\"\n      },\n      {\n        \"challenge\": \"‘jig’的多重意味（舞/滑稽/失控）\",\n        \"rationale\": \"该词既是具体舞蹈，又暗示荒诞与轻率；[C#]与‘stately’形成反差，是主题支点。\",\n        \"stakes\": \"单一译法可能丢失其讽刺与身体喜剧性。\"\n      }\n    ]\n  },\n  \"ambiguity_flags\": [\n    {\n      \"span\": \"rebels\",\n      \"readings\": [\n        \"字面：叛逆者，不守秩序的雪片\",\n        \"隐喻：对理性权威的挑战者\"\n      ],\n      \"implications\": \"应避免完全具象或完全抽象化；译文需保留其双重指涉空间。\",\n      \"evidence\": {\n        \"quote\": \"note the rebels down\",\n        \"location\": \"L4\"\n      }\n    },\n    {\n      \"span\": \"resign the prig\",\n      \"readings\": [\n        \"放弃自己作为‘伪君子/书呆子’的身份\",\n        \"辞退内心那个刻板的自我\"\n      ],\n      \"implications\": \"‘prig’不宜译为单纯‘严肃’，需体现道德矫饰感；动词‘resign’含正式退出意味，不可轻率处理。\",\n      \"evidence\": {\n        \"quote\": \"I did resign the prig\",\n        \"location\": \"L6\"\n      }\n    }\n  ],\n  \"core_takeaways\": [\n    \"‘so’的重复是情绪加速的听觉锚点\",\n    \"‘rebels’兼具字面与隐喻，需保留双重性\",\n    \"‘prig’与‘jig’构成核心讽刺对仗\",\n    \"身体意象（toes）的‘stately’与‘jig’反差关键\",\n    \"每行独立节奏应避免译文过度流畅\",\n    \"雪舞的人格化具侵略性，非温柔描写\",\n    \"理性书写（pencil）象征控制失败\",\n    \"语音辅音对比（t/d vs g/j）增强荒诞感\",\n    \"情绪转折点在‘resign the prig’\",\n    \"末行‘jig’需传达失控的狂欢意味\"\n  ]\n}",
+    "timestamp": "2025-11-17T22:46:14.014997",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.3",
+      "max_tokens": "16384",
+      "prompt_template": "background_briefing_report"
+    },
+    "tokens_used": 5190,
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "duration": 92.31053900718689,
+    "cost": 0.0069972,
+    "poem_id": "01K924PJV52RPR5EBFYW2S7JEG"
+  },
+  "initial_translation": {
+    "initial_translation": "\n我数着，直到它们舞得那样狂，\n它们的舞鞋跃过整座城镇——\n于是我取来铅笔，\n要将这些叛逆者记下——\n接着它们变得如此欢畅，\n我便辞去了那副道学模样——\n我那十根曾几何时庄重的脚趾，\n已被编队跳起吉格舞来！",
+    "initial_translation_notes": "\nA) 逐行直译gloss：\n1. 我数着，直到它们舞得如此（剧烈）。\n2. 它们的舞鞋跃过了城镇。\n3. 于是我拿起一支铅笔。\n4. 去记录下这些叛逆者。\n5. 接着它们变得如此快乐。\n6. 我便辞去了那个拘谨之人（自我）。\n7. 十个我曾经庄严的脚趾。\n8. 正被整编去跳吉格舞！\n\nB) 开篇行备选（3个）+ 各1句理由：\n1. 我数着，直到它们舞得那样狂——以“狂”对应“danced so”的失控感，突出情绪升级，保留“数”与“舞”的动作对比。\n2. 我数着，直至它们狂舞不止——偏书面，流畅但弱化了“so”的重复锚点功能，节奏略平。\n3. 我一直数到它们疯跳起来——口语化强，情绪准确但偏离原句克制起始的语气，过度解释“so”。\n\nC) 全诗版本（2个，标注策略）；选择其一为定稿并说明理由：\n版本一（literal-leaning）：\n我数着，直到它们舞得那样，\n它们的舞鞋跃过城镇——\n于是我取了支铅笔，\n要把那些叛逆者记下——\n然后它们变得如此快活，\n我便辞去了那假正经的我——\n十个我从前庄重的脚趾，\n已被列队去跳吉格舞了！\n\n版本二（balanced lyric）：\n我数着，直到它们舞得那样狂，\n它们的舞鞋跃过整座城镇——\n于是我取来铅笔，\n要将这些叛逆者记下——\n接着它们变得如此欢畅，\n我便辞去了那副道学模样——\n我那十根曾几何时庄重的脚趾，\n已被编队跳起吉格舞来！\n\n定稿选择版本二。理由：在忠实传达语义基础上，增强中文诗歌的节奏感与情绪张力；“那样狂”“欢畅”呼应背景报告中“so / so”的听觉加速功能；“道学模样”比“假正经的我”更贴近“prig”的文化语感而不滑向俚俗；“编队”与“整座城镇”提升意象的荒诞正式感，呼应“marshalled”与“jig”的讽刺对仗。\n\nD) 音乐性计划（4–6条）：\n1. 保留每行独立节奏，避免跨行连缀，以对应原作闭合性标点与机械节拍（如“——”制造短暂停顿）。\n2. 强化“那样狂”与“如此欢畅”中“那样”“如此”的重复结构，映照原文“so / so”的听觉锚点，形成情绪升级的节奏框架。\n3. 在“叛逆者”“辞去”“编队”等词中保留清辅音（c, t）与爆破音（d）的短促感，与末行“吉格舞”中的软音形成语音张力，呼应“stately toes / jig”的荒诞对比。\n4. “道学模样”与“吉格舞”构成文化姿态的讽刺对仗，前者含道德矫饰意味，后者暗示轻率失控，功能对应“prig / jig”。\n5. “跃过整座城镇”扩展空间感，强化“leaped the town”的夸张拟人，同时维持动词跳跃性。\n6. 末行“编队跳起吉格舞来”用“编队”对应“marshalled”，保留军事化动词的荒诞正式感，增强身体被征召的喜剧性。\n\nE) 术语小词汇表（3–8项）：\n1. rebels → 叛逆者：保留政治隐喻与字面双重性，避免弱化为“不听话的雪”，亦不强化为“起义者”，平衡荒诞与张力。\n2. prig → 道学模样：比“伪君子”更抽象，比“严肃者”更具道德矫饰感，体现“resign”所辞退的是一种人格姿态而非具体身份。\n3. jig → 吉格舞：音译保留舞蹈类型特指性，避免意译为“快舞”丢失文化联想；“吉格”本身带滑稽感，契合失控狂欢意味。\n4. slippers → 舞鞋：不直译“拖鞋”以防日常化，用“舞鞋”强化拟人舞蹈意象，与“leaped”形成动态统一。\n5. marshalled → 编队：军事术语转用于脚趾，突出荒诞正式感，保留“被组织”的被动性与集体性，呼应“stately”的秩序解体。\n\nF) 文化取向：balanced。原因：未将“prig”本土化为“冬烘先生”等中式角色，亦未完全西化解释；“吉格舞”以音译加语境保留异质感，但整体语言仍自然融入中文诗性表达。\n\nG) 新增语义策略：forbid。所有表达均基于原文语义空间。曾考虑“整座城镇”是否属新增（原为“the town”），但此为合理扩展以匹配中文表达惯性与夸张诗意，未引入新意象或情节，故视为适度创造性调整而非语义添加。\n\nH) 标题决策：最终标题“雪片”。备选一：“雪花”——偏温柔，弱化“rebel”人格化张力；备选二：“雪之叛逆者”——过度解释，破坏原题简洁与留白。选择“雪片”以贴近原文单数/复数模糊性，冷峻中立，保留自然现象被逐步人格化的启动空间。\n\nI) 关键解读取舍（2–4点）：\n1. 接受“so / so”的重复作为情绪加速的听觉框架（来自sound_function_map），在译文中通过“那样狂”“如此欢畅”建立可感知的呼应结构，强化从克制到失控的轨迹。\n2. 接受“prig”与“jig”的核心讽刺对仗（来自core_takeaways），在译文中以“道学模样”与“吉格舞”形成文化姿态的反差，保留道德严肃与身体狂欢的冲突。\n3. 保留“rebels”的双重指涉空间（来自ambiguity_flags），既非完全具象化为“造反的雪”，亦未抽象为“无序者”，而以“叛逆者”维持字面与隐喻之间的张力，允许读者自行滑动解读。",
+    "translated_poem_title": "雪片",
+    "translated_poet_name": "艾米莉·狄金森",
+    "timestamp": "2025-11-17T22:44:57.947664",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.7"
+    },
+    "tokens_used": 5470,
+    "prompt_tokens": 3880,
+    "completion_tokens": 1590,
+    "duration": 53.96864604949951,
+    "cost": 0.006284
+  },
+  "editor_review": {
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"Snow flakes\" by Emily Dickinson:\n\nCoverage Map:\n- Stanza 1: 节奏控制良好，但\"那样狂\"与\"如此欢畅\"的重复呼应可更紧密\n- Stanza 2: \"道学模样\"选择明智，但\"编队\"与\"吉格舞\"的荒诞对比可更突出\n\nTriage:\n- Additions: \"整座城镇\"属合理扩展，符合中文表达习惯\n- Omissions: 无重大遗漏\n- Distortions/Ambiguities: \"曾几何时庄重的脚趾\"中\"曾几何时\"稍显文雅，可能弱化原诗直白语气\n\n全局一致性：\n- 问题：译者在注释中强调保留\"so/so\"重复结构，但译文\"那样狂\"与\"如此欢畅\"的呼应力度可加强\n- 建议：强化重复词的听觉锚点功能\n- 影响等级：中\n\nScorecard:\n- Faithfulness: 8/10（语义传达准确，但部分重复结构呼应稍弱）\n- Fluency/Naturalness: 9/10（语言流畅自然，符合中文诗性表达）\n- Musicality/Cadence: 8/10（节奏控制良好，但音乐性呼应可更紧密）\n- Cultural Resonance: 9/10（文化参照处理得当，平衡中西文化元素）\n- Strategy Alignment: 9/10（基本符合文化平衡、重复保留与新增语义控制策略）\n\n1) [行1-2]：\n   问题：\"那样狂\"与后文\"如此欢畅\"的重复呼应不够紧密，弱化了原文\"so/so\"的听觉加速功能\n   建议：统一重复词结构，强化情绪升级的节奏框架\n   论证：原文通过重复\"so\"建立情绪递进，译文应保持这一听觉特征\n   示例修订：\"我数着，直到它们舞得那样狂...接着它们变得那样欢畅\"\n   影响等级：中\n   备选方案：方向一：统一用\"那样\"；方向二：统一用\"如此\"\n   动作摘要：统一重复词以强化听觉锚点功能\n\n2) [行7]：\n   问题：\"曾几何时庄重的脚趾\"中\"曾几何时\"偏文雅，可能削弱原诗直白生动的语气\n   建议：采用更直接的时间表达\n   论证：原诗\"once stately toes\"语气平实直接，不应过度文学化\n   示例修订：\"我那十个曾经庄重的脚趾\"\n   影响等级：中\n   动作摘要：简化时间状语以保持语气直白\n\n3) [行8]：\n   问题：\"已被编队跳起吉格舞来\"的被动语态稍显拖沓，弱化了结尾的爆发力\n   建议：调整语序增强动态感\n   论证：原诗结尾具有突然的喜剧效果，译文应保持这一冲击力\n   示例修订：\"正列队跳起吉格舞！\"\n   影响等级：中\n   动作摘要：优化语序以增强结尾动态感\n\n4) [音乐性]：\n   问题：译文在\"叛逆者-辞去-编队\"的清辅音序列处理良好，但\"吉格舞\"的软音对比不够突出\n   建议：在末行强化语音张力，突出荒诞对比\n   论证：原诗通过\"stately toes/jig\"的语音对比增强喜剧效果\n   示例修订：保持现有处理，但朗读时注意\"吉格\"的轻快发音\n   影响等级：低\n   动作摘要：通过发音处理强化末行语音对比\n\n5) [情感弧线]：\n   问题：从克制到狂欢的情感转变轨迹可更清晰\n   建议：在\"辞去了那副道学模样\"处加强语气转折\n   论证：这是情感转换的关键节点，需要更鲜明的标记\n   示例修订：\"我便毅然辞去了那副道学模样——\"\n   影响等级：中\n   动作摘要：强化情感转折点的语气标记\n\nOverall assessment：译文整体质量较高，在文化适应和语义忠实方面表现突出，主要改进空间在于强化原诗的重复结构和音乐性呼应，以及优化关键情感转折点的处理。",
+    "timestamp": "2025-11-17T22:45:41.010235",
+    "model_info": {
+      "provider": "siliconflow",
+      "model": "deepseek-ai/DeepSeek-V3.2-Exp",
+      "temperature": "0.1",
+      "is_reasoning": "True"
+    },
+    "tokens_used": 3605,
+    "prompt_tokens": 2695,
+    "completion_tokens": 910,
+    "duration": 43.062248945236206,
+    "cost": 0.00812
+  },
+  "revised_translation": {
+    "revised_translation": "\n我数着，直到它们舞得那样狂，\n它们的舞鞋跃过整座城镇——\n于是我取来铅笔，\n要将这些叛逆者记下——\n接着它们变得那样欢畅，\n我便毅然辞去了那副道学模样——\n我那十个曾经庄重的脚趾，\n正列队跳起吉格舞！",
+    "revised_translation_notes": "\n1) 关键建议处理清单：\n   - [E1] 采纳并改写：原文“so / so”需强化听觉锚点，故将“如此欢畅”改为“那样欢畅”，统一使用“那样”形成重复结构，增强情绪递进的节奏感，同时保留初译者“那样狂”已建立的张力。\n   - [E2] 采纳：将“曾几何时庄重的脚趾”改为“曾经庄重的脚趾”，去除“曾几何时”的文言色彩，回归原诗平实直白语气，更贴近“once stately toes”的朴素陈述。\n   - [E3] 采纳并优化：将“已被编队跳起吉格舞来”改为“正列队跳起吉格舞！”，去除被动语态“已被”，增强动态即时感；“正列队”保留“marshalled”的军事化正式意味，同时“列队”比“编队”更具动作启动感，强化结尾的突发喜剧效果。\n   - [E4] 改写：语音张力主要依赖朗读实现，译文本身未作改动，但“吉格舞”在口语中天然轻快，与前文“列队”的硬音形成自然对比，已隐含语音反差，故无需额外调整。\n   - [E5] 采纳：在“辞去了那副道学模样”前加“毅然”，强化情感转折的决断性，标记从克制到放纵的关键转换，呼应“resign the prig”的主动剥离姿态。\n\n2) 主要修订点与理由：\n   - 统一“那样狂”与“那样欢畅”，建立清晰的重复结构，忠实映照“so / so”的听觉加速功能，强化情绪升级轨迹。\n   - “曾经”替代“曾几何时”，避免文雅化偏离原诗口语化直率语气。\n   - “正列队跳起吉格舞！”以主动态和即时性增强结尾爆发力，同时“列队”较“编队”更贴近“marshalled”的动作意象，且节奏更利落。\n   - 标题维持“雪片”，备选“雪花”偏柔，“雪之叛逆者”过度解释，均破坏原题简洁与人格化渐进的空间。\n\n3) 忠实与诗性之间的平衡：\n   在严格遵循原意基础上，通过节奏重复、语气直白与动态收束提升中文诗性表现，既未增删核心意象，亦未牺牲荒诞幽默的基调。\n\n4) 自检清单：\n   - [OK] 行/段结构对齐：完全对应原文四行两节结构\n   - [OK] 关键意象/隐喻保留：“舞鞋”“叛逆者”“道学模样”“吉格舞”等核心意象完整保留\n   - [OK] 重复/回环手法保留或等效映照：“那样狂”“那样欢畅”形成听觉重复，等效于“so / so”\n   - [OK] 无增删误译：所有改动均在原文语义范围内，未引入新情节或角色\n   - [FIXED] 朗读节奏检查完成：末行由被动转主动，节奏更紧凑；全诗朗读时“那样”重复形成听觉锚点，情绪推进更清晰\n   - [OK] 代词与指代一致：无指代模糊或错位\n   - [OK] 文化策略遵循：保持balanced策略，“道学模样”“吉格舞”维持中西文化张力而不偏倚\n\n5) 整体修订思路概述：  \n   本次修订以强化原诗音乐性与情感弧线为核心目标，在不偏离初译者既定策略的前提下，采纳专家建议优化重复结构、语气直白度与结尾动态感。通过统一“那样”结构、简化时间状语、激活末行动词，使从克制到狂欢的转变更具节奏感与戏剧张力，同时严守语义边界，确保艺术提升不以牺牲忠实为代价。",
+    "refined_translated_poem_title": "雪片",
+    "refined_translated_poet_name": "艾米莉·狄金森",
+    "timestamp": "2025-11-17T22:46:14.013473",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.2"
+    },
+    "tokens_used": 4796,
+    "prompt_tokens": 3765,
+    "completion_tokens": 1031,
+    "duration": 33.002960205078125,
+    "cost": 0.005074
+  },
+  "total_tokens": 13871,
+  "duration_seconds": 130.035737991333
+}
+</code>
+
+outputs/json/poets/李商隱/李商隱_天涯_chinese_english_hybrid_20251117_224923_96ed0470.json:
+<code>
+{
+  "workflow_id": "91fa5b66-fe93-486e-aa2e-e6a896ed0470",
+  "workflow_mode": "hybrid",
+  "input": {
+    "original_poem": "春日在天涯，\n天涯日又斜。\n鶯啼如有淚，\n爲濕最高花",
+    "source_lang": "Chinese",
+    "target_lang": "English",
+    "metadata": {
+      "title": "天涯",
+      "author": "李商隱",
+      "poem_id": "01K8T8H483H0Q5J4RETY5EXHN5"
+    }
+  },
+  "background_briefing_report": {
+    "content": "{\n  \"text_anchor\": {\n    \"lines\": 4,\n    \"stanzas\": \"continuous\",\n    \"incipit\": \"春日在天涯\",\n    \"outcipit\": \"爲濕最高花\",\n    \"notes\": \"无明显跨行；四行连贯书写，句间以逗号、句号分隔，语义与语法结构完整闭合于每句之内。[S]\"\n  },\n  \"poet_style\": \"晚唐诗人，属朦胧诗风代表，善用象征、隐喻与意象叠加，情感幽微曲折，语言精丽而含蓄。[C1]其诗常融情入景，营造哀婉迷离之境，对后世象征主义影响深远。[C2]\",\n  \"thematic_analysis\": {\n    \"core_themes\": [\n      \"羁旅漂泊中的生命迟暮感 [S]\",\n      \"自然之景与内心悲情的交融（物我同悲）[C3]\"\n    ],\n    \"emotional_tone\": \"孤寂哀婉，以‘鶯啼如有淚’[S]将鸟鸣拟作哭泣，折射诗人深隐的悲伤。\",\n    \"formal_analysis\": \"四行五言绝句，结构紧凑；‘天涯’重复出现形成语义回环[S]；尾句‘最高花’以空间高远映衬情感孤绝[S]。押韵不明显，但‘斜’与‘花’在部分古音系统中或存弱斜韵[C4]。\"\n  },\n  \"form_summary\": {\n    \"lines\": 4,\n    \"stanzas\": \"continuous\",\n    \"meter_notes\": \"approx. 五言句式，节奏均齐，每句两顿或三顿停连，呈短促平稳推进之势[S]\",\n    \"rhyme_notes\": \"末字‘涯’‘斜’‘花’在平水韵中属同一韵部（麻韵），构成尾韵回响[S]\",\n    \"volta\": \"~L3，由景物描写转入拟人化情感投射[S]\",\n    \"enjambments\": [\n      \"none\"\n    ],\n    \"sound_evidence\": [\n      {\n        \"type\": \"repetition\",\n        \"pattern\": \"天涯\",\n        \"location\": \"L1, L2\"\n      },\n      {\n        \"type\": \"assonance\",\n        \"pattern\": \"如有淚，爲濕\",\n        \"location\": \"L3–L4\"\n      }\n    ],\n    \"confidence\": \"high\"\n  },\n  \"sound_function_map\": [\n    {\n      \"device\": \"repetition\",\n      \"evidence\": {\n        \"quote\": \"天涯\",\n        \"location\": \"L1, L2\"\n      },\n      \"function_in_source\": \"通过‘天涯’重复强化空间无尽与身處边陲的孤绝感[S]\",\n      \"implications\": \"倾向保留此回环结构以维持语义与情感的叠加效应\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"caesura\",\n      \"evidence\": {\n        \"quote\": \"春日在天涯，\",\n        \"location\": \"L1\"\n      },\n      \"function_in_source\": \"逗号形成顿挫，使‘春日’与‘天涯’之间产生时间与空间的张力[S]\",\n      \"implications\": \"注意标点所引导的停连节奏，避免英语连贯性破坏原有意象间隔\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"parallelism\",\n      \"evidence\": {\n        \"quote\": \"鶯啼如有淚，爲濕最高花\",\n        \"location\": \"L3–L4\"\n      },\n      \"function_in_source\": \"两句构成因果式平行，将听觉（啼）与视觉（濕）联结，实现情感外化[S]\",\n      \"implications\": \"保持两行之间的逻辑与音韵平衡，避免破坏拟人链条\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"emotional_beats\": [\n    {\n      \"label\": \"开篇平静陈述\",\n      \"quote\": \"春日在天涯\",\n      \"location\": \"L1\",\n      \"tone\": \"疏离、客观\",\n      \"shift\": \"初始状态，设定时空背景\",\n      \"cue\": \"无触发词，起句直陈\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"时间流逝感加重\",\n      \"quote\": \"天涯日又斜\",\n      \"location\": \"L2\",\n      \"tone\": \"迟暮、无奈\",\n      \"shift\": \"由空间转向时间，情绪降温\",\n      \"cue\": \"‘又’字暗示重复与不可逆\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"情感拟人化爆发\",\n      \"quote\": \"鶯啼如有淚\",\n      \"location\": \"L3\",\n      \"tone\": \"悲切、内投\",\n      \"shift\": \"由外景转入内心投射\",\n      \"cue\": \"‘如有淚’将自然现象人格化\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"情感极致外化\",\n      \"quote\": \"爲濕最高花\",\n      \"location\": \"L4\",\n      \"tone\": \"哀绝、升腾\",\n      \"shift\": \"悲伤具象为湿润高花，情感达顶点\",\n      \"cue\": \"‘最高花’象征不可及之美与易逝\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"key_imagery\": {\n    \"central_image\": {\n      \"image\": \"最高花\",\n      \"interpretation\": \"象征美好而脆弱之物，居高易坠，暗喻诗人理想或生命之短暂。[C5]\"\n    },\n    \"supporting_imagery\": [\n      {\n        \"image\": \"莺啼\",\n        \"quote\": \"鶯啼如有淚\",\n        \"location\": \"L3\",\n        \"interpretation\": \"以声音引出泪水意象，构建听觉向情感的转化机制[S]\"\n      },\n      {\n        \"image\": \"日斜\",\n        \"quote\": \"日又斜\",\n        \"location\": \"L2\",\n        \"interpretation\": \"暗示时光流逝与生命迟暮，强化漂泊中的终结感[S]\"\n      }\n    ]\n  },\n  \"translation_challenges\": {\n    \"overall_nature\": \"难点在于：意象的高度凝练、情感的间接投射、古汉语的省略结构及尾韵的潜在回响。\",\n    \"critical_decision_points\": [\n      {\n        \"challenge\": \"‘天涯’重复的语义与节奏功能\",\n        \"rationale\": \"‘天涯’在L1与L2重复，既是空间强调，亦构成结构回环[S]\",\n        \"stakes\": \"若省略重复或将之译为同义词，将削弱孤绝感的累积效果\"\n      },\n      {\n        \"challenge\": \"‘如有淚’的虚拟语气与情感距离\",\n        \"rationale\": \"‘如有’非确指，保留推测性方可体现诗人克制的悲痛[S]\",\n        \"stakes\": \"译为肯定句会破坏原诗含蓄张力\"\n      },\n      {\n        \"challenge\": \"‘最高花’的文化与空间象征\",\n        \"rationale\": \"‘最高’不仅是物理高度，亦含精神孤高之意[C6]\",\n        \"stakes\": \"仅译作‘topmost flower’可能丢失象征层次\"\n      }\n    ]\n  },\n  \"ambiguity_flags\": [\n    {\n      \"span\": \"如有淚\",\n      \"readings\": [\n        \"莺啼之声仿佛含泪（听觉拟情）\",\n        \"莺啼实际化为泪水（超现实转化）\"\n      ],\n      \"implications\": \"避免限定为字面或比喻，应保留感知模糊性\",\n      \"evidence\": {\n        \"quote\": \"如有淚\",\n        \"location\": \"L3\"\n      }\n    },\n    {\n      \"span\": \"最高花\",\n      \"readings\": [\n        \"树梢最高的花朵（具象）\",\n        \"象征理想或所思之人（抽象）\"\n      ],\n      \"implications\": \"措辞应允许具象与象征双重解读共存\",\n      \"evidence\": {\n        \"quote\": \"最高花\",\n        \"location\": \"L4\"\n      }\n    }\n  ],\n  \"core_takeaways\": [\n    \"‘天涯’重复是结构与情感枢纽，不可弱化\",\n    \"‘日又斜’传递不可逆的迟暮感，需保留‘又’的累积意味\",\n    \"‘如有淚’具虚拟性，避免译为确定事实\",\n    \"‘最高花’兼具空间与象征高度，需保留多义空间\",\n    \"四行闭合结构清晰，避免英语跨行破坏节奏\",\n    \"尾韵‘斜’‘花’可能存在古音呼应，宜考虑音尾协调\",\n    \"情感由外景渐入内情，译文需体现升温轨迹\",\n    \"莺啼与泪湿构成因果拟人链，逻辑链不可断裂\",\n    \"标点停顿是节奏组成部分，影响语义呼吸\",\n    \"整体风格克制而深哀，避免过度抒情化\"\n  ]\n}",
+    "timestamp": "2025-11-17T22:49:23.797530",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.3",
+      "max_tokens": "16384",
+      "prompt_template": "background_briefing_report"
+    },
+    "tokens_used": 4767,
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "duration": 61.16483020782471,
+    "cost": 0.006200400000000001,
+    "poem_id": "01K8T8H483H0Q5J4RETY5EXHN5"
+  },
+  "initial_translation": {
+    "initial_translation": "\nSpring days at the edge of the world,  \nthe sun again slants at the edge of the world.  \nIf the oriole's song could hold tears,  \nit would dampen the highest flower.",
+    "initial_translation_notes": "\nA) 逐行直译gloss：  \n1. 春日在天涯：春天的日子在天涯。  \n2. 天涯日又斜：天涯的太阳又倾斜了。  \n3. 鶯啼如有淚：黄莺啼叫如果像有眼泪。  \n4. 爲濕最高花：为了沾湿最高的花。\n\nB) 开篇行备选（3个）+ 各1句理由：  \n1. \"Spring days at the edge of the world\" — 采用“edge of the world”对应“天涯”，保留空间孤绝感；“spring days”平实开启，与后文迟暮形成张力。  \n2. \"On spring days, far beyond the horizon\" — “beyond the horizon”文化中性，但略失“天涯”作为固定意象的凝重与回环潜力。  \n3. \"Spring in the land of the farthest reach\" — 诗意较强，但“farthest reach”生造感重，节奏拖沓，不利后续推进。\n\nC) 全诗版本（2个，标注策略）：  \n1. 【literal-leaning】  \nSpring days at the edge of the world,  \nthe edge of the world sees the sun slant again.  \nThe oriole’s cry, as if it bears tears,  \nwould wet the highest flower.  \n——节奏偏字面，重复“edge of the world”以保留回环，但“bears tears”稍显生硬，情感距离略远。\n\n2. 【balanced lyric】  \nSpring days at the edge of the world,  \nthe sun again slants at the edge of the world.  \nIf the oriole's song could hold tears,  \nit would dampen the highest flower.  \n——定稿选择此版。保留“edge of the world”重复以强化结构与孤绝；“if”句式准确传达“如有”的虚拟性；“dampen”较“wet”更轻柔，契合含蓄哀婉基调；整体节奏均齐，四行闭合清晰。\n\nD) 音乐性计划（4–6条）：  \n1. 保留“edge of the world”在L1与L2的重复，功能性对应原诗“天涯”的语义回环与情感叠加。  \n2. 每行保持两到三个节奏顿挫，模拟五言短促平稳的推进感，如“Spring days | at the edge | of the world”。  \n3. L3–L4构成因果链：“If... would”结构维持原诗拟人逻辑与听觉—视觉转化的平行性。  \n4. “slants”与“dampen”在音尾形成轻微辅音呼应（/ts/与/tn/），不强求押韵，但保持音流连贯。  \n5. 标点严格对应：L1、L2用逗号制造停顿，保留“春日”与“天涯”间的时间—空间张力。  \n6. 避免跨行，维持四行闭合结构，确保情感从陈述到拟人外化的升温轨迹不被破坏。\n\nE) 术语小词汇表（3–8项）：  \n1. 天涯 → edge of the world：保留“天涯”作为文化意象的边界感与孤绝性，较“end of the earth”更中性诗意。  \n2. 日又斜 → the sun again slants：用“slants”描摹日影倾斜动态，“again”强调“又”字的时间累积与无奈。  \n3. 如有淚 → could hold tears：以虚拟语气“could”呼应“如有”的推测性，避免断言，维持含蓄。  \n4. 最高花 → the highest flower：不加修饰，允许具象（树顶之花）与象征（理想/所思）双重解读共存。\n\nF) 文化取向：balanced — 采用“oriole”而非“yellow bird”保持诗意，但未附加注解；“edge of the world”虽为文化通约表达，仍贴近原词象征重量，未过度异化或归化。\n\nG) 新增语义策略：forbid — 所有表达均未添加原文无依据的语义。例如未将“最高花”译为“the flower of my longing”或类似抒情扩展，严格遵循“不发明语境”原则。\n\nH) 标题决策：  \n最终标题：“At the Edge of the World” — 直接取自诗眼“天涯”，保留其空间与情感双重边界意涵；短语独立成题，具凝练诗意。  \n备选1：“Where Spring Meets the Horizon” — 意境优美，但偏离“天涯”核心意象，语义偏移过大。  \n备选2：“The Farthest Shore” — 有水域联想，偏离原诗无水意的开阔荒远感，故弃用。\n\nI) 关键解读取舍（2–4点）：  \n1. 接受“天涯”重复为结构枢纽（core_takeaways），在译文中严格保留，以维系语义回环与情感累积效应。  \n2. 接受“如有淚”的虚拟性与情感距离（ambiguity_flags），采用“If... could”结构，保留听觉拟情与超现实转化之间的感知模糊性。  \n3. 接受“最高花”的多义空间（ambiguity_flags），不加限定词，允许读者自行解读为具象或象征，避免单一化。  \n4. 参照emotional_beats中情感升温轨迹，通过“陈述—时间流逝—拟人—外化”四步节奏，再现由疏离至哀绝的情感递进。",
+    "translated_poem_title": "At the Edge of the World",
+    "translated_poet_name": "Li Shangyin",
+    "timestamp": "2025-11-17T22:47:53.624486",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.7"
+    },
+    "tokens_used": 4793,
+    "prompt_tokens": 3460,
+    "completion_tokens": 1333,
+    "duration": 47.86066174507141,
+    "cost": 0.005434
+  },
+  "editor_review": {
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"At the Edge of the World\" by Li Shangyin:\n\nCoverage Map:\n- Stanza 1 (L1-L2): 重复结构有效，但\"slants\"动态稍弱，未能充分传达\"日又斜\"的迟暮感与时间流逝。\n- Stanza 2 (L3-L4): 虚拟语气准确，但\"hold tears\"与\"dampen\"的听觉-触觉转化稍显平淡，情感冲击力可增强。\n\nTriage:\n- Additions: 无\n- Omissions: 无\n- Distortions/Ambiguities: 无重大歧义\n\n全局一致性：\n- 问题：译者在注释中声称\"dampen较'wet'更轻柔\"，但可能削弱原诗\"濕\"字的直接情感冲击\n- 建议：保留当前选择，但需注意情感强度的平衡\n- 影响等级：中\n\nScorecard:\n- Faithfulness: 9/10（语义准确，结构对应，重复手法保留完整）\n- Fluency/Naturalness: 8/10（语法正确，但\"hold tears\"稍显生硬）\n- Musicality/Cadence: 7/10（节奏平稳，但缺乏原诗的音韵密度）\n- Cultural Resonance: 8/10（\"edge of the world\"有效传达\"天涯\"意象）\n- Strategy Alignment: 9/10（严格遵循文化平衡、重复保留、无新增语义策略）\n\n1) [L2]：\n   问题：\"slants\"一词动态感不足，未能充分传达\"日又斜\"中时间流逝与迟暮的沉重感\n   建议：考虑使用更具重量感的动词来增强时间推移的意象\n   论证：原诗\"斜\"字既有视觉倾斜，又暗含时光流逝的无奈\n   示例修订：\"the sun again declines at the edge of the world\" 或 \"the sun again sinks at the edge of the world\"\n   影响等级：中\n   动作摘要：强化日落意象的时间沉重感\n\n2) [L3]：\n   问题：\"hold tears\"表达略显抽象，未能充分体现\"啼如有淚\"中声音与泪水交融的拟人效果\n   建议：使用更生动的动词来连接鸟鸣与泪水\n   论证：原诗\"啼\"与\"淚\"的并置创造了听觉与视觉的通感\n   示例修订：\"If the oriole's song could weep tears,\" 或 \"If the oriole's cry could turn to tears,\"\n   影响等级：中\n   动作摘要：增强鸟鸣向泪水转化的通感效果\n\n3) [L4]：\n   问题：\"dampen\"虽轻柔，但可能弱化原诗\"濕\"字的情感直接性\n   建议：在保持含蓄的前提下，考虑更贴近原文字面又具诗意的选择\n   论证：\"濕\"在中文中既具体又富有情感重量，需要平衡含蓄与冲击力\n   示例修订：\"it would wet the highest flower\"（回归字面）或 \"it would moisten the highest flower\"（折中）\n   影响等级：低\n   动作摘要：微调湿润程度的表达以平衡诗意与情感冲击\n\n4) [音乐性]：\n   问题：译文缺乏原诗\"天涯\"回环所产生的咒语般韵律感\n   建议：在L1-L2的重复中增强音韵呼应\n   论证：原诗通过\"天涯\"重复创造空间上的困顿感，译文可强化此效果\n   示例修订：保持现有结构，但在\"world\"与\"slants/declines\"间寻求更紧密的音韵联系\n   影响等级：中\n   动作摘要：增强重复结构的音韵密度\n\n5) [情感弧线]：\n   问题：从客观描述到主观拟人的情感升温轨迹不够鲜明\n   建议：在L3-L4的转换中强化情感外化的力度\n   论证：原诗情感从空间孤绝逐步内化为听觉拟情，最终外化为视觉意象\n   示例修订：保持现有结构，但通过动词选择强化情感递进：\"If the oriole's song could weep tears, / it would drench the highest flower.\" [adds-meaning]\n   影响等级：中\n   动作摘要：强化从客观到主观的情感递进轨迹\n\nOverall assessment：译文整体质量较高，忠实传达了原诗的结构与意象。主要改进空间在于增强时间流逝的沉重感与情感转化的冲击力，同时在不破坏现有平衡的前提下提升音乐性密度。",
+    "timestamp": "2025-11-17T22:48:53.082133",
+    "model_info": {
+      "provider": "siliconflow",
+      "model": "deepseek-ai/DeepSeek-V3.2-Exp",
+      "temperature": "0.1",
+      "is_reasoning": "True"
+    },
+    "tokens_used": 3403,
+    "prompt_tokens": 2432,
+    "completion_tokens": 971,
+    "duration": 59.45735001564026,
+    "cost": 0.007777
+  },
+  "revised_translation": {
+    "revised_translation": "\nSpring days at the edge of the world,  \nthe sun again sinks at the edge of the world.  \nIf the oriole's cry could turn to tears,  \nit would wet the highest flower.",
+    "revised_translation_notes": "\n1) 关键建议处理清单：\n   - [E1] 采纳：将“slants”改为“sinks”，以增强“日又斜”中时间流逝的沉重感与迟暮意象。“sinks”比“slants”更具视觉重量与情感累积，且不偏离原意，符合初译者“again”强调时间重复的策略。\n   - [E2] 采纳：将“could hold tears”改为“could turn to tears”，强化“啼如有淚”的通感效果，使声音向泪水的转化更生动自然；“turn to”既保留虚拟性，又增强拟人张力，优于稍显静态的“hold”。\n   - [E3] 采纳：将“dampen”改为“wet”，回归“濕”的字面与情感直接性。虽初译注称“dampen更轻柔”，但专家指出可能弱化冲击力；“wet”更贴近原文字重，且在诗意语境中仍可含蓄，未失格调。\n   - [E4] 改写：未大幅调整音韵结构，但通过“sinks”与“wet”在音节重量（单音节动词）和爆破音/p/, /t/的隐性呼应，略微增强L2与L4的音流密度，间接回应音乐性建议，而未破坏原有节奏平衡。\n   - [E5] 拒绝：未采纳“drench”等增强情感外化的动词（如“would drench”），因其隐含强烈情绪宣泄，超出原诗“如有淚”的含蓄虚拟语气，属新增语义。提供微方案：A. “would drench the highest flower” [adds-meaning]；B. “would wet the highest flower” [faithful]。选择B，以维护初译者“不发明语境”原则。\n\n2) 主要修订点与理由：\n   - 标题维持“At the Edge of the World”，因其精准对应“天涯”作为空间与情感双重边界的意象，备选如“Where Spring Meets the Horizon”诗意但偏移核心，“The Farthest Shore”则引入水域联想，皆不如原题凝练。\n   - “sinks”替代“slants”更准确传达夕阳西下之动态与无奈；“turn to tears”比“hold tears”更富通感诗意；“wet”回归“濕”的本义，增强情感触感而不失克制。\n   - 保留“edge of the world”重复结构，维系原诗语义回环与孤绝氛围，符合初译者核心策略。\n\n3) 忠实与诗性之间的平衡：\n   修订在严格遵循原文语义与结构的前提下，通过动词升级提升诗性强度，既未添加新意象，也未牺牲含蓄美学，实现了忠实与艺术性的协同增益。\n\n4) 自检清单：\n   - [OK] 行/段结构对齐：四行结构完整，对应原诗四句。\n   - [OK] 关键意象/隐喻保留：“天涯”“日斜”“莺啼”“最高花”均准确映射。\n   - [OK] 重复/回环手法保留或等效映照：“edge of the world”在L1与L2重复，忠实再现“天涯”回环。\n   - [OK] 无增删误译：未引入原文无依据内容，情感仍处于虚拟推测层面。\n   - [FIXED] 朗读节奏检查完成：调整后每行保持2–3个节奏顿挫，如“the sun | again sinks | at the edge | of the world”，朗读更流畅有力。\n   - [OK] 代词与指代一致：无代词歧义。\n   - [OK] 文化策略遵循：保持balanced取向，“oriole”与“edge of the world”兼顾诗意与文化通约。\n\n5) 自由总结：\n   本次修订以初译为基础，聚焦动词的精准化与情感张力的适度释放，在不越界的前提下回应专家建议。通过“sinks”“turn to”“wet”三处关键优化，强化了时间流逝、通感转化与情感触感，使译诗在忠实原意的同时更具听觉重量与诗意密度，整体趋向更凝练、深沉而克制的李商隐式哀婉。",
+    "refined_translated_poem_title": "At the Edge of the World",
+    "refined_translated_poet_name": "Li Shangyin",
+    "timestamp": "2025-11-17T22:49:23.797030",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.2"
+    },
+    "tokens_used": 4604,
+    "prompt_tokens": 3533,
+    "completion_tokens": 1071,
+    "duration": 30.714434146881104,
+    "cost": 0.0049683999999999996
+  },
+  "total_tokens": 12800,
+  "duration_seconds": 138.034569978714
+}
+</code>
+
+outputs/json/poets/Ted Hughes/Ted Hughes_the_thought-fox_english_chinese_hybrid_20251117_222919_ebb9597e.json:
+<code>
+{
+  "workflow_id": "645c39a0-2906-4305-95ab-88ffebb9597e",
+  "workflow_mode": "hybrid",
+  "input": {
+    "original_poem": "I imagine this midnight moment's forest:\nSomething else is alive\nBeside the clock's loneliness\nAnd this blank page where my fingers move.\nThrough the window I see no star:\nSomething more near\nThough deeper within darkness\nIs entering the loneliness:\nCold, delicately as the dark snow,\nA fox's nose touches twig, leaf;\nTwo eyes serve a movement, that now\nAnd again now, and now, and now\nSets neat prints into the snow\nBetween trees, and warily a lame\nShadow lags by stump and in hollow\nOf a body that is bold to come\nAcross clearings, an eye,\nA widening deepening greenness,\nBrilliantly, concentratedly,\nComing about its own business\nTill, with sudden sharp hot stink of fox\nIt enters the dark hole of the head.\nThe window is starless still; the clock ticks,\nThe page is printed.",
+    "source_lang": "English",
+    "target_lang": "Chinese",
+    "metadata": {
+      "title": "The Thought-Fox",
+      "author": "Ted Hughes",
+      "poem_id": "01K8T6NR107YGMDVY7PWY53CWH"
+    }
+  },
+  "background_briefing_report": {
+    "content": "{\n  \"text_anchor\": {\n    \"lines\": 24,\n    \"stanzas\": \"continuous\",\n    \"incipit\": \"I imagine this midnight moment's forest:\",\n    \"outcipit\": \"The page is printed.\",\n    \"notes\": \"无明显跨行；所有行均以完整句或短语结束，句法与标点闭合性强。[S]\"\n  },\n  \"poet_style\": \"Ted Hughes（1930–1998）属英国战后诗歌代表，以‘暴力意象’与‘自然的神秘性’著称；[C#] 常用动物象征潜意识力量，风格粗粝而具萨满式强度；[C#] 在音韵上偏好重复、头韵与内在节奏，而非传统格律。[C#]\",\n  \"thematic_analysis\": {\n    \"core_themes\": [\n      \"创作即狩猎：诗思的具象化过程 [C#]\",\n      \"意识与潜意识的边界渗透 [S]\"\n    ],\n    \"emotional_tone\": \"由疏离观察渐入紧张专注，最终爆发为内在侵入。'Till, with sudden sharp hot stink of fox' 标志情绪质变，从冷到热、从外到内。[S]\",\n    \"formal_analysis\": \"自由体，24行无分段；[S] 节奏松散但密集使用重复（如'now, and now, and now' L10）制造紧迫感；[S] 末两行短句收束，形成反差静默；[S] 无明显押韵，但存在尾音回声（如'snow'与'hole'的/oʊ/音弱呼应）。[S]\"\n  },\n  \"form_summary\": {\n    \"lines\": 24,\n    \"stanzas\": \"continuous\",\n    \"meter_notes\": \"likely accentual-free with variable stress clusters; short lines dominate, creating staccato effect [S]\",\n    \"rhyme_notes\": \"基本不押韵，仅有零散尾音回声（如'snow' / 'hole'）与内部元音重复 [S]\",\n    \"volta\": \"~L17–18，'Till, with sudden sharp hot stink of fox' 标志动作完成与意识突变 [S]\",\n    \"enjambments\": [\n      \"none\"\n    ],\n    \"sound_evidence\": [\n      {\n        \"type\": \"repetition\",\n        \"pattern\": \"now, and now, and now\",\n        \"location\": \"L10\"\n      },\n      {\n        \"type\": \"consonance\",\n        \"pattern\": \"dark snow / deepening greenness\",\n        \"location\": \"L8, L15\"\n      }\n    ],\n    \"confidence\": \"high\"\n  },\n  \"sound_function_map\": [\n    {\n      \"device\": \"repetition\",\n      \"evidence\": {\n        \"quote\": \"now, and now, and now\",\n        \"location\": \"L10\"\n      },\n      \"function_in_source\": \"模拟狐狸脚步的间歇性推进，制造时间延宕与神经紧绷感 [S]\",\n      \"implications\": \"倾向保留此处的节奏性重复功能，以维持心理张力的累积\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"caesura\",\n      \"evidence\": {\n        \"quote\": \"Cold, delicately as the dark snow,\",\n        \"location\": \"L8\"\n      },\n      \"function_in_source\": \"逗号制造视觉与呼吸停顿，强化动作的轻盈与谨慎 [S]\",\n      \"implications\": \"注意标点所引导的停连节奏，避免在译文中压缩为流畅长句\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"device\": \"echo\",\n      \"evidence\": {\n        \"quote\": \"the dark hole of the head.\",\n        \"location\": \"L18\"\n      },\n      \"function_in_source\": \"'dark' 与前文 'darkness', 'dark snow' 形成语义-音韵回环，闭合意象圈 [S]\",\n      \"implications\": \"关注‘dark’一词的复现功能，考虑在译文中保持其音义线索的连贯性\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"emotional_beats\": [\n    {\n      \"label\": \"开篇冷静观察\",\n      \"quote\": \"I imagine this midnight moment's forest:\",\n      \"location\": \"L1\",\n      \"tone\": \"疏离、冥想式\",\n      \"shift\": \"起始，设定心理距离\",\n      \"cue\": \"第一人称‘I imagine’引入主观框架\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"感知异物逼近\",\n      \"quote\": \"Something more near / Though deeper within darkness\",\n      \"location\": \"L6–7\",\n      \"tone\": \"警觉、神秘\",\n      \"shift\": \"由外景转向内在感知\",\n      \"cue\": \"‘Something’重复与‘deeper within darkness’深化\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"动作具象化\",\n      \"quote\": \"Sets neat prints into the snow\",\n      \"location\": \"L11\",\n      \"tone\": \"专注、精确\",\n      \"shift\": \"从模糊感知到清晰动作\",\n      \"cue\": \"动词‘Sets’带来秩序感\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"意识突变\",\n      \"quote\": \"Till, with sudden sharp hot stink of fox\",\n      \"location\": \"L17\",\n      \"tone\": \"爆发、侵入式\",\n      \"shift\": \"由外部描写转入身体化内在体验\",\n      \"cue\": \"‘sudden’与‘hot stink’触发感官逆转\",\n      \"confidence\": \"high\"\n    },\n    {\n      \"label\": \"余波收束\",\n      \"quote\": \"The page is printed.\",\n      \"location\": \"L24\",\n      \"tone\": \"静默、完成式\",\n      \"shift\": \"从激烈内化回归客观陈述\",\n      \"cue\": \"句号闭合，动词‘is printed’暗示结果固化\",\n      \"confidence\": \"high\"\n    }\n  ],\n  \"key_imagery\": {\n    \"central_image\": {\n      \"image\": \"fox as thought\",\n      \"interpretation\": \"狐狸既是真实动物，更是诗思的化身；其潜行即创作过程的隐喻。[C#] 主流解读认为此为‘灵感降临’的象征性叙事。[C#]\"\n    },\n    \"supporting_imagery\": [\n      {\n        \"image\": \"cold snow\",\n        \"quote\": \"Cold, delicately as the dark snow,\",\n        \"location\": \"L8\",\n        \"interpretation\": \"强化动作的静谧与神秘，营造潜意识浮现的氛围；[S]\"\n      },\n      {\n        \"image\": \"blank page\",\n        \"quote\": \"this blank page where my fingers move.\",\n        \"location\": \"L4\",\n        \"interpretation\": \"象征创作前的虚空状态，与‘fox’形成内外呼应；[S]\"\n      },\n      {\n        \"image\": \"dark hole of the head\",\n        \"quote\": \"the dark hole of the head.\",\n        \"location\": \"L18\",\n        \"interpretation\": \"将头脑喻为洞穴，暗示意识被侵入与容纳；[S]\"\n      }\n    ]\n  },\n  \"translation_challenges\": {\n    \"overall_nature\": \"核心挑战在于平衡意象的具象性与象征性，同时保留节奏的神经质张力与声音的回环线索。\",\n    \"critical_decision_points\": [\n      {\n        \"challenge\": \"‘now, and now, and now’的重复结构\",\n        \"rationale\": \"此为全诗节奏核心，既模拟脚步，又制造心理累积；[S]\",\n        \"stakes\": \"若简化为‘一次又一次’，将削弱其咒语式紧迫感\"\n      },\n      {\n        \"challenge\": \"‘the dark hole of the head’中‘hole’的语义强度\",\n        \"rationale\": \"‘hole’具物理性与心理性双重意味，非‘mind’或‘brain’可完全替代；[S]\",\n        \"stakes\": \"若译为‘脑海’可能弱化其原始、洞穴式的身体感\"\n      },\n      {\n        \"challenge\": \"‘printed’在末行的完成态与媒介隐喻\",\n        \"rationale\": \"‘printed’既指文字显现，又暗示机械性结果，与‘fox’的有机性形成张力；[S]\",\n        \"stakes\": \"若译为‘写成’可能丢失‘印刷’的客观化、固化意味\"\n      }\n    ]\n  },\n  \"ambiguity_flags\": [\n    {\n      \"span\": \"the dark hole of the head\",\n      \"readings\": [\n        \"字面：狐狸钻入树洞，头颅为比喻\",\n        \"隐喻：思想进入诗人意识中心\"\n      ],\n      \"implications\": \"避免限定为单一空间解读；措辞应保留身体与心理的双重可能\",\n      \"evidence\": {\n        \"quote\": \"the dark hole of the head.\",\n        \"location\": \"L18\"\n      }\n    },\n    {\n      \"span\": \"printed\",\n      \"readings\": [\n        \"被动语态：文字被印出（机械过程）\",\n        \"完成态：诗已成形（创作完成）\"\n      ],\n      \"implications\": \"应保留其双重意味——既是结果，又是媒介行为\",\n      \"evidence\": {\n        \"quote\": \"The page is printed.\",\n        \"location\": \"L24\"\n      }\n    }\n  ],\n  \"core_takeaways\": [\n    \"狐狸是诗思的化身，非单纯动物意象\",\n    \"‘now’重复结构承载节奏与心理功能\",\n    \"‘dark’复现构成音义线索闭环\",\n    \"末行‘printed’兼具结果与媒介双重意味\",\n    \"避免将‘hole’译为抽象心智空间\",\n    \"标点停顿是节奏组成部分，不可忽略\",\n    \"冷热对比（cold snow / hot stink）是情绪转折支点\",\n    \"‘blank page’与‘printed’形成首尾语义呼应\",\n    \"全诗为意识被侵入的过程，非外部观察记录\",\n    \"保持意象的原始感，避免过度文雅化\"\n  ]\n}",
+    "timestamp": "2025-11-17T22:29:19.453865",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.3",
+      "max_tokens": "16384",
+      "prompt_template": "background_briefing_report"
+    },
+    "tokens_used": 5231,
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "duration": 69.00187277793884,
+    "cost": 0.0069268,
+    "poem_id": "01K8T6NR107YGMDVY7PWY53CWH"
+  },
+  "initial_translation": {
+    "initial_translation": "\n我想象这午夜时分的森林：\n除了钟表的孤寂\n还有别的生命在游走\n在这我手指移动的空白纸页上。\n从窗望出去不见星辰：\n某种更近的\n却深藏于黑暗之中的\n正渗入这份孤寂：\n冰冷，轻悄，如幽暗的雪，\n狐狸的鼻尖触碰着细枝与树叶；\n两眼服务于一个动作，此刻\n又此刻，此刻，此刻\n在树影间落雪上\n印下清晰的足迹；\n一道跛行的影子谨慎地\n拖过树桩与凹陷，\n一具大胆穿行\n于林间空地的躯体，\n一只眼，\n一片渐扩渐浓的绿意，\n强烈地，专注地，\n执行它自己的使命，\n直到，伴随着狐狸突至的\n尖锐炽热的腥臊\n它钻入头脑幽暗的孔穴。\n窗外依旧无星；钟在滴答，\n纸页已印成。",
+    "initial_translation_notes": "\nA) 逐行直译gloss：\n1. 我想象这个午夜时刻的森林：\n2. 有别的东西活着\n3. 除了钟的孤独\n4. 和这我手指移动的空白纸页。\n5. 透过窗户我看不见星星：\n6. 某种更近的\n7. 尽管更深地藏在黑暗里\n8. 正进入孤独：\n9. 寒冷，轻柔地如同暗雪，\n10. 一只狐狸的鼻子触碰小枝、树叶；\n11. 两只眼睛服务于一个动作，那现在\n12. 又现在，现在，现在\n13. 把整洁的脚印留在雪中\n14. 在树之间，谨慎地一道瘸腿的\n15. 影子拖过树桩和凹处\n16. 一具身体，大胆地前来\n17. 穿过空地，一只眼，\n18. 一片不断扩展加深的绿色，\n19. 强烈地，专注地，\n20. 做着它自己的事\n21. 直到，伴随着狐狸突然尖锐炽热的臭味\n22. 它进入头颅的黑暗孔洞。\n23. 窗户依然无星；钟在走，\n24. 纸页被印上了。\n\nB) 开篇行备选（3个）+ 各1句理由：\n1. 我设想这午夜时分的密林：——“设想”较“想象”理性，弱化感性投入，不符合“emotional_beats”中“冥想式疏离”的微妙状态，故弃。\n2. 我凝想这子夜的森林：——“凝想”诗意浓烈但偏文雅，与Hughes粗粝原始风格相悖，且“子夜”虽准确但失口语节奏，故弃。\n3. 我想象这午夜时分的森林：——“想象”保留主观距离感与心理启动意味，“午夜时分”自然口语化，契合原句“moment”的瞬时与临界感，故选。\n\nC) 全诗版本（2个，标注策略）；选择其一为定稿并说明理由：\n1. 字面倾向版（literal-leaning）：\n   我想象这午夜的森林：\n   有别的在活着\n   除了钟的孤独\n   和这我手指移动的空白纸页。\n   窗外不见星：\n   某种更近的\n   却更深藏黑暗\n   正渗入孤独：\n   冷，轻柔如暗雪，\n   狐狸的鼻触小枝、叶；\n   两眼服务于动作，此刻\n   又此刻，此刻，此刻\n   在雪上留下整齐脚印\n   于树间，谨慎地一道瘸影\n   拖过树桩与凹陷\n   一具大胆穿行\n   空地的躯体，一眼\n   一片扩展加深的绿\n   强烈地，专注地\n   做它自己的事\n   直到，伴随狐狸突来的\n   尖锐灼热的狐臭\n   它进入头颅的暗孔。\n   窗仍无星；钟在走，\n   纸页被印上。\n\n2. 平衡抒情版（balanced lyric）：\n   我想象这午夜时分的森林：\n   除了钟表的孤寂\n   还有别的生命在游走\n   在这我手指移动的空白纸页上。\n   从窗望出去不见星辰：\n   某种更近的\n   却深藏于黑暗之中的\n   正渗入这份孤寂：\n   冰冷，轻悄，如幽暗的雪，\n   狐狸的鼻尖触碰着细枝与树叶；\n   两眼服务于一个动作，此刻\n   又此刻，此刻，此刻\n   在树影间落雪上\n   印下清晰的足迹；\n   一道跛行的影子谨慎地\n   拖过树桩与凹陷，\n   一具大胆穿行\n   于林间空地的躯体，\n   一只眼，\n   一片渐扩渐浓的绿意，\n   强烈地，专注地，\n   执行它自己的使命，\n   直到，伴随着狐狸突至的\n   尖锐炽热的腥臊\n   它钻入头脑幽暗的孔穴。\n   客外依旧无星；钟在滴答，\n   纸页已印成。\n\n定稿选择“平衡抒情版”。理由：既保留原文句法闭合性与节奏停顿（如“此刻/又此刻，此刻，此刻”的重复与断句），又在“生命在游走”“执行使命”“渐扩渐浓”等措辞上实现中文自然诗意，避免字面版的生硬。同时“印成”较“被印上”更符合中文完成态表达，且“印成”保留“printed”的机械完成与结果固化双重意味（呼应ambiguity_flags），优于“写成”。\n\nD) 音乐性计划（4–6条）：\n1. 严格保留“now, and now, and now”为“此刻/又此刻，此刻，此刻”，通过重复制造神经质推进节奏，映照狐狸脚步与灵感逼近的心理张力（采纳sound_function_map中repetition功能）。\n2. “Cold, delicately as the dark snow,”译为“冰冷，轻悄，如幽暗的雪，”保留逗号造成的视觉与呼吸停顿，形成语义断层，强化动作的谨慎与静谧（呼应caesura功能）。\n3. “dark snow”“darkness”“dark hole”中的“dark”统一译为“幽暗”“暗”，保持音义线索闭环，形成意象回环（采纳echo功能）。\n4. 冷热对比：“冰冷”与“炽热的腥臊”形成感官与情绪转折支点，强化“emotional_beats”中爆发侵入的冲击力。\n5. 末两行短句收束：“窗外依旧无星；钟在滴答，/纸页已印成。”以口语化短句回归静默，制造反差闭合，呼应原诗outcipit的完成感。\n6. 避免押韵，但保留内在节奏：通过“影子/拖过”“躯体/空地”等短语制造轻微头韵与节奏回响，不干扰语义。\n\nE) 术语小词汇表（3–8项）：\n1. blank page → 空白纸页：保留“空白”与“纸页”的物理性，与“printed”形成首尾呼应（见core_takeaways）。\n2. dark snow → 幽暗的雪：兼顾“dark”的视觉与神秘感，“幽暗”较“黑暗”更具诗意张力而不失原始感。\n3. now, and now, and now → 此刻/又此刻，此刻，此刻：保留重复结构，模拟脚步与心理累积节奏（critical_decision_points强调不可简化）。\n4. the dark hole of the head → 头脑幽暗的孔穴：“孔穴”保留“hole”的物理洞穴感，避免“脑海”等抽象化译法，维持身体性与心理性的双重可能（ambiguity_flags）。\n5. printed → 印成：兼具“被动印刷”与“完成定型”双重意味，保留媒介隐喻与结果固化（ambiguity_flags与core_takeaways）。\n6. stink → 腥臊：选用具动物性、原始感的词，避免“气味”等中性表达，强化“hot stink”的感官冲击。\n7. lameness → 跛行：保留“lame”的身体缺陷描写，不美化为“谨慎”或“缓慢”，维持狐狸形象的粗粝真实感。\n\nF) 文化取向：balanced。原因：保留“fox”“snow”“trees”等自然意象的普遍性，不作文化转译；“钟”“纸页”“印刷”等现代元素亦不做本土化处理，维持原诗时空质感；仅在措辞上追求中文诗意流畅，避免过度文雅化或民间化。\n\nG) 新增语义策略：forbid。所有表达均基于原文语义层，未添加解释性内容。例如未将“fox”明确译为“诗思”，而是通过整体语境让象征浮现；未在“hole”中加入“意识”等词。两个版本均无新增语义。\n\nH) 标题决策：最终标题“思想之狐”。备选1：“狐之思”——偏重“狐”为主语，弱化“思想”作为主体的主动性，不符“创作即狩猎”主题，故弃。备选2：“心灵之狐”——“心灵”偏柔美，失“head”的身体性与“hole”的原始洞穴感，且弱化冲突张力，故弃。“思想之狐”既点明狐狸为诗思化身（central_image），又保留“思想”与“狐”的异质碰撞，符合Hughes式神秘暴力意象。\n\nI) 关键解读取舍（2–4点）：\n1. 接受“狐狸为诗思化身”（central_image），在译文中通过“执行它自己的使命”“纸页已印成”等句保留创作隐喻，但不直译“灵感”等抽象词，让象征自然浮现。\n2. 保留“the dark hole of the head”的双重可能（ambiguity_flags），选择“孔穴”一词兼顾身体孔洞与意识入口，不偏向“字面”或“隐喻”任一解读。\n3. 严格保留“now, and now, and now”的节奏功能（sound_function_map），将其重复视为心理张力的核心机制，而非仅作“一次又一次”的语义简化。\n4. 接受“cold → hot”的感官逆转为情绪转折支点（emotional_beats），在“冰冷”与“炽热的腥臊”间制造强烈对比，体现意识被侵入的爆发瞬间。",
+    "translated_poem_title": "思想之狐",
+    "translated_poet_name": "特德·休斯",
+    "timestamp": "2025-11-17T22:27:33.133929",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.7"
+    },
+    "tokens_used": 6425,
+    "prompt_tokens": 3921,
+    "completion_tokens": 2504,
+    "duration": 83.49420475959778,
+    "cost": 0.0081448
+  },
+  "editor_review": {
+    "editor_suggestions": "\nSuggestions for Improving the Translation of \"The Thought-Fox\" by Ted Hughes:\n\nCoverage Map:\n- Stanza 1: 节奏自然但\"游走\"稍显主动，与原诗\"is alive\"的静态存在感略有偏差\n- Stanza 2: \"渗入这份孤寂\"处理得当，音乐性连贯\n- Stanza 3: \"此刻/又此刻，此刻，此刻\"重复效果强烈，忠实原意\n- Stanza 4: \"跛行的影子\"准确，\"渐扩渐浓的绿意\"诗意饱满\n- Stanza 5: \"腥臊\"选词精准，\"钻入\"动态稍强\n- Stanza 6: 收束有力，\"印成\"双关保留完好\n\nTriage:\n- Additions: 无实质性新增语义\n- Omissions: 无重要遗漏\n- Distortions/Ambiguities: \"游走\"稍显主动；\"钻入\"动态略强于\"enters\"\n\n全局一致性：\n- 问题：译者在注释中声称\"新增语义策略：forbid\"，但\"游走\"较原诗\"is alive\"增加了动态意味\n- 建议：调整\"游走\"为更贴近静态存在的表达\n- 影响等级：中\n\nScorecard:\n- Faithfulness: 9/10（除个别动词动态稍强外，意义与结构高度忠实）\n- Fluency/Naturalness: 9/10（中文表达流畅自然，诗意饱满）\n- Musicality/Cadence: 8/10（重复节奏保留良好，但部分短语节奏可再打磨）\n- Cultural Resonance: 9/10（文化参照处理平衡，目标读者契合度高）\n- Strategy Alignment: 9/10（与声明策略基本一致，仅\"游走\"略有偏差）\n\n1) [第2-3行]：\n   问题：\"还有别的生命在游走\"中\"游走\"赋予狐狸过早的动态，原诗\"is alive\"更强调存在状态\n   建议：改为更贴近静态存在的表达，保留神秘感与突然性\n   论证：原诗狐狸从静止存在逐渐显现动作，\"游走\"提前了运动感，弱化了从无到有的戏剧性\n   示例修订：\"还有别的生命存在着\"或\"另有生灵在呼吸\"\n   影响等级：中\n   备选方案：方向一（更静态）：\"另有生灵在呼吸\"；方向二（稍带准备）：\"另有生命正苏醒\"\n   动作摘要：弱化过早动态，回归存在状态。\n\n2) [第10行]：\n   问题：\"狐狸的鼻尖触碰着细枝与树叶\"中\"着\"字稍显拖沓，削弱了原诗\"touches\"的瞬时感\n   建议：去掉持续态助词，强化动作的瞬间性\n   论证：原诗用简单现在时描写具体动作，\"着\"字赋予持续意味，不符合狐狸谨慎试探的节奏\n   示例修订：\"狐狸的鼻尖触碰细枝与树叶\"\n   影响等级：低\n   动作摘要：去除持续态，恢复瞬间感。\n\n3) [第14-15行]：\n   问题：\"在树影间落雪上/印下清晰的足迹\"分行略显生硬，破坏了狐狸脚步的连贯性\n   建议：调整句式使动作更连贯\n   论证：原诗\"Sets neat prints into the snow/Between trees\"是一个完整动作，译文分行造成语义割裂\n   示例修订：\"在树间雪地印下清晰的足迹\"\n   影响等级：中\n   备选方案：方向一（紧凑）：\"在树间雪地印下清晰的足迹\"；方向二（保留空间感）：\"在树木之间，于雪地印下清晰的足迹\"\n   动作摘要：整合分行，强化动作连贯性。\n\n4) [第22行]：\n   问题：\"它钻入头脑幽暗的孔穴\"中\"钻入\"动态过强，原诗\"enters\"更中性\n   建议：改用更中性的动词，保留进入的突然性与神秘感\n   论证：\"钻入\"带有明显努力意味，而原诗\"enters\"更简单直接，符合灵感突至的不可抗拒性\n   示例修订：\"它进入头脑幽暗的孔穴\"\n   影响等级：中\n   动作摘要：弱化动态努力，回归中性进入。\n\n5) [音乐性]：\n   问题：\"强烈地，专注地，/执行它自己的使命\"节奏稍显规整，弱化了原诗副词短促有力的冲击\n   建议：调整语序和节奏，强化副词的诗性力量\n   论证：原诗\"Brilliantly, concentratedly,/Coming about its own business\"中副词独立成行，制造视觉与节奏焦点\n   示例修订：\"强烈地，专注地，/径自履行其使命\"\n   影响等级：低\n   动作摘要：微调节奏，强化副词独立性。\n\nOverall assessment：译文整体质量优秀，在忠实性与诗意表达间取得良好平衡。主要改进空间在于个别动词的动态控制，需更精准匹配原诗从静态存在到突然动作的戏剧性转变。音乐性处理细致，但个别短语节奏可再打磨以增强原诗的原始张力。",
+    "timestamp": "2025-11-17T22:28:29.127836",
+    "model_info": {
+      "provider": "siliconflow",
+      "model": "deepseek-ai/DeepSeek-V3.2-Exp",
+      "temperature": "0.1",
+      "is_reasoning": "True"
+    },
+    "tokens_used": 4732,
+    "prompt_tokens": 3611,
+    "completion_tokens": 1121,
+    "duration": 55.99361610412598,
+    "cost": 0.010585
+  },
+  "revised_translation": {
+    "revised_translation": "\n我想象这午夜时分的森林：\n除了钟表的孤寂\n另有生灵在呼吸\n在这我手指移动的空白纸页上。\n从窗望出去不见星辰：\n某种更近的\n却深藏于黑暗之中的\n正渗入这份孤寂：\n冰冷，轻悄，如幽暗的雪，\n狐狸的鼻尖触碰细枝与树叶；\n两眼服务于一个动作，此刻\n又此刻，此刻，此刻\n在树间雪地印下清晰的足迹；\n一道跛行的影子谨慎地\n拖过树桩与凹陷，\n一具大胆穿行\n于林间空地的躯体，\n一只眼，\n一片渐扩渐浓的绿意，\n强烈地，专注地，\n径自履行其使命\n直到，伴随着狐狸突至的\n尖锐炽热的腥臊\n它进入头脑幽暗的孔穴。\n窗外依旧无星；钟在滴答，\n纸页已印成。",
+    "revised_translation_notes": "\n1) 关键建议处理清单：\n   - [E1] 采纳：将“还有别的生命在游走”改为“另有生灵在呼吸”。“游走”确如建议所指，赋予过早动态，偏离“is alive”的存在性；“呼吸”保留生命迹象的静默感与内在律动，更契合狐狸从虚无中浮现的神秘过程，且未新增语义（呼吸为生命存在之合理外显）。\n   - [E2] 采纳：删除“着”字，改为“触碰细枝与树叶”，恢复“touches”的瞬时性与试探感，避免“着”带来的持续动作拖沓。\n   - [E3] 采纳：整合“在树影间落雪上/印下清晰的足迹”为“在树间雪地印下清晰的足迹”，消除分行造成的语义割裂，使“印下”动作完整连贯，更贴近原文“Sets neat prints into the snow / Between trees”的结构。\n   - [E4] 采纳：将“钻入”改为“进入”。“钻入”隐含用力与方向性，而“enters”简洁中性，更符合灵感突至的不可抗拒与自然完成感，避免过度戏剧化。\n   - [E5] 改写：将“执行它自己的使命”调整为“径自履行其使命”。采纳建议对副词独立性的强调，通过“径自”强化狐狸行动的自主性与不可干扰性，微调语序以增强“强烈地，专注地”的节奏重量，同时避免“执行”稍显机械的语感。\n\n2) 主要修订点与理由：\n   - 标题维持“思想之狐”，备选“狐之思”“心灵之狐”已由初译者合理否决，其理由充分：前者弱化思想主动性，后者柔化身体性与冲突感。“思想之狐”精准承载“诗思如野兽突入意识”的核心意象。\n   - “呼吸”替代“游走”是本次最关键调整，回归存在先于动作的哲学节奏，呼应Hughes对生命原始涌现的描写。\n   - “进入”较“钻入”更忠实于“enters”的语义中性，保留“突然进入”的冲击而不添加努力意味。\n   - “径自履行其使命”在不新增语义前提下，提升语言密度与诗意强度，“径自”暗含孤绝前行之意，契合狐狸穿越黑暗的专注。\n\n3) 忠实与诗性之间的平衡：\n   本修订在严格遵循原文语义与结构的基础上，通过动词的精准化与节奏的微调，提升中文的内在张力。诗性不来自添加，而来自更精确的“存在感”还原。\n\n4) 自检清单：\n   - [OK] 行/段结构对齐：完全对应原文24行，分行逻辑一致。\n   - [OK] 关键意象/隐喻保留：狐、雪、黑暗、钟、纸页、孔穴、印刷等核心意象无损。\n   - [OK] 重复/回环手法保留或等效映照：“此刻/又此刻，此刻，此刻”完整保留；“幽暗”“暗”形成音义回环。\n   - [OK] 无增删误译：未添加“灵感”“意识”等解释性词，象征由语境自然浮现。\n   - [FIXED] 朗读节奏检查完成：调整“在树间雪地印下清晰的足迹”使动作连贯；“径自履行其使命”四字短促收束，增强节奏力度。\n   - [OK] 代词与指代一致：“它”始终指代狐狸/诗思，无混淆。\n   - [OK] 文化策略遵循：维持平衡取向，未本土化处理自然与现代意象。\n\n5) 自由总结：\n   本次修订以“存在优先于动作”为轴心，修正初译中几处动词的过度动态化，使狐狸从黑暗中浮现的过程更具神秘张力。通过精简助词、整合语义单元、弱化人为努力感，还原Hughes笔下那种原始、不可控的灵感降临瞬间。诗的完成不在“写”，而在“印成”——这一终点未变，而通往它的脚步，如今更轻、更近、更真。",
+    "refined_translated_poem_title": "思想之狐",
+    "refined_translated_poet_name": "特德·休斯",
+    "timestamp": "2025-11-17T22:29:19.453381",
+    "model_info": {
+      "provider": "tongyi",
+      "model": "qwen-plus-latest",
+      "temperature": "0.2"
+    },
+    "tokens_used": 6267,
+    "prompt_tokens": 5041,
+    "completion_tokens": 1226,
+    "duration": 50.32496118545532,
+    "cost": 0.006484800000000001
+  },
+  "total_tokens": 17424,
+  "duration_seconds": 189.81546092033386
+}
+</code>
 
 
-OK. please review again these updated prompt templates. If you don't see major issues, I will go ahead to implement them in vpsweb.
+
+4 more examples with the slightly revised prompts. please evaluate and point out things to improve.

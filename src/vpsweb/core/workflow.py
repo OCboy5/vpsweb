@@ -64,6 +64,7 @@ class TranslationWorkflow:
         task_service: Optional[Any] = None,
         task_id: Optional[str] = None,
         system_config: Optional[Dict[str, Any]] = None,
+        repository_service: Optional[Any] = None,
     ):
         """
         Initialize the translation workflow.
@@ -73,16 +74,18 @@ class TranslationWorkflow:
             providers_config: Provider configurations for LLM factory
             workflow_mode: Workflow mode to use (reasoning, non_reasoning, hybrid)
             system_config: System configuration with preview lengths and other settings
+            repository_service: Optional repository service for BBR retrieval
         """
         self.config = config
         self.providers_config = providers_config
         self.workflow_mode = workflow_mode
         self.system_config = system_config or {}
+        self.repository_service = repository_service
 
         # Initialize services
         self.llm_factory = LLMFactory(providers_config)
         self.prompt_service = PromptService()
-        self.step_executor = StepExecutor(self.llm_factory, self.prompt_service)
+        self.step_executor = StepExecutor(self.llm_factory, self.prompt_service, system_config)
 
         # Initialize progress callback (optional)
         self.progress_callback: Optional[
@@ -137,43 +140,45 @@ class TranslationWorkflow:
 
         # Universal BBR Validation and Generation
         bbr_content = None
+        bbr_record = None  # Store the full BBR record for final output
         if input_data.metadata and "poem_id" in input_data.metadata:
             poem_id = input_data.metadata["poem_id"]
             logger.info(f"Checking BBR for poem {poem_id}")
 
             try:
-                # Check if BBR exists for this poem
-                # This would integrate with the database/repository service
-                # For now, we'll implement the structure for future integration
-                # bbr_service = BBRService()  # Would be injected via constructor
-                # bbr = await bbr_service.get_bbr(poem_id)
+                # Check if BBR exists for this poem using repository service
+                if self.repository_service:
+                    bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(
+                        poem_id
+                    )
 
-                # if bbr:
-                #     bbr_content = bbr.content_data
-                #     logger.info(f"Found existing BBR for poem {poem_id}")
-                # else:
-                #     logger.info(f"No BBR found for poem {poem_id}, generating new one...")
-                #     bbr_generator = BBRGenerator(llm_factory, prompt_service, providers_config)
-                #     new_bbr = await bbr_generator.generate_bbr(
-                #         poem_id=poem_id,
-                #         poem_content=input_data.original_poem,
-                #         poet_name=input_data.metadata.get("author", "Unknown"),
-                #         poem_title=input_data.metadata.get("title", "Untitled"),
-                #         source_language=input_data.source_lang
-                #     )
-                #     bbr_content = new_bbr.content_data
-                #     logger.info(f"Generated new BBR for poem {poem_id}")
-
-                pass  # Placeholder for actual BBR integration
+                    if bbr:
+                        # Store the full BBR record for final output
+                        bbr_record = bbr
+                        # Extract the content field for the prompt
+                        bbr_content = bbr.content
+                        logger.info(f"Found existing BBR for poem {poem_id} (content length: {len(bbr_content)} chars)")
+                        # DEBUG: Print BBR content preview
+                        print(f"\n=== BBR CONTENT DEBUG ===")
+                        print(f"Poem ID: {poem_id}")
+                        print(f"BBR Content Length: {len(bbr_content)} chars")
+                        print(f"BBR Content Preview (first 500 chars):")
+                        print(bbr_content[:500])
+                        print(f"=== END BBR CONTENT DEBUG ===\n")
+                    else:
+                        logger.info(f"No BBR found for poem {poem_id}, proceeding without BBR")
+                        # Note: BBR generation could be added here if needed for CLI usage
+                else:
+                    logger.debug("No repository service available for BBR retrieval")
 
             except Exception as e:
                 logger.error(
-                    f"BBR validation/generation failed for poem {poem_id}: {e}"
+                    f"BBR retrieval failed for poem {poem_id}: {e}"
                 )
-                # For now, continue without BBR if generation fails
-                # In hybrid mode, this would be a critical error
+                # Continue without BBR if retrieval fails
+                logger.info("Proceeding without BBR content")
         else:
-            logger.warning("No poem_id available for BBR validation")
+            logger.debug("No poem_id available for BBR validation")
 
         try:
             log_entries.append(
@@ -494,6 +499,7 @@ class TranslationWorkflow:
                 total_tokens=total_tokens,
                 duration=duration,
                 total_cost=total_cost,
+                background_briefing_report=bbr_record,
             )
 
         except Exception as e:
@@ -542,21 +548,9 @@ class TranslationWorkflow:
         try:
             step_config = self.workflow_steps["initial_translation"]
 
-            # Prepare input context
-            input_context = {
-                "original_poem": input_data.original_poem,
-                "source_lang": input_data.source_lang,
-                "target_lang": input_data.target_lang,
-            }
-
-            # Add BBR content if provided for V2 templates
-            if bbr_content:
-                input_context["background_briefing_report"] = bbr_content
-                logger.debug("BBR content added to initial translation step")
-
             # Execute step
             result = await self.step_executor.execute_initial_translation(
-                input_data, step_config
+                input_data, step_config, bbr_content
             )
 
             # Extract translation and notes from XML
@@ -750,6 +744,7 @@ class TranslationWorkflow:
         total_tokens: int,
         duration: float,
         total_cost: float,
+        background_briefing_report: Optional[Any] = None,
     ) -> TranslationOutput:
         """
         Aggregate all workflow results into final output.
@@ -763,6 +758,7 @@ class TranslationWorkflow:
             log_entries: List of log entries
             total_tokens: Total tokens used
             duration: Total execution time
+            background_briefing_report: Optional BBR from database
 
         Returns:
             Complete translation output
@@ -778,12 +774,56 @@ class TranslationWorkflow:
         full_log += f"\nDuration: {duration:.2f}s"
         full_log += f"\nCompleted: {datetime.now().isoformat()}"
 
+        # Create BBR model if available
+        bbr_model = None
+        if background_briefing_report:
+            from ..models.translation import BackgroundBriefingReport
+            import json
+
+            # Parse model_info from JSON string if it exists and convert all values to strings
+            model_info_dict = None
+            if background_briefing_report.model_info:
+                try:
+                    parsed_info = json.loads(background_briefing_report.model_info)
+                    # Convert all values to strings to match Dict[str, str] type
+                    if isinstance(parsed_info, dict):
+                        model_info_dict = {k: str(v) for k, v in parsed_info.items()}
+                    else:
+                        logger.warning(f"BBR model_info is not a dictionary: {parsed_info}")
+                        model_info_dict = None
+                except (json.JSONDecodeError, TypeError):
+                    logger.warning(f"Failed to parse BBR model_info as JSON: {background_briefing_report.model_info}")
+                    model_info_dict = None
+
+            # Create the BackgroundBriefingReport model
+            print(f"\n🎭 BBR MODEL CREATION DEBUG ===")
+            print(f"BBR content length: {len(background_briefing_report.content)} chars")
+            print(f"Model info (raw): {background_briefing_report.model_info}")
+            print(f"Model info (parsed): {model_info_dict}")
+            if model_info_dict:
+                print(f"Model info value types: {[(k, type(v).__name__) for k, v in model_info_dict.items()]}")
+            print(f"Tokens used: {background_briefing_report.tokens_used}")
+            print(f"Time spent: {background_briefing_report.time_spent}")
+            print(f"Cost: {background_briefing_report.cost}")
+            print(f"Poem ID: {background_briefing_report.poem_id}")
+            print(f"=== END BBR MODEL CREATION DEBUG ===\n")
+
+            bbr_model = BackgroundBriefingReport(
+                content=background_briefing_report.content,
+                model_info=model_info_dict,
+                tokens_used=background_briefing_report.tokens_used,
+                cost=background_briefing_report.cost,
+                duration=background_briefing_report.time_spent,  # Map time_spent to duration
+                poem_id=background_briefing_report.poem_id,
+            )
+
         return TranslationOutput(
             workflow_id=workflow_id,
             input=input_data,
             initial_translation=initial_translation,
             editor_review=editor_review,
             revised_translation=revised_translation,
+            background_briefing_report=bbr_model,
             total_tokens=total_tokens,
             duration_seconds=duration,
             workflow_mode=self.workflow_mode.value,
