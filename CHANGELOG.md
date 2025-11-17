@@ -5,6 +5,64 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-11-17
+
+### 🚀 Overview
+VPSWeb v0.5.1 - **Enhanced User Experience Release: Working BBR LLM Integration & Advanced Pagination**. This release delivers a fully functional BBR system with working LLM integration, comprehensive poetry browsing capabilities with global filtering, and significant UI/UX improvements across the platform.
+
+### ✨ New Features
+
+#### 🎯 Advanced Poetry Management System
+- **Comprehensive Pagination**: Complete pagination implementation for poems landing page (20/50/100 items per page)
+- **Global Filter Options**: Filters now cover entire database, not just current page - users can filter by any poet/language in system
+- **Smart Navigation**: Intelligent page number display with ellipsis for large datasets, prev/next controls
+- **Filter State Management**: Visual indicators for active filters, responsive reset functionality
+- **Real-time Updates**: Filter changes instantly refresh results with proper pagination reset
+
+#### 🔧 Working BBR LLM Integration
+- **Functional LLM Calls**: Background Briefing Reports now generate successfully with AI models
+- **Enhanced Copy Functionality**: Robust clipboard support with fallback methods for all browsers
+- **Improved Button States**: Fixed "View BBR" button styling (white text on blue background) and cursor issues
+- **Better Error Handling**: Comprehensive error management for all BBR operations with user feedback
+- **Template Optimization**: Fixed YAML syntax and template variable rendering for reliable BBR generation
+
+### 🐛 Bug Fixes
+
+#### Poetry Management
+- **Fixed Dashboard Loading**: Resolved "Failed to load poems" error by updating API response handling
+- **Poem Count Discrepancy**: Fixed mismatch between dashboard (105) and poems page (100) counts
+- **API Response Format**: Updated dashboard to handle new paginated response structure
+- **Route Ordering**: Fixed filter-options API endpoint conflicts with poem ID routing
+
+#### BBR System
+- **Button State Management**: Resolved disabled cursor and styling issues on BBR buttons
+- **Template Rendering**: Fixed variable mismatch and JSON schema compliance issues
+- **Response Handling**: Corrected API response parsing and BBR data extraction
+- **UI Consistency**: Improved button styling and user feedback across BBR operations
+
+#### Technical Improvements
+- **Repository Layer**: Enhanced CRUD operations with filtered counting capabilities
+- **API Schemas**: Added proper response models for paginated data and filter options
+- **Service Layer**: Fixed RepositoryWebService attribute access patterns
+- **Frontend Error Handling**: Improved JavaScript error handling and user notifications
+
+### 🎨 UI/UX Enhancements
+- **Visual Filter Indicators**: Yellow "Filters active" badges when filters are applied
+- **Responsive Pagination**: Mobile-friendly pagination controls with smart page display
+- **Loading States**: Better loading indicators and state management across components
+- **Error Messaging**: Clearer error messages and recovery guidance for users
+- **Button Interactions**: Improved hover states and disabled styling consistency
+
+### 🔧 Technical Improvements
+- **Performance**: Optimized database queries for filter options and pagination
+- **API Design**: More consistent response formats and error handling
+- **Code Organization**: Better separation of concerns in service layer
+- **Browser Compatibility**: Enhanced clipboard functionality with fallback support
+
+### 📈 Breaking Changes
+- **Poems API**: Changed response format from simple array to paginated object `{poems: [], pagination: {}}`
+- **Filter Parameters**: Updated query parameters from `limit/skip` to `page/page_size` format
+
 ## [0.5.0] - 2025-11-15
 
 ### 🚀 Overview

@@ -5,5 +5,5 @@ Web interface layer for poetry translation repository.
 Provides FastAPI application, templates, and API endpoints.
 """
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "VPSWeb Development Team"
