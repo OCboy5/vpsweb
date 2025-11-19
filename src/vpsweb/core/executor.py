@@ -460,8 +460,12 @@ class StepExecutor:
             else "Unknown"
         )
 
+        # Add line labels to original poem for reliable referencing
+        from vpsweb.utils.text_processing import add_line_labels
+        labeled_original_poem = add_line_labels(translation_input.original_poem)
+
         input_data = {
-            "original_poem": translation_input.original_poem,
+            "original_poem": labeled_original_poem,
             "source_lang": translation_input.source_lang,
             "target_lang": translation_input.target_lang,
             "poem_title": poem_title,

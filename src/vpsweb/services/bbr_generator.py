@@ -161,12 +161,19 @@ class BBRGenerator:
             friendly_source_lang = get_friendly_language_name(source_language)
             target_lang = "Chinese" if friendly_source_lang == "English" else "English"
 
+            from vpsweb.utils.text_processing import add_line_labels, count_effective_lines
+
+            # Compute effective lines and add line labels
+            effective_lines = count_effective_lines(poem_content)
+            labeled_source_text = add_line_labels(poem_content)
+
             variables = {
                 "poet_name": poet_name,
                 "poem_title": poem_title,
-                "source_text": poem_content,
+                "source_text": labeled_source_text,
                 "source_lang": friendly_source_lang,
                 "target_lang": target_lang,
+                "effective_lines": effective_lines,
             }
 
             # Render prompt template
