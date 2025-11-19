@@ -316,7 +316,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.5.2", prog_name="vpsweb")
+@click.version_option(version="0.5.3", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 

@@ -5,6 +5,44 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2025-11-20
+
+### 🚀 Overview
+VPSWeb v0.5.3 - **Line Reference Precision Release**. This release eliminates LLM line reference hallucinations in poetry analysis by implementing precise [L#] line labeling for reliable location referencing in BBR and Editor Review workflows.
+
+### ✨ New Features
+
+#### 🎯 Precision Line Referencing System
+- **[L#] Line Labels**: Automatic line number labeling (e.g., [L1], [L2]) added to poem source text for analysis stages
+- **Ground Truth Counting**: Python-computed effective line counts replace unreliable LLM line counting
+- **Precise Location Mapping**: BBR and Editor Review can now reference exact line positions without hallucination
+- **Shared Text Processing**: Centralized line labeling utilities for consistent behavior across workflows
+
+#### 🔧 Enhanced Analysis Accuracy
+- **Eliminated Hallucinations**: Resolves issues where LLM would claim "still water" is at L25 when it's actually L21
+- **Reliable References**: sound_function_map, emotional_beats, and other analysis sections now use accurate line numbers
+- **Clear Prompt Instructions**: Updated prompts to explain [L#] labeling convention for proper model usage
+- **Improved Validation**: Better guidance for models to use pre-computed line numbers instead of guessing
+
+### 🐛 Bug Fixes
+
+#### Line Reference Reliability
+- **Fixed BBR Hallucinations**: Eliminated incorrect line number mapping in Background Briefing Reports
+- **Fixed Editor References**: Resolved line counting errors in editor review analysis
+- **Accurate Total Counts**: Ensured line count consistency between Python computation and model usage
+- **Reference Precision**: Fixed all location-based references to use exact line numbers
+
+### 🎨 Workflow Improvements
+- **Cleaner Separation**: Mechanical counting (Python) vs cognitive analysis (LLM) responsibilities clearly defined
+- **Better Documentation**: Clear instructions for models about [L#] labels being reference-only, not poem content
+- **Consistent Formatting**: Unified line labeling approach across BBR and Editor Review stages
+
+### 🔧 Technical Changes
+- **New Utility Module**: Added `src/vpsweb/utils/text_processing.py` with shared line processing functions
+- **Updated Services**: Modified BBR generator and workflow executor to use labeled source text
+- **Enhanced Prompts**: Updated analysis prompts with clear [L#] labeling instructions
+- **Improved Architecture**: Better separation between mechanical processing and AI analysis
+
 ## [0.5.1] - 2025-11-17
 
 ### 🚀 Overview
