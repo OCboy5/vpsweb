@@ -215,9 +215,13 @@ async def get_filter_options(
         poets = [poet for poet in poets_result if poet]  # Filter out None values
 
         # Get all unique languages from database
-        languages_query = select(Poem.source_language).distinct().order_by(Poem.source_language)
+        languages_query = (
+            select(Poem.source_language).distinct().order_by(Poem.source_language)
+        )
         languages_result = service.db.execute(languages_query).scalars().all()
-        languages = [lang for lang in languages_result if lang]  # Filter out None values
+        languages = [
+            lang for lang in languages_result if lang
+        ]  # Filter out None values
 
         return PoemFilterOptions(
             poets=poets,
@@ -234,7 +238,7 @@ async def get_filter_options(
 async def get_poem(
     poem_id: str,
     service: RepositoryService = Depends(get_repository_service),
-    bbr_service: IBBRServiceV2 = Depends(get_bbr_service)
+    bbr_service: IBBRServiceV2 = Depends(get_bbr_service),
 ):
     """
     Get detailed information about a specific poem.
@@ -256,7 +260,7 @@ async def get_poem(
 
     # Convert poem to dict and add BBR status
     poem_dict = poem.__dict__.copy()
-    poem_dict['has_bbr'] = has_bbr
+    poem_dict["has_bbr"] = has_bbr
 
     # Convert to PoemResponse model
     return PoemResponse(**poem_dict)
@@ -621,5 +625,3 @@ async def delete_bbr(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete BBR: {str(e)}")
-
-

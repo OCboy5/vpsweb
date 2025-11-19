@@ -5,6 +5,7 @@ This module provides utilities for processing poem text,
 including line numbering and structural analysis.
 """
 
+
 def add_line_labels(source_text: str) -> str:
     """Add [L#] labels to effective lines for reliable referencing.
 
@@ -18,7 +19,7 @@ def add_line_labels(source_text: str) -> str:
         >>> add_line_labels("Line 1\\n\\nLine 2")
         '[L1] Line 1\\n\\n[L2] Line 2'
     """
-    lines = source_text.split('\n')
+    lines = source_text.split("\n")
     labeled_lines = []
     line_counter = 1
 
@@ -29,9 +30,9 @@ def add_line_labels(source_text: str) -> str:
             line_counter += 1
         else:
             # Preserve empty lines (for stanza breaks)
-            labeled_lines.append('')
+            labeled_lines.append("")
 
-    return '\n'.join(labeled_lines)
+    return "\n".join(labeled_lines)
 
 
 def count_effective_lines(source_text: str) -> int:
@@ -48,7 +49,7 @@ def count_effective_lines(source_text: str) -> int:
         2
     """
     # 1) Split on '\n'
-    raw_lines = source_text.split('\n')
+    raw_lines = source_text.split("\n")
     # 2) Trim each line
     trimmed = [line.strip() for line in raw_lines]
     # 3) Keep only non-empty lines

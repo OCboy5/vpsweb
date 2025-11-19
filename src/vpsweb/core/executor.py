@@ -54,7 +54,12 @@ class StepExecutor:
     to execute workflow steps with proper error handling and retry logic.
     """
 
-    def __init__(self, llm_factory: LLMFactory, prompt_service: PromptService, system_config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        llm_factory: LLMFactory,
+        prompt_service: PromptService,
+        system_config: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize the step executor.
 
@@ -79,10 +84,12 @@ class StepExecutor:
         Returns:
             Strategy value from config or default
         """
-        strategy_config = self.system_config.get('translation_strategy', {})
+        strategy_config = self.system_config.get("translation_strategy", {})
         value = strategy_config.get(key, default)
         # Debug: Print strategy values being used
-        print(f"🎛️ Strategy {key}: {value} (from {'config' if key in strategy_config else 'default'})")
+        print(
+            f"🎛️ Strategy {key}: {value} (from {'config' if key in strategy_config else 'default'})"
+        )
         return value
 
     async def execute_step(
@@ -414,10 +421,16 @@ class StepExecutor:
             "poem_title": poem_title,
             "poet_name": poet_name,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
-            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "adaptation_level": self._get_strategy_value(
+                "adaptation_level", "balanced"
+            ),
+            "repetition_policy": self._get_strategy_value(
+                "repetition_policy", "strict"
+            ),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
+            "prosody_target": self._get_strategy_value(
+                "prosody_target", "free verse, cadence-aware"
+            ),
             "few_shots": self._get_strategy_value("few_shots", ""),
         }
 
@@ -427,7 +440,9 @@ class StepExecutor:
             logger.debug("BBR content added to initial translation step")
         else:
             # Add empty BBR content if not available to satisfy template requirements
-            input_data["background_briefing_report"] = "No background briefing report available."
+            input_data["background_briefing_report"] = (
+                "No background briefing report available."
+            )
 
         return await self.execute_step("initial_translation", input_data, config)
 
@@ -462,6 +477,7 @@ class StepExecutor:
 
         # Add line labels to original poem for reliable referencing
         from vpsweb.utils.text_processing import add_line_labels
+
         labeled_original_poem = add_line_labels(translation_input.original_poem)
 
         input_data = {
@@ -475,10 +491,16 @@ class StepExecutor:
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
-            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "adaptation_level": self._get_strategy_value(
+                "adaptation_level", "balanced"
+            ),
+            "repetition_policy": self._get_strategy_value(
+                "repetition_policy", "strict"
+            ),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
+            "prosody_target": self._get_strategy_value(
+                "prosody_target", "free verse, cadence-aware"
+            ),
         }
 
         return await self.execute_step("editor_review", input_data, config)
@@ -526,10 +548,16 @@ class StepExecutor:
             "initial_translation_notes": initial_translation.initial_translation_notes,
             "editor_suggestions": editor_review.editor_suggestions,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
-            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
+            "adaptation_level": self._get_strategy_value(
+                "adaptation_level", "balanced"
+            ),
+            "repetition_policy": self._get_strategy_value(
+                "repetition_policy", "strict"
+            ),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
+            "prosody_target": self._get_strategy_value(
+                "prosody_target", "free verse, cadence-aware"
+            ),
         }
 
         return await self.execute_step("translator_revision", input_data, config)

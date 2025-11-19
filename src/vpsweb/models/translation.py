@@ -346,16 +346,20 @@ class TranslationOutput(BaseModel):
 
         # Add BBR if available (after input section, before workflow steps)
         if self.background_briefing_report:
-            result["background_briefing_report"] = self.background_briefing_report.to_dict()
+            result["background_briefing_report"] = (
+                self.background_briefing_report.to_dict()
+            )
 
         # Add workflow step sections
-        result.update({
-            "initial_translation": self.initial_translation.to_dict(),
-            "editor_review": self.editor_review.to_dict(),
-            "revised_translation": self.revised_translation.to_dict(),
-            "total_tokens": self.total_tokens,
-            "duration_seconds": self.duration_seconds,
-        })
+        result.update(
+            {
+                "initial_translation": self.initial_translation.to_dict(),
+                "editor_review": self.editor_review.to_dict(),
+                "revised_translation": self.revised_translation.to_dict(),
+                "total_tokens": self.total_tokens,
+                "duration_seconds": self.duration_seconds,
+            }
+        )
 
         return result
 

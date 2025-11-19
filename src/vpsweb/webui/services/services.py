@@ -124,7 +124,9 @@ class PoemServiceV2(IPoemServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get translations for this poem
-            translations = self.repository_service.repo.translations.get_by_poem(poem_id)
+            translations = self.repository_service.repo.translations.get_by_poem(
+                poem_id
+            )
 
             result = {
                 "poem": poem,
@@ -353,7 +355,9 @@ class TranslationServiceV2(ITranslationServiceV2):
     async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
         try:
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -382,7 +386,9 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would implement comparison logic
             # For now, return basic data
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -452,7 +458,9 @@ class TranslationServiceV2(ITranslationServiceV2):
         try:
             # This would integrate with the workflow orchestrator
             # For now, return placeholder data
-            translation = self.repository_service.repo.translations.get_by_id(translation_id)
+            translation = self.repository_service.repo.translations.get_by_id(
+                translation_id
+            )
             if not translation:
                 raise ValueError(f"Translation not found: {translation_id}")
 
@@ -473,8 +481,10 @@ class TranslationServiceV2(ITranslationServiceV2):
         """Get detailed workflow steps for a translation."""
         try:
             # Get workflow steps from repository service
-            workflow_steps = self.repository_service.repo.workflow_steps.get_by_translation(
-                translation_id
+            workflow_steps = (
+                self.repository_service.repo.workflow_steps.get_by_translation(
+                    translation_id
+                )
             )
 
             # Convert to dictionary format for template consumption
@@ -968,7 +978,9 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 "metadata": result.input.metadata,
             },
         )
-        translation = self.repository_service.repo.translations.create(translation_create)
+        translation = self.repository_service.repo.translations.create(
+            translation_create
+        )
 
         # Create AI Log with the translation_id
         ai_log_create = AILogCreate(
@@ -1374,8 +1386,8 @@ class PoetServiceV2(IPoetServiceV2):
 
             # Get last activity
             last_poem = self.repository_service.repo.poems.get_latest_by_poet(poet_name)
-            last_translation = self.repository_service.repo.translations.get_latest_by_poet(
-                poet_name
+            last_translation = (
+                self.repository_service.repo.translations.get_latest_by_poet(poet_name)
             )
 
             last_activity = None

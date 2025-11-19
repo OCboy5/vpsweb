@@ -161,7 +161,10 @@ class BBRGenerator:
             friendly_source_lang = get_friendly_language_name(source_language)
             target_lang = "Chinese" if friendly_source_lang == "English" else "English"
 
-            from vpsweb.utils.text_processing import add_line_labels, count_effective_lines
+            from vpsweb.utils.text_processing import (
+                add_line_labels,
+                count_effective_lines,
+            )
 
             # Compute effective lines and add line labels
             effective_lines = count_effective_lines(poem_content)
@@ -188,7 +191,7 @@ class BBRGenerator:
             # Generate BBR content
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": user_prompt},
             ]
 
             response = await provider.generate(

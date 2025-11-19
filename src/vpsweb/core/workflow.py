@@ -85,7 +85,9 @@ class TranslationWorkflow:
         # Initialize services
         self.llm_factory = LLMFactory(providers_config)
         self.prompt_service = PromptService()
-        self.step_executor = StepExecutor(self.llm_factory, self.prompt_service, system_config)
+        self.step_executor = StepExecutor(
+            self.llm_factory, self.prompt_service, system_config
+        )
 
         # Initialize progress callback (optional)
         self.progress_callback: Optional[
@@ -157,7 +159,9 @@ class TranslationWorkflow:
                         bbr_record = bbr
                         # Extract the content field for the prompt
                         bbr_content = bbr.content
-                        logger.info(f"Found existing BBR for poem {poem_id} (content length: {len(bbr_content)} chars)")
+                        logger.info(
+                            f"Found existing BBR for poem {poem_id} (content length: {len(bbr_content)} chars)"
+                        )
                         # DEBUG: Print BBR content preview
                         print(f"\n=== BBR CONTENT DEBUG ===")
                         print(f"Poem ID: {poem_id}")
@@ -166,15 +170,15 @@ class TranslationWorkflow:
                         print(bbr_content[:500])
                         print(f"=== END BBR CONTENT DEBUG ===\n")
                     else:
-                        logger.info(f"No BBR found for poem {poem_id}, proceeding without BBR")
+                        logger.info(
+                            f"No BBR found for poem {poem_id}, proceeding without BBR"
+                        )
                         # Note: BBR generation could be added here if needed for CLI usage
                 else:
                     logger.debug("No repository service available for BBR retrieval")
 
             except Exception as e:
-                logger.error(
-                    f"BBR retrieval failed for poem {poem_id}: {e}"
-                )
+                logger.error(f"BBR retrieval failed for poem {poem_id}: {e}")
                 # Continue without BBR if retrieval fails
                 logger.info("Proceeding without BBR content")
         else:
@@ -789,19 +793,27 @@ class TranslationWorkflow:
                     if isinstance(parsed_info, dict):
                         model_info_dict = {k: str(v) for k, v in parsed_info.items()}
                     else:
-                        logger.warning(f"BBR model_info is not a dictionary: {parsed_info}")
+                        logger.warning(
+                            f"BBR model_info is not a dictionary: {parsed_info}"
+                        )
                         model_info_dict = None
                 except (json.JSONDecodeError, TypeError):
-                    logger.warning(f"Failed to parse BBR model_info as JSON: {background_briefing_report.model_info}")
+                    logger.warning(
+                        f"Failed to parse BBR model_info as JSON: {background_briefing_report.model_info}"
+                    )
                     model_info_dict = None
 
             # Create the BackgroundBriefingReport model
             print(f"\n🎭 BBR MODEL CREATION DEBUG ===")
-            print(f"BBR content length: {len(background_briefing_report.content)} chars")
+            print(
+                f"BBR content length: {len(background_briefing_report.content)} chars"
+            )
             print(f"Model info (raw): {background_briefing_report.model_info}")
             print(f"Model info (parsed): {model_info_dict}")
             if model_info_dict:
-                print(f"Model info value types: {[(k, type(v).__name__) for k, v in model_info_dict.items()]}")
+                print(
+                    f"Model info value types: {[(k, type(v).__name__) for k, v in model_info_dict.items()]}"
+                )
             print(f"Tokens used: {background_briefing_report.tokens_used}")
             print(f"Time spent: {background_briefing_report.time_spent}")
             print(f"Cost: {background_briefing_report.cost}")
