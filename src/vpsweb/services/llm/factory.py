@@ -12,7 +12,9 @@ from functools import lru_cache
 
 from .base import BaseLLMProvider, ConfigurationError, ProviderType
 from .openai_compatible import OpenAICompatibleProvider
-from ...models.config import ProvidersConfig, ModelProviderConfig
+from ...models.config import ModelProviderConfig
+from ...services.config import get_config_facade, ConfigFacade
+from ...services.config.model_registry_service import ProviderInfo
 
 logger = logging.getLogger(__name__)
 
@@ -25,18 +27,63 @@ class LLMFactory:
     provider instances with caching for performance.
     """
 
-    def __init__(self, providers_config: ProvidersConfig):
+    def __init__(self, providers_config_or_facade: Optional[Any] = None, config_facade: Optional[ConfigFacade] = None):
         """
         Initialize the LLM factory with provider configurations.
 
         Args:
-            providers_config: Provider configurations from models.yaml
+            providers_config_or_facade: Legacy ProvidersConfig (deprecated, use config_facade instead)
+            config_facade: New ConfigFacade instance for configuration access
         """
-        self.providers_config = providers_config
+        if config_facade is not None:
+            # New ConfigFacade-based initialization
+            self._config_facade = config_facade
+            # Check if we're using the new model registry structure
+            if hasattr(config_facade, '_using_new_structure') and config_facade._using_new_structure:
+                # New model registry structure - don't use legacy providers_config
+                self.providers_config = None
+                self._using_new_structure = True
+            else:
+                # Legacy structure with ConfigFacade
+                self.providers_config = config_facade.providers
+                self._using_new_structure = False
+            self._using_facade = True
+        else:
+            # Legacy initialization for backward compatibility
+            if providers_config_or_facade is None:
+                # Try to get from global ConfigFacade
+                try:
+                    config_facade = get_config_facade()
+                    self._config_facade = config_facade
+                    # Check if we're using the new model registry structure
+                    if hasattr(config_facade, '_using_new_structure') and config_facade._using_new_structure:
+                        # New model registry structure
+                        self.providers_config = None
+                        self._using_new_structure = True
+                    else:
+                        # Legacy structure
+                        self.providers_config = config_facade.providers
+                        self._using_new_structure = False
+                    self._using_facade = True
+                except RuntimeError:
+                    raise ConfigurationError(
+                        "No configuration provided. Either pass providers_config or config_facade, or initialize ConfigFacade first."
+                    )
+            else:
+                self.providers_config = providers_config_or_facade
+                self._using_facade = False
+                self._using_new_structure = False
+                self._config_facade = None
+
         self._provider_cache: Dict[str, BaseLLMProvider] = {}
-        logger.info(
-            f"Initialized LLMFactory with {len(providers_config.providers)} providers"
-        )
+
+        # Log initialization with proper provider count
+        if self._using_new_structure:
+            provider_count = len(self._config_facade.model_registry.list_providers())
+            logger.info(f"Initialized LLMFactory with {provider_count} providers from model registry")
+        else:
+            provider_count = len(self.providers_config.providers) if self.providers_config else 0
+            logger.info(f"Initialized LLMFactory with {provider_count} providers from legacy config")
 
     def get_provider(self, provider_name: str) -> BaseLLMProvider:
         """
@@ -56,15 +103,8 @@ class LLMFactory:
             logger.debug(f"Returning cached provider: {provider_name}")
             return self._provider_cache[provider_name]
 
-        if provider_name not in self.providers_config.providers:
-            available_providers = list(self.providers_config.providers.keys())
-            raise ConfigurationError(
-                f"Provider '{provider_name}' not found in configuration. "
-                f"Available providers: {available_providers}",
-                provider=provider_name,
-            )
-
-        provider_config = self.providers_config.providers[provider_name]
+        # Get provider config (this will handle both new and legacy structures)
+        provider_config = self.get_provider_config(provider_name)
         provider = self._create_provider(provider_name, provider_config)
 
         # Cache the provider instance
@@ -86,6 +126,34 @@ class LLMFactory:
         Raises:
             ConfigurationError: If provider is not configured
         """
+        # Handle new model registry structure
+        if self._using_new_structure and self._config_facade:
+            try:
+                # Get provider info from model registry
+                provider_info = self._config_facade.model_registry.get_provider_info(provider_name)
+                # Create ModelProviderConfig from registry data
+                return ModelProviderConfig(
+                    api_key_env=provider_info.api_key_env,
+                    base_url=provider_info.base_url,
+                    type=provider_info.type,
+                    models=provider_info.models,  # This will be a list of model names
+                    default_model=provider_info.models[0] if provider_info.models else None,
+                )
+            except ValueError as e:
+                available_providers = self._config_facade.model_registry.list_providers()
+                raise ConfigurationError(
+                    f"Provider '{provider_name}' not found in configuration. "
+                    f"Available providers: {available_providers}",
+                    provider=provider_name,
+                ) from e
+
+        # Legacy structure
+        if self.providers_config is None:
+            raise ConfigurationError(
+                f"No provider configuration available for provider '{provider_name}'",
+                provider=provider_name,
+            )
+
         if provider_name not in self.providers_config.providers:
             available_providers = list(self.providers_config.providers.keys())
             raise ConfigurationError(
@@ -126,7 +194,12 @@ class LLMFactory:
             )
 
         # Get global provider settings
-        global_settings = self.providers_config.provider_settings or {}
+        if self._using_new_structure:
+            # New model registry structure - no global provider settings available yet
+            global_settings = {}
+        else:
+            # Legacy structure
+            global_settings = self.providers_config.provider_settings or {}
 
         # Create provider based on type
         if config.type == ProviderType.OPENAI_COMPATIBLE:
@@ -187,13 +260,7 @@ class LLMFactory:
         Raises:
             ConfigurationError: If provider is not configured
         """
-        if provider_name not in self.providers_config.providers:
-            raise ConfigurationError(
-                f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name,
-            )
-
-        provider_config = self.providers_config.providers[provider_name]
+        provider_config = self.get_provider_config(provider_name)
         return provider_config.models
 
     def get_default_model(self, provider_name: str) -> Optional[str]:
@@ -209,13 +276,7 @@ class LLMFactory:
         Raises:
             ConfigurationError: If provider is not configured
         """
-        if provider_name not in self.providers_config.providers:
-            raise ConfigurationError(
-                f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name,
-            )
-
-        provider_config = self.providers_config.providers[provider_name]
+        provider_config = self.get_provider_config(provider_name)
         return provider_config.default_model
 
     def validate_provider_config(self, provider_name: str) -> bool:
@@ -231,13 +292,7 @@ class LLMFactory:
         Raises:
             ConfigurationError: If configuration is invalid
         """
-        if provider_name not in self.providers_config.providers:
-            raise ConfigurationError(
-                f"Provider '{provider_name}' not found in configuration",
-                provider=provider_name,
-            )
-
-        provider_config = self.providers_config.providers[provider_name]
+        provider_config = self.get_provider_config(provider_name)
         provider = self.get_provider(provider_name)
         return provider.validate_config(provider_config)
 
@@ -249,7 +304,13 @@ class LLMFactory:
             Dictionary mapping provider names to instances
         """
         providers = {}
-        for provider_name in self.providers_config.providers:
+        # Get list of providers based on structure
+        if self._using_new_structure:
+            provider_names = self._config_facade.model_registry.list_providers()
+        else:
+            provider_names = list(self.providers_config.providers.keys()) if self.providers_config else []
+
+        for provider_name in provider_names:
             try:
                 providers[provider_name] = self.get_provider(provider_name)
             except Exception as e:
@@ -301,11 +362,15 @@ class LLMFactory:
 
     def __repr__(self) -> str:
         """String representation of the factory."""
-        return f"LLMFactory(providers={list(self.providers_config.providers.keys())}, cached={len(self._provider_cache)})"
+        if self._using_new_structure:
+            provider_names = self._config_facade.model_registry.list_providers()
+        else:
+            provider_names = list(self.providers_config.providers.keys()) if self.providers_config else []
+        return f"LLMFactory(providers={provider_names}, cached={len(self._provider_cache)})"
 
 
 # Convenience function for creating a factory from configuration
-def create_llm_factory(providers_config: ProvidersConfig) -> LLMFactory:
+def create_llm_factory(providers_config: Any) -> LLMFactory:
     """
     Create an LLM factory from provider configurations.
 

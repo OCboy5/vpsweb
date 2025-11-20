@@ -28,6 +28,7 @@ from .interfaces import (
 )
 from ...utils.language_mapper import LanguageMapper
 from vpsweb.repository.service import RepositoryWebService
+from vpsweb.services.config import ConfigFacade
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.core.container import DIContainer
 from vpsweb.utils.tools_phase3a import (
@@ -571,14 +572,15 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         self._providers_config = None
 
     async def _load_configuration(self):
-        from vpsweb.utils.config_loader import load_config
+        from vpsweb.services.config import get_config_facade
 
         if self._config is None:
             try:
-                self.logger.info("Loading VPSWeb configuration...")
-                self._config = load_config(self.config_path)
-                self._workflow_config = self._config.main.workflow
-                self._providers_config = self._config.providers
+                self.logger.info("Getting VPSWeb configuration from ConfigFacade...")
+                config_facade = get_config_facade()
+                self._config = config_facade.get_complete_config() if hasattr(config_facade, 'get_complete_config') else None
+                self._workflow_config = config_facade.main.workflow
+                self._providers_config = config_facade.providers
             except Exception as e:
                 self.logger.error(f"Failed to load VPSWeb configuration: {e}")
                 raise
@@ -746,24 +748,91 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             else:
                 workflow_mode_enum = workflow_mode
 
-            # Get step configurations from loaded config
-            step_configs = self._workflow_config.get_workflow_steps(workflow_mode_enum)
-
-            # Convert StepConfig to WorkflowStep objects
+            # Get step configurations using ConfigFacade task template resolution
             workflow_steps = []
-            for step_name, step_config in step_configs.items():
-                workflow_step = WorkflowStep(
-                    name=step_name,
-                    provider=step_config.provider,
-                    model=step_config.model,
-                    prompt_template=step_config.prompt_template,
-                    temperature=step_config.temperature,
-                    max_tokens=step_config.max_tokens,
-                    timeout=step_config.timeout,
-                    retry_attempts=step_config.retry_attempts,
-                    required_fields=step_config.required_fields,
-                )
-                workflow_steps.append(workflow_step)
+            step_names = ["initial_translation", "editor_review", "translator_revision"]
+
+            # Try to get ConfigFacade - primary method for new model registry structure
+            try:
+                from vpsweb.services.config import get_config_facade
+                config_facade = get_config_facade()
+                self.logger.info("Using global ConfigFacade for workflow step resolution")
+
+                # Use ConfigFacade with new model registry structure
+                for step_name in step_names:
+                    try:
+                        # Use ConfigFacade to resolve task template
+                        resolved_step = config_facade.get_workflow_step_config(workflow_mode.value, step_name)
+
+                        workflow_step = WorkflowStep(
+                            name=step_name,
+                            provider=resolved_step["provider"],
+                            model=resolved_step["model"],
+                            prompt_template=resolved_step["prompt_template"],
+                            temperature=resolved_step["temperature"],
+                            max_tokens=resolved_step["max_tokens"],
+                            timeout=resolved_step["timeout"],
+                            retry_attempts=resolved_step["retry_attempts"],
+                            required_fields=None,  # Can be configured later if needed
+                        )
+                        workflow_steps.append(workflow_step)
+                    except Exception as e:
+                        self.logger.error(f"Failed to resolve step '{step_name}': {e}")
+                        # Skip this step or use default configuration
+                        continue
+
+            except RuntimeError:
+                # No global ConfigFacade available - fallback to local instance or legacy
+                self.logger.warning("Global ConfigFacade not available, trying local instance or legacy fallback")
+
+                # Check if we have a local ConfigFacade instance
+                if hasattr(self, '_config_facade') and self._config_facade is not None:
+                    self.logger.info("Using local ConfigFacade instance")
+                    for step_name in step_names:
+                        try:
+                            # Use local ConfigFacade to resolve task template
+                            resolved_step = self._config_facade.get_workflow_step_config(workflow_mode.value, step_name)
+
+                            workflow_step = WorkflowStep(
+                                name=step_name,
+                                provider=resolved_step["provider"],
+                                model=resolved_step["model"],
+                                prompt_template=resolved_step["prompt_template"],
+                                temperature=resolved_step["temperature"],
+                                max_tokens=resolved_step["max_tokens"],
+                                timeout=resolved_step["timeout"],
+                                retry_attempts=resolved_step["retry_attempts"],
+                                required_fields=None,
+                            )
+                            workflow_steps.append(workflow_step)
+                        except Exception as e:
+                            self.logger.error(f"Failed to resolve step '{step_name}': {e}")
+                            continue
+                else:
+                    # True legacy fallback
+                    self.logger.warning("No ConfigFacade available, falling back to legacy workflow step resolution")
+                    step_configs = self._workflow_config.get_workflow_steps(workflow_mode_enum)
+
+                    for step_name, step_config in step_configs.items():
+                        # Check if step_config is a TaskTemplateStepConfig (new structure) or StepConfig (legacy)
+                        if hasattr(step_config, 'task_template'):
+                            # New structure but no ConfigFacade - we can't resolve this
+                            self.logger.error(f"Cannot resolve task template '{step_config.task_template}' without ConfigFacade")
+                            continue
+                        else:
+                            # True legacy StepConfig structure
+                            workflow_step = WorkflowStep(
+                                name=step_name,
+                                provider=step_config.provider,
+                                model=step_config.model,
+                                prompt_template=step_config.prompt_template,
+                                temperature=step_config.temperature,
+                                max_tokens=step_config.max_tokens,
+                                timeout=step_config.timeout,
+                                retry_attempts=step_config.retry_attempts,
+                                required_fields=getattr(step_config, 'required_fields', None),
+                            )
+                        workflow_steps.append(workflow_step)
 
             workflow_config = WorkflowConfig(
                 name=f"Translation-{workflow_mode}",
@@ -796,14 +865,26 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 },
             )
 
-            workflow = TranslationWorkflow(
-                config=self._workflow_config,
-                providers_config=self._providers_config,
-                workflow_mode=workflow_mode_enum,
-                task_service=self.task_service,
-                task_id=task_id,
-                repository_service=self.repository_service,
-            )
+            # Initialize TranslationWorkflow with proper parameters based on available configuration
+            if getattr(self, '_using_facade', False):
+                # ConfigFacade pattern - pass config_facade directly
+                workflow = TranslationWorkflow(
+                    config_facade=getattr(self, '_config_facade', None),
+                    workflow_mode=workflow_mode_enum,
+                    task_service=getattr(self, 'task_service', None),
+                    task_id=task_id,
+                    repository_service=getattr(self, 'repository_service', None),
+                )
+            else:
+                # Legacy pattern - pass config and providers
+                workflow = TranslationWorkflow(
+                    config_or_facade=getattr(self, '_workflow_config', None),
+                    providers_config=getattr(self, '_providers_config', None),
+                    workflow_mode=workflow_mode_enum,
+                    task_service=getattr(self, 'task_service', None),
+                    task_id=task_id,
+                    repository_service=getattr(self, 'repository_service', None),
+                )
             await self.task_service.update_task(task_id, {"workflow": workflow})
             workflow.progress_callback = progress_callback
 
@@ -2122,13 +2203,26 @@ class BBRServiceV2(IBBRServiceV2):
         repository_service: RepositoryWebService,
         llm_factory: LLMFactory,
         prompt_service: PromptService,
-        providers_config: ProvidersConfig,
+        providers_config: Optional[ProvidersConfig] = None,
+        config_facade: Optional[ConfigFacade] = None,
         logger: Optional[logging.Logger] = None,
     ):
+        # Support both legacy and ConfigFacade patterns
+        if config_facade is not None:
+            self._config_facade = config_facade
+            self._using_facade = True
+            self.providers_config = None  # Not needed with ConfigFacade
+        else:
+            # Legacy pattern
+            if providers_config is None:
+                raise ValueError("Either providers_config or config_facade must be provided")
+            self.providers_config = providers_config
+            self._config_facade = None
+            self._using_facade = False
+
         self.repository_service = repository_service
         self.llm_factory = llm_factory
         self.prompt_service = prompt_service
-        self.providers_config = providers_config
         self.logger = logger or logging.getLogger(__name__)
         self.error_collector = ErrorCollector()
 
@@ -2174,7 +2268,7 @@ class BBRServiceV2(IBBRServiceV2):
         """Generate Background Briefing Report for a poem."""
         try:
             from ...services.bbr_generator import BBRGenerator
-            from vpsweb.utils.config_loader import load_config
+            from vpsweb.services.config import get_config_facade
 
             # Check if poem exists
             poem = self.repository_service.repo.poems.get_by_id(poem_id)

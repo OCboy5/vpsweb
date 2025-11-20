@@ -13,12 +13,7 @@ from typing import Any, Dict, Optional, Union
 import logging
 from pydantic import ValidationError
 
-from ..models.config import (
-    MainConfig,
-    ProvidersConfig,
-    CompleteConfig,
-    WorkflowMode,
-)
+from ..models.config import WorkflowMode
 from ..models.wechat import (
     WeChatConfig,
     ArticleGenerationConfig,
@@ -151,79 +146,8 @@ def load_yaml_file(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise ConfigLoadError(f"Error reading configuration file {file_path}: {e}")
 
 
-def load_main_config(config_path: Union[str, Path]) -> MainConfig:
-    """
-    Load and validate the main configuration file.
-
-    Args:
-        config_path: Path to the main configuration file
-
-    Returns:
-        Validated MainConfig instance
-
-    Raises:
-        ConfigLoadError: If configuration is invalid
-    """
-    logger.info(f"Loading main configuration from: {config_path}")
-
-    try:
-        config_data = load_yaml_file(config_path)
-
-        # Validate with Pydantic
-        main_config = MainConfig(**config_data)
-
-        logger.info("Main configuration loaded and validated successfully")
-        return main_config
-
-    except ValidationError as e:
-        error_details = []
-        for error in e.errors():
-            loc = " -> ".join(str(x) for x in error["loc"])
-            error_details.append(f"  {loc}: {error['msg']}")
-
-        raise ConfigLoadError(
-            f"Invalid main configuration in {config_path}:\n" + "\n".join(error_details)
-        )
-    except Exception as e:
-        raise ConfigLoadError(f"Error loading main configuration: {e}")
 
 
-def load_providers_config(config_path: Union[str, Path]) -> ProvidersConfig:
-    """
-    Load and validate the providers configuration file.
-
-    Args:
-        config_path: Path to the providers configuration file
-
-    Returns:
-        Validated ProvidersConfig instance
-
-    Raises:
-        ConfigLoadError: If configuration is invalid
-    """
-    logger.info(f"Loading providers configuration from: {config_path}")
-
-    try:
-        config_data = load_yaml_file(config_path)
-
-        # Validate with Pydantic
-        providers_config = ProvidersConfig(**config_data)
-
-        logger.info("Providers configuration loaded and validated successfully")
-        return providers_config
-
-    except ValidationError as e:
-        error_details = []
-        for error in e.errors():
-            loc = " -> ".join(str(x) for x in error["loc"])
-            error_details.append(f"  {loc}: {error['msg']}")
-
-        raise ConfigLoadError(
-            f"Invalid providers configuration in {config_path}:\n"
-            + "\n".join(error_details)
-        )
-    except Exception as e:
-        raise ConfigLoadError(f"Error loading providers configuration: {e}")
 
 
 def load_article_generation_config(
@@ -266,114 +190,8 @@ def load_article_generation_config(
         raise ConfigLoadError(f"Error loading article generation configuration: {e}")
 
 
-def load_config(config_dir: Optional[Union[str, Path]] = None) -> CompleteConfig:
-    """
-    Load and validate the complete configuration from a directory.
-
-    By default, looks for configuration files in the following order:
-    1. Specified config directory
-    2. ./config/ directory (relative to current working directory)
-    3. ../config/ directory (relative to script location)
-
-    Args:
-        config_dir: Optional directory containing configuration files
-
-    Returns:
-        Complete validated configuration
-
-    Raises:
-        ConfigLoadError: If configuration cannot be loaded or validated
-    """
-    if config_dir is None:
-        # Try to find config directory
-        possible_paths = [
-            Path("config"),
-            Path(__file__).parent.parent.parent.parent / "config",
-        ]
-
-        for path in possible_paths:
-            if path.exists() and path.is_dir():
-                config_dir = path
-                break
-
-        if config_dir is None:
-            raise ConfigLoadError(
-                "Could not find configuration directory. "
-                "Please specify config_dir or ensure config/ exists in the project root."
-            )
-
-    config_dir = Path(config_dir)
-
-    if not config_dir.exists():
-        raise ConfigLoadError(f"Configuration directory not found: {config_dir}")
-
-    # Load main configuration
-    main_config_path = config_dir / "default.yaml"
-    if not main_config_path.exists():
-        raise ConfigLoadError(f"Main configuration file not found: {main_config_path}")
-
-    main_config = load_main_config(main_config_path)
-
-    # Load providers configuration
-    providers_config_path = config_dir / "models.yaml"
-    if not providers_config_path.exists():
-        raise ConfigLoadError(
-            f"Providers configuration file not found: {providers_config_path}"
-        )
-
-    providers_config = load_providers_config(providers_config_path)
-
-    # Combine into complete configuration
-    complete_config = CompleteConfig(main=main_config, providers=providers_config)
-
-    logger.info("Complete configuration loaded successfully")
-    return complete_config
 
 
-def validate_config_files(config_dir: Optional[Union[str, Path]] = None) -> bool:
-    """
-    Validate configuration files without loading the complete system.
-
-    Args:
-        config_dir: Optional directory containing configuration files
-
-    Returns:
-        True if configuration is valid, False otherwise
-
-    Raises:
-        ConfigLoadError: If configuration files are invalid
-    """
-    try:
-        config = load_config(config_dir)
-
-        # Additional validation - check all workflow modes
-        workflow_modes = [
-            WorkflowMode.REASONING,
-            WorkflowMode.NON_REASONING,
-            WorkflowMode.HYBRID,
-        ]
-
-        for mode in workflow_modes:
-            try:
-                steps = config.main.workflow.get_workflow_steps(mode)
-                for step_name, step_config in steps.items():
-                    provider_name = step_config.provider
-                    if provider_name not in config.providers.providers:
-                        raise ConfigLoadError(
-                            f"Step '{step_name}' in {mode.value} mode references unknown provider '{provider_name}'"
-                        )
-            except ValueError as e:
-                # Skip modes that aren't configured
-                if f"Workflow mode '{mode.value}' is not configured" in str(e):
-                    continue
-                raise
-
-        logger.info("Configuration validation passed")
-        return True
-
-    except Exception as e:
-        logger.error(f"Configuration validation failed: {e}")
-        raise
 
 
 def load_wechat_complete_config(
@@ -513,3 +331,59 @@ def validate_wechat_setup(config_dir: Optional[Union[str, Path]] = None) -> bool
     except Exception as e:
         logger.error(f"WeChat configuration validation failed: {e}")
         raise
+
+
+def load_model_registry_config() -> Dict[str, Any]:
+    """
+    Load the model registry configuration.
+
+    Returns:
+        Dictionary containing the models.yaml configuration
+
+    Raises:
+        ConfigLoadError: If the configuration file cannot be loaded
+    """
+    try:
+        models_path = Path("config/models.yaml")
+        if not models_path.exists():
+            raise ConfigLoadError(f"Model registry file not found: {models_path}")
+
+        with open(models_path, 'r', encoding='utf-8') as f:
+            models_config = yaml.safe_load(f)
+
+        logger.info("Model registry configuration loaded successfully")
+        return models_config
+
+    except yaml.YAMLError as e:
+        raise ConfigLoadError(f"Invalid YAML in model registry file: {e}")
+    except Exception as e:
+        raise ConfigLoadError(f"Failed to load model registry configuration: {e}")
+
+
+def load_task_templates_config() -> Dict[str, Any]:
+    """
+    Load the task templates configuration.
+
+    Returns:
+        Dictionary containing the task_templates.yaml configuration
+
+    Raises:
+        ConfigLoadError: If the configuration file cannot be loaded
+    """
+    try:
+        task_templates_path = Path("config/task_templates.yaml")
+        if not task_templates_path.exists():
+            raise ConfigLoadError(f"Task templates file not found: {task_templates_path}")
+
+        with open(task_templates_path, 'r', encoding='utf-8') as f:
+            task_templates_config = yaml.safe_load(f)
+
+        logger.info("Task templates configuration loaded successfully")
+        return task_templates_config
+
+    except yaml.YAMLError as e:
+        raise ConfigLoadError(f"Invalid YAML in task templates file: {e}")
+    except Exception as e:
+        raise ConfigLoadError(f"Failed to load task templates configuration: {e}")
+
+

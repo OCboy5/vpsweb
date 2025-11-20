@@ -51,10 +51,10 @@ from vpsweb.repository.crud import RepositoryService
 from vpsweb.repository.database import get_db
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.config import WorkflowConfig, WorkflowMode
-from vpsweb.utils.config_loader import load_config
+from vpsweb.utils.config_loader import load_model_registry_config, load_task_templates_config
 from vpsweb.services.llm.factory import LLMFactory
 from vpsweb.services.prompts import PromptService
-from vpsweb.models.config import ProvidersConfig
+from vpsweb.services.config import initialize_config_facade, get_config_facade
 from vpsweb.webui.api import poems, translations, statistics, poets, wechat, workflow
 from .task_models import TaskStatus, TaskStatusEnum
 
@@ -1458,11 +1458,30 @@ class ApplicationFactoryV2:
             ),
         )
 
-        # Load config for BBR service
-        config = load_config()
-        providers_config = config.providers
+        # Load config for BBR service using new model registry structure
+        models_config = load_model_registry_config()
+        task_templates_config = load_task_templates_config()
+
+        # Load the actual main configuration from default.yaml
+        from vpsweb.utils.config_loader import load_yaml_file
+        main_config_data = load_yaml_file('config/default.yaml')
+
+        # Create proper CompleteConfig for compatibility
+        from vpsweb.models.config import CompleteConfig, MainConfig, WorkflowConfig, ProvidersConfig
+
+        # Create WorkflowConfig from actual data
+        workflow_config = WorkflowConfig(**main_config_data['workflow'])
+
+        main_config = MainConfig(
+            workflow_mode=main_config_data['workflow_mode'],
+            workflow=workflow_config,
+        )
+        providers_config = ProvidersConfig()
+        complete_config = CompleteConfig(main=main_config, providers=providers_config)
+
+        config_facade = initialize_config_facade(complete_config, models_config, task_templates_config)
         prompt_service = PromptService()
-        llm_factory = LLMFactory(providers_config)
+        llm_factory = LLMFactory(config_facade=config_facade)
 
         container.register_instance(
             IBBRServiceV2,
@@ -1470,7 +1489,7 @@ class ApplicationFactoryV2:
                 repository_service=repository_service,
                 llm_factory=llm_factory,
                 prompt_service=prompt_service,
-                providers_config=providers_config,
+                config_facade=config_facade,
                 logger=app_logger,
             ),
         )

@@ -36,6 +36,7 @@ from vpsweb.utils.config_loader import (
     load_wechat_complete_config,
     validate_wechat_setup,
 )
+from vpsweb.services.config import get_config_facade, ConfigFacade, initialize_config_facade
 from vpsweb.utils.storage import StorageHandler
 from vpsweb.utils.article_generator import ArticleGenerator
 from vpsweb.core.workflow import TranslationWorkflow
@@ -219,23 +220,39 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             # Load configuration
             complete_config = load_config(config_path)
 
+            # Initialize ConfigFacade
+            config_facade = initialize_config_facade(complete_config)
+
             # Setup logging based on configuration
-            log_config = complete_config.main.logging
+            logging_config = config_facade.system.get_logging_config_summary()
             if verbose:
-                log_config.level = LogLevel.DEBUG
+                logging_config['level'] = "DEBUG"
+                # Note: setup_logging expects a LoggingConfig object, not a dict
+                # For now, we'll construct it from the dict or create a minimal config
+                from vpsweb.models.config import LoggingConfig, LogLevel
+                log_config = LoggingConfig(
+                    level=LogLevel(logging_config['level'].upper()),
+                    format=logging_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
+                    file=logging_config.get('file'),
+                    max_file_size=logging_config.get('max_file_size', 10485760),
+                    backup_count=logging_config.get('backup_count', 5),
+                    log_reasoning_tokens=logging_config.get('log_reasoning_tokens', False)
+                )
+            else:
+                # Get original config object for setup_logging
+                log_config = complete_config.main.logging
 
             setup_logging(log_config)
 
+            # Display configuration using ConfigFacade
+            workflow_info = config_facade.get_workflow_info()
             self.logger.info(f"Configuration loaded from: {config_path or 'default'}")
-            self.logger.info(
-                f"Workflow: {complete_config.main.workflow.name} v{complete_config.main.workflow.version}"
-            )
-            self.logger.info(
-                f"Providers: {', '.join(complete_config.providers.providers.keys())}"
-            )
+            self.logger.info(f"Workflow: {workflow_info['name']} v{workflow_info['version']}")
+            self.logger.info(f"Providers: {', '.join(config_facade.get_provider_names())}")
 
             return {
                 "complete_config": complete_config,
+                "config_facade": config_facade,
                 "workflow_config": complete_config.main.workflow,
                 "providers_config": complete_config.providers,
                 "storage_config": complete_config.main.storage,

@@ -5,7 +5,7 @@ This module contains Pydantic models for validating and structuring
 all configuration aspects of the translation workflow system.
 """
 
-from typing import Dict, List, Optional, Any, Literal
+from typing import Dict, List, Optional, Any, Literal, Union
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
@@ -64,6 +64,29 @@ class ModelProviderConfig(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
+# Compatibility class for backward compatibility with existing code
+class StepConfig(BaseModel):
+    """
+    Compatibility configuration for a workflow step.
+
+    This class provides backward compatibility for code that still expects
+    the old StepConfig interface. New code should use TaskTemplateStepConfig
+    or access configuration through the ConfigFacade.
+    """
+
+    provider: str = Field(..., description="Provider name")
+    model: str = Field(..., description="Model name to use for this step")
+    temperature: float = Field(0.7, ge=0.0, le=2.0, description="Temperature for generation")
+    max_tokens: int = Field(4096, ge=1, description="Maximum tokens to generate")
+    prompt_template: str = Field(..., description="Path to prompt template file")
+    timeout: Optional[float] = Field(120.0, description="Request timeout in seconds")
+    retry_attempts: Optional[int] = Field(3, description="Number of retry attempts for failed requests")
+    required_fields: Optional[List[str]] = Field(None, description="Required fields in the step output for validation")
+    stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
+
+    model_config = ConfigDict(use_enum_values=True)
+
+
 class WorkflowMode(str, Enum):
     """Supported workflow modes."""
 
@@ -72,46 +95,20 @@ class WorkflowMode(str, Enum):
     HYBRID = "hybrid"
 
 
-class StepConfig(BaseModel):
-    """Configuration for a workflow step."""
 
-    provider: str = Field(
-        ..., description="Provider name (must match a provider in models.yaml)"
-    )
-    model: str = Field(..., description="Model name to use for this step")
-    temperature: float = Field(
-        0.7, ge=0.0, le=2.0, description="Temperature for generation (0.0-2.0)"
-    )
-    max_tokens: int = Field(4096, ge=1, description="Maximum tokens to generate")
-    prompt_template: str = Field(..., description="Path to prompt template file")
-    timeout: Optional[float] = Field(120.0, description="Request timeout in seconds")
-    retry_attempts: Optional[int] = Field(
-        3, description="Number of retry attempts for failed requests"
-    )
-    required_fields: Optional[List[str]] = Field(
-        None, description="Required fields in the step output for validation"
-    )
-    stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
 
-    @field_validator("provider")
+class TaskTemplateStepConfig(BaseModel):
+    """Configuration for a workflow step using task templates (new structure)."""
+
+    task_template: str = Field(..., description="Task template name to resolve from task_templates.yaml")
+
+    @field_validator("task_template")
     @classmethod
-    def validate_provider(cls, v):
-        """Validate provider name format."""
+    def validate_task_template(cls, v):
+        """Validate task template name format."""
         if not v or not v.strip():
-            raise ValueError("Provider name cannot be empty")
+            raise ValueError("Task template name cannot be empty")
         return v.strip()
-
-    @field_validator("prompt_template")
-    @classmethod
-    def validate_prompt_template(cls, v):
-        """Validate prompt template path."""
-        if not v or not v.strip():
-            raise ValueError("Prompt template path cannot be empty")
-        # Remove .yaml/.yml extension if present for consistency
-        v = v.strip()
-        if v.endswith(".yaml") or v.endswith(".yml"):
-            v = v[:-5] if v.endswith(".yaml") else v[:-4]
-        return v
 
 
 class WorkflowConfig(BaseModel):
@@ -119,13 +116,15 @@ class WorkflowConfig(BaseModel):
 
     name: str = Field(..., description="Workflow name")
     version: str = Field(..., description="Workflow version")
-    reasoning_workflow: Optional[Dict[str, StepConfig]] = Field(
+
+    # Support both old and new structures
+    reasoning_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
         None, description="Configuration for reasoning mode workflow steps"
     )
-    non_reasoning_workflow: Optional[Dict[str, StepConfig]] = Field(
+    non_reasoning_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
         None, description="Configuration for non-reasoning mode workflow steps"
     )
-    hybrid_workflow: Optional[Dict[str, StepConfig]] = Field(
+    hybrid_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
         None, description="Configuration for hybrid mode workflow steps"
     )
 
@@ -164,7 +163,7 @@ class WorkflowConfig(BaseModel):
             raise ValueError("At least one workflow mode must be configured")
         return v
 
-    def get_workflow_steps(self, mode: WorkflowMode) -> Dict[str, StepConfig]:
+    def get_workflow_steps(self, mode: WorkflowMode) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
         """Get workflow steps for the specified mode."""
         if mode == WorkflowMode.REASONING and self.reasoning_workflow:
             return self.reasoning_workflow
@@ -174,6 +173,8 @@ class WorkflowConfig(BaseModel):
             return self.hybrid_workflow
         else:
             raise ValueError(f"Workflow mode '{mode.value}' is not configured")
+
+
 
 
 class StorageConfig(BaseModel):
@@ -231,77 +232,39 @@ class MonitoringConfig(BaseModel):
     )
 
 
+# Compatibility classes for backward compatibility with ConfigFacade
 class MainConfig(BaseModel):
-    """Main configuration combining all components."""
+    """Compatibility main configuration for backward compatibility."""
 
-    workflow_mode: WorkflowMode = Field(
-        WorkflowMode.HYBRID, description="Default workflow mode to use"
-    )
+    workflow_mode: WorkflowMode = Field(WorkflowMode.HYBRID, description="Default workflow mode to use")
     workflow: WorkflowConfig = Field(..., description="Workflow configuration")
-    storage: StorageConfig = Field(
-        default_factory=StorageConfig, description="Storage configuration"
-    )
-    logging: LoggingConfig = Field(
-        default_factory=LoggingConfig, description="Logging configuration"
-    )
-    monitoring: MonitoringConfig = Field(
-        default_factory=MonitoringConfig, description="Monitoring configuration"
-    )
+    storage: StorageConfig = Field(default_factory=StorageConfig, description="Storage configuration")
+    logging: LoggingConfig = Field(default_factory=LoggingConfig, description="Logging configuration")
+    monitoring: MonitoringConfig = Field(default_factory=MonitoringConfig, description="Monitoring configuration")
+
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ProvidersConfig(BaseModel):
-    """Configuration for LLM providers."""
+    """Compatibility providers configuration for backward compatibility."""
 
-    providers: Dict[str, ModelProviderConfig] = Field(
-        ..., description="Provider configurations keyed by provider name"
-    )
-    provider_settings: Dict[str, Any] = Field(
-        default_factory=dict, description="Global provider settings"
-    )
-    model_classification: Optional[Dict[str, List[str]]] = Field(
-        None, description="Model classification for automatic prompt selection"
-    )
-    reasoning_settings: Optional[Dict[str, Any]] = Field(
-        None, description="Reasoning model specific settings"
-    )
-    pricing: Optional[Dict[str, Any]] = Field(
-        None, description="Pricing information for cost calculation"
-    )
-    bbr_generation: Optional[Dict[str, Any]] = Field(
-        None, description="Background Briefing Report generation configuration"
-    )
-
-    @field_validator("providers")
-    @classmethod
-    def validate_providers(cls, v):
-        """Validate that at least one provider is configured."""
-        if not v:
-            raise ValueError("At least one provider must be configured")
-
-        # Validate that required providers are present if referenced
-        required_providers = ["tongyi", "deepseek"]  # From PSD_CC.md
-        for provider in required_providers:
-            if provider not in v:
-                # This is a warning, not an error, for flexibility
-                import warnings
-
-                warnings.warn(
-                    f"Recommended provider '{provider}' not found in configuration"
-                )
-
-        return v
+    providers: Dict[str, ModelProviderConfig] = Field(default_factory=dict, description="Provider configurations")
+    provider_settings: Dict[str, Any] = Field(default_factory=dict, description="Global provider settings")
+    model_classification: Optional[Dict[str, List[str]]] = Field(None, description="Model classification")
+    reasoning_settings: Optional[Dict[str, Any]] = Field(None, description="Reasoning model settings")
+    pricing: Optional[Dict[str, Any]] = Field(None, description="Pricing information")
+    bbr_generation: Optional[Dict[str, Any]] = Field(None, description="BBR generation configuration")
 
     def is_reasoning_model(self, model_name: str) -> bool:
         """Check if a model is classified as a reasoning model."""
         if not self.model_classification:
             return False
-
         reasoning_models = self.model_classification.get("reasoning_models", [])
         return model_name in reasoning_models
 
 
 class CompleteConfig(BaseModel):
-    """Complete configuration combining main config and providers."""
+    """Compatibility complete configuration for backward compatibility."""
 
     main: MainConfig
     providers: ProvidersConfig
@@ -312,10 +275,8 @@ class CompleteConfig(BaseModel):
             raise ValueError(f"Provider '{provider_name}' not found in configuration")
         return self.providers.providers[provider_name]
 
-    def get_step_config(self, step_name: str) -> StepConfig:
-        """Get configuration for a specific workflow step."""
-        if step_name not in self.main.workflow.steps:
-            raise ValueError(f"Step '{step_name}' not found in workflow configuration")
-        return self.main.workflow.steps[step_name]
-
     model_config = ConfigDict(use_enum_values=True)
+
+
+
+

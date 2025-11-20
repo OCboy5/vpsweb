@@ -25,8 +25,30 @@ router = APIRouter()
 
 def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
     """Dependency to get workflow service instance."""
-    container = DIContainer()
-    return container.resolve(IWorkflowServiceV2)
+    from vpsweb.core.container import get_container
+    try:
+        # Use the global container that's configured in the main app
+        container = get_container()
+        return container.resolve(IWorkflowServiceV2)
+    except RuntimeError:
+        # Fallback: if no global container is set, create and configure one
+        from src.vpsweb.webui.main import ApplicationFactoryV2
+        from vpsweb.repository.database import create_session
+
+        # Create a minimal container with just the workflow service
+        from vpsweb.core.container import DIContainer
+        from src.vpsweb.webui.services.services import (
+            WorkflowServiceV2,
+            TaskManagementServiceV2,
+        )
+        from src.vpsweb.webui.services.interfaces import ITaskManagementServiceV2
+
+        container = DIContainer()
+        # Register minimal dependencies needed for workflow service
+        container.register_instance(ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None))
+        container.register_singleton(IWorkflowServiceV2, WorkflowServiceV2)
+
+        return container.resolve(IWorkflowServiceV2)
 
 
 @router.post("/translate", response_model=WebAPIResponse)

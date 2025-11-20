@@ -46,7 +46,7 @@ from .models.translation import (
     RevisedTranslation,
     TranslationOutput,
 )
-from .models.config import WorkflowConfig, StepConfig, CompleteConfig, LoggingConfig
+from .models.config import WorkflowConfig, TaskTemplateStepConfig, ModelProviderConfig, LoggingConfig, StepConfig
 
 # Services
 from .services.llm.factory import LLMFactory
@@ -55,8 +55,9 @@ from .services.parser import OutputParser
 
 # Utilities
 from .utils.logger import setup_logging, get_logger
-from .utils.config_loader import load_config
+from .utils.config_loader import load_model_registry_config, load_task_templates_config
 from .utils.storage import StorageHandler
+from .services.config import ConfigFacade, get_config_facade, initialize_config_facade
 
 # CLI entry point
 from .__main__ import cli
@@ -72,9 +73,10 @@ __all__ = [
     "RevisedTranslation",
     "TranslationOutput",
     "WorkflowConfig",
-    "StepConfig",
-    "CompleteConfig",
+    "TaskTemplateStepConfig",
+    "ModelProviderConfig",
     "LoggingConfig",
+    "StepConfig",
     # Services
     "LLMFactory",
     "PromptService",
@@ -82,8 +84,12 @@ __all__ = [
     # Utilities
     "setup_logging",
     "get_logger",
-    "load_config",
+    "load_model_registry_config",
+    "load_task_templates_config",
     "StorageHandler",
+    "ConfigFacade",
+    "get_config_facade",
+    "initialize_config_facade",
     # CLI
     "cli",
 ]

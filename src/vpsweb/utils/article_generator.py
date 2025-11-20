@@ -27,6 +27,7 @@ from ..models.translation import TranslationOutput
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService
 from .logger import get_logger
+from ..services.config import get_config_facade, ConfigFacade
 
 logger = get_logger(__name__)
 
@@ -51,26 +52,62 @@ class ArticleGenerator:
         providers_config: Optional[Dict[str, Any]] = None,
         wechat_llm_config: Optional[Dict[str, Any]] = None,
         system_config: Optional[Dict[str, Any]] = None,
+        config_facade: Optional[ConfigFacade] = None,
     ):
         """
         Initialize article generator with configuration.
 
         Args:
             config: Article generation configuration
-            providers_config: Provider configurations for LLM factory (from CompleteConfig.providers)
-            wechat_llm_config: WeChat LLM configuration for translation notes (from CompleteConfig.models.wechat_translation_notes)
-            system_config: System configuration with default values and paths
+            providers_config: Legacy Provider configurations for LLM factory (deprecated, use config_facade instead)
+            wechat_llm_config: WeChat LLM configuration for translation notes (deprecated, use config_facade instead)
+            system_config: System configuration with default values and paths (deprecated, use config_facade instead)
+            config_facade: New ConfigFacade instance for configuration access
         """
         self.config = config
-        self.wechat_llm_config = wechat_llm_config
+
+        # Support both legacy and ConfigFacade patterns
+        if config_facade is not None:
+            self._config_facade = config_facade
+            self._using_facade = True
+            # Get WeChat configurations from ConfigFacade (new task template structure)
+            try:
+                # Try to get reasoning model config for WeChat notes
+                self.wechat_llm_config = config_facade.get_wechat_task_config("reasoning")
+            except (ValueError, RuntimeError):
+                # Fallback to legacy method
+                self.wechat_llm_config = config_facade.models.get_wechat_translation_notes_config()
+            # Use providers from legacy config for compatibility
+            actual_providers_config = providers_config
+        else:
+            # Try to get from global ConfigFacade
+            try:
+                self._config_facade = get_config_facade()
+                self._using_facade = True
+                try:
+                    # Try to get reasoning model config for WeChat notes
+                    self.wechat_llm_config = self._config_facade.get_wechat_task_config("reasoning")
+                except (ValueError, RuntimeError):
+                    # Fallback to legacy method
+                    self.wechat_llm_config = self._config_facade.models.get_wechat_translation_notes_config()
+                actual_providers_config = providers_config
+                logger.info("ArticleGenerator using global ConfigFacade with task templates")
+            except RuntimeError:
+                # Fallback to legacy pattern
+                self._using_facade = False
+                self._config_facade = None
+                self.wechat_llm_config = wechat_llm_config
+                actual_providers_config = providers_config
+                logger.info("ArticleGenerator using legacy configuration pattern")
+
         self.system_config = system_config or {}
 
         # Initialize HTML template system
         self._init_template_system()
 
         # Initialize LLM services if providers config is available
-        if providers_config:
-            self.llm_factory = LLMFactory(providers_config)
+        if actual_providers_config:
+            self.llm_factory = LLMFactory(actual_providers_config)
             self.prompt_service = PromptService()
             self.llm_metrics = None  # Store metrics from last LLM call
             self._cached_translation_notes = (

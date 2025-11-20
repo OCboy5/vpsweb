@@ -1,0 +1,120 @@
+# Vox Poetica Studio Web - LLM Provider Configuration
+# Enhanced with model classification and reasoning capabilities
+
+providers:
+  tongyi:
+    api_key_env: "TONGYI_API_KEY"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    type: "openai_compatible"
+    models:
+      - "qwen3-max-latest"
+      - "qwen-plus-latest"
+    default_model: "qwen-plus-latest"
+    capabilities:
+      reasoning: false
+
+  deepseek:
+    api_key_env: "DEEPSEEK_API_KEY"
+    base_url: "https://api.deepseek.com/v1"
+    type: "openai_compatible"
+    models:
+      - "deepseek-reasoner"      # Reasoning model
+      - "deepseek-chat"          # Non-reasoning model
+    default_model: "deepseek-reasoner"
+    capabilities:
+      reasoning: true
+  
+  siliconflow:
+    api_key_env: "SILICONFLOW_API_KEY"
+    base_url: "https://api.siliconflow.cn/v1/"
+    type: "openai_compatible"
+    models:
+      - "deepseek-ai/DeepSeek-V3.2-Exp"  # Reasoning model
+    default_model: "deepseek-ai/DeepSeek-V3.2-Exp"
+    capabilities:
+      reasoning: true
+
+# Model classification for automatic prompt selection
+model_classification:
+  reasoning_models:
+    - "deepseek-reasoner"
+    - "deepseek-ai/DeepSeek-V3.2-Exp"
+  non_reasoning_models:
+    - "qwen3-max-latest"
+    - "qwen-plus-latest"
+    - "deepseek-chat"
+
+# Global provider settings
+provider_settings:
+  timeout: 180.0
+  max_retries: 3
+  retry_delay: 1.0
+  request_timeout: 30.0
+  connection_pool_size: 10
+
+# Reasoning model specific settings
+reasoning_settings:
+  timeout: 300.0              # Extended for reasoning time
+  max_retries: 2              # Fewer retries (expensive)
+  request_timeout: 60.0       # Longer individual requests
+
+# Pricing information (RMB per 1K tokens)
+pricing:
+  tongyi:
+    qwen3-max-latest:
+      input: 0.006      # ¥0.006 per 1K input tokens
+      output: 0.024     # ¥0.024 per 1K output tokens
+    qwen-plus-latest:
+      input: 0.0008      # ¥0.0008 per 1K input tokens
+      output: 0.002     # ¥0.002 per 1K output tokens
+  deepseek:
+    deepseek-reasoner:
+      input: 0.002      # ¥0.002 per 1K input tokens
+      output: 0.003     # ¥0.003 per 1K output tokens
+    deepseek-chat:
+      input: 0.002      # ¥0.002 per 1K input tokens
+      output: 0.003     # ¥0.003 per 1K output tokens
+  siliconflow:
+    deepseek-ai/DeepSeek-V3.2-Exp:
+      input: 0.002      # ¥0.002 per 1K input tokens
+      output: 0.003     # ¥0.003 per 1K output tokens
+
+# WeChat Translation Notes LLM Configuration
+wechat_translation_notes:
+  # Primary provider for translation notes synthesis
+  primary_provider: "deepseek"
+  primary_model: "deepseek-reasoner"
+
+  # Fallback provider if primary fails
+  fallback_provider: "tongyi"
+  fallback_model: "qwen-plus-latest"
+
+  # Model configurations for different types
+  models:
+    reasoning:
+      provider: "deepseek"
+      model: "deepseek-reasoner"
+      prompt_template: "wechat_article_notes_reasoning"
+      temperature: 0.1
+      max_tokens: 8192
+      timeout: 180
+
+    non_reasoning:
+      provider: "tongyi"
+      model: "qwen-plus-latest"
+      prompt_template: "wechat_article_notes_nonreasoning"
+      temperature: 0.3
+      max_tokens: 8192
+      timeout: 60
+
+# BBR Generation Configuration
+bbr_generation:
+  provider: "tongyi"
+  model: "qwen-plus-latest"
+  temperature: 0.3
+  max_tokens: 16384
+  prompt_template: "background_briefing_report"
+  timeout: 180.0
+  retry_attempts: 2
+
+  

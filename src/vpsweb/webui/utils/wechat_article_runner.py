@@ -21,7 +21,7 @@ from typing import Optional, Dict, Any, List
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from vpsweb.utils.article_generator import ArticleGenerator, ArticleGeneratorError
-from vpsweb.utils.config_loader import load_config
+from vpsweb.services.config import get_config_facade, ConfigFacade
 from vpsweb.models.wechat import (
     ArticleGenerationResult,
     ArticleGenerationConfig,
@@ -39,50 +39,85 @@ class WeChatArticleRunner:
     提供独立、隔离的微信文章生成功能，与翻译工作流完全分离。
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, config_facade: Optional[ConfigFacade] = None):
         """
         初始化微信文章生成运行器
 
         Args:
-            config_path: 配置文件路径，默认使用 config/default.yaml
+            config_path: 配置文件路径，默认使用 config/default.yaml (legacy)
+            config_facade: ConfigFacade instance (preferred)
         """
-        self.config = load_config(config_path)
-
-        # 检查是否有微信配置，如果没有则使用默认配置
-        if hasattr(self.config, "wechat") and hasattr(
-            self.config.wechat, "article_generation"
-        ):
-            # 使用完整的微信配置
-            wechat_config = self.config.wechat.article_generation.model_dump()
-            print("✅ Using WeChat configuration from config")
+        # Support both legacy and ConfigFacade patterns
+        if config_facade is not None:
+            self._config_facade = config_facade
+            self._using_facade = True
+            self.config = None  # Not needed with ConfigFacade
+            print("✅ Using ConfigFacade for WeChat article runner")
         else:
-            # 使用默认配置
-            wechat_config = {
-                "include_translation_notes": True,
-                "copyright_text": "【著作权声明】\n本译文与译注完全由知韵(VoxPoetica)AI工具生成制作，仅供学习交流使用。原作品版权归原作者所有，如有侵权请联系删除。翻译内容未经授权，不得转载、不得用于商业用途。若需引用，请注明出处。",
-                "article_template": "codebuddy",
-                "default_cover_image_path": "config/html_templates/cover_image_big.jpg",
-                "default_local_cover_image_name": "cover_image_big.jpg",
-                "model_type": "non_reasoning",
-            }
-            print("⚠️ Using default WeChat configuration (config.wechat not found)")
+            # Try to get from global ConfigFacade
+            try:
+                self._config_facade = get_config_facade()
+                self._using_facade = True
+                self.config = None
+                print("✅ Using global ConfigFacade for WeChat article runner")
+            except RuntimeError:
+                # Fall back: create a temporary CompleteConfig for compatibility
+                from vpsweb.models.config import CompleteConfig, MainConfig, WorkflowConfig, ProvidersConfig
+                from vpsweb.utils.config_loader import load_model_registry_config, load_task_templates_config
 
-        # 初始化文章生成器
-        self.article_config = ArticleGenerationConfig(**wechat_config)
+                # Create a minimal compatibility config
+                main_config = MainConfig(
+                    workflow_mode="hybrid",
+                    workflow=WorkflowConfig(name="wechat", version="1.0.0"),
+                )
+                providers_config = ProvidersConfig()
+                self.config = CompleteConfig(main=main_config, providers=providers_config)
+                self._config_facade = None
+                self._using_facade = False
+                print("⚠️ Using compatibility config for WeChat article runner")
 
-        self.article_generator = ArticleGenerator(
-            config=self.article_config,
-            providers_config=(
-                self.config.providers if hasattr(self.config, "providers") else None
-            ),
-            wechat_llm_config=(
-                self.config.providers.wechat_translation_notes.model_dump()
-                if hasattr(self.config, "providers")
-                and hasattr(self.config.providers, "wechat_translation_notes")
-                else None
-            ),
-            system_config=self.config.model_dump(),
-        )
+        # Initialize article generator with ConfigFacade if available
+        if self._using_facade:
+            # Create article config from ConfigFacade
+            from vpsweb.models.wechat import ArticleGenerationConfig
+            wechat_config = self._config_facade.models.get_wechat_article_generation_config() or {}
+            article_config = ArticleGenerationConfig(**wechat_config)
+            self.article_generator = ArticleGenerator(config=article_config, config_facade=self._config_facade)
+        else:
+            # Legacy pattern: check for WeChat configuration
+            if hasattr(self.config, "wechat") and hasattr(
+                self.config.wechat, "article_generation"
+            ):
+                # Use complete WeChat configuration
+                wechat_config = self.config.wechat.article_generation.model_dump()
+                print("✅ Using WeChat configuration from legacy config")
+            else:
+                # Use default configuration
+                wechat_config = {
+                    "include_translation_notes": True,
+                    "copyright_text": "【著作权声明】\n本译文与译注完全由知韵(VoxPoetica)AI工具生成制作，仅供学习交流使用。原作品版权归原作者所有，如有侵权请联系删除。翻译内容未经授权，不得转载、不得用于商业用途。若需引用，请注明出处。",
+                    "article_template": "codebuddy",
+                    "default_cover_image_path": "config/html_templates/cover_image_big.jpg",
+                    "default_local_cover_image_name": "cover_image_big.jpg",
+                    "model_type": "non_reasoning",
+                }
+                print("⚠️ Using default WeChat configuration (config.wechat not found)")
+
+            # Initialize article generator with legacy config
+            self.article_config = ArticleGenerationConfig(**wechat_config)
+            self.article_generator = ArticleGenerator(
+                config=self.article_config,
+                providers_config=(
+                    self.config.providers if hasattr(self.config, "providers") else None
+                ),
+                wechat_llm_config=(
+                    self.config.providers.wechat_translation_notes.model_dump()
+                    if hasattr(self.config, "providers")
+                    and hasattr(self.config.providers, "wechat_translation_notes")
+                    else None
+                ),
+                system_config=self.config.model_dump(),
+            )
 
         logger.info("Repository WebUI WeChat Article runner initialized")
 

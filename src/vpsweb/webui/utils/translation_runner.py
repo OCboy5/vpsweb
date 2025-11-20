@@ -21,7 +21,7 @@ from typing import Optional, Dict, Any, List
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from vpsweb.core.workflow import TranslationWorkflow
-from vpsweb.utils.config_loader import load_config
+from vpsweb.services.config import initialize_config_facade, get_config_facade
 from vpsweb.utils.logger import get_logger
 from vpsweb.utils.storage import StorageHandler
 from vpsweb.utils.datetime_utils import format_iso_datetime, now_utc
@@ -43,9 +43,11 @@ class TranslationRunner:
         Args:
             config_path: 配置文件路径，默认使用 config/default.yaml
         """
-        self.config = load_config(config_path)
-        self.workflow = TranslationWorkflow(self.config)
-        self.storage_handler = StorageHandler(self.config.storage.output_dir)
+        # Initialize ConfigFacade for configuration access
+        initialize_config_facade()
+        self.config_facade = get_config_facade()
+        self.workflow = TranslationWorkflow()
+        self.storage_handler = StorageHandler(self.config_facade.main.system.storage.output_dir)
         logger.info("Repository WebUI Translation runner initialized")
 
     async def run_translation(
@@ -288,7 +290,7 @@ This is a simulated result for testing purposes."""
         """
         # 确定输出目录
         if output_dir is None:
-            output_dir = self.config.storage.output_dir
+            output_dir = self.config_facade.main.system.storage.output_dir
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)

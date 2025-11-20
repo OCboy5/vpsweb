@@ -23,6 +23,7 @@ from vpsweb.repository.models import Translation, TranslationWorkflowStep
 from ..schemas import WebAPIResponse
 from ..utils.wechat_article_runner import WeChatArticleRunner
 from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
+from vpsweb.services.config import get_config_facade, ConfigFacade
 
 import json
 import tempfile
@@ -35,6 +36,11 @@ router = APIRouter()
 def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
     """Dependency to get repository service instance"""
     return RepositoryService(db)
+
+
+def get_config_facade_dependency() -> ConfigFacade:
+    """Dependency to get ConfigFacade instance"""
+    return get_config_facade()
 
 
 class WeChatArticleGenerateRequest(BaseModel):
@@ -86,6 +92,7 @@ async def generate_wechat_article(
     db: Session = Depends(get_db),
     service: RepositoryService = Depends(get_repository_service),
     adapter: VPSWebWorkflowAdapterV2 = Depends(get_vpsweb_adapter),
+    config_facade: ConfigFacade = Depends(get_config_facade_dependency),
 ):
     """
     Generate a WeChat article from translation workflow data.
@@ -159,9 +166,9 @@ async def generate_wechat_article(
         print(f"✅ Translation data built successfully")
 
         print(f"🏃 Initializing WeChat article runner...")
-        # Initialize WeChat article runner
-        runner = WeChatArticleRunner()
-        print(f"✅ WeChat article runner initialized")
+        # Initialize WeChat article runner with ConfigFacade
+        runner = WeChatArticleRunner(config_facade=config_facade)
+        print(f"✅ WeChat article runner initialized with ConfigFacade")
 
         print(f"📝 Starting article generation (dry_run={request_body.dry_run})...")
 
@@ -628,13 +635,14 @@ async def view_wechat_article_html(
     request: Request,
     db: Session = Depends(get_db),
     service: RepositoryService = Depends(get_repository_service),
+    config_facade: ConfigFacade = Depends(get_config_facade_dependency),
 ):
     """Serve WeChat article HTML content through web endpoint."""
     try:
         from ..utils.wechat_article_runner import WeChatArticleRunner
 
         # Get metadata to find HTML file path
-        runner = WeChatArticleRunner()
+        runner = WeChatArticleRunner(config_facade=config_facade)
 
         html_content = None
         content_type = "text/html; charset=utf-8"

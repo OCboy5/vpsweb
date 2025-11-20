@@ -24,11 +24,12 @@ except ImportError:
 
 from .utils.logger import setup_logging, get_logger
 from .utils.config_loader import (
-    load_config,
-    validate_config_files,
     load_wechat_complete_config,
     validate_wechat_setup,
+    load_model_registry_config,
+    load_task_templates_config,
 )
+from .services.config import initialize_config_facade, get_config_facade
 from .utils.storage import StorageHandler
 from .utils.article_generator import ArticleGenerator
 from .core.workflow import TranslationWorkflow
@@ -144,6 +145,9 @@ def initialize_system(config_path: Optional[str], verbose: bool) -> tuple:
         # Load configuration
         complete_config = load_config(config_path)
 
+        # Initialize ConfigFacade for centralized configuration access
+        config_facade = initialize_config_facade(complete_config)
+
         # Setup logging based on configuration
         log_config = complete_config.main.logging
         if verbose:
@@ -151,12 +155,10 @@ def initialize_system(config_path: Optional[str], verbose: bool) -> tuple:
 
         setup_logging(log_config)
 
-        click.echo(
-            f"   Workflow: {complete_config.main.workflow.name} v{complete_config.main.workflow.version}"
-        )
-        click.echo(
-            f"   Providers: {', '.join(complete_config.providers.providers.keys())}"
-        )
+        # Display configuration summary using ConfigFacade
+        workflow_info = config_facade.get_workflow_info()
+        click.echo(f"   Workflow: {workflow_info['name']} v{workflow_info['version']}")
+        click.echo(f"   Providers: {', '.join(config_facade.get_provider_names())}")
 
         return complete_config, complete_config.main.workflow
 
@@ -406,9 +408,10 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
             validate_input_only(input_data, config)
             return
 
-        # Create and execute workflow with specified mode
+        # Create and execute workflow with specified mode using ConfigFacade
+        config_facade = get_config_facade()
         workflow = TranslationWorkflow(
-            workflow_config, complete_config.providers, workflow_mode_enum
+            config_facade=config_facade
         )
 
         # Get storage settings
@@ -537,8 +540,9 @@ def generate_article(
         except Exception as e:
             raise ConfigError(f"Failed to load WeChat configuration: {e}")
 
-        # Load complete configuration for LLM providers
+        # Initialize ConfigFacade for LLM providers
         complete_config = load_config()
+        config_facade = initialize_config_facade(complete_config)
 
         # Initialize article generator
 
@@ -565,9 +569,7 @@ def generate_article(
                 f"   🎯 Using Model Type: {article_gen_config.model_type} (from config)"
             )
 
-        article_generator = ArticleGenerator(
-            article_gen_config, providers_config=complete_config.providers
-        )
+        article_generator = ArticleGenerator(config=article_gen_config, config_facade=config_facade)
 
         # Display important configuration items
         click.echo("\n📋 Article Generation Configuration:")

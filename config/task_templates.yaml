@@ -1,0 +1,102 @@
+# Task Templates - Task-level parameters and model assignments
+# Centralized place for all task configurations (prompt templates, models, parameters)
+
+task_templates:
+  # Initial Translation Tasks
+  initial_translation_nonreasoning:
+    model_ref: "qwen3_plus"
+    prompt_template: "initial_translation_nonreasoning"
+    temperature: 0.7
+    max_tokens: 8192
+    timeout: 180
+    retry_attempts: 3
+    stop: ["</initial_translation_notes>"]
+
+  initial_translation_reasoning:
+    model_ref: "deepseek_reasoner"
+    prompt_template: "initial_translation_reasoning"
+    temperature: 0.2
+    max_tokens: 16384
+    timeout: 300
+    retry_attempts: 2
+    stop: ["</initial_translation_notes>"]
+
+  # Editor Review Tasks
+  editor_review_reasoning:
+    model_ref: "deepseek_v3_silicon"
+    prompt_template: "editor_review_reasoning"
+    temperature: 0.1
+    max_tokens: 16384
+    timeout: 300
+    retry_attempts: 2
+    stop: ["</editor_suggestions>"]
+
+  editor_review_nonreasoning:
+    model_ref: "qwen3_plus"
+    prompt_template: "editor_review_nonreasoning"
+    temperature: 0.3
+    max_tokens: 8192
+    timeout: 180
+    retry_attempts: 3
+    stop: ["</editor_suggestions>"]
+
+  # Translator Revision Tasks
+  translator_revision_nonreasoning:
+    model_ref: "qwen3_plus"
+    prompt_template: "translator_revision_nonreasoning"
+    temperature: 0.2
+    max_tokens: 8192
+    timeout: 180
+    retry_attempts: 3
+    stop: ["</revised_translation_notes>"]
+
+  translator_revision_reasoning:
+    model_ref: "deepseek_reasoner"
+    prompt_template: "translator_revision_reasoning"
+    temperature: 0.15
+    max_tokens: 16384
+    timeout: 300
+    retry_attempts: 2
+    stop: ["</revised_translation_notes>"]
+
+  # Specialized Tasks
+  bbr_generation:
+    model_ref: "qwen3_plus"
+    prompt_template: "background_briefing_report"
+    temperature: 0.3
+    max_tokens: 16384
+    timeout: 180
+    retry_attempts: 2
+
+  wechat_notes_reasoning:
+    model_ref: "deepseek_reasoner"
+    prompt_template: "wechat_article_notes_reasoning"
+    temperature: 0.1
+    max_tokens: 8192
+    timeout: 180
+    retry_attempts: 2
+
+  wechat_notes_nonreasoning:
+    model_ref: "qwen3_plus"
+    prompt_template: "wechat_article_notes_nonreasoning"
+    temperature: 0.3
+    max_tokens: 8192
+    timeout: 60
+    retry_attempts: 3
+
+  # Additional WeChat tasks for different use cases
+  wechat_notes_reasoning_alt:
+    model_ref: "deepseek_v3_silicon"
+    prompt_template: "wechat_article_notes_reasoning"
+    temperature: 0.1
+    max_tokens: 8192
+    timeout: 180
+    retry_attempts: 2
+
+  wechat_article_generation:
+    model_ref: "qwen3_plus"
+    prompt_template: "wechat_article_content_generation"
+    temperature: 0.5
+    max_tokens: 4096
+    timeout: 120
+    retry_attempts: 2
