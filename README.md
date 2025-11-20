@@ -40,13 +40,13 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.4.4 - Enhanced Configuration System & Development Workflow**
+## 🎯 Current Status: **v0.5.5 - Dynamic Model Reference Resolution Release**
 
-📝 **Advanced Prompt Configuration System V2**: Comprehensive V2 prompt system with specialized templates for different workflow phases
-🛠️ **Development Tooling Enhancements**: Vulture dead code elimination whitelist, improved test configuration, and streamlined service configurations
-🎨 **Web UI Enhancements**: Enhanced poem detail templates with better responsive design and optimized VPSWeb adapter
-📚 **Configuration Management**: Modular, extensible prompt configuration architecture for better maintainability
-🔧 **Architecture Updates**: Refactored service layer for better modularity and enhanced utility functions
+🔄 **Dynamic Model Reference Resolution**: Replaced hardcoded model name mappings with dynamic exact matching from model registry for automatic scalability
+🏗️ **Enhanced Configuration Architecture**: New ConfigFacade with ModelRegistryService and TaskTemplateService for centralized configuration management
+💰 **Pricing Calculation Fixes**: Fixed BBR generator and workflow cost calculation to use dynamic model reference resolution
+🛠️ **Service Layer Refactoring**: Comprehensive service layer with domain-specific services and proper dependency injection
+🔧 **Backward Compatibility**: Maintained full compatibility with legacy configuration patterns while adding new architecture
 
 ### **Previous v0.3.x Features**
 🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0
