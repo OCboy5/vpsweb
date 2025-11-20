@@ -2,10 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Note**: For tool usage workflow and MCP tool selection guidance, see `.claude/instructions.md`
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 **VPSWeb (Vox Poetica Studio Web)** is a professional AI-powered poetry translation platform that implements a collaborative Translator→Editor→Translator workflow to produce high-fidelity translations between English and Chinese (and other languages).
@@ -276,13 +272,6 @@ python -c "from vpsweb import __main__; print('OK')"         # Test imports
 pkill -f uvicorn                                             # Kill stray processes
 ./scripts/clean-start.sh                                     # Clean restart
 ```
-
-### VS Code Symbol Tools for Context Efficiency
-Use VS Code symbol tools to reduce context consumption:
-- `get_document_symbols_code` for file structure overview instead of reading entire files
-- `search_symbols_code` to find symbols by name across the project
-- `get_symbol_definition_code` for type info and docs without full file context
-- Workflow: get outline → search symbols → get definitions → read implementation only when needed
   
 ---
 ## Important Reminders

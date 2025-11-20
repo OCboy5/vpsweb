@@ -24,24 +24,18 @@ This document defines the **standardized release process** that Claude Code foll
    - Verify requested version doesn't already exist
    - Validate semantic version format (X.Y.Z)
 
-### Phase 2: Local Backup Creation ⭐ **NEW**
-3. **Create local backup before making changes**
-   - Run `./save-version.sh X.Y.Z` to create backup tag
-   - Verify backup tag was created successfully
-   - This provides rollback capability if anything goes wrong
-
-### Phase 3: Quality Assurance
-4. **Run essential tests**
+### Phase 2: Quality Assurance
+3. **Run essential tests**
    - Test core CLI functionality
    - Verify model imports work
    - Test basic import functionality
 
-5. **Code quality checks**
+4. **Code quality checks**
    - Run Black formatting check
    - Fix any formatting issues automatically
    - Skip optional linting (as per workflow design)
 
-6. **File verification**
+5. **File verification**
    - Confirm all required files exist:
      - `pyproject.toml`
      - `src/vpsweb/__init__.py`
@@ -49,43 +43,49 @@ This document defines the **standardized release process** that Claude Code foll
      - `CHANGELOG.md`
      - `README.md`
 
-### Phase 4: Version Management
-7. **Update version files**
+### Phase 3: Version Management
+6. **Update version files**
    - Update `pyproject.toml`: `version = "X.Y.Z"`
    - Update `src/vpsweb/__init__.py`: `__version__ = "X.Y.Z"`
    - Update `src/vpsweb/__main__.py`: `version="X.Y.Z"`
    - Verify all versions match
 
-8. **Update CHANGELOG.md**
+7. **Update CHANGELOG.md**
    - Create new release section with proper format
    - Include release date
    - Add structured template for release notes
 
-9. **Update README.md** ⭐ **NEW**
+8. **Update README.md** ⭐ **NEW**
    - Update version mentions in README.md
    - Update installation instructions if needed
    - Update any version-specific examples or documentation
    - Add new release to release history section if it exists
 
-### Phase 5: Pre-Release Commit
-10. **Commit all changes**
+### Phase 4: Pre-Release Commit
+9. **Commit all changes**
     - Stage all version and documentation changes
     - Create standardized commit message
     - Push to remote repository
 
-### Phase 6: Release Creation
-11. **Execute release script**
+### Phase 5: Release Creation
+10. **Execute release script**
     - Use `./push-version.sh X.Y.Z "Release notes"`
     - Script handles:
       - Tag creation
       - GitHub release creation
       - Proper error handling
 
-12. **Verification**
+11. **Verification**
     - Confirm release appears in GitHub releases
     - Verify tag exists
     - Check release URL works
     - Confirm version consistency across all files
+
+### Phase 6: Local Backup Creation ⭐ **NEW**
+12. **Create local backup before making changes**
+   - Run `./save-version.sh X.Y.Z` to create backup tag
+   - Verify backup tag was created successfully
+   - This provides rollback capability if anything goes wrong
 
 ## Release Notes Template
 
@@ -134,7 +134,6 @@ If any step fails:
 
 ## Important Reminders for Claude
 
-- **ALWAYS create a local backup first** using `./save-version.sh`
 - **ALWAYS update README.md** with version information
 - **ALWAYS use the manual `./push-version.sh` script** - it's proven reliable
 - **NEVER rely on the GitHub Actions workflow** - it has permissions/protection issues
@@ -142,6 +141,7 @@ If any step fails:
 - **NEVER skip quality checks** - they ensure reliable releases
 - **COMMIT all changes** before running the release script
 - **ALWAYS check version consistency** across all files
+- **ALWAYS create a local backup first** using `./save-version.sh`
 
 ## Version Files That Must Be Updated
 

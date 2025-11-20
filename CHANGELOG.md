@@ -5,6 +5,49 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] - 2025-11-20
+
+### 🚀 Overview
+VPSWeb v0.5.4 - **BBR Modal Enhancement Release**. This release improves the consistency and completeness of Background Briefing Report (BBR) viewing across all translation pages with enhanced metadata display and user experience.
+
+### ✨ New Features
+
+#### 🔍 Enhanced BBR Modal Experience
+- **Comprehensive Metadata Display**: Complete BBR information including Created timestamp, Model details, Tokens Used, Cost, and Time Spent
+- **Copy Content Functionality**: New "Copy Content" button allows users to easily copy BBR content to clipboard
+- **Consistent Modal Design**: Uniform BBR viewing experience across translation notes, poem detail, and compare pages
+- **Rich Data Presentation**: Grid-layout metadata with proper formatting and comprehensive field coverage
+
+### 🔧 Improvements
+
+#### 📊 Modal Data Enhancement
+- **Detailed Model Information**: Extract and display model information from model_info JSON field
+- **Cost and Performance Metrics**: Show complete cost breakdown and timing information
+- **Better Content Formatting**: Improved content display with proper scrolling and readability
+- **Enhanced Error Handling**: Better error messages when BBR content is not available
+
+#### 🎨 User Interface Polish
+- **Consistent Button Styling**: Uniform button design and interaction patterns across all BBR modals
+- **Improved Modal Layout**: Better organization of metadata and content sections
+- **Enhanced Accessibility**: Improved keyboard navigation and screen reader compatibility
+- **Visual Consistency**: Matching design patterns with existing UI components
+
+### 🐛 Bug Fixes
+
+#### 🔧 Modal Consistency Issues
+- **Fixed Missing Metadata**: BBR modals now show all available information consistently
+- **Fixed Display Inconsistencies**: Uniform formatting and presentation across all pages
+- **Fixed Content Truncation**: Improved content display with proper scrolling and text wrapping
+- **Fixed Button Functionality**: Corrected copy button behavior and error handling
+
+### 🔧 Technical Changes
+
+#### 🏗️ Code Structure Improvements
+- **Centralized Modal Component**: Reusable modal implementation for BBR display
+- **Enhanced Data Processing**: Better parsing and handling of BBR metadata fields
+- **Improved Error Handling**: More robust error handling and user feedback
+- **Code Deduplication**: Reduced code duplication across BBR display implementations
+
 ## [0.5.3] - 2025-11-20
 
 ### 🚀 Overview
