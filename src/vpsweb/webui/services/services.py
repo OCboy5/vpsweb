@@ -578,7 +578,11 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             try:
                 self.logger.info("Getting VPSWeb configuration from ConfigFacade...")
                 config_facade = get_config_facade()
-                self._config = config_facade.get_complete_config() if hasattr(config_facade, 'get_complete_config') else None
+                self._config = (
+                    config_facade.get_complete_config()
+                    if hasattr(config_facade, "get_complete_config")
+                    else None
+                )
                 self._workflow_config = config_facade.main.workflow
                 self._providers_config = config_facade.providers
             except Exception as e:
@@ -755,14 +759,19 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             # Try to get ConfigFacade - primary method for new model registry structure
             try:
                 from vpsweb.services.config import get_config_facade
+
                 config_facade = get_config_facade()
-                self.logger.info("Using global ConfigFacade for workflow step resolution")
+                self.logger.info(
+                    "Using global ConfigFacade for workflow step resolution"
+                )
 
                 # Use ConfigFacade with new model registry structure
                 for step_name in step_names:
                     try:
                         # Use ConfigFacade to resolve task template
-                        resolved_step = config_facade.get_workflow_step_config(workflow_mode.value, step_name)
+                        resolved_step = config_facade.get_workflow_step_config(
+                            workflow_mode.value, step_name
+                        )
 
                         workflow_step = WorkflowStep(
                             name=step_name,
@@ -783,15 +792,21 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
             except RuntimeError:
                 # No global ConfigFacade available - fallback to local instance or legacy
-                self.logger.warning("Global ConfigFacade not available, trying local instance or legacy fallback")
+                self.logger.warning(
+                    "Global ConfigFacade not available, trying local instance or legacy fallback"
+                )
 
                 # Check if we have a local ConfigFacade instance
-                if hasattr(self, '_config_facade') and self._config_facade is not None:
+                if hasattr(self, "_config_facade") and self._config_facade is not None:
                     self.logger.info("Using local ConfigFacade instance")
                     for step_name in step_names:
                         try:
                             # Use local ConfigFacade to resolve task template
-                            resolved_step = self._config_facade.get_workflow_step_config(workflow_mode.value, step_name)
+                            resolved_step = (
+                                self._config_facade.get_workflow_step_config(
+                                    workflow_mode.value, step_name
+                                )
+                            )
 
                             workflow_step = WorkflowStep(
                                 name=step_name,
@@ -806,18 +821,26 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                             )
                             workflow_steps.append(workflow_step)
                         except Exception as e:
-                            self.logger.error(f"Failed to resolve step '{step_name}': {e}")
+                            self.logger.error(
+                                f"Failed to resolve step '{step_name}': {e}"
+                            )
                             continue
                 else:
                     # True legacy fallback
-                    self.logger.warning("No ConfigFacade available, falling back to legacy workflow step resolution")
-                    step_configs = self._workflow_config.get_workflow_steps(workflow_mode_enum)
+                    self.logger.warning(
+                        "No ConfigFacade available, falling back to legacy workflow step resolution"
+                    )
+                    step_configs = self._workflow_config.get_workflow_steps(
+                        workflow_mode_enum
+                    )
 
                     for step_name, step_config in step_configs.items():
                         # Check if step_config is a TaskTemplateStepConfig (new structure) or StepConfig (legacy)
-                        if hasattr(step_config, 'task_template'):
+                        if hasattr(step_config, "task_template"):
                             # New structure but no ConfigFacade - we can't resolve this
-                            self.logger.error(f"Cannot resolve task template '{step_config.task_template}' without ConfigFacade")
+                            self.logger.error(
+                                f"Cannot resolve task template '{step_config.task_template}' without ConfigFacade"
+                            )
                             continue
                         else:
                             # True legacy StepConfig structure
@@ -830,7 +853,9 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                                 max_tokens=step_config.max_tokens,
                                 timeout=step_config.timeout,
                                 retry_attempts=step_config.retry_attempts,
-                                required_fields=getattr(step_config, 'required_fields', None),
+                                required_fields=getattr(
+                                    step_config, "required_fields", None
+                                ),
                             )
                         workflow_steps.append(workflow_step)
 
@@ -866,24 +891,24 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             )
 
             # Initialize TranslationWorkflow with proper parameters based on available configuration
-            if getattr(self, '_using_facade', False):
+            if getattr(self, "_using_facade", False):
                 # ConfigFacade pattern - pass config_facade directly
                 workflow = TranslationWorkflow(
-                    config_facade=getattr(self, '_config_facade', None),
+                    config_facade=getattr(self, "_config_facade", None),
                     workflow_mode=workflow_mode_enum,
-                    task_service=getattr(self, 'task_service', None),
+                    task_service=getattr(self, "task_service", None),
                     task_id=task_id,
-                    repository_service=getattr(self, 'repository_service', None),
+                    repository_service=getattr(self, "repository_service", None),
                 )
             else:
                 # Legacy pattern - pass config and providers
                 workflow = TranslationWorkflow(
-                    config_or_facade=getattr(self, '_workflow_config', None),
-                    providers_config=getattr(self, '_providers_config', None),
+                    config_or_facade=getattr(self, "_workflow_config", None),
+                    providers_config=getattr(self, "_providers_config", None),
                     workflow_mode=workflow_mode_enum,
-                    task_service=getattr(self, 'task_service', None),
+                    task_service=getattr(self, "task_service", None),
                     task_id=task_id,
-                    repository_service=getattr(self, 'repository_service', None),
+                    repository_service=getattr(self, "repository_service", None),
                 )
             await self.task_service.update_task(task_id, {"workflow": workflow})
             workflow.progress_callback = progress_callback
@@ -2215,7 +2240,9 @@ class BBRServiceV2(IBBRServiceV2):
         else:
             # Legacy pattern
             if providers_config is None:
-                raise ValueError("Either providers_config or config_facade must be provided")
+                raise ValueError(
+                    "Either providers_config or config_facade must be provided"
+                )
             self.providers_config = providers_config
             self._config_facade = None
             self._using_facade = False

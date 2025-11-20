@@ -146,10 +146,6 @@ def load_yaml_file(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise ConfigLoadError(f"Error reading configuration file {file_path}: {e}")
 
 
-
-
-
-
 def load_article_generation_config(
     config_data: Dict[str, Any]
 ) -> ArticleGenerationConfig:
@@ -188,10 +184,6 @@ def load_article_generation_config(
         )
     except Exception as e:
         raise ConfigLoadError(f"Error loading article generation configuration: {e}")
-
-
-
-
 
 
 def load_wechat_complete_config(
@@ -348,7 +340,7 @@ def load_model_registry_config() -> Dict[str, Any]:
         if not models_path.exists():
             raise ConfigLoadError(f"Model registry file not found: {models_path}")
 
-        with open(models_path, 'r', encoding='utf-8') as f:
+        with open(models_path, "r", encoding="utf-8") as f:
             models_config = yaml.safe_load(f)
 
         logger.info("Model registry configuration loaded successfully")
@@ -373,9 +365,11 @@ def load_task_templates_config() -> Dict[str, Any]:
     try:
         task_templates_path = Path("config/task_templates.yaml")
         if not task_templates_path.exists():
-            raise ConfigLoadError(f"Task templates file not found: {task_templates_path}")
+            raise ConfigLoadError(
+                f"Task templates file not found: {task_templates_path}"
+            )
 
-        with open(task_templates_path, 'r', encoding='utf-8') as f:
+        with open(task_templates_path, "r", encoding="utf-8") as f:
             task_templates_config = yaml.safe_load(f)
 
         logger.info("Task templates configuration loaded successfully")
@@ -385,5 +379,3 @@ def load_task_templates_config() -> Dict[str, Any]:
         raise ConfigLoadError(f"Invalid YAML in task templates file: {e}")
     except Exception as e:
         raise ConfigLoadError(f"Failed to load task templates configuration: {e}")
-
-

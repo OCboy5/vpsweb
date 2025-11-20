@@ -6,7 +6,12 @@ configuration without directly manipulating the underlying YAML structure.
 """
 
 from typing import Dict, List, Optional, Any, Union
-from ...models.config import WorkflowConfig, WorkflowMode, TaskTemplateStepConfig, StepConfig
+from ...models.config import (
+    WorkflowConfig,
+    WorkflowMode,
+    TaskTemplateStepConfig,
+    StepConfig,
+)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -54,7 +59,9 @@ class WorkflowService:
             modes.append(WorkflowMode.HYBRID.value)
         return modes
 
-    def get_workflow_steps(self, mode: WorkflowMode) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
+    def get_workflow_steps(
+        self, mode: WorkflowMode
+    ) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
         """
         Get workflow steps for the specified mode.
 
@@ -91,7 +98,9 @@ class WorkflowService:
 
         return workflow_data
 
-    def get_step_config(self, mode: WorkflowMode, step_name: str) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_step_config(
+        self, mode: WorkflowMode, step_name: str
+    ) -> Union[StepConfig, TaskTemplateStepConfig]:
         """
         Get configuration for a specific workflow step.
 
@@ -112,15 +121,21 @@ class WorkflowService:
         return steps[step_name]
 
     # Step-specific convenience methods
-    def get_initial_translation_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_initial_translation_config(
+        self, mode: WorkflowMode
+    ) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get initial translation step configuration."""
         return self.get_step_config(mode, "initial_translation")
 
-    def get_editor_review_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_editor_review_config(
+        self, mode: WorkflowMode
+    ) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get editor review step configuration."""
         return self.get_step_config(mode, "editor_review")
 
-    def get_translator_revision_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_translator_revision_config(
+        self, mode: WorkflowMode
+    ) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get translator revision step configuration."""
         return self.get_step_config(mode, "translator_revision")
 
@@ -170,7 +185,11 @@ class WorkflowService:
                     errors.append(f"Workflow mode {mode_str} has no configured steps")
 
                 # Validate required steps exist
-                required_steps = ["initial_translation", "editor_review", "translator_revision"]
+                required_steps = [
+                    "initial_translation",
+                    "editor_review",
+                    "translator_revision",
+                ]
                 for required_step in required_steps:
                     if required_step not in steps:
                         errors.append(

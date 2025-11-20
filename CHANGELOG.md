@@ -5,6 +5,60 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.5] - 2025-11-21
+
+### 🚀 Overview
+VPSWeb v0.5.5 - **Dynamic Model Reference Resolution Release**. This release implements a comprehensive fix for model pricing and configuration resolution by replacing hardcoded mappings with dynamic exact matching from the model registry, ensuring the system scales automatically with new models.
+
+### ✨ New Features
+
+#### 🔄 Dynamic Model Resolution System
+- **Exact Matching Implementation**: Replaced hardcoded model name mappings with dynamic exact matching from model registry configuration
+- **Scalable Architecture**: New models added to `models.yaml` automatically work without code changes
+- **Fallback Mechanisms**: Robust error handling with graceful degradation when model resolution fails
+- **ConfigFacade Integration**: Enhanced configuration facade with model registry services for centralized access
+
+### 🔧 Improvements
+
+#### 🏗️ Configuration Architecture Enhancements
+- **Model Registry Services**: New `ModelRegistryService` provides comprehensive model information and resolution capabilities
+- **Task Template Services**: New `TaskTemplateService` handles dynamic task configuration resolution
+- **Centralized Configuration**: New `ConfigFacade` pattern provides unified access to all configuration services
+- **Backward Compatibility**: Maintained full compatibility with legacy configuration patterns
+
+#### 💰 Pricing Calculation Fixes
+- **Dynamic Pricing Resolution**: BBR generator and workflow cost calculation now use dynamic model reference resolution
+- **Eliminated Hardcoded Mappings**: Removed brittle hardcoded mappings that caused pricing errors
+- **Real-time Cost Tracking**: Accurate cost calculation for all models based on current configuration
+- **Enhanced Error Reporting**: Better error messages when pricing information is missing
+
+### 🐛 Bug Fixes
+
+#### 🔧 Model Resolution Issues
+- **Fixed `qwen-plus-latest` Pricing Error**: Model pricing now correctly resolved through dynamic lookup
+- **Fixed ConfigFacade Workflow Mode Errors**: Proper handling of enum vs string values for workflow_mode
+- **Fixed WebUI Configuration Loading**: Web application now loads actual workflow configuration instead of minimal mock
+- **Fixed Translation Workflow Pricing**: Translation steps now correctly resolve model pricing information
+
+#### 🏛️ Architecture and Configuration Fixes
+- **Fixed Hybrid Workflow Mode Not Found**: WebUI now properly loads complete workflow configuration with all modes
+- **Fixed String vs Enum Attribute Errors**: Enhanced ConfigFacade to handle both enum and string workflow_mode values
+- **Fixed Provider Configuration Access**: Improved BBR generator provider configuration resolution
+
+### 🔧 Technical Changes
+
+#### 📦 New Service Layer Architecture
+- **Domain-Specific Services**: Separate services for workflow, model, system, model registry, and task template configuration
+- **Service Factory Pattern**: Centralized service initialization and dependency injection
+- **Enhanced Configuration Loading**: Improved YAML configuration loading with validation and error handling
+- **Async Database Integration**: Maintained async patterns throughout the service layer
+
+#### 🧹 Code Quality Improvements
+- **Comprehensive Refactoring**: Removed hardcoded mappings and improved code maintainability
+- **Enhanced Error Handling**: Better error messages and fallback mechanisms throughout the system
+- **Type Safety Improvements**: Enhanced type annotations and validation for configuration objects
+- **Performance Optimizations**: Improved model lookup performance with efficient caching strategies
+
 ## [0.5.4] - 2025-11-20
 
 ### 🚀 Overview

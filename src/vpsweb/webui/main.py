@@ -51,7 +51,10 @@ from vpsweb.repository.crud import RepositoryService
 from vpsweb.repository.database import get_db
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.config import WorkflowConfig, WorkflowMode
-from vpsweb.utils.config_loader import load_model_registry_config, load_task_templates_config
+from vpsweb.utils.config_loader import (
+    load_model_registry_config,
+    load_task_templates_config,
+)
 from vpsweb.services.llm.factory import LLMFactory
 from vpsweb.services.prompts import PromptService
 from vpsweb.services.config import initialize_config_facade, get_config_facade
@@ -1464,22 +1467,30 @@ class ApplicationFactoryV2:
 
         # Load the actual main configuration from default.yaml
         from vpsweb.utils.config_loader import load_yaml_file
-        main_config_data = load_yaml_file('config/default.yaml')
+
+        main_config_data = load_yaml_file("config/default.yaml")
 
         # Create proper CompleteConfig for compatibility
-        from vpsweb.models.config import CompleteConfig, MainConfig, WorkflowConfig, ProvidersConfig
+        from vpsweb.models.config import (
+            CompleteConfig,
+            MainConfig,
+            WorkflowConfig,
+            ProvidersConfig,
+        )
 
         # Create WorkflowConfig from actual data
-        workflow_config = WorkflowConfig(**main_config_data['workflow'])
+        workflow_config = WorkflowConfig(**main_config_data["workflow"])
 
         main_config = MainConfig(
-            workflow_mode=main_config_data['workflow_mode'],
+            workflow_mode=main_config_data["workflow_mode"],
             workflow=workflow_config,
         )
         providers_config = ProvidersConfig()
         complete_config = CompleteConfig(main=main_config, providers=providers_config)
 
-        config_facade = initialize_config_facade(complete_config, models_config, task_templates_config)
+        config_facade = initialize_config_facade(
+            complete_config, models_config, task_templates_config
+        )
         prompt_service = PromptService()
         llm_factory = LLMFactory(config_facade=config_facade)
 

@@ -39,7 +39,11 @@ class WeChatArticleRunner:
     提供独立、隔离的微信文章生成功能，与翻译工作流完全分离。
     """
 
-    def __init__(self, config_path: Optional[str] = None, config_facade: Optional[ConfigFacade] = None):
+    def __init__(
+        self,
+        config_path: Optional[str] = None,
+        config_facade: Optional[ConfigFacade] = None,
+    ):
         """
         初始化微信文章生成运行器
 
@@ -62,8 +66,16 @@ class WeChatArticleRunner:
                 print("✅ Using global ConfigFacade for WeChat article runner")
             except RuntimeError:
                 # Fall back: create a temporary CompleteConfig for compatibility
-                from vpsweb.models.config import CompleteConfig, MainConfig, WorkflowConfig, ProvidersConfig
-                from vpsweb.utils.config_loader import load_model_registry_config, load_task_templates_config
+                from vpsweb.models.config import (
+                    CompleteConfig,
+                    MainConfig,
+                    WorkflowConfig,
+                    ProvidersConfig,
+                )
+                from vpsweb.utils.config_loader import (
+                    load_model_registry_config,
+                    load_task_templates_config,
+                )
 
                 # Create a minimal compatibility config
                 main_config = MainConfig(
@@ -71,7 +83,9 @@ class WeChatArticleRunner:
                     workflow=WorkflowConfig(name="wechat", version="1.0.0"),
                 )
                 providers_config = ProvidersConfig()
-                self.config = CompleteConfig(main=main_config, providers=providers_config)
+                self.config = CompleteConfig(
+                    main=main_config, providers=providers_config
+                )
                 self._config_facade = None
                 self._using_facade = False
                 print("⚠️ Using compatibility config for WeChat article runner")
@@ -80,9 +94,14 @@ class WeChatArticleRunner:
         if self._using_facade:
             # Create article config from ConfigFacade
             from vpsweb.models.wechat import ArticleGenerationConfig
-            wechat_config = self._config_facade.models.get_wechat_article_generation_config() or {}
+
+            wechat_config = (
+                self._config_facade.models.get_wechat_article_generation_config() or {}
+            )
             article_config = ArticleGenerationConfig(**wechat_config)
-            self.article_generator = ArticleGenerator(config=article_config, config_facade=self._config_facade)
+            self.article_generator = ArticleGenerator(
+                config=article_config, config_facade=self._config_facade
+            )
         else:
             # Legacy pattern: check for WeChat configuration
             if hasattr(self.config, "wechat") and hasattr(

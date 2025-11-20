@@ -88,7 +88,9 @@ class BBRGenerator:
             except RuntimeError:
                 # Fall back to legacy pattern
                 if providers_config is None:
-                    raise ValueError("Either providers_config or config_facade must be provided")
+                    raise ValueError(
+                        "Either providers_config or config_facade must be provided"
+                    )
                 self.providers_config = providers_config
                 self._using_facade = False
                 self._config_facade = None
@@ -345,18 +347,27 @@ class BBRGenerator:
         """
         try:
             # Try to find model reference from model name for pricing lookup
-            if self._using_facade and hasattr(self._config_facade, 'model_registry'):
+            if self._using_facade and hasattr(self._config_facade, "model_registry"):
                 # New pattern: find model reference from actual model name
-                model_ref = self._config_facade.model_registry.find_model_ref_by_name(model_name)
+                model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                    model_name
+                )
                 if model_ref:
                     # Use the model registry calculate_cost method
-                    return self._config_facade.model_registry.calculate_cost(model_ref, input_tokens, output_tokens)
+                    return self._config_facade.model_registry.calculate_cost(
+                        model_ref, input_tokens, output_tokens
+                    )
                 else:
-                    logger.warning(f"Model reference not found for model name: {model_name}")
+                    logger.warning(
+                        f"Model reference not found for model name: {model_name}"
+                    )
                     return 0.0
             else:
                 # Legacy pattern - try to convert model name to model reference
-                if hasattr(self.providers_config, "pricing") and self.providers_config.pricing:
+                if (
+                    hasattr(self.providers_config, "pricing")
+                    and self.providers_config.pricing
+                ):
                     pricing = self.providers_config.pricing
                 else:
                     pricing = {}
@@ -367,12 +378,16 @@ class BBRGenerator:
                 # First try model reference, then fall back to model name
                 if model_ref and model_ref in pricing:
                     model_pricing = pricing[model_ref]
-                    logger.debug(f"Found pricing for model {model_name} using reference {model_ref}")
+                    logger.debug(
+                        f"Found pricing for model {model_name} using reference {model_ref}"
+                    )
                 elif model_name in pricing:
                     model_pricing = pricing[model_name]
                     logger.debug(f"Found pricing for model {model_name} directly")
                 else:
-                    logger.warning(f"No pricing information found for model {model_name} (tried ref: {model_ref})")
+                    logger.warning(
+                        f"No pricing information found for model {model_name} (tried ref: {model_ref})"
+                    )
                     return 0.0
 
                 # Pricing is RMB per 1K tokens
@@ -404,21 +419,28 @@ class BBRGenerator:
             Model reference if found, None otherwise
         """
         # Try to use ConfigFacade model registry if available (preferred approach)
-        if self._using_facade and hasattr(self._config_facade, 'model_registry'):
-            model_ref = self._config_facade.model_registry.find_model_ref_by_name(model_name)
+        if self._using_facade and hasattr(self._config_facade, "model_registry"):
+            model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                model_name
+            )
             if model_ref:
-                logger.debug(f"Found model reference {model_ref} for {model_name} via ConfigFacade")
+                logger.debug(
+                    f"Found model reference {model_ref} for {model_name} via ConfigFacade"
+                )
                 return model_ref
 
         # Fallback: Try to load model registry directly
         try:
             from ..utils.config_loader import load_model_registry_config
+
             models_config = load_model_registry_config()
 
             # Build temporary mapping from the loaded models config
-            for ref, info in models_config.get('models', {}).items():
-                if info.get('name') == model_name:
-                    logger.debug(f"Found model reference {ref} for {model_name} via direct config load")
+            for ref, info in models_config.get("models", {}).items():
+                if info.get("name") == model_name:
+                    logger.debug(
+                        f"Found model reference {ref} for {model_name} via direct config load"
+                    )
                     return ref
 
         except Exception as e:

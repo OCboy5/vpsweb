@@ -26,6 +26,7 @@ router = APIRouter()
 def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
     """Dependency to get workflow service instance."""
     from vpsweb.core.container import get_container
+
     try:
         # Use the global container that's configured in the main app
         container = get_container()
@@ -45,7 +46,9 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service
-        container.register_instance(ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None))
+        container.register_instance(
+            ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None)
+        )
         container.register_singleton(IWorkflowServiceV2, WorkflowServiceV2)
 
         return container.resolve(IWorkflowServiceV2)

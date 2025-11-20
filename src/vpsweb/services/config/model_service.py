@@ -64,7 +64,9 @@ class ModelService:
             "default_model": config.default_model,
             "available_models": config.models,
             "capabilities": {
-                "reasoning": config.capabilities.reasoning if config.capabilities else False
+                "reasoning": (
+                    config.capabilities.reasoning if config.capabilities else False
+                )
             },
         }
 
@@ -125,7 +127,9 @@ class ModelService:
         """
         # First check model_classification if available
         if self._config.model_classification:
-            reasoning_models = self._config.model_classification.get("reasoning_models", [])
+            reasoning_models = self._config.model_classification.get(
+                "reasoning_models", []
+            )
             if model_name in reasoning_models:
                 return True
 
@@ -133,7 +137,11 @@ class ModelService:
         try:
             provider_name = self.get_model_provider(model_name)
             provider_config = self.get_provider_config(provider_name)
-            return provider_config.capabilities.reasoning if provider_config.capabilities else False
+            return (
+                provider_config.capabilities.reasoning
+                if provider_config.capabilities
+                else False
+            )
         except ValueError:
             return False
 
@@ -145,7 +153,10 @@ class ModelService:
             non_reasoning_models = []
 
             for provider_name, provider_config in self._config.providers.items():
-                if provider_config.capabilities and provider_config.capabilities.reasoning:
+                if (
+                    provider_config.capabilities
+                    and provider_config.capabilities.reasoning
+                ):
                     reasoning_models.extend(provider_config.models)
                 else:
                     non_reasoning_models.extend(provider_config.models)
@@ -221,12 +232,12 @@ class ModelService:
 
     def get_wechat_translation_notes_config(self) -> Optional[Dict[str, Any]]:
         """Get WeChat translation notes configuration."""
-        return getattr(self._config, 'wechat_translation_notes', None)
+        return getattr(self._config, "wechat_translation_notes", None)
 
     def get_wechat_article_generation_config(self) -> Optional[Dict[str, Any]]:
         """Get WeChat article generation configuration."""
-        if hasattr(self._config, 'wechat') and self._config.wechat:
-            if hasattr(self._config.wechat, 'article_generation'):
+        if hasattr(self._config, "wechat") and self._config.wechat:
+            if hasattr(self._config.wechat, "article_generation"):
                 return self._config.wechat.article_generation.model_dump()
 
         # Return default config if not found
@@ -261,7 +272,10 @@ class ModelService:
                 continue
 
             # Validate default model
-            if provider_config.default_model and provider_config.default_model not in provider_config.models:
+            if (
+                provider_config.default_model
+                and provider_config.default_model not in provider_config.models
+            ):
                 errors.append(
                     f"Provider {provider_name} default_model '{provider_config.default_model}' "
                     f"not in available models: {provider_config.models}"
@@ -277,6 +291,10 @@ class ModelService:
                 "model_count": len(provider_config.models),
                 "models": provider_config.models,
                 "default_model": provider_config.default_model,
-                "reasoning_capable": provider_config.capabilities.reasoning if provider_config.capabilities else False,
+                "reasoning_capable": (
+                    provider_config.capabilities.reasoning
+                    if provider_config.capabilities
+                    else False
+                ),
             }
         return summary

@@ -47,7 +47,9 @@ class TranslationRunner:
         initialize_config_facade()
         self.config_facade = get_config_facade()
         self.workflow = TranslationWorkflow()
-        self.storage_handler = StorageHandler(self.config_facade.main.system.storage.output_dir)
+        self.storage_handler = StorageHandler(
+            self.config_facade.main.system.storage.output_dir
+        )
         logger.info("Repository WebUI Translation runner initialized")
 
     async def run_translation(

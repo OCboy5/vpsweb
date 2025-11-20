@@ -73,10 +73,14 @@ class ArticleGenerator:
             # Get WeChat configurations from ConfigFacade (new task template structure)
             try:
                 # Try to get reasoning model config for WeChat notes
-                self.wechat_llm_config = config_facade.get_wechat_task_config("reasoning")
+                self.wechat_llm_config = config_facade.get_wechat_task_config(
+                    "reasoning"
+                )
             except (ValueError, RuntimeError):
                 # Fallback to legacy method
-                self.wechat_llm_config = config_facade.models.get_wechat_translation_notes_config()
+                self.wechat_llm_config = (
+                    config_facade.models.get_wechat_translation_notes_config()
+                )
             # Use providers from legacy config for compatibility
             actual_providers_config = providers_config
         else:
@@ -86,12 +90,18 @@ class ArticleGenerator:
                 self._using_facade = True
                 try:
                     # Try to get reasoning model config for WeChat notes
-                    self.wechat_llm_config = self._config_facade.get_wechat_task_config("reasoning")
+                    self.wechat_llm_config = self._config_facade.get_wechat_task_config(
+                        "reasoning"
+                    )
                 except (ValueError, RuntimeError):
                     # Fallback to legacy method
-                    self.wechat_llm_config = self._config_facade.models.get_wechat_translation_notes_config()
+                    self.wechat_llm_config = (
+                        self._config_facade.models.get_wechat_translation_notes_config()
+                    )
                 actual_providers_config = providers_config
-                logger.info("ArticleGenerator using global ConfigFacade with task templates")
+                logger.info(
+                    "ArticleGenerator using global ConfigFacade with task templates"
+                )
             except RuntimeError:
                 # Fallback to legacy pattern
                 self._using_facade = False

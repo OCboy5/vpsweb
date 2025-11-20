@@ -93,12 +93,17 @@ class TranslationWorkflow:
             # Try to auto-detect global ConfigFacade for backward compatibility
             try:
                 from ..services.config import get_config_facade
+
                 self._config_facade = get_config_facade()
                 self._using_facade = True
                 logger.info("TranslationWorkflow auto-detected global ConfigFacade")
             except RuntimeError:
                 # No global ConfigFacade available, use legacy pattern
-                if config_or_facade is None or providers_config is None or workflow_mode is None:
+                if (
+                    config_or_facade is None
+                    or providers_config is None
+                    or workflow_mode is None
+                ):
                     raise ValueError(
                         "Legacy initialization requires config, providers_config, and workflow_mode"
                     )
@@ -120,9 +125,13 @@ class TranslationWorkflow:
         # Log initialization
         if self._using_facade:
             workflow_info = self._config_facade.get_workflow_info()
-            logger.info(f"Initialized TranslationWorkflow: {workflow_info['name']} v{workflow_info['version']}")
+            logger.info(
+                f"Initialized TranslationWorkflow: {workflow_info['name']} v{workflow_info['version']}"
+            )
         else:
-            logger.info(f"Initialized TranslationWorkflow: {self.config.name} v{self.config.version}")
+            logger.info(
+                f"Initialized TranslationWorkflow: {self.config.name} v{self.config.version}"
+            )
 
         logger.info(f"Workflow mode: {self._get_workflow_mode().value}")
         logger.info(f"Available steps: {list(self.workflow_steps.keys())}")
@@ -134,7 +143,9 @@ class TranslationWorkflow:
         """Initialize common components based on initialization pattern."""
         if self._using_facade:
             # ConfigFacade-based initialization
-            self.workflow_steps = self._config_facade.workflow.get_workflow_steps(self._get_workflow_mode())
+            self.workflow_steps = self._config_facade.workflow.get_workflow_steps(
+                self._get_workflow_mode()
+            )
             providers_config = self._config_facade.providers
         else:
             # Legacy initialization
@@ -151,7 +162,11 @@ class TranslationWorkflow:
         # Get system config for step executor
         if self._using_facade:
             # ConfigFacade stores main config in the 'main' attribute
-            system_config = self._config_facade.main.model_dump() if hasattr(self._config_facade, 'main') else {}
+            system_config = (
+                self._config_facade.main.model_dump()
+                if hasattr(self._config_facade, "main")
+                else {}
+            )
         else:
             system_config = self.system_config
 
@@ -171,14 +186,17 @@ class TranslationWorkflow:
         if self._using_facade:
             # Extract from ConfigFacade main config
             from ..models.config import WorkflowMode
-            return WorkflowMode(self._config_facade.get_workflow_info()['mode'])
+
+            return WorkflowMode(self._config_facade.get_workflow_info()["mode"])
         else:
             return self.workflow_mode
 
     def _get_step_config(self, step_name: str):
         """Get step configuration for both legacy and facade patterns."""
         if self._using_facade:
-            return self._config_facade.workflow.get_step_config(self._get_workflow_mode(), step_name)
+            return self._config_facade.workflow.get_step_config(
+                self._get_workflow_mode(), step_name
+            )
         else:
             return self.workflow_steps[step_name]
 
@@ -211,9 +229,14 @@ class TranslationWorkflow:
         progress_tracker = None
         if show_progress:
             # Create progress tracker if it doesn't exist
-            if not hasattr(self, 'progress_tracker') or self.progress_tracker is None:
+            if not hasattr(self, "progress_tracker") or self.progress_tracker is None:
                 from ..utils.progress import create_progress_tracker
-                workflow_steps = list(self.workflow_steps.keys()) if hasattr(self, 'workflow_steps') else []
+
+                workflow_steps = (
+                    list(self.workflow_steps.keys())
+                    if hasattr(self, "workflow_steps")
+                    else []
+                )
                 self.progress_tracker = create_progress_tracker(workflow_steps)
                 logger.info(f"Created progress tracker with steps: {workflow_steps}")
             progress_tracker = self.progress_tracker
@@ -271,9 +294,14 @@ class TranslationWorkflow:
             )
             # Get input preview length from config
             input_preview_length = (
-                getattr(self._config_facade.main.system.preview_lengths, 'input_preview', 100)
-                if hasattr(self._config_facade.main, 'system') and
-                   hasattr(self._config_facade.main.system, 'preview_lengths') else 100
+                getattr(
+                    self._config_facade.main.system.preview_lengths,
+                    "input_preview",
+                    100,
+                )
+                if hasattr(self._config_facade.main, "system")
+                and hasattr(self._config_facade.main.system, "preview_lengths")
+                else 100
             )
             log_entries.append(
                 f"Input: {input_data.original_poem[:input_preview_length]}..."
@@ -317,16 +345,24 @@ class TranslationWorkflow:
             input_tokens = getattr(initial_translation, "prompt_tokens", 0) or 0
             output_tokens = getattr(initial_translation, "completion_tokens", 0) or 0
             initial_translation.cost = self._calculate_step_cost(
-                step_config["provider"], step_config["model"], input_tokens, output_tokens
+                step_config["provider"],
+                step_config["model"],
+                input_tokens,
+                output_tokens,
             )
             log_entries.append(
                 f"Initial translation completed: {initial_translation.tokens_used} tokens"
             )
             # Get response preview length from config
             response_preview_length = (
-                getattr(self._config_facade.main.system.preview_lengths, 'response_preview', 100)
-                if hasattr(self._config_facade.main, 'system') and
-                   hasattr(self._config_facade.main.system, 'preview_lengths') else 100
+                getattr(
+                    self._config_facade.main.system.preview_lengths,
+                    "response_preview",
+                    100,
+                )
+                if hasattr(self._config_facade.main, "system")
+                and hasattr(self._config_facade.main.system, "preview_lengths")
+                else 100
             )
             log_entries.append(
                 f"Translation: {initial_translation.initial_translation[:response_preview_length]}..."
@@ -415,7 +451,10 @@ class TranslationWorkflow:
             input_tokens = getattr(editor_review, "prompt_tokens", 0) or 0
             output_tokens = getattr(editor_review, "completion_tokens", 0) or 0
             editor_review.cost = self._calculate_step_cost(
-                step_config["provider"], step_config["model"], input_tokens, output_tokens
+                step_config["provider"],
+                step_config["model"],
+                input_tokens,
+                output_tokens,
             )
             logger.debug(
                 f"Editor Review - Provider: {step_config['provider']}, Model: {step_config['model']}"
@@ -433,9 +472,14 @@ class TranslationWorkflow:
             )
             # Get editor preview length from config
             editor_preview_length = (
-                getattr(self._config_facade.main.system.preview_lengths, 'editor_preview', 200)
-                if hasattr(self._config_facade.main, 'system') and
-                   hasattr(self._config_facade.main.system, 'preview_lengths') else 200
+                getattr(
+                    self._config_facade.main.system.preview_lengths,
+                    "editor_preview",
+                    200,
+                )
+                if hasattr(self._config_facade.main, "system")
+                and hasattr(self._config_facade.main.system, "preview_lengths")
+                else 200
             )
             log_entries.append(
                 f"Review preview: {editor_review.editor_suggestions[:editor_preview_length]}..."
@@ -521,7 +565,10 @@ class TranslationWorkflow:
             input_tokens = getattr(revised_translation, "prompt_tokens", 0) or 0
             output_tokens = getattr(revised_translation, "completion_tokens", 0) or 0
             revised_translation.cost = self._calculate_step_cost(
-                step_config["provider"], step_config["model"], input_tokens, output_tokens
+                step_config["provider"],
+                step_config["model"],
+                input_tokens,
+                output_tokens,
             )
             log_entries.append(
                 f"Translator revision completed: {revised_translation.tokens_used} tokens"
@@ -783,7 +830,9 @@ class TranslationWorkflow:
                     "model": step_config.model,
                     "temperature": str(step_config.temperature),
                     "is_reasoning": str(
-                        self._config_facade.model_registry.is_reasoning_model(step_config.model)
+                        self._config_facade.model_registry.is_reasoning_model(
+                            step_config.model
+                        )
                     ),
                 },
                 tokens_used=usage.get("tokens_used", 0),
@@ -1012,11 +1061,15 @@ class TranslationWorkflow:
         """Calculate cost for a single step."""
         try:
             # Try to use ConfigFacade model registry if available
-            if self._using_facade and hasattr(self._config_facade, 'model_registry'):
+            if self._using_facade and hasattr(self._config_facade, "model_registry"):
                 # Use the same logic as BBR generator
-                model_ref = self._config_facade.model_registry.find_model_ref_by_name(model)
+                model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                    model
+                )
                 if model_ref:
-                    return self._config_facade.model_registry.calculate_cost(model_ref, input_tokens, output_tokens)
+                    return self._config_facade.model_registry.calculate_cost(
+                        model_ref, input_tokens, output_tokens
+                    )
                 else:
                     logger.warning(f"Model reference not found for model name: {model}")
                     return 0.0
@@ -1033,18 +1086,24 @@ class TranslationWorkflow:
                 # First try model reference, then fall back to model name
                 if model_ref and model_ref in pricing:
                     model_pricing = pricing[model_ref]
-                    logger.debug(f"Found pricing for model {model} using reference {model_ref}")
+                    logger.debug(
+                        f"Found pricing for model {model} using reference {model_ref}"
+                    )
                 elif model in pricing:
                     model_pricing = pricing[model]
                     logger.debug(f"Found pricing for model {model} directly")
                 else:
-                    logger.warning(f"No pricing information found for model {model} (tried ref: {model_ref})")
+                    logger.warning(
+                        f"No pricing information found for model {model} (tried ref: {model_ref})"
+                    )
                     return 0.0
 
                 # Pricing is RMB per 1K tokens
                 input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
                 output_cost = (output_tokens / 1000) * model_pricing.get("output", 0)
-                logger.debug(f"Cost calculation for {model}: input={input_cost:.4f}, output={output_cost:.4f}")
+                logger.debug(
+                    f"Cost calculation for {model}: input={input_cost:.4f}, output={output_cost:.4f}"
+                )
                 return input_cost + output_cost
 
                 return 0.0
@@ -1066,21 +1125,28 @@ class TranslationWorkflow:
             Model reference if found, None otherwise
         """
         # Try to use ConfigFacade model registry if available (preferred approach)
-        if self._using_facade and hasattr(self._config_facade, 'model_registry'):
-            model_ref = self._config_facade.model_registry.find_model_ref_by_name(model_name)
+        if self._using_facade and hasattr(self._config_facade, "model_registry"):
+            model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                model_name
+            )
             if model_ref:
-                logger.debug(f"Found model reference {model_ref} for {model_name} via ConfigFacade")
+                logger.debug(
+                    f"Found model reference {model_ref} for {model_name} via ConfigFacade"
+                )
                 return model_ref
 
         # Fallback: Try to load model registry directly
         try:
             from ..utils.config_loader import load_model_registry_config
+
             models_config = load_model_registry_config()
 
             # Build temporary mapping from the loaded models config
-            for ref, info in models_config.get('models', {}).items():
-                if info.get('name') == model_name:
-                    logger.debug(f"Found model reference {ref} for {model_name} via direct config load")
+            for ref, info in models_config.get("models", {}).items():
+                if info.get("name") == model_name:
+                    logger.debug(
+                        f"Found model reference {ref} for {model_name} via direct config load"
+                    )
                     return ref
 
         except Exception as e:

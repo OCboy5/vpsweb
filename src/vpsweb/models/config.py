@@ -76,12 +76,18 @@ class StepConfig(BaseModel):
 
     provider: str = Field(..., description="Provider name")
     model: str = Field(..., description="Model name to use for this step")
-    temperature: float = Field(0.7, ge=0.0, le=2.0, description="Temperature for generation")
+    temperature: float = Field(
+        0.7, ge=0.0, le=2.0, description="Temperature for generation"
+    )
     max_tokens: int = Field(4096, ge=1, description="Maximum tokens to generate")
     prompt_template: str = Field(..., description="Path to prompt template file")
     timeout: Optional[float] = Field(120.0, description="Request timeout in seconds")
-    retry_attempts: Optional[int] = Field(3, description="Number of retry attempts for failed requests")
-    required_fields: Optional[List[str]] = Field(None, description="Required fields in the step output for validation")
+    retry_attempts: Optional[int] = Field(
+        3, description="Number of retry attempts for failed requests"
+    )
+    required_fields: Optional[List[str]] = Field(
+        None, description="Required fields in the step output for validation"
+    )
     stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
 
     model_config = ConfigDict(use_enum_values=True)
@@ -95,12 +101,12 @@ class WorkflowMode(str, Enum):
     HYBRID = "hybrid"
 
 
-
-
 class TaskTemplateStepConfig(BaseModel):
     """Configuration for a workflow step using task templates (new structure)."""
 
-    task_template: str = Field(..., description="Task template name to resolve from task_templates.yaml")
+    task_template: str = Field(
+        ..., description="Task template name to resolve from task_templates.yaml"
+    )
 
     @field_validator("task_template")
     @classmethod
@@ -118,14 +124,14 @@ class WorkflowConfig(BaseModel):
     version: str = Field(..., description="Workflow version")
 
     # Support both old and new structures
-    reasoning_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
-        None, description="Configuration for reasoning mode workflow steps"
-    )
-    non_reasoning_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
-        None, description="Configuration for non-reasoning mode workflow steps"
-    )
-    hybrid_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = Field(
-        None, description="Configuration for hybrid mode workflow steps"
+    reasoning_workflow: Optional[
+        Dict[str, Union[StepConfig, TaskTemplateStepConfig]]
+    ] = Field(None, description="Configuration for reasoning mode workflow steps")
+    non_reasoning_workflow: Optional[
+        Dict[str, Union[StepConfig, TaskTemplateStepConfig]]
+    ] = Field(None, description="Configuration for non-reasoning mode workflow steps")
+    hybrid_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = (
+        Field(None, description="Configuration for hybrid mode workflow steps")
     )
 
     @field_validator("name")
@@ -163,7 +169,9 @@ class WorkflowConfig(BaseModel):
             raise ValueError("At least one workflow mode must be configured")
         return v
 
-    def get_workflow_steps(self, mode: WorkflowMode) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
+    def get_workflow_steps(
+        self, mode: WorkflowMode
+    ) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
         """Get workflow steps for the specified mode."""
         if mode == WorkflowMode.REASONING and self.reasoning_workflow:
             return self.reasoning_workflow
@@ -173,8 +181,6 @@ class WorkflowConfig(BaseModel):
             return self.hybrid_workflow
         else:
             raise ValueError(f"Workflow mode '{mode.value}' is not configured")
-
-
 
 
 class StorageConfig(BaseModel):
@@ -236,11 +242,19 @@ class MonitoringConfig(BaseModel):
 class MainConfig(BaseModel):
     """Compatibility main configuration for backward compatibility."""
 
-    workflow_mode: WorkflowMode = Field(WorkflowMode.HYBRID, description="Default workflow mode to use")
+    workflow_mode: WorkflowMode = Field(
+        WorkflowMode.HYBRID, description="Default workflow mode to use"
+    )
     workflow: WorkflowConfig = Field(..., description="Workflow configuration")
-    storage: StorageConfig = Field(default_factory=StorageConfig, description="Storage configuration")
-    logging: LoggingConfig = Field(default_factory=LoggingConfig, description="Logging configuration")
-    monitoring: MonitoringConfig = Field(default_factory=MonitoringConfig, description="Monitoring configuration")
+    storage: StorageConfig = Field(
+        default_factory=StorageConfig, description="Storage configuration"
+    )
+    logging: LoggingConfig = Field(
+        default_factory=LoggingConfig, description="Logging configuration"
+    )
+    monitoring: MonitoringConfig = Field(
+        default_factory=MonitoringConfig, description="Monitoring configuration"
+    )
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -248,12 +262,22 @@ class MainConfig(BaseModel):
 class ProvidersConfig(BaseModel):
     """Compatibility providers configuration for backward compatibility."""
 
-    providers: Dict[str, ModelProviderConfig] = Field(default_factory=dict, description="Provider configurations")
-    provider_settings: Dict[str, Any] = Field(default_factory=dict, description="Global provider settings")
-    model_classification: Optional[Dict[str, List[str]]] = Field(None, description="Model classification")
-    reasoning_settings: Optional[Dict[str, Any]] = Field(None, description="Reasoning model settings")
+    providers: Dict[str, ModelProviderConfig] = Field(
+        default_factory=dict, description="Provider configurations"
+    )
+    provider_settings: Dict[str, Any] = Field(
+        default_factory=dict, description="Global provider settings"
+    )
+    model_classification: Optional[Dict[str, List[str]]] = Field(
+        None, description="Model classification"
+    )
+    reasoning_settings: Optional[Dict[str, Any]] = Field(
+        None, description="Reasoning model settings"
+    )
     pricing: Optional[Dict[str, Any]] = Field(None, description="Pricing information")
-    bbr_generation: Optional[Dict[str, Any]] = Field(None, description="BBR generation configuration")
+    bbr_generation: Optional[Dict[str, Any]] = Field(
+        None, description="BBR generation configuration"
+    )
 
     def is_reasoning_model(self, model_name: str) -> bool:
         """Check if a model is classified as a reasoning model."""
@@ -276,7 +300,3 @@ class CompleteConfig(BaseModel):
         return self.providers.providers[provider_name]
 
     model_config = ConfigDict(use_enum_values=True)
-
-
-
-

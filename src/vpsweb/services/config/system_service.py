@@ -57,11 +57,11 @@ class SystemService:
 
     def get_wechat_articles_directory(self) -> str:
         """Get WeChat articles output directory."""
-        return getattr(self._storage, 'wechat_articles_dir', "outputs/wechat_articles")
+        return getattr(self._storage, "wechat_articles_dir", "outputs/wechat_articles")
 
     def get_cache_directory(self) -> str:
         """Get cache directory."""
-        return getattr(self._storage, 'cache_dir', "outputs/.cache")
+        return getattr(self._storage, "cache_dir", "outputs/.cache")
 
     def get_storage_config_summary(self) -> Dict[str, Any]:
         """Get complete storage configuration summary."""
@@ -152,14 +152,16 @@ class SystemService:
         Returns:
             Dictionary with translation strategy settings
         """
-        if hasattr(main_config, 'translation_strategy'):
+        if hasattr(main_config, "translation_strategy"):
             strategy = main_config.translation_strategy
             return {
-                "adaptation_level": getattr(strategy, 'adaptation_level', 'balanced'),
-                "repetition_policy": getattr(strategy, 'repetition_policy', 'strict'),
-                "additions_policy": getattr(strategy, 'additions_policy', 'forbid'),
-                "prosody_target": getattr(strategy, 'prosody_target', 'free verse, cadence-aware'),
-                "few_shots": getattr(strategy, 'few_shots', ''),
+                "adaptation_level": getattr(strategy, "adaptation_level", "balanced"),
+                "repetition_policy": getattr(strategy, "repetition_policy", "strict"),
+                "additions_policy": getattr(strategy, "additions_policy", "forbid"),
+                "prosody_target": getattr(
+                    strategy, "prosody_target", "free verse, cadence-aware"
+                ),
+                "few_shots": getattr(strategy, "few_shots", ""),
             }
         return {}
 
@@ -174,7 +176,9 @@ class SystemService:
         Returns:
             Dictionary with preview length settings
         """
-        if hasattr(main_config, 'system') and hasattr(main_config.system, 'preview_lengths'):
+        if hasattr(main_config, "system") and hasattr(
+            main_config.system, "preview_lengths"
+        ):
             return main_config.system.preview_lengths
         return {
             "input_preview": 100,
@@ -192,13 +196,20 @@ class SystemService:
         Returns:
             Dictionary with system default settings
         """
-        if hasattr(main_config, 'system'):
+        if hasattr(main_config, "system"):
             system_config = main_config.system
             return {
-                "default_digest": getattr(system_config, 'default_digest',
-                    '诗歌翻译作品，展现中英文学之美，传递文化精髓。'),
-                "token_refresh_buffer": getattr(system_config, 'token_refresh_buffer', 300),
-                "default_token_expiry": getattr(system_config, 'default_token_expiry', 7200),
+                "default_digest": getattr(
+                    system_config,
+                    "default_digest",
+                    "诗歌翻译作品，展现中英文学之美，传递文化精髓。",
+                ),
+                "token_refresh_buffer": getattr(
+                    system_config, "token_refresh_buffer", 300
+                ),
+                "default_token_expiry": getattr(
+                    system_config, "default_token_expiry", 7200
+                ),
             }
         return {}
 

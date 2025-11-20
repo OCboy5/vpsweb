@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelInfo:
     """Model information from the model registry."""
+
     model_ref: str
     provider: str
     name: str
@@ -25,6 +26,7 @@ class ModelInfo:
 @dataclass
 class ProviderInfo:
     """Provider information from the model registry."""
+
     name: str
     api_key_env: str
     base_url: str
@@ -70,7 +72,9 @@ class ModelRegistryService:
             ValueError: If model_ref is not found
         """
         if model_ref not in self._models:
-            raise ValueError(f"Model reference '{model_ref}' not found in model registry")
+            raise ValueError(
+                f"Model reference '{model_ref}' not found in model registry"
+            )
 
         model_data = self._models[model_ref]
         return ModelInfo(
@@ -78,7 +82,7 @@ class ModelRegistryService:
             provider=model_data["provider"],
             name=model_data["name"],
             reasoning=model_data.get("reasoning", False),
-            description=model_data.get("description", "")
+            description=model_data.get("description", ""),
         )
 
     def list_providers(self) -> List[str]:
@@ -110,7 +114,8 @@ class ModelRegistryService:
 
         # Get all models for this provider
         provider_models = [
-            model_name for model_name, model_info in self._models.items()
+            model_name
+            for model_name, model_info in self._models.items()
             if model_info.get("provider") == provider_name
         ]
 
@@ -119,7 +124,7 @@ class ModelRegistryService:
             api_key_env=provider_data["api_key_env"],
             base_url=provider_data["base_url"],
             type=provider_data["type"],
-            models=provider_models
+            models=provider_models,
         )
 
     def get_model_pricing(self, model_ref: str) -> Dict[str, float]:
@@ -164,7 +169,8 @@ class ModelRegistryService:
             List of model references that have reasoning capability
         """
         return [
-            model_ref for model_ref, model_data in self._models.items()
+            model_ref
+            for model_ref, model_data in self._models.items()
             if model_data.get("reasoning", False)
         ]
 
@@ -176,7 +182,8 @@ class ModelRegistryService:
             List of model references that do not have reasoning capability
         """
         return [
-            model_ref for model_ref, model_data in self._models.items()
+            model_ref
+            for model_ref, model_data in self._models.items()
             if not model_data.get("reasoning", False)
         ]
 
@@ -189,7 +196,9 @@ class ModelRegistryService:
         """
         return list(self._models.keys())
 
-    def get_provider_settings(self, provider_name: Optional[str] = None, reasoning: Optional[bool] = None) -> Dict[str, Any]:
+    def get_provider_settings(
+        self, provider_name: Optional[str] = None, reasoning: Optional[bool] = None
+    ) -> Dict[str, Any]:
         """
         Get provider settings, with optional reasoning-specific overrides.
 
@@ -240,7 +249,9 @@ class ModelRegistryService:
         except ValueError:
             return f"Unknown model: {model_ref}"
 
-    def calculate_cost(self, model_ref: str, input_tokens: int, output_tokens: int) -> float:
+    def calculate_cost(
+        self, model_ref: str, input_tokens: int, output_tokens: int
+    ) -> float:
         """
         Calculate cost for using a model.
 

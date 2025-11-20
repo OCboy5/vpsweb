@@ -318,7 +318,7 @@ def validate_input_only(
 
 
 @click.group()
-@click.version_option(version="0.5.4", prog_name="vpsweb")
+@click.version_option(version="0.5.5", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -410,9 +410,7 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
 
         # Create and execute workflow with specified mode using ConfigFacade
         config_facade = get_config_facade()
-        workflow = TranslationWorkflow(
-            config_facade=config_facade
-        )
+        workflow = TranslationWorkflow(config_facade=config_facade)
 
         # Get storage settings
         include_mode_tag = complete_config.main.storage.workflow_mode_tag
@@ -569,7 +567,9 @@ def generate_article(
                 f"   🎯 Using Model Type: {article_gen_config.model_type} (from config)"
             )
 
-        article_generator = ArticleGenerator(config=article_gen_config, config_facade=config_facade)
+        article_generator = ArticleGenerator(
+            config=article_gen_config, config_facade=config_facade
+        )
 
         # Display important configuration items
         click.echo("\n📋 Article Generation Configuration:")
