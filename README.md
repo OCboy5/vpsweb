@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.5.5-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.5.5)
+[![Version](https://img.shields.io/badge/Version-0.5.6-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.5.6)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,8 +40,9 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.5.5 - Dynamic Model Reference Resolution Release**
+## 🎯 Current Status: **v0.5.6 - ConfigFacade CLI Modernization Release**
 
+🔧 **CLI ConfigFacade Modernization**: CLI services now use ConfigFacade architecture with backward-compatible load_config() function
 🔄 **Dynamic Model Reference Resolution**: Replaced hardcoded model name mappings with dynamic exact matching from model registry for automatic scalability
 🏗️ **Enhanced Configuration Architecture**: New ConfigFacade with ModelRegistryService and TaskTemplateService for centralized configuration management
 💰 **Pricing Calculation Fixes**: Fixed BBR generator and workflow cost calculation to use dynamic model reference resolution

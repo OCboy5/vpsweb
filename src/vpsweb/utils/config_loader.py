@@ -381,7 +381,9 @@ def load_task_templates_config() -> Dict[str, Any]:
         raise ConfigLoadError(f"Failed to load task templates configuration: {e}")
 
 
-def validate_config_files(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+def validate_config_files(
+    config_path: Optional[Union[str, Path]] = None
+) -> Dict[str, Any]:
     """
     Validate all configuration files.
 
@@ -438,8 +440,8 @@ def validate_config_files(config_path: Optional[Union[str, Path]] = None) -> Dic
             "config_files": {
                 "main": str(main_config_path),
                 "models": str(models_config_path),
-                "task_templates": str(Path("config/task_templates.yaml"))
-            }
+                "task_templates": str(Path("config/task_templates.yaml")),
+            },
         }
 
     except Exception as e:
@@ -474,7 +476,9 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
             main_config_path = Path(config_path)
 
         if not main_config_path.exists():
-            raise ConfigLoadError(f"Main configuration file not found: {main_config_path}")
+            raise ConfigLoadError(
+                f"Main configuration file not found: {main_config_path}"
+            )
 
         with open(main_config_path, "r", encoding="utf-8") as f:
             main_config_data = yaml.safe_load(f)
@@ -497,7 +501,9 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
                     if provider_name:
                         if provider_name not in provider_models:
                             provider_models[provider_name] = []
-                        provider_models[provider_name].append(model_info.get("name", model_name))
+                        provider_models[provider_name].append(
+                            model_info.get("name", model_name)
+                        )
 
             for provider_name, provider_info in models_config["providers"].items():
                 providers_data[provider_name] = {
@@ -505,9 +511,15 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
                     "base_url": provider_info.get("base_url"),
                     "type": provider_info.get("type", "openai_compatible"),
                     "models": provider_models.get(provider_name, []),  # Add models list
-                    "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
-                    "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
-                    "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                    "timeout": models_config.get("provider_settings", {}).get(
+                        "timeout", 180.0
+                    ),
+                    "max_retries": models_config.get("provider_settings", {}).get(
+                        "max_retries", 3
+                    ),
+                    "retry_delay": models_config.get("provider_settings", {}).get(
+                        "retry_delay", 1.0
+                    ),
                 }
 
         # Create providers config

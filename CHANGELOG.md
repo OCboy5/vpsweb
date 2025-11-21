@@ -5,6 +5,42 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] - 2025-11-21
+
+### 🚀 Overview
+VPSWeb v0.5.6 - **ConfigFacade CLI Modernization Release**. This release modernizes the CLI configuration system to use the new ConfigFacade architecture while maintaining full backward compatibility with existing code and WebUI functionality.
+
+### ✨ New Features
+
+#### 🔧 Modern CLI Configuration Architecture
+- **ConfigFacade Integration**: CLI services now use ConfigFacade as the primary configuration entry point
+- **Multi-File Config Loading**: CLI properly loads configuration from default.yaml, models.yaml, and task_templates.yaml
+- **Backward Compatibility**: Added `load_config()` function to ensure existing code continues to work
+- **Provider Model Mapping**: Automatic extraction and mapping of models to providers from models.yaml configuration
+
+### 🔧 Improvements
+
+#### 🛠️ Enhanced Configuration Management
+- **Simplified Config Loading**: Unified configuration loading process using ConfigFacade pattern
+- **Better Error Handling**: Improved configuration validation and error reporting in CLI services
+- **Cleaner Architecture**: Separated CLI configuration logic from WebUI with proper dependency injection
+- **Import Optimization**: Updated imports to use new configuration loader functions
+
+### 🐛 Bug Fixes
+
+#### 🐛 CLI Configuration Issues
+- **Missing Function Fixes**: Added missing `validate_config_files()` function to config_loader module
+- **Import Resolution**: Fixed import issues in CLI main module for new configuration functions
+- **Provider Config Validation**: Fixed provider configuration validation with required models field
+
+### 🔧 Technical Changes
+
+#### 🏗️ Architecture Improvements
+- **CLI Service Modernization**: Updated CLIConfigurationServiceV2 to use ConfigFacade pattern
+- **Config Bridge Pattern**: Maintained compatibility between legacy CompleteConfig and new ConfigFacade
+- **Test Compatibility**: All CLI integration tests continue to work with proper mocking
+- **Documentation Updates**: Updated CLAUDE_RELEASE_PROCESS.md with latest process improvements
+
 ## [0.5.5] - 2025-11-21
 
 ### 🚀 Overview

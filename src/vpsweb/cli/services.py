@@ -252,21 +252,33 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         if provider_name:
                             if provider_name not in provider_models:
                                 provider_models[provider_name] = []
-                            provider_models[provider_name].append(model_info.get("name", model_name))
+                            provider_models[provider_name].append(
+                                model_info.get("name", model_name)
+                            )
 
                 for provider_name, provider_info in models_config["providers"].items():
                     providers_data[provider_name] = {
                         "api_key_env": provider_info.get("api_key_env"),
                         "base_url": provider_info.get("base_url"),
                         "type": provider_info.get("type", "openai_compatible"),
-                        "models": provider_models.get(provider_name, []),  # Add models list
-                        "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
-                        "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
-                        "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                        "models": provider_models.get(
+                            provider_name, []
+                        ),  # Add models list
+                        "timeout": models_config.get("provider_settings", {}).get(
+                            "timeout", 180.0
+                        ),
+                        "max_retries": models_config.get("provider_settings", {}).get(
+                            "max_retries", 3
+                        ),
+                        "retry_delay": models_config.get("provider_settings", {}).get(
+                            "retry_delay", 1.0
+                        ),
                     }
 
             providers_config = ProvidersConfig(providers=providers_data)
-            complete_config = CompleteConfig(main=main_config, providers=providers_config)
+            complete_config = CompleteConfig(
+                main=main_config, providers=providers_config
+            )
 
             # Initialize ConfigFacade with CompleteConfig and new configs
             config_facade = initialize_config_facade(
@@ -366,26 +378,42 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         # Extract models for each provider
                         provider_models = {}
                         if "models" in models_config:
-                            for model_name, model_info in models_config["models"].items():
+                            for model_name, model_info in models_config[
+                                "models"
+                            ].items():
                                 provider_name = model_info.get("provider")
                                 if provider_name:
                                     if provider_name not in provider_models:
                                         provider_models[provider_name] = []
-                                    provider_models[provider_name].append(model_info.get("name", model_name))
+                                    provider_models[provider_name].append(
+                                        model_info.get("name", model_name)
+                                    )
 
-                        for provider_name, provider_info in models_config["providers"].items():
+                        for provider_name, provider_info in models_config[
+                            "providers"
+                        ].items():
                             providers_data[provider_name] = {
                                 "api_key_env": provider_info.get("api_key_env"),
                                 "base_url": provider_info.get("base_url"),
                                 "type": provider_info.get("type", "openai_compatible"),
-                                "models": provider_models.get(provider_name, []),  # Add models list
-                                "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
-                                "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
-                                "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                                "models": provider_models.get(
+                                    provider_name, []
+                                ),  # Add models list
+                                "timeout": models_config.get(
+                                    "provider_settings", {}
+                                ).get("timeout", 180.0),
+                                "max_retries": models_config.get(
+                                    "provider_settings", {}
+                                ).get("max_retries", 3),
+                                "retry_delay": models_config.get(
+                                    "provider_settings", {}
+                                ).get("retry_delay", 1.0),
                             }
 
                     providers_config = ProvidersConfig(providers=providers_data)
-                    complete_config = CompleteConfig(main=main_config, providers=providers_config)
+                    complete_config = CompleteConfig(
+                        main=main_config, providers=providers_config
+                    )
 
                     config_facade = initialize_config_facade(
                         complete_config,
@@ -393,13 +421,17 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         task_templates_config=task_templates_config,
                     )
                 else:
-                    raise Exception("Cannot initialize ConfigFacade due to model configuration errors")
+                    raise Exception(
+                        "Cannot initialize ConfigFacade due to model configuration errors"
+                    )
                 click.echo("  ✅ ConfigFacade initialization successful")
 
                 # Test basic functionality
                 workflow_info = config_facade.get_workflow_info()
                 provider_names = config_facade.get_provider_names()
-                click.echo(f"  ✅ Found {len(provider_names)} providers: {', '.join(provider_names)}")
+                click.echo(
+                    f"  ✅ Found {len(provider_names)} providers: {', '.join(provider_names)}"
+                )
 
             except Exception as e:
                 errors.append(f"ConfigFacade initialization failed: {e}")
