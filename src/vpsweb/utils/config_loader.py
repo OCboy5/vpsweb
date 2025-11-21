@@ -379,3 +379,152 @@ def load_task_templates_config() -> Dict[str, Any]:
         raise ConfigLoadError(f"Invalid YAML in task templates file: {e}")
     except Exception as e:
         raise ConfigLoadError(f"Failed to load task templates configuration: {e}")
+
+
+def validate_config_files(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+    """
+    Validate all configuration files.
+
+    Args:
+        config_path: Optional path to custom main configuration file
+
+    Returns:
+        Dictionary with validation results
+
+    Raises:
+        ConfigLoadError: If validation fails
+    """
+    try:
+        errors = []
+        warnings = []
+
+        # Validate main configuration
+        if config_path is None:
+            main_config_path = Path("config/default.yaml")
+        else:
+            main_config_path = Path(config_path)
+
+        if not main_config_path.exists():
+            errors.append(f"Main configuration file not found: {main_config_path}")
+        else:
+            try:
+                load_yaml_file(main_config_path)
+                logger.info(f"Main configuration file is valid: {main_config_path}")
+            except Exception as e:
+                errors.append(f"Invalid main configuration: {e}")
+
+        # Validate models configuration
+        models_config_path = Path("config/models.yaml")
+        if not models_config_path.exists():
+            errors.append(f"Models configuration file not found: {models_config_path}")
+        else:
+            try:
+                load_model_registry_config()
+                logger.info("Models configuration file is valid")
+            except Exception as e:
+                errors.append(f"Invalid models configuration: {e}")
+
+        # Validate task templates configuration
+        try:
+            load_task_templates_config()
+            logger.info("Task templates configuration file is valid")
+        except Exception as e:
+            warnings.append(f"Task templates configuration issue: {e}")
+
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings,
+            "config_files": {
+                "main": str(main_config_path),
+                "models": str(models_config_path),
+                "task_templates": str(Path("config/task_templates.yaml"))
+            }
+        }
+
+    except Exception as e:
+        raise ConfigLoadError(f"Configuration validation failed: {e}")
+
+
+def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConfig":
+    """
+    Load the complete configuration for backward compatibility.
+
+    This function loads the main configuration (default.yaml or custom path)
+    and models.yaml to create a CompleteConfig object for backward compatibility.
+    It uses the new config pattern internally.
+
+    Args:
+        config_path: Optional path to custom configuration file. If None, uses default.yaml
+
+    Returns:
+        CompleteConfig object containing both main and providers configuration
+
+    Raises:
+        ConfigLoadError: If configuration cannot be loaded or is invalid
+    """
+    try:
+        # Import here to avoid circular imports
+        from ..models.config import CompleteConfig, MainConfig, ProvidersConfig
+
+        # Load main configuration
+        if config_path is None:
+            main_config_path = Path("config/default.yaml")
+        else:
+            main_config_path = Path(config_path)
+
+        if not main_config_path.exists():
+            raise ConfigLoadError(f"Main configuration file not found: {main_config_path}")
+
+        with open(main_config_path, "r", encoding="utf-8") as f:
+            main_config_data = yaml.safe_load(f)
+
+        # Apply environment variable substitution
+        main_config_data = substitute_env_vars_in_data(main_config_data)
+
+        # Load models configuration for providers
+        models_config = load_model_registry_config()
+
+        # Convert models.yaml format to providers config for CompleteConfig
+        providers_data = {}
+
+        if "providers" in models_config:
+            # Extract models for each provider
+            provider_models = {}
+            if "models" in models_config:
+                for model_name, model_info in models_config["models"].items():
+                    provider_name = model_info.get("provider")
+                    if provider_name:
+                        if provider_name not in provider_models:
+                            provider_models[provider_name] = []
+                        provider_models[provider_name].append(model_info.get("name", model_name))
+
+            for provider_name, provider_info in models_config["providers"].items():
+                providers_data[provider_name] = {
+                    "api_key_env": provider_info.get("api_key_env"),
+                    "base_url": provider_info.get("base_url"),
+                    "type": provider_info.get("type", "openai_compatible"),
+                    "models": provider_models.get(provider_name, []),  # Add models list
+                    "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                    "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                    "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                }
+
+        # Create providers config
+        providers_config = ProvidersConfig(providers=providers_data)
+
+        # Create main config
+        main_config = MainConfig(**main_config_data)
+
+        # Create and return complete config
+        complete_config = CompleteConfig(main=main_config, providers=providers_config)
+
+        logger.info("Complete configuration loaded successfully")
+        return complete_config
+
+    except yaml.YAMLError as e:
+        raise ConfigLoadError(f"Invalid YAML in configuration file: {e}")
+    except ValidationError as e:
+        raise ConfigLoadError(f"Configuration validation failed: {e}")
+    except Exception as e:
+        raise ConfigLoadError(f"Failed to load configuration: {e}")

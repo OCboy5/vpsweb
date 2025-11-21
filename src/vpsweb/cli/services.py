@@ -31,10 +31,13 @@ from vpsweb.models.translation import TranslationInput, TranslationOutput
 from vpsweb.models.config import WorkflowMode, LogLevel
 from vpsweb.utils.logger import setup_logging, get_logger
 from vpsweb.utils.config_loader import (
-    load_config,
     validate_config_files,
     load_wechat_complete_config,
     validate_wechat_setup,
+    load_model_registry_config,
+    load_task_templates_config,
+    load_yaml_file,
+    substitute_env_vars_in_data,
 )
 from vpsweb.services.config import (
     get_config_facade,
@@ -217,39 +220,79 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
     async def load_configuration(
         self, config_path: Optional[str] = None, verbose: bool = False
     ) -> Dict[str, Any]:
-        """Load and validate configuration."""
+        """Load and validate configuration using ConfigFacade."""
         try:
             click.echo("⚙️  Loading configuration...")
 
-            # Load configuration
-            complete_config = load_config(config_path)
+            # Load new configuration files
+            models_config = load_model_registry_config()
+            task_templates_config = load_task_templates_config()
 
-            # Initialize ConfigFacade
-            config_facade = initialize_config_facade(complete_config)
+            # Create CompleteConfig from new configuration files
+            from vpsweb.models.config import CompleteConfig, MainConfig, ProvidersConfig
+
+            # Load main configuration (default.yaml or custom path)
+            if config_path is None:
+                main_config_path = Path("config/default.yaml")
+            else:
+                main_config_path = Path(config_path)
+
+            main_config_data = load_yaml_file(main_config_path)
+            main_config_data = substitute_env_vars_in_data(main_config_data)
+            main_config = MainConfig(**main_config_data)
+
+            # Create providers config from models.yaml
+            providers_data = {}
+            if "providers" in models_config:
+                # Extract models for each provider
+                provider_models = {}
+                if "models" in models_config:
+                    for model_name, model_info in models_config["models"].items():
+                        provider_name = model_info.get("provider")
+                        if provider_name:
+                            if provider_name not in provider_models:
+                                provider_models[provider_name] = []
+                            provider_models[provider_name].append(model_info.get("name", model_name))
+
+                for provider_name, provider_info in models_config["providers"].items():
+                    providers_data[provider_name] = {
+                        "api_key_env": provider_info.get("api_key_env"),
+                        "base_url": provider_info.get("base_url"),
+                        "type": provider_info.get("type", "openai_compatible"),
+                        "models": provider_models.get(provider_name, []),  # Add models list
+                        "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                        "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                        "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                    }
+
+            providers_config = ProvidersConfig(providers=providers_data)
+            complete_config = CompleteConfig(main=main_config, providers=providers_config)
+
+            # Initialize ConfigFacade with CompleteConfig and new configs
+            config_facade = initialize_config_facade(
+                complete_config,
+                models_config=models_config,
+                task_templates_config=task_templates_config,
+            )
 
             # Setup logging based on configuration
             logging_config = config_facade.system.get_logging_config_summary()
             if verbose:
                 logging_config["level"] = "DEBUG"
-                # Note: setup_logging expects a LoggingConfig object, not a dict
-                # For now, we'll construct it from the dict or create a minimal config
-                from vpsweb.models.config import LoggingConfig, LogLevel
 
-                log_config = LoggingConfig(
-                    level=LogLevel(logging_config["level"].upper()),
-                    format=logging_config.get(
-                        "format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-                    ),
-                    file=logging_config.get("file"),
-                    max_file_size=logging_config.get("max_file_size", 10485760),
-                    backup_count=logging_config.get("backup_count", 5),
-                    log_reasoning_tokens=logging_config.get(
-                        "log_reasoning_tokens", False
-                    ),
-                )
-            else:
-                # Get original config object for setup_logging
-                log_config = complete_config.main.logging
+            # Create LoggingConfig object from the summary
+            from vpsweb.models.config import LoggingConfig, LogLevel
+
+            log_config = LoggingConfig(
+                level=LogLevel(logging_config["level"].upper()),
+                format=logging_config.get(
+                    "format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                ),
+                file=logging_config.get("file"),
+                max_file_size=logging_config.get("max_file_size", 10485760),
+                backup_count=logging_config.get("backup_count", 5),
+                log_reasoning_tokens=logging_config.get("log_reasoning_tokens", False),
+            )
 
             setup_logging(log_config)
 
@@ -264,11 +307,10 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             )
 
             return {
-                "complete_config": complete_config,
                 "config_facade": config_facade,
-                "workflow_config": complete_config.main.workflow,
-                "providers_config": complete_config.providers,
-                "storage_config": complete_config.main.storage,
+                "workflow_config": config_facade.main.workflow,
+                "providers_config": config_facade.providers,
+                "storage_config": config_facade.main.storage,
                 "config_path": config_path,
                 "loaded_at": datetime.now(timezone.utc).isoformat(),
             }
@@ -281,16 +323,91 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
     async def validate_configuration(
         self, config_path: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Validate configuration files."""
+        """Validate configuration files using new config pattern."""
         try:
             click.echo("🔍 Validating configuration...")
 
-            validation_result = validate_config_files(config_path)
+            # Try to load and validate the new config files
+            errors = []
+            warnings = []
+
+            try:
+                models_config = load_model_registry_config()
+                click.echo("  ✅ Models configuration valid")
+            except Exception as e:
+                errors.append(f"Models configuration error: {e}")
+
+            try:
+                task_templates_config = load_task_templates_config()
+                click.echo("  ✅ Task templates configuration valid")
+            except Exception as e:
+                warnings.append(f"Task templates configuration issue: {e}")
+
+            # Try to initialize ConfigFacade
+            try:
+                if not errors:
+                    # Create CompleteConfig from new configuration files
+                    from vpsweb.models.config import CompleteConfig, MainConfig
+                    from vpsweb.models.providers import ProvidersConfig
+
+                    # Load main configuration (default.yaml or custom path)
+                    if config_path is None:
+                        main_config_path = Path("config/default.yaml")
+                    else:
+                        main_config_path = Path(config_path)
+
+                    main_config_data = load_yaml_file(main_config_path)
+                    main_config_data = substitute_env_vars_in_data(main_config_data)
+                    main_config = MainConfig(**main_config_data)
+
+                    # Create providers config from models.yaml
+                    providers_data = {}
+                    if "providers" in models_config:
+                        # Extract models for each provider
+                        provider_models = {}
+                        if "models" in models_config:
+                            for model_name, model_info in models_config["models"].items():
+                                provider_name = model_info.get("provider")
+                                if provider_name:
+                                    if provider_name not in provider_models:
+                                        provider_models[provider_name] = []
+                                    provider_models[provider_name].append(model_info.get("name", model_name))
+
+                        for provider_name, provider_info in models_config["providers"].items():
+                            providers_data[provider_name] = {
+                                "api_key_env": provider_info.get("api_key_env"),
+                                "base_url": provider_info.get("base_url"),
+                                "type": provider_info.get("type", "openai_compatible"),
+                                "models": provider_models.get(provider_name, []),  # Add models list
+                                "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                                "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                                "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
+                            }
+
+                    providers_config = ProvidersConfig(providers=providers_data)
+                    complete_config = CompleteConfig(main=main_config, providers=providers_config)
+
+                    config_facade = initialize_config_facade(
+                        complete_config,
+                        models_config=models_config,
+                        task_templates_config=task_templates_config,
+                    )
+                else:
+                    raise Exception("Cannot initialize ConfigFacade due to model configuration errors")
+                click.echo("  ✅ ConfigFacade initialization successful")
+
+                # Test basic functionality
+                workflow_info = config_facade.get_workflow_info()
+                provider_names = config_facade.get_provider_names()
+                click.echo(f"  ✅ Found {len(provider_names)} providers: {', '.join(provider_names)}")
+
+            except Exception as e:
+                errors.append(f"ConfigFacade initialization failed: {e}")
 
             result = {
-                "valid": validation_result.get("valid", False),
-                "errors": validation_result.get("errors", []),
-                "warnings": validation_result.get("warnings", []),
+                "valid": len(errors) == 0,
+                "errors": errors,
+                "warnings": warnings,
                 "config_path": config_path,
                 "validated_at": datetime.now(timezone.utc).isoformat(),
             }
@@ -429,12 +546,13 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
     async def validate_workflow_input(
         self, input_data: TranslationInput, config_path: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Validate workflow input without execution."""
+        """Validate workflow input without execution using ConfigFacade."""
         try:
             click.echo("🔍 Validating workflow input...")
 
-            # Validate configuration
-            config_validation = await validate_config_files(config_path)
+            # Use the configuration service to validate config
+            config_service = CLIConfigurationServiceV2(self.logger)
+            config_validation = await config_service.validate_configuration(config_path)
 
             result = {
                 "valid": config_validation.get("valid", False),

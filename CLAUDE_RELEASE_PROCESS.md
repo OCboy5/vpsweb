@@ -115,7 +115,7 @@ VPSWeb vX.Y.Z - [Brief description of release]
 
 ## README.md Updates Required
 
-For each release, check and update these sections in README.md:
+For each release, check and update these 5 sections in README.md:
 
 1. **Version badge** (if present)
 2. **Installation instructions** - ensure they reference latest stable version

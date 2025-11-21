@@ -30,14 +30,18 @@ class TestCLIIntegration:
         result = cli_runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
         assert "vpsweb" in result.output
-        assert "0.2.8" in result.output
+        assert "0.5.5" in result.output
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_from_file(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -66,6 +70,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command
         result = cli_runner.invoke(
@@ -94,10 +100,18 @@ class TestCLIIntegration:
         assert input_data.source_lang == "English"
         assert input_data.target_lang == "Chinese"
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_from_stdin(
-        self, mock_load_config, mock_workflow_class, cli_runner, sample_config
+        self,
+        mock_load_config,
+        mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
+        cli_runner,
+        sample_config,
     ):
         """Test translate command with stdin input."""
         # Mock the workflow execution
@@ -114,6 +128,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command with stdin input
         result = cli_runner.invoke(
@@ -132,12 +148,16 @@ class TestCLIIntegration:
         input_data = mock_workflow.execute.call_args[0][0]
         assert input_data.original_poem == "Test poem from stdin"
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_with_custom_config(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -158,6 +178,8 @@ class TestCLIIntegration:
 
             # Mock configuration loading
             mock_load_config.return_value = sample_config
+            mock_load_model_registry_config.return_value = {}
+            mock_load_task_templates_config.return_value = {}
 
             # Execute CLI command with custom config
             result = cli_runner.invoke(
@@ -179,12 +201,16 @@ class TestCLIIntegration:
             assert result.exit_code == 0
             assert mock_load_config.called_with(config_dir)
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_with_custom_output_dir(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -200,6 +226,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command with custom output
         result = cli_runner.invoke(
@@ -221,13 +249,23 @@ class TestCLIIntegration:
         assert result.exit_code == 0
         assert "TRANSLATION COMPLETE" in result.output
 
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_dry_run(
-        self, mock_load_config, cli_runner, sample_poem_file, sample_config
+        self,
+        mock_load_config,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
+        cli_runner,
+        sample_poem_file,
+        sample_config,
     ):
         """Test translate command with dry-run mode."""
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command with dry-run
         result = cli_runner.invoke(
@@ -250,12 +288,16 @@ class TestCLIIntegration:
         assert "Dry run completed" in result.output
         assert "TRANSLATION COMPLETE" not in result.output  # No actual translation
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_verbose_mode(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -272,6 +314,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command with verbose mode
         result = cli_runner.invoke(
@@ -352,12 +396,16 @@ class TestCLIIntegration:
         assert result.exit_code != 0
         assert "Input file not found" in result.output or "Error" in result.output
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_workflow_error(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -370,6 +418,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command
         result = cli_runner.invoke(
@@ -392,12 +442,16 @@ class TestCLIIntegration:
             or "Workflow execution failed" in result.output
         )
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_output_file_creation(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -415,6 +469,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command
         result = cli_runner.invoke(
@@ -447,12 +503,16 @@ class TestCLIIntegration:
         assert result.exit_code != 0
         assert "No poem text provided" in result.output or "Error" in result.output
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_translate_different_language_pairs(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -467,6 +527,8 @@ class TestCLIIntegration:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Test Chinese to English
         result = cli_runner.invoke(
@@ -503,12 +565,16 @@ class TestCLIIntegration:
 class TestCLIFunctionalEquivalence:
     """Tests to verify CLI functional equivalence with Dify workflow."""
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_produces_complete_output(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -548,6 +614,8 @@ class TestCLIFunctionalEquivalence:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command
         result = cli_runner.invoke(
@@ -575,12 +643,16 @@ class TestCLIFunctionalEquivalence:
         assert "Revised Translation:" in result.output
         assert "Editor suggestions:" in result.output
 
-    @patch("src.vpsweb.__main__.TranslationWorkflow")
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.core.workflow.TranslationWorkflow")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_progress_indication(
         self,
         mock_load_config,
         mock_workflow_class,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
         cli_runner,
         sample_poem_file,
         sample_config,
@@ -595,6 +667,8 @@ class TestCLIFunctionalEquivalence:
 
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Execute CLI command
         result = cli_runner.invoke(
@@ -617,13 +691,23 @@ class TestCLIFunctionalEquivalence:
         assert "Translating" in result.output
         assert "Saving translation results" in result.output
 
-    @patch("src.vpsweb.__main__.load_config")
+    @patch("vpsweb.utils.config_loader.load_task_templates_config")
+    @patch("vpsweb.utils.config_loader.load_model_registry_config")
+    @patch("vpsweb.utils.config_loader.load_config")
     def test_cli_configuration_validation(
-        self, mock_load_config, cli_runner, sample_poem_file, sample_config
+        self,
+        mock_load_config,
+        mock_load_model_registry_config,
+        mock_load_task_templates_config,
+        cli_runner,
+        sample_poem_file,
+        sample_config,
     ):
         """Verify CLI properly validates configuration."""
         # Mock configuration loading
         mock_load_config.return_value = sample_config
+        mock_load_model_registry_config.return_value = {}
+        mock_load_task_templates_config.return_value = {}
 
         # Test dry-run mode (configuration validation)
         result = cli_runner.invoke(

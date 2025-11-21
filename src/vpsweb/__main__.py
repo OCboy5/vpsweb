@@ -28,6 +28,8 @@ from .utils.config_loader import (
     validate_wechat_setup,
     load_model_registry_config,
     load_task_templates_config,
+    load_config,
+    validate_config_files,
 )
 from .services.config import initialize_config_facade, get_config_facade
 from .utils.storage import StorageHandler
