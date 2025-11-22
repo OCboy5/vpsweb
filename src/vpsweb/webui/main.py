@@ -76,7 +76,9 @@ except Exception as e:
     # Fallback to INFO level if config loading fails
     setup_logging(LogLevel.INFO)
     # Log the error using standard logging since setup_logging should have initialized
-    logging.getLogger(__name__).warning(f"Failed to load config for logging setup: {e}, using INFO level")
+    logging.getLogger(__name__).warning(
+        f"Failed to load config for logging setup: {e}, using INFO level"
+    )
 
 
 async def create_translation_events_from_app_state(request: Request, task_id: str):

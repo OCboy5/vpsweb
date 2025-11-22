@@ -177,14 +177,18 @@ class PoemServiceV2(IPoemServiceV2):
             self.logger.error(f"Error getting poem: {e}")
             raise
 
-    async def get_recent_activity(self, limit: int = 6, days: int = 30) -> Dict[str, Any]:
+    async def get_recent_activity(
+        self, limit: int = 6, days: int = 30
+    ) -> Dict[str, Any]:
         """Get poems with recent activity (new poems, translations, or BBRs)."""
         try:
             start_time = time.time()
 
             # Get poems with recent activity from repository
-            recent_activity_data = self.repository_service.repo.poems.get_recent_activity(
-                limit=limit, days=days
+            recent_activity_data = (
+                self.repository_service.repo.poems.get_recent_activity(
+                    limit=limit, days=days
+                )
             )
 
             # Convert to response format
@@ -202,20 +206,28 @@ class PoemServiceV2(IPoemServiceV2):
                     "source_language": poem.source_language,
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
-                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "created_at": (
+                        poem.created_at.isoformat() if poem.created_at else None
+                    ),
+                    "updated_at": (
+                        poem.updated_at.isoformat() if poem.updated_at else None
+                    ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
                 }
 
                 # Add activity metadata
-                poems_with_metadata.append({
-                    "poem": poem_dict,
-                    "last_activity": last_activity.isoformat() if last_activity else None,
-                    "activity_type": activity_type,
-                    "activity_label": self._get_activity_label(activity_type)
-                })
+                poems_with_metadata.append(
+                    {
+                        "poem": poem_dict,
+                        "last_activity": (
+                            last_activity.isoformat() if last_activity else None
+                        ),
+                        "activity_type": activity_type,
+                        "activity_label": self._get_activity_label(activity_type),
+                    }
+                )
 
             result = {
                 "poems": poems_with_metadata,
@@ -254,7 +266,7 @@ class PoemServiceV2(IPoemServiceV2):
             "poem_updated": "Updated",
             "translation_created": "New Translation",
             "bbr_created": "New BBR",
-            "unknown": "Recent Activity"
+            "unknown": "Recent Activity",
         }
         return labels.get(activity_type, "Recent Activity")
 

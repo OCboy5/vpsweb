@@ -202,7 +202,10 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         }
 
     async def _make_request_with_retry(
-        self, payload: Dict[str, Any], headers: Dict[str, str], timeout: Optional[float] = None
+        self,
+        payload: Dict[str, Any],
+        headers: Dict[str, str],
+        timeout: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Make HTTP request with retry logic.
@@ -225,7 +228,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             try:
                 # Use step-specific timeout if provided, otherwise use provider default
                 request_timeout = timeout if timeout is not None else self.timeout
-                logger.info(f"Using timeout: {request_timeout}s (step_specific: {timeout}, provider_default: {self.timeout})")
+                logger.info(
+                    f"Using timeout: {request_timeout}s (step_specific: {timeout}, provider_default: {self.timeout})"
+                )
                 async with httpx.AsyncClient(
                     timeout=httpx.Timeout(request_timeout),
                     limits=httpx.Limits(max_connections=self.connection_pool_size),
@@ -351,7 +356,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         """
         status_code = response.status_code
         error_content = await response.aread()
-        logger.error(f"Raw error content from {self.get_provider_name()}: {error_content}")
+        logger.error(
+            f"Raw error content from {self.get_provider_name()}: {error_content}"
+        )
 
         try:
             error_data = json.loads(error_content.decode("utf-8"))

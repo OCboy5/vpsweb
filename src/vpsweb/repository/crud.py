@@ -236,7 +236,9 @@ class CRUDPoem:
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def get_recent_activity(self, limit: int = 6, days: int = 30) -> List[Dict[str, Any]]:
+    def get_recent_activity(
+        self, limit: int = 6, days: int = 30
+    ) -> List[Dict[str, Any]]:
         """
         Get poems with recent activity (new poems, translations, or BBRs)
 
@@ -253,7 +255,8 @@ class CRUDPoem:
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         # SQL query to get poems with their most recent activity
-        query = text("""
+        query = text(
+            """
             SELECT DISTINCT
                 p.id,
                 p.poet_name,
@@ -299,9 +302,12 @@ class CRUDPoem:
                 END > :cutoff_date
             ORDER BY last_activity DESC
             LIMIT :limit
-        """)
+        """
+        )
 
-        result = self.db.execute(query, {"cutoff_date": cutoff_date, "limit": limit}).fetchall()
+        result = self.db.execute(
+            query, {"cutoff_date": cutoff_date, "limit": limit}
+        ).fetchall()
 
         # Convert to poem objects and add activity metadata
         poems_with_activity = []
@@ -310,7 +316,9 @@ class CRUDPoem:
             last_activity = row.last_activity
             if isinstance(last_activity, str):
                 try:
-                    last_activity = datetime.fromisoformat(last_activity.replace(' ', 'T'))
+                    last_activity = datetime.fromisoformat(
+                        last_activity.replace(" ", "T")
+                    )
                     if last_activity.tzinfo is None:
                         last_activity = last_activity.replace(tzinfo=timezone.utc)
                 except (ValueError, AttributeError):
@@ -320,11 +328,15 @@ class CRUDPoem:
             # Get the poem object
             poem = self.get_by_id(row.id)
             if poem:
-                poems_with_activity.append({
-                    "poem": poem,
-                    "last_activity": last_activity,
-                    "activity_type": self._determine_activity_type(row.id, last_activity, cutoff_date)
-                })
+                poems_with_activity.append(
+                    {
+                        "poem": poem,
+                        "last_activity": last_activity,
+                        "activity_type": self._determine_activity_type(
+                            row.id, last_activity, cutoff_date
+                        ),
+                    }
+                )
 
         return poems_with_activity
 
@@ -334,26 +346,32 @@ class CRUDPoem:
         from sqlalchemy import text
 
         # Get the most recent activity timestamps for each type
-        poem_query = text("""
+        poem_query = text(
+            """
             SELECT created_at FROM poems WHERE id = :poem_id
-        """)
+        """
+        )
         poem_result = self.db.execute(poem_query, {"poem_id": poem_id}).fetchone()
 
-        translation_query = text("""
+        translation_query = text(
+            """
             SELECT MAX(created_at) as latest FROM translations
             WHERE poem_id = :poem_id AND created_at > :cutoff_date
-        """)
-        translation_result = self.db.execute(translation_query, {
-            "poem_id": poem_id, "cutoff_date": cutoff_date
-        }).fetchone()
+        """
+        )
+        translation_result = self.db.execute(
+            translation_query, {"poem_id": poem_id, "cutoff_date": cutoff_date}
+        ).fetchone()
 
-        bbr_query = text("""
+        bbr_query = text(
+            """
             SELECT MAX(created_at) as latest FROM background_briefing_reports
             WHERE poem_id = :poem_id AND created_at > :cutoff_date
-        """)
-        bbr_result = self.db.execute(bbr_query, {
-            "poem_id": poem_id, "cutoff_date": cutoff_date
-        }).fetchone()
+        """
+        )
+        bbr_result = self.db.execute(
+            bbr_query, {"poem_id": poem_id, "cutoff_date": cutoff_date}
+        ).fetchone()
 
         # Convert timestamps to datetime objects
         def parse_timestamp(ts):
@@ -361,7 +379,7 @@ class CRUDPoem:
                 return None
             if isinstance(ts, str):
                 try:
-                    ts = datetime.fromisoformat(ts.replace(' ', 'T'))
+                    ts = datetime.fromisoformat(ts.replace(" ", "T"))
                     if ts.tzinfo is None:
                         ts = ts.replace(tzinfo=timezone.utc)
                 except (ValueError, AttributeError):

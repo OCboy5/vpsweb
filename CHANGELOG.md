@@ -5,6 +5,48 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.7] - 2025-11-22
+
+### 🚀 Overview
+VPSWeb v0.5.7 - **Recent Activity Dashboard Release**. This release transforms the dashboard from showing "Recent Poems" to displaying "Recent Activity" with smart activity detection based on the latest timestamps across poems, translations, and BBRs.
+
+### ✨ New Features
+
+#### 📊 Recent Activity Dashboard
+- **Activity-Based Dashboard**: Replaced "Recent Poems" section with "Recent Activity" showing poems with latest actions
+- **Smart Activity Detection**: Intelligent algorithm that compares actual timestamps to determine the most recent activity type
+- **Color-Coded Activity Badges**: Visual indicators for New Poem (green), New Translation (blue), and New BBR (purple)
+- **Activity Metadata**: Displays activity type and timestamp for each poem card
+- **Clean UI Design**: Removed Translate button from dashboard cards for a cleaner landing page experience
+
+#### 🔧 Backend API Enhancements
+- **New Endpoint**: Added `/api/v1/poems/recent-activity` API endpoint with configurable time filtering
+- **Advanced SQL Queries**: SQLite-compatible queries using CASE statements for complex activity aggregation
+- **Real-Time Activity Tracking**: Cross-table queries across poems, translations, and BBR tables
+- **Timestamp-Based Prioritization**: Activity type determined by most recent timestamp rather than fixed priority
+
+#### 🐛 Bug Fixes and Improvements
+- **Fixed kimi_k2_thinking Timeouts**: Resolved timeout issues by properly propagating step-specific timeout parameters
+- **Automatic Stanza Detection**: Enhanced BBR generation with automatic stanza structure detection to prevent miscounting
+- **Database Compatibility**: Improved SQLite compatibility with proper CASE statement usage
+- **Code Quality**: Applied Black code formatting across all modified files
+
+#### 🧹 Technical Debt Cleanup
+- **Legacy File Removal**: Cleaned up V1 prompt files and old model backup configurations
+- **Import Optimization**: Improved imports and removed unused dependencies
+- **Consistent Formatting**: Applied Black formatting for consistent code style
+
+### 🔧 Technical Details
+- **API Route Priority**: Fixed FastAPI route ordering to prevent path conflicts
+- **Datetime Handling**: Robust datetime parsing and timezone handling across different database formats
+- **Error Handling**: Enhanced error messages and graceful fallbacks for activity detection
+- **Performance**: Optimized SQL queries with proper indexing for fast activity lookup
+
+### 📚 Documentation Updates
+- **API Documentation**: Updated API docs for new recent-activity endpoint
+- **Code Comments**: Added comprehensive documentation for activity detection logic
+- **Type Hints**: Improved type annotations across all modified files
+
 ## [0.5.6] - 2025-11-21
 
 ### 🚀 Overview

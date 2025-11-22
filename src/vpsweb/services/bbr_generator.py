@@ -17,7 +17,11 @@ from .prompts import PromptService
 from ..repository.models import BackgroundBriefingReport
 from ..services.config import get_config_facade, ConfigFacade
 from ..models.config import ProvidersConfig
-from ..utils.text_processing import count_effective_lines, add_line_labels, detect_stanza_structure
+from ..utils.text_processing import (
+    count_effective_lines,
+    add_line_labels,
+    detect_stanza_structure,
+)
 
 logger = logging.getLogger(__name__)
 

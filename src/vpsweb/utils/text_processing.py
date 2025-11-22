@@ -78,7 +78,7 @@ def detect_stanza_structure(source_text: str) -> str:
         >>> detect_stanza_structure("Single stanza poem")
         'continuous'
     """
-    lines = source_text.split('\n')
+    lines = source_text.split("\n")
     stanza_lengths = []
     current_stanza_length = 0
 
