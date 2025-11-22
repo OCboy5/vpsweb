@@ -177,6 +177,87 @@ class PoemServiceV2(IPoemServiceV2):
             self.logger.error(f"Error getting poem: {e}")
             raise
 
+    async def get_recent_activity(self, limit: int = 6, days: int = 30) -> Dict[str, Any]:
+        """Get poems with recent activity (new poems, translations, or BBRs)."""
+        try:
+            start_time = time.time()
+
+            # Get poems with recent activity from repository
+            recent_activity_data = self.repository_service.repo.poems.get_recent_activity(
+                limit=limit, days=days
+            )
+
+            # Convert to response format
+            poems_with_metadata = []
+            for item in recent_activity_data:
+                poem = item["poem"]
+                activity_type = item["activity_type"]
+                last_activity = item["last_activity"]
+
+                # Convert poem to dictionary format
+                poem_dict = {
+                    "id": poem.id,
+                    "poet_name": poem.poet_name,
+                    "poem_title": poem.poem_title,
+                    "source_language": poem.source_language,
+                    "content": poem.original_text,
+                    "metadata_json": poem.metadata_json,
+                    "created_at": poem.created_at.isoformat() if poem.created_at else None,
+                    "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                    "translation_count": poem.translation_count,
+                    "ai_translation_count": poem.ai_translation_count,
+                    "human_translation_count": poem.human_translation_count,
+                }
+
+                # Add activity metadata
+                poems_with_metadata.append({
+                    "poem": poem_dict,
+                    "last_activity": last_activity.isoformat() if last_activity else None,
+                    "activity_type": activity_type,
+                    "activity_label": self._get_activity_label(activity_type)
+                })
+
+            result = {
+                "poems": poems_with_metadata,
+                "total_count": len(poems_with_metadata),
+                "activity_period_days": days,
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+            }
+
+            # Log performance
+            if self.performance_service:
+                await self.performance_service.log_request_performance(
+                    "get_recent_activity",
+                    "poems",
+                    200,
+                    (time.time() - start_time) * 1000,
+                    {"total_count": len(poems_with_metadata), "days": days},
+                )
+
+            return result
+
+        except Exception as e:
+            self.error_collector.add_error(
+                e,
+                {
+                    "operation": "get_recent_activity",
+                    "parameters": {"limit": limit, "days": days},
+                },
+            )
+            self.logger.error(f"Error getting recent activity: {e}")
+            raise
+
+    def _get_activity_label(self, activity_type: str) -> str:
+        """Get human-readable label for activity type."""
+        labels = {
+            "poem_created": "New Poem",
+            "poem_updated": "Updated",
+            "translation_created": "New Translation",
+            "bbr_created": "New BBR",
+            "unknown": "Recent Activity"
+        }
+        return labels.get(activity_type, "Recent Activity")
+
     async def create_poem(self, poem_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new poem with validation."""
         try:

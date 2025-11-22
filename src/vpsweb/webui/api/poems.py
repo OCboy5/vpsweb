@@ -234,6 +234,47 @@ async def get_filter_options(
         )
 
 
+@router.get("/recent-activity", response_model=WebAPIResponse)
+async def get_recent_activity(
+    limit: int = Query(
+        6, ge=1, le=20, description="Maximum number of poems to return (default: 6, max: 20)"
+    ),
+    days: int = Query(
+        30, ge=1, le=365, description="Number of days to look back for activity (default: 30, max: 365)"
+    ),
+    service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Get poems with recent activity (new poems, translations, or BBRs).
+
+    This endpoint returns poems that have had recent activity within the specified
+    time period, including:
+    - Newly added poems
+    - New translations for existing poems
+    - New Background Briefing Reports (BBRs)
+
+    The results are ordered by the most recent activity across all these types.
+    """
+    try:
+        # Use the PoemServiceV2 to get recent activity
+        from ..services.interfaces import IPoemServiceV2
+        from vpsweb.webui.container import container
+
+        poem_service = container.resolve(IPoemServiceV2)
+
+        # Get recent activity data
+        result = await poem_service.get_recent_activity(limit=limit, days=days)
+
+        return WebAPIResponse(
+            success=True,
+            message="Recent activity retrieved successfully",
+            data=result,
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get recent activity: {str(e)}")
+
+
 @router.get("/{poem_id}", response_model=PoemResponse)
 async def get_poem(
     poem_id: str,
@@ -625,3 +666,5 @@ async def delete_bbr(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete BBR: {str(e)}")
+
+

@@ -144,7 +144,7 @@
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Poems</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h3>
                 <a href="/poems" class="text-sm font-medium text-primary-600 hover:text-primary-500">
                     View all poems →
                 </a>
@@ -217,16 +217,16 @@ async function loadDashboardStats() {
 
 async function loadRecentPoems() {
     try {
-        const response = await fetch('/api/v1/poems/?page_size=6');
+        const response = await fetch('/api/v1/poems/recent-activity?limit=6');
         if (response.ok) {
             const result = await response.json();
-            const poems = result.poems; // Extract poems array from paginated response
+            const poems = result.data.poems; // Extract poems array from nested response
             displayPoems(poems);
         } else {
             showError();
         }
     } catch (error) {
-        console.error('Failed to load poems:', error);
+        console.error('Failed to load recent activity:', error);
         showError();
     }
 }
@@ -247,12 +247,37 @@ function displayPoems(poems) {
     gridEl.innerHTML = poems.map(poem => createPoemCard(poem)).join('');
 }
 
-function createPoemCard(poem) {
+function createPoemCard(poemData) {
+    // Extract poem and activity data from the recent activity structure
+    const poem = poemData.poem || poemData; // Handle both new structure and fallback
+    const lastActivity = poemData.last_activity;
+    const activityType = poemData.activity_type;
+
     const createdDate = new Date(poem.created_at).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
     });
+
+    const activityDate = new Date(lastActivity).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    // Activity type styling
+    const getActivityBadge = (activityType) => {
+        switch(activityType) {
+            case 'new_poem':
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">New Poem</span>';
+            case 'new_translation':
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">New Translation</span>';
+            case 'new_bbr':
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">New BBR</span>';
+            default:
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Activity</span>';
+        }
+    };
 
     return `
         <div class="bg-gray-50 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
@@ -264,7 +289,8 @@ function createPoemCard(poem) {
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             ${poem.source_language}
                         </span>
-                        <span>${createdDate}</span>
+                        ${getActivityBadge(activityType)}
+                        <span class="text-xs text-gray-400">Activity: ${activityDate}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <div class="flex space-x-4 text-sm text-gray-500">
@@ -275,20 +301,13 @@ function createPoemCard(poem) {
                     </div>
                 </div>
             </div>
-            <div class="mt-4 flex justify-between items-center">
+            <div class="mt-4 flex justify-end items-center">
                 <a href="/poems/${poem.id}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-500">
                     View Details
                     <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                 </a>
-                <div class="flex space-x-2">
-                    ${poem.can_translate ? `
-                    <a href="/poems/${poem.id}/translate" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
-                        Translate
-                    </a>
-                    ` : ''}
-                </div>
             </div>
         </div>
     `;

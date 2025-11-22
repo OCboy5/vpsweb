@@ -23,7 +23,7 @@ task_templates:
 
   # Editor Review Tasks
   editor_review_reasoning:
-    model_ref: "deepseek_v3_silicon"
+    model_ref: "deepseek_reasoner"
     prompt_template: "editor_review_reasoning"
     temperature: 0.1
     max_tokens: 16384

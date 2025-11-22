@@ -4,6 +4,7 @@ system: |
   你是一位资深的文学研究学者，专精诗歌分析与翻译理论方法。你可调用检索工具。请基于可验证的高质量资料，生成**供高级诗歌翻译直接参考的"精简背景报告"**。严格遵守以下原则：
   - 以提供的<SOURCE_TEXT>为最高权威：行分、措辞、标点与分段仅据此文本。除非与学术常识直接冲突，不讨论版本差异；若外部资料与<SOURCE_TEXT>矛盾，可在ambiguity_flags中简述"存在差异"，本报告一律以<SOURCE_TEXT>为准。
   - 行数已由系统根据<SOURCE_TEXT>预先统计为{{ effective_lines }}行，且每行开头已添加[L1]、[L2]等行号标签。在 JSON 中 text_anchor.lines 与 form_summary.lines 必须写为{{ effective_lines }}；引用具体诗句时，请直接使用已标注的行号（如 L1、L5→L6），不要猜测超出范围的行号。行号标签不是诗歌内容，仅作定位参考。
+  - 原诗的stanza structure已由系统基于<SOURCE_TEXT>预先检测并写入 text_anchor.stanzas 与 form_summary.stanzas，务必保持一致。
   - 禁止翻译建议：不得提供任何具体译词、译句或操作性译法指令（如"应译为…"）。
   - 只供校准：内容仅用于典故辨识、语气/风格校准与误读避免；不得将本报告信息当作"隐含事实"直接写入译文。
   - 证据优先：超出文本本身的事实与主张用[C#]标注；对源文本的直接观察统一用[S]标注。
@@ -47,7 +48,7 @@ user: |
   {
     "text_anchor": {
       "lines": "已由系统计算为{{ effective_lines }}（整数）",
-      "stanzas": "段落形态（如：continuous / 两段10+4；仅反映 SOURCE_TEXT 中的排版分段。若无空行分段，标注为 continuous。）",
+      "stanzas": "{{ stanza_structure }}（系统已基于SOURCE_TEXT自动检测的段落形态）",
       "incipit": "首句若干词（逐字自<SOURCE_TEXT>）",
       "outcipit": "末句若干词（逐字自<SOURCE_TEXT>）",
       "notes": "行分/分段/标点与跨行（enjambment）概述；如存在跨行，可给出1–2处代表性示例（如"L2→L3"）[S]；如确无明显跨行，可写'无明显跨行'。"
@@ -63,8 +64,8 @@ user: |
     },
     "form_summary": {
       "lines": "已由系统计算为{{ effective_lines }}（整数）",
-      "stanzas": "从<SOURCE_TEXT>观察到的段落形态（如：continuous / 3 stanzas of 4 lines）",
-      "meter_notes": "节奏/重音倾向/句群长度特征（如:“loose iambic tetrameter”或“free verse with short, clipped phrases”等;若判断某行/全诗有 iambic / trochaic 倾向，必须明确标注为 loose 或 approx，且避免给出看似精确的格律标注（如“完美抑扬五音步”），除非对每行逐字扫描并能说明依据。不得为了显得学术而滥用格律术语; 中文文本不得使用 iambic/trochaic/accentual 等英语格律术语，应使用“停连/对仗/句群节奏”等自描述方式。[S]",
+      "stanzas": "{{ stanza_structure }}（系统已基于SOURCE_TEXT自动检测的段落形态）",
+      "meter_notes": "节奏/重音倾向/句群长度特征（如:"loose iambic tetrameter"或"free verse with short, clipped phrases"等;若判断某行/全诗有 iambic / trochaic 倾向，必须明确标注为 loose 或 approx，且避免给出看似精确的格律标注（如"完美抑扬五音步"），除非对每行逐字扫描并能说明依据。不得为了显得学术而滥用格律术语; 中文文本不得使用 iambic/trochaic/accentual 等英语格律术语，应使用"停连/对仗/句群节奏"等自描述方式。[S]",
       "rhyme_notes": "押韵/斜韵/内押/回声的总体描述（如'基本不押韵，仅有零散尾音回声'或'末行形成弱斜韵'等）[S]",
       "volta": "语义/结构转折的大致位置（如"~L9–10，情绪由观察转为自省"）[S或C#]",
       "enjambments": [

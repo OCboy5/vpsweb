@@ -9,12 +9,17 @@ providers:
 
   deepseek:
     api_key_env: "DEEPSEEK_API_KEY"
-    base_url: "https://api.deepseek.com/v1"
+    base_url: "https://api.deepseek.com"
     type: "openai_compatible"
 
   siliconflow:
     api_key_env: "SILICONFLOW_API_KEY"
     base_url: "https://api.siliconflow.cn/v1/"
+    type: "openai_compatible"
+  
+  moonshot:
+    api_key_env: "MOONSHOT_API_KEY"
+    base_url: "https://api.moonshot.cn/v1"
     type: "openai_compatible"
 
 models:
@@ -42,9 +47,33 @@ models:
     reasoning: false
     description: "General purpose chat model for translation"
 
-  deepseek_v3_silicon:
+  deepseek_v32_silicon:
     provider: "siliconflow"
     name: "deepseek-ai/DeepSeek-V3.2-Exp"
+    reasoning: true
+    description: "Latest reasoning model via SiliconFlow"
+  
+  deepseek_v31_termius_silicon:
+    provider: "siliconflow"
+    name: "deepseek-ai/DeepSeek-V3.1-Terminus"
+    reasoning: true
+    description: "Latest reasoning model via SiliconFlow"  
+
+  kimi_k2_thinking:
+    provider: "moonshot"
+    name: "kimi-k2-thinking"
+    reasoning: true
+    description: "Latest reasoning model via SiliconFlow"
+
+  kimi_k2_thinking_silicon:
+    provider: "siliconflow"
+    name: "moonshotai/Kimi-K2-Thinking"
+    reasoning: true
+    description: "Latest reasoning model via SiliconFlow"
+
+  kimi_k2_thinking_turbo_silicon:
+    provider: "siliconflow"
+    name: "moonshotai/Kimi-K2-Thinking-Turbo"
     reasoning: true
     description: "Latest reasoning model via SiliconFlow"
 
@@ -61,9 +90,21 @@ pricing:
   deepseek_chat:
     input: 0.002
     output: 0.003
-  deepseek_v3_silicon:
+  deepseek_v32_silicon:
     input: 0.002
     output: 0.003
+  deepseek_v31_termius_silicon:
+    input: 0.004
+    output: 0.012
+  kimi_k2_thinking:
+    input: 0.004
+    output: 0.016
+  kimi_k2_thinking_silicon:
+    input: 0.004
+    output: 0.016
+  kimi_k2_thinking_turbo_silicon:
+    input: 0.004
+    output: 0.016      
 
 # Global provider settings (inherited by all providers)
 provider_settings:
@@ -75,6 +116,6 @@ provider_settings:
 
 # Reasoning model specific settings (inherited by all reasoning models)
 reasoning_settings:
-  timeout: 300.0              # Extended for reasoning time
+  timeout: 600.0              # Extended for reasoning time
   max_retries: 2              # Fewer retries (expensive)
-  request_timeout: 60.0       # Longer individual requests
+  request_timeout: 300.0       # Longer individual requests

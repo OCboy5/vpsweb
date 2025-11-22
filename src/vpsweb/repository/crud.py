@@ -236,6 +236,162 @@ class CRUDPoem:
         result = self.db.execute(stmt).scalars().all()
         return result
 
+    def get_recent_activity(self, limit: int = 6, days: int = 30) -> List[Dict[str, Any]]:
+        """
+        Get poems with recent activity (new poems, translations, or BBRs)
+
+        Args:
+            limit: Maximum number of poems to return
+            days: Number of days to look back for activity
+
+        Returns:
+            List of poems with activity metadata
+        """
+        from datetime import datetime, timedelta
+        from sqlalchemy import text
+
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+
+        # SQL query to get poems with their most recent activity
+        query = text("""
+            SELECT DISTINCT
+                p.id,
+                p.poet_name,
+                p.poem_title,
+                p.source_language,
+                p.created_at,
+                p.updated_at,
+                CASE
+                    WHEN max_bbrs.created_at >= COALESCE(max_translations.created_at, '1970-01-01')
+                     AND max_bbrs.created_at >= COALESCE(p.updated_at, '1970-01-01')
+                     AND max_bbrs.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    THEN max_bbrs.created_at
+                    WHEN max_translations.created_at >= COALESCE(p.updated_at, '1970-01-01')
+                     AND max_translations.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    THEN max_translations.created_at
+                    WHEN p.updated_at >= p.created_at
+                    THEN p.updated_at
+                    ELSE p.created_at
+                END as last_activity
+            FROM poems p
+            LEFT JOIN (
+                SELECT poem_id,
+                       MAX(created_at) as created_at
+                FROM translations
+                GROUP BY poem_id
+            ) max_translations ON p.id = max_translations.poem_id
+            LEFT JOIN (
+                SELECT poem_id, MAX(created_at) as created_at
+                FROM background_briefing_reports
+                GROUP BY poem_id
+            ) max_bbrs ON p.id = max_bbrs.poem_id
+            WHERE CASE
+                    WHEN max_bbrs.created_at >= COALESCE(max_translations.created_at, '1970-01-01')
+                     AND max_bbrs.created_at >= COALESCE(p.updated_at, '1970-01-01')
+                     AND max_bbrs.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    THEN max_bbrs.created_at
+                    WHEN max_translations.created_at >= COALESCE(p.updated_at, '1970-01-01')
+                     AND max_translations.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    THEN max_translations.created_at
+                    WHEN p.updated_at >= p.created_at
+                    THEN p.updated_at
+                    ELSE p.created_at
+                END > :cutoff_date
+            ORDER BY last_activity DESC
+            LIMIT :limit
+        """)
+
+        result = self.db.execute(query, {"cutoff_date": cutoff_date, "limit": limit}).fetchall()
+
+        # Convert to poem objects and add activity metadata
+        poems_with_activity = []
+        for row in result:
+            # Convert string datetime back to datetime object if needed
+            last_activity = row.last_activity
+            if isinstance(last_activity, str):
+                try:
+                    last_activity = datetime.fromisoformat(last_activity.replace(' ', 'T'))
+                    if last_activity.tzinfo is None:
+                        last_activity = last_activity.replace(tzinfo=timezone.utc)
+                except (ValueError, AttributeError):
+                    # Fallback to poem creation date if parsing fails
+                    last_activity = row.created_at
+
+            # Get the poem object
+            poem = self.get_by_id(row.id)
+            if poem:
+                poems_with_activity.append({
+                    "poem": poem,
+                    "last_activity": last_activity,
+                    "activity_type": self._determine_activity_type(row.id, last_activity, cutoff_date)
+                })
+
+        return poems_with_activity
+
+    def _determine_activity_type(self, poem_id, last_activity, cutoff_date) -> str:
+        """Determine the type of activity for the poem"""
+        from datetime import datetime, timezone
+        from sqlalchemy import text
+
+        # Get the most recent activity timestamps for each type
+        poem_query = text("""
+            SELECT created_at FROM poems WHERE id = :poem_id
+        """)
+        poem_result = self.db.execute(poem_query, {"poem_id": poem_id}).fetchone()
+
+        translation_query = text("""
+            SELECT MAX(created_at) as latest FROM translations
+            WHERE poem_id = :poem_id AND created_at > :cutoff_date
+        """)
+        translation_result = self.db.execute(translation_query, {
+            "poem_id": poem_id, "cutoff_date": cutoff_date
+        }).fetchone()
+
+        bbr_query = text("""
+            SELECT MAX(created_at) as latest FROM background_briefing_reports
+            WHERE poem_id = :poem_id AND created_at > :cutoff_date
+        """)
+        bbr_result = self.db.execute(bbr_query, {
+            "poem_id": poem_id, "cutoff_date": cutoff_date
+        }).fetchone()
+
+        # Convert timestamps to datetime objects
+        def parse_timestamp(ts):
+            if not ts:
+                return None
+            if isinstance(ts, str):
+                try:
+                    ts = datetime.fromisoformat(ts.replace(' ', 'T'))
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                except (ValueError, AttributeError):
+                    return None
+            return ts
+
+        poem_time = parse_timestamp(poem_result.created_at) if poem_result else None
+        translation_time = parse_timestamp(translation_result.latest)
+        bbr_time = parse_timestamp(bbr_result.latest)
+
+        # Find the most recent activity
+        latest_time = None
+        latest_type = "unknown"
+
+        if poem_time and poem_time > cutoff_date:
+            latest_time = poem_time
+            latest_type = "new_poem"
+
+        if translation_time and translation_time > cutoff_date:
+            if not latest_time or translation_time > latest_time:
+                latest_time = translation_time
+                latest_type = "new_translation"
+
+        if bbr_time and bbr_time > cutoff_date:
+            if not latest_time or bbr_time > latest_time:
+                latest_time = bbr_time
+                latest_type = "new_bbr"
+
+        return latest_type
+
 
 class CRUDTranslation:
     """CRUD operations for Translation model"""

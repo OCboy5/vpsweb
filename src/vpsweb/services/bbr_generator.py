@@ -17,6 +17,7 @@ from .prompts import PromptService
 from ..repository.models import BackgroundBriefingReport
 from ..services.config import get_config_facade, ConfigFacade
 from ..models.config import ProvidersConfig
+from ..utils.text_processing import count_effective_lines, add_line_labels, detect_stanza_structure
 
 logger = logging.getLogger(__name__)
 
@@ -197,8 +198,9 @@ class BBRGenerator:
                 count_effective_lines,
             )
 
-            # Compute effective lines and add line labels
+            # Compute effective lines, stanza structure, and add line labels
             effective_lines = count_effective_lines(poem_content)
+            stanza_structure = detect_stanza_structure(poem_content)
             labeled_source_text = add_line_labels(poem_content)
 
             variables = {
@@ -208,6 +210,7 @@ class BBRGenerator:
                 "source_lang": friendly_source_lang,
                 "target_lang": target_lang,
                 "effective_lines": effective_lines,
+                "stanza_structure": stanza_structure,
             }
 
             # Render prompt template

@@ -48,6 +48,9 @@ from vpsweb.webui.container import container
 from sqlalchemy.orm import Session
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.repository.crud import RepositoryService
+from vpsweb.utils.logger import setup_logging, get_logger
+from vpsweb.utils.config_loader import load_config
+from vpsweb.models.config import LogLevel
 from vpsweb.repository.database import get_db
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.config import WorkflowConfig, WorkflowMode
@@ -63,6 +66,17 @@ from .task_models import TaskStatus, TaskStatusEnum
 
 from vpsweb.utils.storage import StorageHandler
 import logging
+
+# Initialize application logging for the web server
+try:
+    # Load configuration to get log settings
+    config = load_config()
+    setup_logging(config.main.logging)
+except Exception as e:
+    # Fallback to INFO level if config loading fails
+    setup_logging(LogLevel.INFO)
+    # Log the error using standard logging since setup_logging should have initialized
+    logging.getLogger(__name__).warning(f"Failed to load config for logging setup: {e}, using INFO level")
 
 
 async def create_translation_events_from_app_state(request: Request, task_id: str):
@@ -620,6 +634,13 @@ class ApplicationRouterV2:
                 # Use same pattern as API - fresh database session via dependency injection
                 repository_service = RepositoryService(db)
                 poem = repository_service.poems.get_by_id(poem_id)
+
+                # Handle transaction isolation issue - retry once if poem not found initially
+                if not poem:
+                    # Fresh query to handle SQLite WAL transaction visibility
+                    db.rollback()  # Ensure we start with a clean transaction
+                    poem = repository_service.poems.get_by_id(poem_id)
+
                 if not poem:
                     raise Exception(f"Poem with ID {poem_id} not found")
 
