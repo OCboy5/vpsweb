@@ -23,8 +23,8 @@ echo "   Tag: ${TAG}"
 # Pre-flight checks
 echo "🔍 Running pre-flight checks..."
 
-# 1. Check if current branch is clean
-if [ -n "$(git status --porcelain)" ]; then
+# 1. Check if current branch is clean (ignore untracked files that are properly ignored)
+if [ -n "$(git status --porcelain | grep -v '^\?\?')" ]; then
     echo "❌ Error: You have uncommitted changes."
     echo "   Please commit or stash changes before creating a release."
     echo "   Current changes:"
