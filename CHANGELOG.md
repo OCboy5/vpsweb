@@ -5,6 +5,53 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.9] - 2025-11-23
+
+### 🚀 Overview
+VPSWeb v0.5.9 - **Database Safety & Release Process Enhancement Release**. This release introduces comprehensive database protection measures and updates the release process with enhanced safety protocols following the incident management review.
+
+### ✨ New Features
+
+#### 🛡️ Database Protection System
+- **Multi-Layer Safety Checks**: Implemented database protection verification at multiple stages of the release process
+- **Automated Backup Creation**: Timestamped database backups created before any release operations
+- **Enhanced Release Process**: Updated release checklist with mandatory database safety steps
+- **Critical Protection Rules**: Documented strict rules for database handling during releases
+
+#### 🔧 Release Process Modernization
+- **Safety-First Release Pipeline**: Database protection integrated into every release phase
+- **Pre-Commit Database Verification**: Final safety checks before committing changes
+- **Post-Release Database Integrity**: Verification steps to ensure database remains intact
+- **Emergency Recovery Procedures**: Clear protocols for database restoration if needed
+
+### 🔧 Internal Improvements
+
+#### 📋 Documentation Updates
+- **Release Process Documentation**: Comprehensive database protection guidelines in `CLAUDE_RELEASE_PROCESS.md`
+- **Critical Safety Rules**: Explicit "NEVER DELETE" rules and safe alternatives documented
+- **Automated Safety Commands**: Built-in verification scripts for database protection
+- **Quality Assurance Integration**: Database checks integrated into existing QA workflow
+
+#### 🏗️ Process Enhancements
+- **Mandatory Database Checks**: Verification steps required at Phase 1, Phase 4, and Phase 5
+- **Git Integration**: Protection against staging database files accidentally
+- **GitIgnore Protection**: Verification that database remains properly excluded from version control
+- **Backup Verification**: Confirmation that database backups are created and readable
+
+### 📋 Breaking Changes
+- **Release Process**: Updated release process now requires explicit database safety verification steps
+- **Development Workflow**: All file operations near `repository_root` now require additional safety checks
+
+### 🔧 Dependencies
+- No new dependencies added
+- Maintains full compatibility with existing database schema
+- No changes to external dependencies
+
+### 📚 Internal Documentation
+- Updated `CLAUDE_RELEASE_PROCESS.md` with comprehensive database protection rules
+- Enhanced release process documentation with safety-first approach
+- Added critical protection rules and emergency recovery procedures
+
 ## [0.5.8] - 2025-11-23
 
 ### 🚀 Overview

@@ -19,23 +19,34 @@ This document defines the **standardized release process** that Claude Code foll
    - Confirm we're on main branch
    - Ensure local is synced with remote
 
-2. **Version validation**
+2. **🛡️ Database Protection Check** ⭐ **CRITICAL**
+   - Verify `repository_root/repo.db` exists and is accessible
+   - Confirm database is NOT in git staging area (`git status | grep repository_root`)
+   - Verify `.gitignore` contains `repository_root/` entry
+   - **NEVER proceed if database is at risk**
+
+3. **Create Database Backup** ⭐ **SAFETY**
+   - Create timestamped backup: `cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db`
+   - Verify backup was created successfully
+   - Confirm backup file exists and is readable
+
+4. **Version validation**
    - Check current version in all files
    - Verify requested version doesn't already exist
    - Validate semantic version format (X.Y.Z)
 
 ### Phase 2: Quality Assurance
-3. **Run essential tests**
+5. **Run essential tests**
    - Test core CLI functionality
    - Verify model imports work
    - Test basic import functionality
 
-4. **Code quality checks**
+6. **Code quality checks**
    - Run Black formatting check
    - Fix any formatting issues automatically
    - Skip optional linting (as per workflow design)
 
-5. **File verification**
+7. **File verification**
    - Confirm all required files exist:
      - `pyproject.toml`
      - `src/vpsweb/__init__.py`
@@ -44,45 +55,52 @@ This document defines the **standardized release process** that Claude Code foll
      - `README.md`
 
 ### Phase 3: Version Management
-6. **Update version files**
+8. **Update version files**
    - Update `pyproject.toml`: `version = "X.Y.Z"`
    - Update `src/vpsweb/__init__.py`: `__version__ = "X.Y.Z"`
    - Update `src/vpsweb/__main__.py`: `version="X.Y.Z"`
    - Verify all versions match
 
-7. **Update CHANGELOG.md**
+9. **Update CHANGELOG.md**
    - Create new release section with proper format
    - Include release date
    - Add structured template for release notes
 
-8. **Update README.md** ⭐ **NEW**
-   - Update version mentions in README.md
-   - Update installation instructions if needed
-   - Update any version-specific examples or documentation
-   - Add new release to release history section if it exists
+10. **Update README.md** ⭐ **NEW**
+    - Update version mentions in README.md
+    - Update installation instructions if needed
+    - Update any version-specific examples or documentation
+    - Add new release to release history section if it exists
 
 ### Phase 4: Pre-Release Commit
-9. **Commit all changes**
-    - Stage all version and documentation changes
+11. **🛡️ Final Database Safety Check** ⭐ **CRITICAL**
+    - Verify `repository_root/repo.db` still exists and is untouched
+    - Confirm NO database files are staged for commit
+    - Verify database backup from Phase 1 still exists
+    - **ABORT RELEASE** if any database risk detected
+
+12. **Commit all changes**
+    - Stage all version and documentation changes (EXCLUDING database files)
     - Create standardized commit message
     - Push to remote repository
 
 ### Phase 5: Release Creation
-10. **Execute release script**
+13. **Execute release script**
     - Use `./push-version.sh X.Y.Z "Release notes"`
     - Script handles:
       - Tag creation
       - GitHub release creation
       - Proper error handling
 
-11. **Verification**
+14. **Verification**
     - Confirm release appears in GitHub releases
     - Verify tag exists
     - Check release URL works
     - Confirm version consistency across all files
+    - **Verify database still exists** and is accessible
 
 ### Phase 6: Local Backup Creation ⭐ **NEW**
-12. **Create local backup before making changes**
+15. **Create local backup after release**
    - Run `./save-version.sh X.Y.Z` to create backup tag
    - Verify backup tag was created successfully
    - This provides rollback capability if anything goes wrong
@@ -143,6 +161,39 @@ If any step fails:
 - **ALWAYS check version consistency** across all files
 - **ALWAYS create a local backup first** using `./save-version.sh`
 
+## 🛡️ DATABASE SAFETY - CRITICAL PROTECTION RULES
+
+**ABSOLUTELY NEVER DELETE OR MODIFY THE DATABASE:**
+- **NEVER** run `rm -rf repository_root` or any similar command
+- **NEVER** use wildcards with `rm` near the database directory
+- **NEVER** stage database files for git commits
+- **NEVER** assume database is backed up - verify explicitly
+
+**MANDATORY DATABASE CHECKS:**
+1. **BEFORE any file operations**: Verify `repository_root/repo.db` exists
+2. **BEFORE git operations**: Confirm NO database files are staged (`git status`)
+3. **AFTER all operations**: Verify database still exists and is accessible
+4. **BACKUP verification**: Confirm backup files exist and are readable
+
+**EMERGENCY RECOVERY:**
+- If database is accidentally deleted: STOP immediately and inform user
+- Use most recent backup: `repository_root/repo_backup_TIMESTAMP.db`
+- Always ask user before attempting any database operations
+
+**CRIMINAL OFFENSES (NEVER DO THESE):**
+```bash
+# 🚨 NEVER DO THIS - DATABASE KILLER COMMANDS
+rm -rf repository_root/
+rm repository_root/*
+rm -rf * repository_root/
+find . -name "repository*" -exec rm -rf {} \;
+```
+
+**SAFE ALTERNATIVES:**
+- Move files instead of delete: `mv file /tmp/`
+- Use specific file names: `rm specific_file.txt` (after verification)
+- Ask user before ANY operation affecting `repository_root`
+
 ## Version Files That Must Be Updated
 
 1. `pyproject.toml` - line 3: `version = "X.Y.Z"`
@@ -154,8 +205,22 @@ If any step fails:
 ## Quality Assurance Commands
 
 ```bash
-# Create backup (STEP 3)
-./save-version.sh X.Y.Z
+# 🛡️ DATABASE PROTECTION (STEP 2-3) - CRITICAL SAFETY CHECKS
+echo "🔍 Database protection check..." && \
+if [ -f "repository_root/repo.db" ]; then \
+    echo "✅ Database exists - PROTECTED"; \
+else \
+    echo "❌ DATABASE MISSING - ABORTING RELEASE"; \
+    exit 1; \
+fi && \
+if git status | grep -q "repository_root"; then \
+    echo "❌ DATABASE FILES STAGED - ABORTING RELEASE"; \
+    exit 1; \
+else \
+    echo "✅ Database not staged - SAFE"; \
+fi && \
+cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db && \
+echo "✅ Database backed up safely"
 
 # Test CLI functionality
 export PYTHONPATH="$(pwd)/src:$PYTHONPATH" && poetry run vpsweb --version
@@ -169,8 +234,25 @@ python -c "from vpsweb.__main__ import cli; print('✅ CLI entry point available
 # Check formatting
 poetry run black --check src/ tests/
 
-# Create release (STEP 11)
+# 🛡️ FINAL DATABASE CHECK (STEP 11) - PRE-COMMIT SAFETY
+echo "🔍 Final database safety check..." && \
+if [ -f "repository_root/repo.db" ]; then \
+    echo "✅ Database still exists - SAFE TO PROCEED"; \
+else \
+    echo "❌ DATABASE DELETED - EMERGENCY STOP"; \
+    exit 1; \
+fi
+
+# Create release (STEP 13)
 ./push-version.sh X.Y.Z "Release notes with proper description"
+
+# 🛡️ POST-RELEASE DATABASE VERIFICATION (STEP 14)
+echo "🔍 Post-release database verification..." && \
+if [ -f "repository_root/repo.db" ]; then \
+    echo "✅ Database intact after release - SUCCESS"; \
+else \
+    echo "❌ DATABASE LOST - EMERGENCY RECOVERY NEEDED"; \
+fi
 ```
 
 ## Rollback Process (If Needed)
