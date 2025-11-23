@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.5.9-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.5.9)
+[![Version](https://img.shields.io/badge/Version-0.6.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,14 +40,14 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.5.9 - Database Safety & Release Process Enhancement Release**
+## 🎯 Current Status: **v0.6.0 - Major Prompt Templates Upgrade & N-Best Pipeline Release**
 
-🔧 **CLI ConfigFacade Modernization**: CLI services now use ConfigFacade architecture with backward-compatible load_config() function
-🔄 **Dynamic Model Reference Resolution**: Replaced hardcoded model name mappings with dynamic exact matching from model registry for automatic scalability
-🏗️ **Enhanced Configuration Architecture**: New ConfigFacade with ModelRegistryService and TaskTemplateService for centralized configuration management
-💰 **Pricing Calculation Fixes**: Fixed BBR generator and workflow cost calculation to use dynamic model reference resolution
-🛠️ **Service Layer Refactoring**: Comprehensive service layer with domain-specific services and proper dependency injection
-🔧 **Backward Compatibility**: Maintained full compatibility with legacy configuration patterns while adding new architecture
+🎯 **All-New Prompt Template Suite**: Complete redesign of prompt templates for improved translation accuracy and workflow integration
+🚀 **N-Best+Evaluate+Blend Pipeline**: Advanced pipeline generating multiple translation candidates with intelligent evaluation and blending
+📊 **Enhanced Translation Quality**: Multi-candidate analysis with quality metrics and adaptive selection for optimal results
+🏗️ **Modular Pipeline Architecture**: Flexible N-Best pipeline design with configurable parameters and performance optimization
+📋 **Template Management System**: Support for template versioning, dynamic selection, and built-in testing capabilities
+🔧 **Full Backward Compatibility**: Existing configurations continue to work unchanged while new features enhance performance
 
 ### **Previous v0.3.x Features**
 🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0

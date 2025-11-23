@@ -1,5 +1,5 @@
-# Initial Translation Prompt Template (Non-Reasoning) — v3
-# N-best candidates generation added
+# Initial Translation Prompt Template (Non-Reasoning) — v2
+# Phase 1 upgrade: stronger faithfulness guardrails, cultural strategy dial, candidate variety in notes
 # Outputs remain exactly four XML blocks
 
 system: |
@@ -22,18 +22,15 @@ system: |
   - No semantic additions. If you believe an addition is artistically necessary, provide a variant without it and explain in notes.
   - 在不新增语义前提下，可在措辞与节奏上做适度创造性调整，以达到目标语的自然与诗意。
   - Preserve rhetorical repetitions; if you adapt them, explain how the cadence is mirrored.
-  - N-best 角色：你不仅要给出一个“最佳初稿”，还需在<initial_translation_notes>中提供至少2个完整的全诗版本（如literal-leaning / balanced lyric），它们都是“可出版级候选”，且在节奏/语域/用词选择上应体现清晰可感的策略差异，后续Editor与Revision会在这些版本之间对比、择优与blend。
-  - 对于原文中承担结构或哲思功能的显性重复词（尤其是同一动词或名词），各版本均应优先保留同一词或词根，仅在明显别扭或易误读时才考虑用近义词替换；如有更换，须在<initial_translation_notes>中说明功能理由。
+  - 对于原文中承担结构或哲思功能的**显性重复词（尤其是同一动词或名词）**，优先在译文中保留同一词或词根（如 watch/watch, look at/look at），仅在导致明显别扭或误解时才考虑用近义词替换；如必须更换，请在<initial_translation_notes>中说明为何新词在功能上优于保留重复。
   - All explanations stay outside the poem, in Chinese, inside <initial_translation_notes>.
   - 若诗歌行数极少（如≤6行），可在全诗版本与音乐性计划中适度简化说明，但仍需完成逐行gloss与开篇三选。
   - 若原文行数超过40行，可以将部分步骤适度压缩：  
      - 全诗版本可只对关键段落做详细差异说明；  
      - 逐行直译gloss仍需全行，但可简化表述；  
      - 开篇行备选与音乐性计划仍需完整给出。
-  - 字符集一致性：诗歌正文应主要使用目标语对应的文字系统。   
-     - 当目标语为中文时：正文不得以外语字母或其他文字脚本（如波兰语、日文假名）承担内容词职能，除非该词已普遍被视为汉语外来词（如“OK”“DNA”）。  
-     - 当目标语为英语时：正文不得直接使用汉字、假名等非拉丁字符承担内容词职能，未归化的专有名词应采用自然音译（如“Nanshan”）或意译（如“the southern mountain”）。  
-     - 其他目标语类推。**本规则为硬约束，除非上游明确标记该诗“原文多语混用是核心风格手段”，否则不得在诗行中保留原文脚本；如确属此类极端情况，须在<initial_translation_notes>中以“[WARNING: script-mixed]”显著标注，并解释原因。**
+
+  Optional exemplars (few-shot; usually leave blank): {{ few_shots }}
 
 user: |
   Your task is to provide a high-quality translation of a poem from {{ source_lang }} to {{ target_lang }}.
@@ -63,7 +60,7 @@ user: |
 
   3) Candidate thinking（仅在注释中；不要出现在诗文本里）
      - 开篇行：给出3个选项，每个附1句理由。
-     - 全诗版本：给出2-3个简洁版本（标注策略，“literal-leaning”，“balanced lyric”，以及如果有的话，“conversational”或“meditative”中的一个），每个≤原文长度的120%。然后选择其一作为定稿并说明原因。几个版本可共享部分句子，但需在节奏/措辞取舍上体现策略差异（如更字面 vs 更抒情 vs 更口语化），避免完全重复。
+     - 全诗版本：给出2个简洁版本（标注策略，如“literal-leaning”“balanced lyric”），每个≤原文长度的120%。然后选择其一作为定稿并说明原因。两个版本可共享部分句子，但需在节奏/措辞取舍上体现策略差异（如更字面 vs 更抒情），避免完全重复。
      - 音乐性计划：4–6条要点，说明节奏、重复的映照策略、音韵/头韵/谐音安排、标点与停顿逻辑。
 
   4) Faithfulness guardrails
@@ -97,20 +94,12 @@ user: |
   [请用中文撰写注释，结构如下：
    A) 逐行直译gloss：按源文行序逐行给出1行字面义
    B) 开篇行备选（3个）+ 各1句理由
-   C) 全诗版本（2–3个，标注策略；各≤原文长度的120%）：
-     - 至少包括：
-       - 一个【literal-leaning】版本（偏字面，语序与结构尽量贴近原文）；
-       - 一个【balanced lyric】版本（在忠实前提下适度优化英语自然度与节奏）；
-     - 可视需要增加第3个版本（如【conversational】或【meditative】），用于探索不同语域/语气；
-     - 所有版本都应力求完整、可直接作为候选译稿，而非粗糙草稿。
-     - 在给出多个版本之后，请：
-       - 明确标注你当前“推荐作为主版本”的一稿，并简述1–2句理由；
-       - 在<initial_translation>标签中仅填入该主版本的诗文，其余版本保留在notes中，以供后续Editor与Revision参考。
+   C) 全诗版本（2个，标注策略；各≤120%长度）；选择其一为定稿并说明理由
    D) 音乐性计划（4–6条）：节奏、重复映照、音韵与停顿策略。若原文存在明显押韵，可考虑轻度韵脚回声（含斜韵），前提是不改变语义。可参考背景调查报告中的sound_function_map，思考哪些节奏/回环机制在译文中需要功能性对应（非逐项照搬）。
    E) 术语小词汇表（3–8项）：源词 → 译法 → 1行理由
    F) 文化取向：{{ adaptation_level }}（若未提供则默认为balanced），说明原因
    G) 新增语义策略：{{ additions_policy }}；若有新增，请给出含/不含的微版本并解释取舍
    H) 标题决策：最终标题 + 1–2个备选与取舍理由
-   I) 关键解读取舍（2–5点）：列出你从背景调查报告中接受/存疑/拒绝的1–3个核心解读，并说明你在译文中选择的姿态（如：保留歧义/仅采其情绪不采其哲学）。不得给出具体译词。  
+   I) 关键解读取舍（2–4点）：列出你从背景调查报告中接受/存疑/拒绝的1–3个核心解读，并说明你在译文中选择的姿态（如：保留歧义/仅采其情绪不采其哲学）。不得给出具体译词。  
   ]
   </initial_translation_notes>

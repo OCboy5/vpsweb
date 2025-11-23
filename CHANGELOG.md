@@ -5,6 +5,62 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-11-24
+
+### 🚀 Overview
+VPSWeb v0.6.0 - **Major Prompt Templates Upgrade & N-Best Pipeline Release**. This major release introduces a completely redesigned prompt template system with advanced N-Best+Evaluate+Blend pipeline capabilities for enhanced translation quality.
+
+### ✨ New Features
+
+#### 🎯 All-New Prompt Template Suite
+- **Complete Template Redesign**: All new prompt templates developed for improved translation accuracy and quality
+- **Enhanced Workflow Integration**: Templates optimized for collaborative Translator→Editor→Translator workflow
+- **Multiple Template Versions**: Support for different template strategies and approaches
+- **Improved Prompt Engineering**: Advanced prompt techniques for better LLM performance
+
+#### 🚀 N-Best+Evaluate+Blend Pipeline
+- **Multiple Candidate Generation**: Generate N-best translation candidates for comprehensive evaluation
+- **Quality Assessment Pipeline**: Built-in evaluation mechanisms for translation quality scoring
+- **Intelligent Blending**: Advanced blending algorithms to combine best elements from multiple candidates
+- **Automated Selection**: Data-driven selection of optimal translation combinations
+
+#### 📊 Enhanced Translation Quality
+- **Multi-Candidate Analysis**: Compare multiple translation approaches automatically
+- **Quality Metrics**: Built-in metrics for translation assessment and improvement
+- **Adaptive Selection**: Dynamic selection of best translation strategies based on content
+- **Consistent Quality Control**: Standardized quality evaluation across all translation steps
+
+### 🔧 Technical Improvements
+
+#### 🏗️ Pipeline Architecture
+- **Modular Pipeline Design**: Flexible N-Best pipeline architecture for easy extension
+- **Configurable Parameters**: Adjustable N-Best settings for different use cases
+- **Performance Optimization**: Efficient processing of multiple translation candidates
+- **Resource Management**: Optimized resource usage for multi-candidate processing
+
+#### 📋 Template Management
+- **Template Versioning**: Support for multiple template versions and variants
+- **Dynamic Template Selection**: Context-aware template selection based on translation requirements
+- **Template Testing**: Built-in testing capabilities for prompt templates
+- **Configuration Integration**: Seamless integration with existing YAML configuration system
+
+### 📚 Documentation Updates
+- **New Template Documentation**: Comprehensive documentation for new prompt templates
+- **Pipeline Usage Guide**: Detailed guide for using N-Best+Evaluate+Blend pipeline
+- **Configuration Examples**: Updated configuration examples for new features
+- **Best Practices**: Guidelines for optimal use of new template and pipeline features
+
+### 🔧 Dependencies
+- No new external dependencies added
+- Maintains full backward compatibility with existing workflows
+- Enhanced utilization of existing LLM provider capabilities
+
+### 📋 Migration Notes
+- **Backward Compatible**: Existing configurations continue to work unchanged
+- **Optional Features**: N-Best pipeline can be enabled/disabled via configuration
+- **Template Selection**: New templates are automatically used for optimal results
+- **Performance**: Slightly increased processing time due to N-Best candidate generation
+
 ## [0.5.9] - 2025-11-23
 
 ### 🚀 Overview
