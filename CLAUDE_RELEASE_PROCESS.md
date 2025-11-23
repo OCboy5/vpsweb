@@ -255,21 +255,6 @@ else \
 fi
 ```
 
-## Rollback Process (If Needed)
-
-If something goes wrong during release:
-
-```bash
-# List available backup tags
-git tag -l "*local*"
-
-# Restore from backup
-git checkout vX.Y.Z-local-YYYY-MM-DD
-git checkout -b restore-backup
-git push origin restore-backup:main --force
-git checkout main
-git branch -D restore-backup
-```
 
 ---
 
