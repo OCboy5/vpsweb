@@ -663,6 +663,7 @@ class ApplicationRouterV2:
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
+                    "selected": poem.selected,  # Add selected field for the selection toggle
                 }
 
                 template_context = {
@@ -985,6 +986,7 @@ class ApplicationRouterV2:
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
+                    "selected": poem.selected,  # Add selected field for the selection toggle
                 }
 
                 template_context = {

@@ -85,6 +85,7 @@ class CRUDPoem:
             source_language=poem_data.source_language,
             original_text=poem_data.original_text,
             metadata_json=poem_data.metadata_json,
+            selected=getattr(poem_data, "selected", False),
         )
 
         try:
@@ -110,8 +111,9 @@ class CRUDPoem:
             Poem object if found, None otherwise
         """
         stmt = select(Poem).where(Poem.id == poem_id)
-        result = self.db.execute(stmt).scalar_one_or_none()
-        return result
+        poem = self.db.execute(stmt).scalar_one_or_none()
+
+        return poem
 
     def get_multi(
         self,
@@ -120,6 +122,7 @@ class CRUDPoem:
         poet_name: Optional[str] = None,
         language: Optional[str] = None,
         title_search: Optional[str] = None,
+        selected: Optional[bool] = None,
     ) -> List[Poem]:
         """
         Get multiple poems with optional filtering
@@ -130,6 +133,7 @@ class CRUDPoem:
             poet_name: Filter by poet name
             language: Filter by source language
             title_search: Search in poem title
+            selected: Filter by selection status
 
         Returns:
             List of poem objects
@@ -143,6 +147,8 @@ class CRUDPoem:
             stmt = stmt.where(Poem.source_language == language)
         if title_search:
             stmt = stmt.where(Poem.poem_title.ilike(f"%{title_search}%"))
+        if selected is not None:
+            stmt = stmt.where(Poem.selected == selected)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(Poem.created_at.desc()).offset(skip).limit(limit)
@@ -155,6 +161,7 @@ class CRUDPoem:
         poet_name: Optional[str] = None,
         language: Optional[str] = None,
         title_search: Optional[str] = None,
+        selected: Optional[bool] = None,
     ) -> int:
         """
         Get total number of poems with optional filtering
@@ -163,6 +170,7 @@ class CRUDPoem:
             poet_name: Filter by poet name
             language: Filter by source language
             title_search: Search in poem title
+            selected: Filter by selection status
 
         Returns:
             Total count of poems matching criteria
@@ -176,6 +184,8 @@ class CRUDPoem:
             stmt = stmt.where(Poem.source_language == language)
         if title_search:
             stmt = stmt.where(Poem.poem_title.ilike(f"%{title_search}%"))
+        if selected is not None:
+            stmt = stmt.where(Poem.selected == selected)
 
         result = self.db.execute(stmt).scalar()
         return result
@@ -191,15 +201,49 @@ class CRUDPoem:
         Returns:
             Updated poem object if found, None otherwise
         """
+        # Build update values dynamically, only including non-None fields
+        update_values = {
+            "updated_at": datetime.now(timezone.utc),
+        }
+
+        if poem_data.poet_name is not None:
+            update_values["poet_name"] = poem_data.poet_name
+        if poem_data.poem_title is not None:
+            update_values["poem_title"] = poem_data.poem_title
+        if poem_data.source_language is not None:
+            update_values["source_language"] = poem_data.source_language
+        if poem_data.original_text is not None:
+            update_values["original_text"] = poem_data.original_text
+        if poem_data.metadata_json is not None:
+            update_values["metadata_json"] = poem_data.metadata_json
+        if poem_data.selected is not None:
+            update_values["selected"] = poem_data.selected
+
+        stmt = update(Poem).where(Poem.id == poem_id).values(**update_values)
+
+        result = self.db.execute(stmt)
+        if result.rowcount == 0:
+            return None
+
+        self.db.commit()
+        return self.get_by_id(poem_id)
+
+    def update_selection(self, poem_id: str, selected: bool) -> Optional[Poem]:
+        """
+        Update poem selection status
+
+        Args:
+            poem_id: Poem ID
+            selected: Selection status
+
+        Returns:
+            Updated poem object if found, None otherwise
+        """
         stmt = (
             update(Poem)
             .where(Poem.id == poem_id)
             .values(
-                poet_name=poem_data.poet_name,
-                poem_title=poem_data.poem_title,
-                source_language=poem_data.source_language,
-                original_text=poem_data.original_text,
-                metadata_json=poem_data.metadata_json,
+                selected=selected,
                 updated_at=datetime.now(timezone.utc),
             )
         )
@@ -265,14 +309,14 @@ class CRUDPoem:
                 p.created_at,
                 p.updated_at,
                 CASE
-                    WHEN max_bbrs.created_at >= COALESCE(max_translations.created_at, '1970-01-01')
-                     AND max_bbrs.created_at >= COALESCE(p.updated_at, '1970-01-01')
-                     AND max_bbrs.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    WHEN COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(max_translations.created_at, '1970-01-01')
+                     AND COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(p.updated_at, '1970-01-01')
+                     AND COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN max_bbrs.created_at
-                    WHEN max_translations.created_at >= COALESCE(p.updated_at, '1970-01-01')
-                     AND max_translations.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    WHEN COALESCE(max_translations.created_at, '1970-01-01') >= COALESCE(p.updated_at, '1970-01-01')
+                     AND COALESCE(max_translations.created_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN max_translations.created_at
-                    WHEN p.updated_at >= p.created_at
+                    WHEN COALESCE(p.updated_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN p.updated_at
                     ELSE p.created_at
                 END as last_activity
@@ -289,14 +333,14 @@ class CRUDPoem:
                 GROUP BY poem_id
             ) max_bbrs ON p.id = max_bbrs.poem_id
             WHERE CASE
-                    WHEN max_bbrs.created_at >= COALESCE(max_translations.created_at, '1970-01-01')
-                     AND max_bbrs.created_at >= COALESCE(p.updated_at, '1970-01-01')
-                     AND max_bbrs.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    WHEN COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(max_translations.created_at, '1970-01-01')
+                     AND COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(p.updated_at, '1970-01-01')
+                     AND COALESCE(max_bbrs.created_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN max_bbrs.created_at
-                    WHEN max_translations.created_at >= COALESCE(p.updated_at, '1970-01-01')
-                     AND max_translations.created_at >= COALESCE(p.created_at, '1970-01-01')
+                    WHEN COALESCE(max_translations.created_at, '1970-01-01') >= COALESCE(p.updated_at, '1970-01-01')
+                     AND COALESCE(max_translations.created_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN max_translations.created_at
-                    WHEN p.updated_at >= p.created_at
+                    WHEN COALESCE(p.updated_at, '1970-01-01') >= COALESCE(p.created_at, '1970-01-01')
                     THEN p.updated_at
                     ELSE p.created_at
                 END > :cutoff_date
@@ -348,7 +392,7 @@ class CRUDPoem:
         # Get the most recent activity timestamps for each type
         poem_query = text(
             """
-            SELECT created_at FROM poems WHERE id = :poem_id
+            SELECT created_at, updated_at FROM poems WHERE id = :poem_id
         """
         )
         poem_result = self.db.execute(poem_query, {"poem_id": poem_id}).fetchone()
@@ -386,29 +430,46 @@ class CRUDPoem:
                     return None
             return ts
 
-        poem_time = parse_timestamp(poem_result.created_at) if poem_result else None
+        poem_created_time = (
+            parse_timestamp(poem_result.created_at) if poem_result else None
+        )
+        poem_updated_time = (
+            parse_timestamp(poem_result.updated_at) if poem_result else None
+        )
         translation_time = parse_timestamp(translation_result.latest)
         bbr_time = parse_timestamp(bbr_result.latest)
 
-        # Find the most recent activity
-        latest_time = None
-        latest_type = "unknown"
+        # Determine what type of activity the most recent activity was
+        # Compare last_activity with individual activity timestamps to identify the type
 
-        if poem_time and poem_time > cutoff_date:
-            latest_time = poem_time
-            latest_type = "new_poem"
+        # Check for poem updates (selection changes, etc.)
+        if (
+            poem_updated_time
+            and abs((last_activity - poem_updated_time).total_seconds()) < 1
+        ):
+            # Check if this is a new poem creation (created_at and updated_at are very close)
+            if poem_created_time:
+                time_diff = abs((poem_updated_time - poem_created_time).total_seconds())
+                if time_diff <= 5:
+                    # This is a newly created poem
+                    return "new_poem"
+                else:
+                    # This is a poem update (like selection change), but not identifiable
+                    return "unknown"
 
-        if translation_time and translation_time > cutoff_date:
-            if not latest_time or translation_time > latest_time:
-                latest_time = translation_time
-                latest_type = "new_translation"
+        # Check for new translations
+        if (
+            translation_time
+            and abs((last_activity - translation_time).total_seconds()) < 1
+        ):
+            return "new_translation"
 
-        if bbr_time and bbr_time > cutoff_date:
-            if not latest_time or bbr_time > latest_time:
-                latest_time = bbr_time
-                latest_type = "new_bbr"
+        # Check for new BBRs
+        if bbr_time and abs((last_activity - bbr_time).total_seconds()) < 1:
+            return "new_bbr"
 
-        return latest_type
+        # If we can't identify what the most recent activity was, return unknown
+        return "unknown"
 
 
 class CRUDTranslation:

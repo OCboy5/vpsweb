@@ -78,6 +78,9 @@
                     <a href="/translations" class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {% if request.url.path.startswith('/translations') %}text-primary-600 bg-primary-50{% endif %}">
                         Translations
                     </a>
+                    <a href="/poems?selected=true" class="nav-link text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {% if request.url.path == '/poems' and request.query_params.get('selected') == 'true' %}text-primary-600 bg-primary-50{% endif %}">
+                        Selected
+                    </a>
 
                 </div>
 
@@ -113,6 +116,9 @@
                 </a>
                 <a href="/translations" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 {% if request.url.path.startswith('/translations') %}text-primary-600 bg-primary-50{% endif %}">
                     Translations
+                </a>
+                <a href="/poems?selected=true" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 {% if request.url.path == '/poems' and request.query_params.get('selected') == 'true' %}text-primary-600 bg-primary-50{% endif %}">
+                    Selected
                 </a>
 
                 <div class="pt-4 pb-2 border-t border-gray-200">

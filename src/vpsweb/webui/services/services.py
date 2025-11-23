@@ -262,10 +262,10 @@ class PoemServiceV2(IPoemServiceV2):
     def _get_activity_label(self, activity_type: str) -> str:
         """Get human-readable label for activity type."""
         labels = {
-            "poem_created": "New Poem",
+            "new_poem": "New Poem",
             "poem_updated": "Updated",
-            "translation_created": "New Translation",
-            "bbr_created": "New BBR",
+            "new_translation": "New Translation",
+            "new_bbr": "New BBR",
             "unknown": "Recent Activity",
         }
         return labels.get(activity_type, "Recent Activity")

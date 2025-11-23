@@ -11,7 +11,12 @@ from sqlalchemy import func, select, case
 
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.schemas import PoemCreate, PoemUpdate, PoemResponse
+from src.vpsweb.repository.schemas import (
+    PoemCreate,
+    PoemUpdate,
+    PoemResponse,
+    PoemSelectionUpdate,
+)
 from src.vpsweb.repository.models import Poem, Translation, BackgroundBriefingReport
 from ..schemas import (
     PoemFormCreate,
@@ -23,7 +28,10 @@ from ..schemas import (
 )
 from ..services.interfaces import IBBRServiceV2
 
+from vpsweb.utils.logger import get_logger
+
 router = APIRouter()
+logger = get_logger(__name__)
 
 
 def get_repository_service(db: Session = Depends(get_db)) -> RepositoryService:
@@ -47,6 +55,7 @@ async def list_poems(
     poet_name: Optional[str] = Query(None, description="Filter by poet name"),
     language: Optional[str] = Query(None, description="Filter by source language"),
     title_search: Optional[str] = Query(None, description="Search in poem title"),
+    selected: Optional[bool] = Query(None, description="Filter by selection status"),
     service: RepositoryService = Depends(get_repository_service),
 ):
     """
@@ -58,6 +67,7 @@ async def list_poems(
     - **poet_name**: Filter poems by poet name
     - **language**: Filter poems by source language
     - **title_search**: Search poems by title (partial match)
+    - **selected**: Filter poems by selection status (true/false)
 
     **Returns:**
     - Paginated list of poems with pagination metadata
@@ -70,6 +80,7 @@ async def list_poems(
         poet_name=poet_name,
         language=language,
         title_search=title_search,
+        selected=selected,
     )
 
     # Get poems for current page
@@ -79,10 +90,14 @@ async def list_poems(
         poet_name=poet_name,
         language=language,
         title_search=title_search,
+        selected=selected,
     )
 
-    # Try using the working property approach for each poem
+    # Build response data
     response_data = []
+    poem_ids = []
+
+    # First pass: collect poem IDs and get translation counts
     for poem in poems:
         # Calculate translation counts using direct SQL queries (like the statistics API)
         ai_translation_count = (
@@ -104,20 +119,54 @@ async def list_poems(
             or 0
         )
 
-        poem_dict = {
-            "id": poem.id,
-            "poet_name": poem.poet_name,
-            "poem_title": poem.poem_title,
-            "source_language": poem.source_language,
-            "original_text": poem.original_text,
-            "metadata_json": poem.metadata_json,
-            "created_at": poem.created_at,
-            "updated_at": poem.updated_at,
-            "translation_count": poem.translation_count or 0,
-            "ai_translation_count": ai_translation_count,
-            "human_translation_count": human_translation_count,
-        }
-        response_data.append(poem_dict)
+        # Fix SQLAlchemy boolean mapping issue for each poem
+        poem_ids.append(poem.id)
+
+        # Batch query for all selected fields to avoid N+1 problem
+        if poem_ids:
+            from sqlalchemy import text
+
+            placeholders = ",".join([f":id_{i}" for i in range(len(poem_ids))])
+            params = {f"id_{i}": poem_id for i, poem_id in enumerate(poem_ids)}
+            selected_results = service.db.execute(
+                text(f"SELECT id, selected FROM poems WHERE id IN ({placeholders})"),
+                params,
+            ).fetchall()
+
+            # Create mapping of poem_id -> selected_value
+            selected_mapping = {}
+            for poem_id, selected_val in selected_results:
+                if isinstance(selected_val, str):
+                    selected_mapping[poem_id] = selected_val.lower() in (
+                        "true",
+                        "1",
+                        "t",
+                        "yes",
+                    )
+                else:
+                    selected_mapping[poem_id] = (
+                        bool(selected_val) if selected_val is not None else False
+                    )
+
+        # Build response data
+        response_data = []
+        for poem in poems:
+            selected_value = selected_mapping.get(poem.id, False)
+            poem_dict = {
+                "id": poem.id,
+                "poet_name": poem.poet_name,
+                "poem_title": poem.poem_title,
+                "source_language": poem.source_language,
+                "original_text": poem.original_text,
+                "metadata_json": poem.metadata_json,
+                "created_at": poem.created_at,
+                "updated_at": poem.updated_at,
+                "translation_count": poem.translation_count or 0,
+                "ai_translation_count": ai_translation_count,
+                "human_translation_count": human_translation_count,
+                "selected": selected_value,
+            }
+            response_data.append(poem_dict)
 
     # Calculate pagination info
     total_pages = (total_count + page_size - 1) // page_size  # Ceiling division
@@ -307,12 +356,40 @@ async def get_poem(
     # Check if BBR exists
     has_bbr = bbr_service.has_bbr(poem_id)
 
-    # Convert poem to dict and add BBR status
-    poem_dict = poem.__dict__.copy()
-    poem_dict["has_bbr"] = has_bbr
+    # Fix SQLAlchemy boolean mapping issue by getting fresh value directly from database
+    from sqlalchemy import text
 
-    # Convert to PoemResponse model
-    return PoemResponse(**poem_dict)
+    result = service.db.execute(
+        text("SELECT selected FROM poems WHERE id = :poem_id"), {"poem_id": poem_id}
+    )
+    direct_db_value = result.scalar()
+
+    # Convert the string value from SQLite to proper boolean
+    if direct_db_value is not None:
+        # Handle SQLite's string boolean representation
+        if isinstance(direct_db_value, str):
+            selected_value = direct_db_value.lower() in ("true", "1", "t", "yes")
+        else:
+            selected_value = bool(direct_db_value)
+    else:
+        selected_value = False
+
+    # Convert to PoemResponse model with proper selected field handling
+    return PoemResponse(
+        id=poem.id,
+        poet_name=poem.poet_name,
+        poem_title=poem.poem_title,
+        source_language=poem.source_language,
+        original_text=poem.original_text,
+        metadata_json=poem.metadata_json,
+        selected=selected_value,
+        created_at=poem.created_at,
+        updated_at=poem.updated_at,
+        translation_count=poem.translation_count,
+        ai_translation_count=poem.ai_translation_count,
+        human_translation_count=poem.human_translation_count,
+        has_bbr=has_bbr,
+    )
 
 
 @router.put("/{poem_id}", response_model=PoemResponse)
@@ -354,6 +431,62 @@ async def update_poem(
         return updated_poem
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to update poem: {str(e)}")
+
+
+@router.patch("/{poem_id}/selected", response_model=PoemResponse)
+async def toggle_poem_selection(
+    poem_id: str,
+    selection_update: PoemSelectionUpdate,
+    service: RepositoryService = Depends(get_repository_service),
+):
+    """
+    Toggle poem selection status.
+
+    **Path Parameters:**
+    - **poem_id**: ULID of the poem to update
+
+    **Request Body:**
+    - **selected**: Boolean indicating selection status
+
+    **Returns:**
+    - Updated poem object
+    """
+    # Check if poem exists
+    existing_poem = service.poems.get_by_id(poem_id)
+    if not existing_poem:
+        raise HTTPException(
+            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
+        )
+
+    try:
+        updated_poem = service.poems.update_selection(
+            poem_id, selection_update.selected
+        )
+        if not updated_poem:
+            raise HTTPException(
+                status_code=500, detail="Failed to update poem selection status"
+            )
+
+        return PoemResponse(
+            id=updated_poem.id,
+            poet_name=updated_poem.poet_name,
+            poem_title=updated_poem.poem_title,
+            source_language=updated_poem.source_language,
+            original_text=updated_poem.original_text,
+            metadata_json=updated_poem.metadata_json,
+            selected=updated_poem.selected,
+            created_at=updated_poem.created_at,
+            updated_at=updated_poem.updated_at,
+            translation_count=updated_poem.translation_count,
+            ai_translation_count=updated_poem.ai_translation_count,
+            human_translation_count=updated_poem.human_translation_count,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to update poem selection: {str(e)}"
+        )
 
 
 @router.delete("/{poem_id}", response_model=WebAPIResponse)

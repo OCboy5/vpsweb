@@ -5,6 +5,71 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.8] - 2025-11-23
+
+### 🚀 Overview
+VPSWeb v0.5.8 - **Poem Selection Feature Release**. This release introduces a comprehensive poem selection system with toggle functionality and enhanced dashboard navigation, building upon the recent activity improvements from v0.5.7.
+
+### ✨ New Features
+
+#### ⭐ Poem Selection System
+- **Selection Toggle**: Star button on poem detail pages for marking poems as selected/unselected
+- **Database Enhancement**: Added `selected` boolean field to poems table with proper indexing
+- **Visual Indicators**: Selected star icons on poem cards and list pages for quick identification
+- **Batch Operations**: Efficient SQL queries for handling selection status across multiple poems
+
+#### 📱 Enhanced Navigation
+- **"Selected" Tab**: New navigation menu item after "Translation" in both desktop and mobile views
+- **Smart Filtering**: Click "Selected" tab automatically filters poems list to show only selected poems
+- **Dynamic UI**: Page title updates to "Selected Poems" and shows count badge when filtering
+- **Seamless Integration**: Works with existing search and pagination functionality
+
+### 🐛 Bug Fixes
+
+#### 🔧 Recent Activity Dashboard Accuracy
+- **Activity Classification Fix**: Resolved incorrect activity type reporting (e.g., selection changes showing as "New Translation")
+- **Timestamp Precision**: Improved timestamp comparison logic with tolerance-based detection (≤5 seconds)
+- **SQLite Compatibility**: Fixed database compatibility issues by replacing unsupported `GREATEST()` function with CASE statements
+- **Activity Type Mapping**: Aligned frontend and backend activity type naming conventions
+- **Unknown Activity Handling**: Selection changes now properly report as "unknown" instead of misclassifying as other activities
+
+#### 🎨 UI Improvements
+- **Poem Card Layout**: Moved "Activity: Date" to separate line for better visual organization
+- **Cleaner Dashboard**: Enhanced spacing and typography in activity cards
+- **Responsive Design**: Maintained mobile-friendly layout across all screen sizes
+
+### 🏗️ Technical Improvements
+
+#### 🗄️ Database Architecture
+- **Migration Management**: Clean Alembic migration for adding selected field with proper rollback support
+- **Indexing Strategy**: Added database index on `selected` field for improved query performance
+- **Boolean Handling**: Implemented direct SQL queries to bypass SQLAlchemy boolean mapping issues with SQLite
+- **Data Integrity**: Proper cascade operations and constraint handling for selection state
+
+#### 🔍 Query Optimization
+- **Direct SQL Implementation**: Bypassed ORM boolean mapping issues with raw SQL queries for reliable selection status
+- **Batch Processing**: Efficient SQL queries for handling selection status across multiple poems
+- **Cross-Platform Compatibility**: Replaced SQLite-specific functions with platform-agnostic SQL
+
+#### 🎛️ API Enhancements
+- **RESTful Toggle**: PATCH endpoint for poem selection with proper HTTP status codes
+- **Filtering Support**: Enhanced list poems endpoint with `selected` query parameter
+- **Error Handling**: Improved error responses and validation for selection operations
+- **Schema Updates**: Extended Pydantic schemas to support selection field validation
+
+### 📋 Breaking Changes
+- **Database Schema**: Requires running `alembic upgrade head` to add the new `selected` field to existing poems table
+- **API Response**: Poem objects now include `selected` field in all API responses
+
+### 🔧 Dependencies
+- No new dependencies added
+- Compatibility maintained with existing database schema
+
+### 📚 Documentation
+- Updated CLI help text for new version
+- Enhanced code comments for selection functionality
+- Improved inline documentation for new API endpoints
+
 ## [0.5.7] - 2025-11-22
 
 ### 🚀 Overview

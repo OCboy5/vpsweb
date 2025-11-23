@@ -20,6 +20,7 @@ from sqlalchemy import (
     JSON,
     Integer,
     Float,
+    Boolean,
     CheckConstraint,
     Index,
     Enum,
@@ -45,6 +46,9 @@ class Poem(Base):
 
     # Optional metadata
     metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    selected: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false", index=True
+    )
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
@@ -75,6 +79,7 @@ class Poem(Base):
         Index("idx_poems_poet_name", "poet_name"),
         Index("idx_poems_title", "poem_title"),
         Index("idx_poems_language", "source_language"),
+        Index("idx_poems_selected", "selected"),
     )
 
     def __repr__(self) -> str:

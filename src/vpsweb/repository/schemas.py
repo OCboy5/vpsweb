@@ -78,6 +78,10 @@ class PoemBase(BaseSchema):
         max_length=5000,
         description="Optional metadata as JSON string (max 5000 characters)",
     )
+    selected: bool = Field(
+        False,
+        description="Whether the poem is marked as selected",
+    )
 
     @field_validator("poet_name")
     @classmethod
@@ -226,6 +230,15 @@ class PoemUpdate(BaseSchema):
     source_language: Optional[str] = Field(None, min_length=2, max_length=10)
     original_text: Optional[str] = Field(None, min_length=1)
     metadata_json: Optional[str] = None
+    selected: Optional[bool] = Field(
+        None, description="Whether the poem is marked as selected"
+    )
+
+
+class PoemSelectionUpdate(BaseSchema):
+    """Schema for updating poem selection status"""
+
+    selected: bool = Field(..., description="Whether the poem is marked as selected")
 
 
 class PoemResponse(PoemBase):
