@@ -95,11 +95,37 @@ async def list_poems(
 
     # Build response data
     response_data = []
-    poem_ids = []
+    poem_ids = [poem.id for poem in poems]
 
-    # First pass: collect poem IDs and get translation counts
+    # Batch query for all selected fields to avoid N+1 problem
+    selected_mapping = {}
+    if poem_ids:
+        from sqlalchemy import text
+
+        placeholders = ",".join([f":id_{i}" for i in range(len(poem_ids))])
+        params = {f"id_{i}": poem_id for i, poem_id in enumerate(poem_ids)}
+        selected_results = service.db.execute(
+            text(f"SELECT id, selected FROM poems WHERE id IN ({placeholders})"),
+            params,
+        ).fetchall()
+
+        # Create mapping of poem_id -> selected_value
+        for poem_id, selected_val in selected_results:
+            if isinstance(selected_val, str):
+                selected_mapping[poem_id] = selected_val.lower() in (
+                    "true",
+                    "1",
+                    "t",
+                    "yes",
+                )
+            else:
+                selected_mapping[poem_id] = (
+                    bool(selected_val) if selected_val is not None else False
+                )
+
+    # Build response data for each poem with individual translation counts
     for poem in poems:
-        # Calculate translation counts using direct SQL queries (like the statistics API)
+        # Calculate translation counts for this specific poem using direct SQL queries
         ai_translation_count = (
             service.db.execute(
                 select(func.count(Translation.id)).where(
@@ -119,54 +145,22 @@ async def list_poems(
             or 0
         )
 
-        # Fix SQLAlchemy boolean mapping issue for each poem
-        poem_ids.append(poem.id)
-
-        # Batch query for all selected fields to avoid N+1 problem
-        if poem_ids:
-            from sqlalchemy import text
-
-            placeholders = ",".join([f":id_{i}" for i in range(len(poem_ids))])
-            params = {f"id_{i}": poem_id for i, poem_id in enumerate(poem_ids)}
-            selected_results = service.db.execute(
-                text(f"SELECT id, selected FROM poems WHERE id IN ({placeholders})"),
-                params,
-            ).fetchall()
-
-            # Create mapping of poem_id -> selected_value
-            selected_mapping = {}
-            for poem_id, selected_val in selected_results:
-                if isinstance(selected_val, str):
-                    selected_mapping[poem_id] = selected_val.lower() in (
-                        "true",
-                        "1",
-                        "t",
-                        "yes",
-                    )
-                else:
-                    selected_mapping[poem_id] = (
-                        bool(selected_val) if selected_val is not None else False
-                    )
-
-        # Build response data
-        response_data = []
-        for poem in poems:
-            selected_value = selected_mapping.get(poem.id, False)
-            poem_dict = {
-                "id": poem.id,
-                "poet_name": poem.poet_name,
-                "poem_title": poem.poem_title,
-                "source_language": poem.source_language,
-                "original_text": poem.original_text,
-                "metadata_json": poem.metadata_json,
-                "created_at": poem.created_at,
-                "updated_at": poem.updated_at,
-                "translation_count": poem.translation_count or 0,
-                "ai_translation_count": ai_translation_count,
-                "human_translation_count": human_translation_count,
-                "selected": selected_value,
-            }
-            response_data.append(poem_dict)
+        selected_value = selected_mapping.get(poem.id, False)
+        poem_dict = {
+            "id": poem.id,
+            "poet_name": poem.poet_name,
+            "poem_title": poem.poem_title,
+            "source_language": poem.source_language,
+            "original_text": poem.original_text,
+            "metadata_json": poem.metadata_json,
+            "created_at": poem.created_at,
+            "updated_at": poem.updated_at,
+            "translation_count": poem.translation_count or 0,
+            "ai_translation_count": ai_translation_count,
+            "human_translation_count": human_translation_count,
+            "selected": selected_value,
+        }
+        response_data.append(poem_dict)
 
     # Calculate pagination info
     total_pages = (total_count + page_size - 1) // page_size  # Ceiling division

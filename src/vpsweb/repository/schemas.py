@@ -96,8 +96,11 @@ class PoemBase(BaseSchema):
         if len(v) < 1:
             raise ValueError("Poet name must be at least 1 character long")
 
-        # Allow letters, spaces, hyphens, and common punctuation
-        if not re.match(r"^[\w\s\-\.\,\'\'\u4e00-\u9fff]+$", v):
+        # Allow letters, spaces, hyphens, and common punctuation including all types of apostrophes and quotes
+        # This covers: regular apostrophe ('), curly apostrophes (' and '), and quotes
+        if not re.match(
+            r"^[\w\s\-\.\,\u0027\u2019\u2018\u201C\u201D\u4e00-\u9fff]+$", v
+        ):
             raise ValueError("Poet name contains invalid characters")
 
         return v

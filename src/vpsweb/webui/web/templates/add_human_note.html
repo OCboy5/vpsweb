@@ -223,7 +223,7 @@ async function submitNote(event) {
     submitBtnText.textContent = 'Adding Note...';
 
     try {
-        const response = await fetch('/api/v1/human-notes/', {
+        const response = await fetch('/api/v1/translations/human-notes/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

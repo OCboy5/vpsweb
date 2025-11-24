@@ -5,6 +5,27 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2025-11-24
+
+### 🚀 Overview
+VPSWeb v0.6.1 - **Bug Fixes & UI Enhancements Release**. This patch release focuses on critical bug fixes for translation count display and human notes functionality, plus enhanced user interface navigation.
+
+### ✨ New Features
+- ✨ Feature: **Clickable Poet Name Links** - Poet names in poem list cards are now clickable links that navigate to dedicated poet pages for easier exploration
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Translation Count Display Bug** - Fixed issue where every poem card incorrectly showed "1 AI 1 Human" translation counts regardless of actual numbers
+- 🐛 Fix: **Human Notes 404 Error** - Fixed API endpoint routing issue preventing users from adding human notes to translations
+- 🐛 Fix: **Poems API Variable Scoping** - Resolved variable scoping problem in poems list API that caused incorrect translation count calculations
+
+### 📚 Documentation Updates
+- 📚 Docs: **Updated Template Documentation** - Improved prompt template documentation with enhanced structure and clarity
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Enhanced Prompt Templates** - Revamped and restructured prompt templates for better performance and maintainability
+- 🔨 Technical: **API Route Corrections** - Fixed frontend API endpoint calls to match correct backend routing
+- 🔨 Technical: **Code Quality Improvements** - Applied code formatting fixes and improved code organization
+
 ## [0.6.0] - 2025-11-24
 
 ### 🚀 Overview

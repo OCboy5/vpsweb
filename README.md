@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.6.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.0)
+[![Version](https://img.shields.io/badge/Version-0.6.1-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.1)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,11 +40,12 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.6.0 - Major Prompt Templates Upgrade & N-Best Pipeline Release**
+## 🎯 Current Status: **v0.6.1 - Bug Fixes & UI Enhancements Release**
 
-🎯 **All-New Prompt Template Suite**: Complete redesign of prompt templates for improved translation accuracy and workflow integration
-🚀 **N-Best+Evaluate+Blend Pipeline**: Advanced pipeline generating multiple translation candidates with intelligent evaluation and blending
-📊 **Enhanced Translation Quality**: Multi-candidate analysis with quality metrics and adaptive selection for optimal results
+🐛 **Critical Bug Fixes**: Fixed translation count display issue and human notes 404 error for improved user experience
+✨ **Enhanced UI Navigation**: Added clickable poet name links for better content discovery and exploration
+🔧 **Prompt Template Improvements**: Revamped prompt templates for better structure and performance
+📊 **Improved Data Accuracy**: Fixed poems list API variable scoping for correct translation count reporting
 🏗️ **Modular Pipeline Architecture**: Flexible N-Best pipeline design with configurable parameters and performance optimization
 📋 **Template Management System**: Support for template versioning, dynamic selection, and built-in testing capabilities
 🔧 **Full Backward Compatibility**: Existing configurations continue to work unchanged while new features enhance performance
