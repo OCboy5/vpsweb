@@ -33,7 +33,7 @@ class TranslationInput(BaseModel):
     original_poem: str = Field(
         ...,
         min_length=1,
-        max_length=2000,  # From vpts.yml: max_length: 2000
+        max_length=50000,  # Increased to handle long poems while staying within 32k token context
         description="Original poem text for translation",
     )
     source_lang: Language = Field(

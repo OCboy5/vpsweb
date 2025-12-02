@@ -13,7 +13,13 @@ from datetime import datetime
 
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService, TemplateLoadError, TemplateVariableError
-from ..services.parser import OutputParser, XMLParsingError, ValidationError
+from ..services.parser import (
+    OutputParser,
+    XMLParsingError,
+    ValidationError,
+    EmptyNotesFieldError,
+    parse_editor_review,
+)
 from ..models.config import StepConfig
 from ..models.translation import (
     TranslationInput,
@@ -298,6 +304,9 @@ class StepExecutor:
             if step_name == "initial_translation":
                 logger.info(f"Using specific parser for {step_name}")
                 parsed_data = OutputParser.parse_initial_translation_xml(llm_content)
+            elif step_name == "editor_review":
+                logger.info(f"Using specific parser for {step_name}")
+                parsed_data = OutputParser.parse_editor_review_xml(llm_content)
             elif step_name == "translator_revision":
                 logger.info(f"Using specific parser for {step_name}")
                 parsed_data = OutputParser.parse_revised_translation_xml(llm_content)
@@ -344,7 +353,11 @@ class StepExecutor:
 
         except (XMLParsingError, ValidationError) as e:
             logger.error(f"Output parsing or validation failed: {e}")
-            raise OutputParsingError(f"Failed to parse or validate LLM output: {e}")
+            # Provide more specific error message for empty notes fields
+            if isinstance(e, EmptyNotesFieldError):
+                raise OutputParsingError(f"Empty notes field detected: {e}")
+            else:
+                raise OutputParsingError(f"Failed to parse or validate LLM output: {e}")
 
     def _build_step_result(
         self,

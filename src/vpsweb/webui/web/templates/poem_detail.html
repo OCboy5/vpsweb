@@ -319,6 +319,7 @@
                         <label class="block text-sm font-medium text-gray-700">Target Language <span class="text-red-500">*</span></label>
                         <select id="target-language" required class="mt-1 block w-full border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
                             <option value="">Select language (required)</option>
+                            <option value="English">English</option>
                             <option value="Chinese">Chinese</option>
                             <option value="Spanish">Spanish</option>
                             <option value="French">French</option>
@@ -542,8 +543,8 @@ function stopSpinner() {
 
 document.addEventListener('DOMContentLoaded', function() {
     // Set global variables for poem info
-    window.poemTitle = '{{ poem.poem_title }}';
-    window.poetName = '{{ poem.poet_name }}';
+    window.poemTitle = {{ poem.poem_title | tojson }};
+    window.poetName = {{ poem.poet_name | tojson }};
 
 
     // Note: loadTranslations() is already called from loadPoemData() in the first DOMContentLoaded event

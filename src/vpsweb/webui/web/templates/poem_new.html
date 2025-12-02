@@ -133,9 +133,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    setupPoetParameter();
     setupLanguageHandling();
     setupFormValidation();
 });
+
+function setupPoetParameter() {
+    // Read poet parameter from URL and populate the poet name field
+    const urlParams = new URLSearchParams(window.location.search);
+    const poetName = urlParams.get('poet');
+
+    if (poetName) {
+        const poetNameInput = document.getElementById('poet-name');
+        if (poetNameInput) {
+            poetNameInput.value = decodeURIComponent(poetName);
+        }
+    }
+}
 
 function setupLanguageHandling() {
     const sourceLanguageSelect = document.getElementById('source-language');

@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.6.1-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.1)
+[![Version](https://img.shields.io/badge/Version-0.6.2-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.2)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,7 +40,7 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.6.1 - Bug Fixes & UI Enhancements Release**
+## 🎯 Current Status: **v0.6.2 - Database Validation & System Stability Release**
 
 🐛 **Critical Bug Fixes**: Fixed translation count display issue and human notes 404 error for improved user experience
 ✨ **Enhanced UI Navigation**: Added clickable poet name links for better content discovery and exploration

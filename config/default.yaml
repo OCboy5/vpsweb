@@ -30,28 +30,37 @@ workflow:
   reasoning_workflow:
     initial_translation:
       task_template: "initial_translation_reasoning"
+      required_fields: ["initial_translation", "initial_translation_notes"]
     editor_review:
       task_template: "editor_review_reasoning"
+      required_fields: ["editor_suggestions"]
     translator_revision:
       task_template: "translator_revision_reasoning"
+      required_fields: ["final_translation", "revised_translation_notes"]
 
   # Pure Non-Reasoning Workflow Configuration
   non_reasoning_workflow:
     initial_translation:
       task_template: "initial_translation_nonreasoning"
+      required_fields: ["initial_translation", "initial_translation_notes"]
     editor_review:
       task_template: "editor_review_nonreasoning"
+      required_fields: ["editor_suggestions"]
     translator_revision:
       task_template: "translator_revision_nonreasoning"
+      required_fields: ["final_translation", "revised_translation_notes"]
 
   # Hybrid Workflow Configuration (Non-Reasoning → Reasoning → Non-Reasoning)
   hybrid_workflow:
     initial_translation:
       task_template: "initial_translation_nonreasoning"
+      required_fields: ["initial_translation", "initial_translation_notes"]
     editor_review:
       task_template: "editor_review_reasoning"
+      required_fields: ["editor_suggestions"]
     translator_revision:
       task_template: "translator_revision_nonreasoning"
+      required_fields: ["final_translation", "revised_translation_notes"]
 
 storage:
   output_dir: "outputs"

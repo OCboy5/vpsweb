@@ -33,7 +33,7 @@ models:
     provider: "tongyi"
     name: "qwen-plus-latest"
     reasoning: false
-    description: "Fast and efficient translation model"
+    description: "Fast and efficient non-reasoning translation model"
 
   deepseek_reasoner:
     provider: "deepseek"
@@ -47,21 +47,21 @@ models:
     reasoning: false
     description: "General purpose chat model for translation"
 
-  deepseek_v32_silicon:
-    provider: "siliconflow"
-    name: "deepseek-ai/DeepSeek-V3.2-Exp"
-    reasoning: true
-    description: "Latest reasoning model via SiliconFlow"
-  
-  deepseek_v31_termius_silicon:
-    provider: "siliconflow"
-    name: "deepseek-ai/DeepSeek-V3.1-Terminus"
-    reasoning: true
-    description: "Latest reasoning model via SiliconFlow"  
+  kimi_k2:
+    provider: "moonshot"
+    name: "kimi-k2-0905-preview"
+    reasoning: false
+    description: "Latest non-reasoning moodel from Moonshot"
 
   kimi_k2_thinking:
     provider: "moonshot"
     name: "kimi-k2-thinking"
+    reasoning: true
+    description: "Latest reasoning model via SiliconFlow"
+
+  deepseek_v32_silicon:
+    provider: "siliconflow"
+    name: "deepseek-ai/DeepSeek-V3.2-Exp"
     reasoning: true
     description: "Latest reasoning model via SiliconFlow"
 
@@ -90,15 +90,15 @@ pricing:
   deepseek_chat:
     input: 0.002
     output: 0.003
-  deepseek_v32_silicon:
-    input: 0.002
-    output: 0.003
-  deepseek_v31_termius_silicon:
+  kimi_k2:
     input: 0.004
-    output: 0.012
+    output: 0.016
   kimi_k2_thinking:
     input: 0.004
     output: 0.016
+  deepseek_v32_silicon:
+    input: 0.002
+    output: 0.003
   kimi_k2_thinking_silicon:
     input: 0.004
     output: 0.016

@@ -6,7 +6,12 @@ from docs/vpts.yml and handles various edge cases.
 """
 
 import pytest
-from src.vpsweb.services.parser import OutputParser, XMLParsingError, ValidationError
+from src.vpsweb.services.parser import (
+    OutputParser,
+    XMLParsingError,
+    ValidationError,
+    EmptyNotesFieldError,
+)
 
 
 class TestOutputParser:
@@ -312,6 +317,89 @@ class TestOutputParser:
 
         assert is_valid is True
 
+    def test_validate_output_empty_json_objects(self):
+        """Test validation with empty JSON objects {}."""
+        parsed_data = {
+            "initial_translation": "Translation content",
+            "initial_translation_notes": "{}",  # Empty JSON object
+        }
+
+        with pytest.raises(ValidationError) as exc_info:
+            OutputParser.validate_output(
+                parsed_data, ["initial_translation", "initial_translation_notes"]
+            )
+
+        assert "Empty fields" in str(exc_info.value)
+        assert "initial_translation_notes" in str(exc_info.value)
+
+    def test_validate_output_empty_json_objects_with_whitespace(self):
+        """Test validation with empty JSON objects {} with whitespace."""
+        parsed_data = {
+            "initial_translation": "Translation content",
+            "initial_translation_notes": "   {}   ",  # Empty JSON object with whitespace
+        }
+
+        with pytest.raises(ValidationError) as exc_info:
+            OutputParser.validate_output(
+                parsed_data, ["initial_translation", "initial_translation_notes"]
+            )
+
+        assert "Empty fields" in str(exc_info.value)
+        assert "initial_translation_notes" in str(exc_info.value)
+
+    def test_validate_output_editor_suggestions_empty(self):
+        """Test validation with empty editor suggestions {}."""
+        parsed_data = {
+            "editor_suggestions": "{}",  # Empty JSON object
+        }
+
+        with pytest.raises(ValidationError) as exc_info:
+            OutputParser.validate_output(parsed_data, ["editor_suggestions"])
+
+        assert "Empty fields" in str(exc_info.value)
+        assert "editor_suggestions" in str(exc_info.value)
+
+    def test_validate_output_revised_translation_notes_empty(self):
+        """Test validation with empty revised translation notes {}."""
+        parsed_data = {
+            "final_translation": "Final translation content",
+            "revised_translation_notes": "{}",  # Empty JSON object
+        }
+
+        with pytest.raises(ValidationError) as exc_info:
+            OutputParser.validate_output(
+                parsed_data, ["final_translation", "revised_translation_notes"]
+            )
+
+        assert "Empty fields" in str(exc_info.value)
+        assert "revised_translation_notes" in str(exc_info.value)
+
+    def test_validate_output_valid_json_objects(self):
+        """Test validation with valid JSON objects (not empty)."""
+        parsed_data = {
+            "initial_translation": "Translation content",
+            "initial_translation_notes": '{"key": "value"}',  # Valid JSON object
+        }
+
+        is_valid = OutputParser.validate_output(
+            parsed_data, ["initial_translation", "initial_translation_notes"]
+        )
+
+        assert is_valid is True
+
+    def test_validate_output_braces_but_not_json(self):
+        """Test validation with braces that are not empty JSON."""
+        parsed_data = {
+            "initial_translation": "Translation content",
+            "initial_translation_notes": "{some content with braces}",  # Not JSON, has content
+        }
+
+        is_valid = OutputParser.validate_output(
+            parsed_data, ["initial_translation", "initial_translation_notes"]
+        )
+
+        assert is_valid is True
+
     def test_parse_initial_translation_xml(self):
         """Test parsing initial translation XML specifically."""
         xml_string = """
@@ -570,6 +658,48 @@ class TestOutputParser:
         parser = OutputParser()
         repr_str = repr(parser)
         assert "OutputParser()" in repr_str
+
+
+class TestEmptyNotesFieldError:
+    """Test cases for EmptyNotesFieldError exception."""
+
+    def test_empty_notes_field_error_creation(self):
+        """Test creation of EmptyNotesFieldError."""
+        error = EmptyNotesFieldError("initial_translation_notes", "initial_translation")
+
+        assert error.field_name == "initial_translation_notes"
+        assert error.step_name == "initial_translation"
+        assert "Notes field 'initial_translation_notes' is empty ({})" in str(error)
+        assert "after initial_translation step" in str(error)
+        assert "LLM response must provide meaningful notes content" in str(error)
+
+    def test_empty_notes_field_error_inheritance(self):
+        """Test that EmptyNotesFieldError inherits from ValidationError."""
+        error = EmptyNotesFieldError("editor_suggestions", "editor_review")
+
+        assert isinstance(error, ValidationError)
+        assert isinstance(error, Exception)
+
+    def test_empty_notes_field_error_different_fields(self):
+        """Test EmptyNotesFieldError with different field names."""
+        # Test initial_translation_notes
+        error1 = EmptyNotesFieldError(
+            "initial_translation_notes", "initial_translation"
+        )
+        assert "initial_translation_notes" in str(error1)
+        assert "initial_translation" in str(error1)
+
+        # Test editor_suggestions
+        error2 = EmptyNotesFieldError("editor_suggestions", "editor_review")
+        assert "editor_suggestions" in str(error2)
+        assert "editor_review" in str(error2)
+
+        # Test revised_translation_notes
+        error3 = EmptyNotesFieldError(
+            "revised_translation_notes", "translator_revision"
+        )
+        assert "revised_translation_notes" in str(error3)
+        assert "translator_revision" in str(error3)
 
 
 class TestParserConvenienceFunctions:

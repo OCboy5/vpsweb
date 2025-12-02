@@ -31,6 +31,19 @@ class ValidationError(ParserError):
     pass
 
 
+class EmptyNotesFieldError(ValidationError):
+    """Raised when notes fields contain empty JSON objects."""
+
+    def __init__(self, field_name: str, step_name: str):
+        self.field_name = field_name
+        self.step_name = step_name
+        message = (
+            f"Notes field '{field_name}' is empty ({{}}) after {step_name} step. "
+            f"LLM response must provide meaningful notes content."
+        )
+        super().__init__(message)
+
+
 class OutputParser:
     """
     Parser for extracting structured data from XML-formatted LLM responses.
@@ -173,6 +186,12 @@ class OutputParser:
                 isinstance(parsed_data[field], str) and not parsed_data[field].strip()
             ) or (parsed_data[field] is None):
                 empty_fields.append(field)
+            # Additional check for empty JSON objects
+            elif (
+                isinstance(parsed_data[field], str)
+                and parsed_data[field].strip() == "{}"
+            ):
+                empty_fields.append(field)
 
         if missing_fields or empty_fields:
             error_messages = []
@@ -211,6 +230,8 @@ class OutputParser:
             # Handle nested structure - check if we have a 'translation' wrapper
             if "translation" in parsed_data:
                 content = parsed_data["translation"]
+                if isinstance(content, str):
+                    content = OutputParser.parse_xml(content)
             else:
                 content = parsed_data
 
@@ -265,6 +286,8 @@ class OutputParser:
         """
         try:
             parsed_data = OutputParser.parse_xml(xml_string)
+            if isinstance(parsed_data, str):
+                parsed_data = OutputParser.parse_xml(parsed_data)
 
             # Extract specific fields (updated to include refined translated title and poet name)
             revised_translation = str(parsed_data.get("revised_translation", ""))
@@ -301,6 +324,56 @@ class OutputParser:
             )
         except Exception as e:
             raise XMLParsingError(f"Error parsing revised translation XML: {e}")
+
+    @staticmethod
+    def parse_editor_review_xml(xml_string: str) -> Dict[str, str]:
+        """
+        Parse editor review XML specifically, with robust handling of malformed XML.
+
+        Args:
+            xml_string: XML string from editor review step
+
+        Returns:
+            Dictionary with 'editor_suggestions'
+
+        Raises:
+            XMLParsingError: If parsing fails
+        """
+        try:
+            # Find the start of the editor_suggestions tag
+            start_tag = "<editor_suggestions>"
+            start_index = xml_string.find(start_tag)
+
+            if start_index == -1:
+                # If start tag is not found, try to parse as a whole
+                parsed_data = OutputParser.parse_xml(xml_string)
+                if "editor_suggestions" in parsed_data:
+                    return {"editor_suggestions": parsed_data["editor_suggestions"]}
+                else:
+                    # As a last resort, return the whole string if no tags are found
+                    logger.warning(
+                        "Could not find <editor_suggestions> tag, returning raw content."
+                    )
+                    return {"editor_suggestions": xml_string}
+
+            # Find the end of the editor_suggestions tag
+            end_tag = "</editor_suggestions>"
+            end_index = xml_string.rfind(end_tag)
+
+            if end_index == -1:
+                # If end tag is not found, extract from start tag to the end of the string
+                logger.warning(
+                    "Missing </editor_suggestions> closing tag. Parsing to end of string."
+                )
+                content = xml_string[start_index + len(start_tag) :]
+            else:
+                # If both tags are found, extract the content between them
+                content = xml_string[start_index + len(start_tag) : end_index]
+
+            return {"editor_suggestions": content.strip()}
+
+        except Exception as e:
+            raise XMLParsingError(f"Error parsing editor review XML: {e}")
 
     @staticmethod
     def is_valid_xml(xml_string: str) -> bool:
@@ -397,6 +470,11 @@ class OutputParser:
 def parse_initial_translation(xml_string: str) -> Dict[str, str]:
     """Convenience function to parse initial translation XML."""
     return OutputParser.parse_initial_translation_xml(xml_string)
+
+
+def parse_editor_review(xml_string: str) -> Dict[str, str]:
+    """Convenience function to parse editor review XML."""
+    return OutputParser.parse_editor_review_xml(xml_string)
 
 
 def parse_revised_translation(xml_string: str) -> Dict[str, str]:

@@ -5,6 +5,25 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2025-12-02
+
+### 🚀 Overview
+VPSWeb v0.6.2 - **Database Validation & System Stability Release**. This patch release addresses critical workflow validation issues and enhances system reliability with improved database protection measures.
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Translation Workflow Validation Error** - Resolved Pydantic validation errors where `translated_title` and `translated_poet_name` exceeded maximum field length constraints (500/200 characters respectively)
+- 🐛 Fix: **Database Protection Enhancement** - Added `repository_root/` to `.gitignore` to prevent accidental database file commits
+- 🐛 Fix: **Code Quality Issues** - Applied Black code formatting to parser, executor, and test files for consistent style
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Enhanced Parser Robustness** - Improved XML parsing with better handling of nested structures and empty JSON object validation
+- 🔨 Technical: **Database Safety Measures** - Implemented additional database protection protocols in the release process
+- 🔨 Technical: **Code Standards Compliance** - Ensured all code follows project formatting standards
+
+### 📚 Infrastructure Improvements
+- 🛡️ Safety: **Release Process Enhancement** - Strengthened database protection checks in the release workflow
+- 🧪 Quality: **Test Coverage Maintenance** - All 56 parser unit tests passing with enhanced validation coverage
+
 ## [0.6.1] - 2025-11-24
 
 ### 🚀 Overview

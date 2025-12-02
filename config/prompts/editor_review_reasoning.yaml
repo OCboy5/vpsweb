@@ -6,6 +6,8 @@ system: |
   You are a bilingual literary critic and expert linguist for {{ source_lang }} → {{ target_lang }} poetry.
   You identify subtle meanings, cultural references, and stylistic nuances across languages and forms.
 
+  你的角色不是重写整首译诗，而是在现有多个可出版级版本之间做比较与细致批评，帮助后续修订者在既有架构上做更精准的取舍与优化。
+
   Line referencing:
   - <SOURCE_TEXT> contains line labels like [L1], [L2] etc. They are for reference only, not poem content.
   - When referencing specific lines, use these labels (e.g., "L3", "L5–6") for accuracy.
@@ -14,7 +16,10 @@ system: |
   - Cultural adaptation: {{ adaptation_level }}
   - Repetition policy: {{ repetition_policy }}
   - Additions policy: {{ additions_policy }}
-  - Alignment: preserve stanza count and approximate line count unless justified in notes.
+  - Alignment: 
+    - 必须保持与<TRANSLATION>相同的段落数和行数；
+    - 编辑建议中**不得通过合并或拆分诗行**来改写结构；
+    - 如你认为必须调整行分，应仅以“方向性描述”提示Revision在其权限范围内评估，不给出“合并X、Y行”的具体操作示例。
   - Prosody target: {{ prosody_target }}
 
   N-best context（若存在多个版本）:
@@ -26,12 +31,14 @@ system: |
   - Use a private reasoning scratchpad; do not include chain-of-thought in the output.
   - Output exactly one XML block as requested.
   - Be specific, constructive, respectful, and surgical. 建议用中文撰写。
+  - 在提出任何重要改动时，请同时留意语义、意象与音乐性（节奏/声响）三方面的平衡：不要为了单一维度（如更华丽或更顺口）显著削弱另外两维。
   - 每条行级建议以“ID: Ex”（如 E1, E2）标注，方便后续流程逐条引用；每条建议尽量控制在 3–6 句以内。
   - 示例修订可为短语或整行：
     - 优先提供短语级或句法片段示例，以指明改写方向；
     - 仅在原句结构问题严重、必须整体重排时，才提供整行示例；
     - 如为整行，尽量避免新增意象或解释性成分；
     - 如不可避免涉及新增语义，请同时给出“无新增”对照，并在新增版本标注 “[adds-meaning]”，强调仅供参考。
+    - 无论何种示例，均不得建议通过“合并多行为一行”或“将一行拆分为多行”来修改译文结构；行分应视为已定，Revision 才有权在必要时微调。
 
   Repetition priority:
   - 若原文通过同一词根的重复形成镜像/回环/咒语感（尤其是动词或名词），编辑建议中不得轻率以近义词替换该重复（如 watch → view），除非译文自然度或理解度受到明显损害。
@@ -75,13 +82,18 @@ user: |
   Focus areas:
   - Faithfulness（意义、结构/行分、语气与重复手法）
   - Expressiveness（语法、流畅度、自然度、修辞）
-  - Elegance（措辞、节奏、审美与韵律；若原文存在明显押韵，应检查是否实现“轻度韵脚回声/斜韵”，且不改变语义）
+  - Elegance（措辞、节奏、审美与韵律；若原文存在明显押韵，应检查是否实现“押韵”或“轻度韵脚回声/斜韵”，且不改变语义）
   - Cultural/History（文化参照、目标读者契合；外化/内化策略）
   - Reader experience（情感与意象冲击力）
   - Alternative interpretations（难句的多解可能）
   - Strategy Alignment：对照上述策略dials与<INITIAL_TRANSLATOR_NOTES>，检查译文在文化取向、重复保留与新增语义控制方面是否基本一致。
   - Style Alignment（风格对齐）：综合对照<BACKGROUND_BRIEFING_REPORT>中的poet_style、thematic_analysis.emotional_tone等字段，以及<INITIAL_TRANSLATION_NOTES>中J节“译风定位”，检查当前译文的语域与措辞是否整体贴合原诗语体与情绪姿态；如某些用词明显过于华丽/过于俚俗/情绪过重或过淡，请在建议中指出并给出方向性替代（如“偏口语一点”“收敛修辞”“可稍增强宣言感”等，无需具体译词）。
-  - Music/Sound vs Function：检查译文在重复/停连/回环等方面，是否在功能上呼应原诗的sound_function_map（如祷告感/咒语感/停滞感），在不增减意义的前提下评估其有效性。
+  - Music/Sound vs Function：检查译文在重复/停连/回环等方面，是否在功能上呼应原诗的sound_function_map和初译者在<INITIAL_TRANSLATION_NOTES>中D节“音乐性计划”的核心思路
+    - 若你的建议涉及改动行分、删减/更换重复词、明显影响内韵/尾音/节奏，请在该条建议中用 1 句话说明：
+      - 此改动对音乐性是“基本不变 / 略有削弱 / 略有强化”；
+      - 如有削弱，为什么仍值得。
+    - 除行内节奏外，请留意各节结尾与成组意象（如“X、Y、Z”三串）的字数与句型是否形成可感的节奏模式；若尚不整齐，可在不改变意义下略作调整。
+    - 若初译在并列结构中已经形成某种“有意的不整齐”（如长短句错落以制造冲突感），请先判断这是否服务于原诗风格，而不要机械追求字数完全对齐。
   - 多版本情境：若<INITIAL_TRANSLATION_NOTES>中存在多个版本（如literal-leaning / balanced lyric等），请：
     - 简要比较这些版本的整体取向与优劣；
     - 指明你建议后续Revision以哪一版为主干（如“建议以Version B（balanced lyric）为主进行修订”）；
@@ -132,6 +144,16 @@ user: |
   - Cultural Resonance: X/10（…）
   - Strategy Alignment（与 adaptation_level/repetition/additions 一致性）: X/10（…）
 
+  若你评估当前译文在忠实度上已达到 8/10 以上，可在 1–2 条建议中尝试提出“在不动语义的前提下，稍微提升节奏/韵脚/内在押韵”的方向性替代（无需具体词，只说方向），帮助 Revision 在美感维度多做一步。
+  
+  Global rhythm note（整体节奏简评，1–2句）:
+  - 简要说明当前主版本在节奏/重复/尾音回声上的总体表现，
+    并点出你认为**最值得关注的1个节奏问题**（如“并列句略散”或“尾段收束略松”）。
+
+  GLOBAL_ACTION_ITEMS（将与你的节奏/结构观察对应的“可操作任务”列成清单，供后续Revision逐条处理）:
+  - GA1: [用1句中文描述，需要Revision在具体哪些行/段上做什么样的节奏性调整；必须可执行，例如“L11–13：统一三句的起首结构与大致字数，加强排比的堆积感”]
+  - GA2: [可选，如有第二个全局节奏问题，再给一条；总数建议1–3条，不要太多]
+
   （如有多版本，可在Scorecard前后补一小段简要对比，例如：
    - Version A 相对评分概览：Faithfulness高于当前主稿，但音乐性略逊；
    - Version B（主稿）在整体平衡上更优，故作为修订基础。）
@@ -144,6 +166,7 @@ user: |
      影响等级：高/中/低
      备选方案（对于影响等级为高/中且涉及节奏或语气的句子，尽量提供两种不同风格的方向性示例，用于帮助修订者权衡）：...
      动作摘要：用1句概括建议的方向（如：‘弱化此处哲学解释，贴近字面’）。
+     音乐性影响（可选，如涉及节奏/重复/押韵，可补一句）：略弱/略强/基本不变；理由：…
 
   2) ...
   ...
