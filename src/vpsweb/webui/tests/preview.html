@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Preview - Sonnet 18</title>
+    <!-- Tailwind CSS (CDN for preview purposes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        literary: ['"Crimson Pro"', 'Georgia', 'serif'],
+                        ui: ['"Inter"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        paper: '#ffffff',
+                        canvas: '#fdfbf7', // The warm "Paper" background
+                        ink: {
+                            DEFAULT: '#2d2a26', // Softer than black
+                            light: '#57534e'
+                        },
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            300: '#d6d3d1',
+                            400: '#a8a29e',
+                            500: '#78716c',
+                            600: '#57534e',
+                        },
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Import Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+        body { font-family: 'Inter', sans-serif; }
+        
+        .poem-body {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        
+        /* Smooth fade in */
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-canvas text-ink min-h-screen flex flex-col font-ui selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- Navigation (Simplified) -->
+    <header class="bg-paper border-b border-stone-100 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 bg-indigo-600 rounded-md"></div>
+                <span class="font-bold text-lg tracking-tight">VPSWeb</span>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-stone-500">
+                <a href="#" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+                <a href="#" class="text-indigo-600">Poems</a>
+                <a href="#" class="hover:text-indigo-600 transition-colors">Translations</a>
+            </nav>
+            <div class="w-8 h-8 rounded-full bg-stone-100 border border-stone-200"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8 fade-in">
+        
+        <!-- Breadcrumb -->
+        <nav class="flex items-center text-xs font-medium text-stone-400 mb-8 uppercase tracking-wide">
+            <a href="#" class="hover:text-stone-600 transition-colors">Home</a>
+            <span class="mx-2">/</span>
+            <a href="#" class="hover:text-stone-600 transition-colors">Poetry</a>
+            <span class="mx-2">/</span>
+            <span class="text-stone-800">Sonnet 18</span>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Column: Poem Content -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <!-- The "Paper" Card -->
+                <div class="bg-paper rounded-xl shadow-soft border border-stone-100 overflow-hidden relative group">
+                    <!-- Top Accent -->
+                    <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-90"></div>
+                    
+                    <div class="p-8 sm:p-10">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start mb-8 pb-6 border-b border-stone-100">
+                            <div>
+                                <h1 class="text-4xl font-literary font-semibold text-ink mb-2">Sonnet 18</h1>
+                                <div class="flex items-center space-x-3 text-sm">
+                                    <span class="font-bold text-stone-900 tracking-wide uppercase text-xs">William Shakespeare</span>
+                                    <span class="text-stone-300">|</span>
+                                    <span class="text-stone-500 italic font-literary">English (Original)</span>
+                                </div>
+                            </div>
+                            <!-- Selection Star -->
+                            <button class="text-yellow-400 hover:text-yellow-500 transition-transform hover:scale-110 active:scale-95">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Poem Body -->
+                        <div class="poem-body font-literary text-ink leading-relaxed mb-10">
+Shall I compare thee to a summer's day?
+Thou art more lovely and more temperate:
+Rough winds do shake the darling buds of May,
+And summer's lease hath all too short a date;
+Sometime too hot the eye of heaven shines,
+And often is his gold complexion dimm'd;
+And every fair from fair sometime declines,
+By chance or nature's changing course untrimm'd;
+But thy eternal summer shall not fade,
+Nor lose possession of that fair thou ow'st;
+Nor shall Death brag thou wander'st in his shade,
+When in eternal lines to time thou grow'st:
+   So long as men can breathe or eyes can see,
+   So long lives this, and this gives life to thee.</div>
+
+                        <!-- Footer Meta -->
+                        <div class="flex items-center justify-between pt-6 border-t border-stone-50">
+                            <code class="text-xs text-stone-400 bg-stone-50 px-2 py-1 rounded">ID: 8f92a1...</code>
+                            <button class="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md transition-colors">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                View Analyst Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Translations Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-4 px-1">
+                        <h3 class="text-lg font-bold text-stone-800">Translations <span class="text-stone-400 font-normal ml-1">(2)</span></h3>
+                        <div class="text-xs font-medium text-indigo-600 hover:underline cursor-pointer">Compare Views →</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Translation Card 1 (AI) -->
+                        <div class="bg-white p-6 rounded-lg border border-stone-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer group">
+                            <div class="flex justify-between mb-4">
+                                <span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">AI Model</span>
+                                <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">9.2/10</span>
+                            </div>
+                            <h4 class="font-literary text-lg mb-2 text-ink">我能否将你比作夏日？</h4>
+                            <p class="text-sm text-stone-500 line-clamp-3 font-literary leading-relaxed">
+                                我能否将你比作夏日？
+                                你却更加可爱，更加温存：
+                                狂风会震落五月娇艳的花蕾，
+                                夏季的租期又未免太短促...
+                            </p>
+                            <div class="mt-4 pt-4 border-t border-stone-50 flex justify-between items-center">
+                                <span class="text-xs text-stone-400">Chinese (Simplified)</span>
+                                <span class="text-xs font-medium text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">Read more →</span>
+                            </div>
+                        </div>
+
+                        <!-- Translation Card 2 (Human) -->
+                        <div class="bg-white p-6 rounded-lg border border-stone-200 shadow-sm hover:shadow-md hover:border-orange-200 transition-all cursor-pointer group">
+                            <div class="flex justify-between mb-4">
+                                <span class="bg-orange-50 text-orange-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">Human</span>
+                                <span class="text-xs font-bold text-stone-400 bg-stone-50 px-2 py-0.5 rounded">Unrated</span>
+                            </div>
+                            <h4 class="font-literary text-lg mb-2 text-ink">Est-ce que je te compare à un jour d'été ?</h4>
+                            <p class="text-sm text-stone-500 line-clamp-3 font-literary leading-relaxed">
+                                Dois-je te comparer à un jour d'été ?
+                                Tu es plus belle et plus douce :
+                                Les vents violents secouent les bourgeons chéris de mai,
+                                Et le bail de l'été est bien trop court...
+                            </p>
+                            <div class="mt-4 pt-4 border-t border-stone-50 flex justify-between items-center">
+                                <span class="text-xs text-stone-400">French</span>
+                                <span class="text-xs font-medium text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">Read more →</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Sidebar Tools -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Action Studio -->
+                <div class="bg-white rounded-xl shadow-soft border border-stone-100 p-6 sticky top-24">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="p-1.5 bg-indigo-100 rounded text-indigo-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wide">Translation Studio</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-500 mb-1.5">Target Language</label>
+                            <select class="w-full bg-stone-50 border border-stone-200 text-stone-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
+                                <option>Japanese</option>
+                                <option>Korean</option>
+                                <option>German</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-500 mb-1.5">Workflow Mode</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="border border-indigo-600 bg-indigo-50 text-indigo-700 rounded-lg px-3 py-2 text-xs font-medium text-center cursor-pointer">
+                                    Hybrid AI
+                                </label>
+                                <label class="border border-stone-200 text-stone-600 rounded-lg px-3 py-2 text-xs font-medium text-center cursor-pointer hover:bg-stone-50">
+                                    Reasoning
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors flex items-center justify-center">
+                            Generate Translation
+                        </button>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-stone-100">
+                        <h4 class="text-xs font-bold text-stone-400 uppercase mb-3">Quick Actions</h4>
+                        <div class="space-y-1">
+                            <button class="w-full text-left px-3 py-2 rounded-md text-sm text-stone-600 hover:bg-stone-50 flex items-center group">
+                                <svg class="w-4 h-4 mr-3 text-stone-400 group-hover:text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                Add Human Translation
+                            </button>
+                            <button class="w-full text-left px-3 py-2 rounded-md text-sm text-stone-600 hover:bg-stone-50 flex items-center group">
+                                <svg class="w-4 h-4 mr-3 text-stone-400 group-hover:text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                Copy Original Text
+                            </button>
+                            <button class="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 flex items-center group">
+                                <svg class="w-4 h-4 mr-3 text-red-400 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                Delete Poem
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

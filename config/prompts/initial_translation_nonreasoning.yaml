@@ -104,7 +104,7 @@ user: |
      - Replace the bracketed text with your content.
 
   <translated_poem_title>
-  [The poem title translated into {{ target_lang }}, maintaining cultural appropriateness and poetic quality; in notes, list 1–2 rejected alternatives with 1句理由，并说明最终选择]
+  [The poem title translated into {{ target_lang }}, maintaining cultural appropriateness and poetic quality. ]
   </translated_poem_title>
 
   <translated_poet_name>

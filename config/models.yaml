@@ -25,7 +25,7 @@ providers:
 models:
   qwen3_max:
     provider: "tongyi"
-    name: "qwen3-max-latest"
+    name: "qwen3-max"
     reasoning: false
     description: "High-quality general purpose model for complex translations"
 
@@ -79,8 +79,8 @@ models:
 
 pricing:
   qwen3_max:
-    input: 0.006   # RMB per 1K tokens
-    output: 0.024
+    input: 0.0032   # RMB per 1K tokens
+    output: 0.0128
   qwen3_plus:
     input: 0.0008
     output: 0.002

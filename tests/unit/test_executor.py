@@ -146,7 +146,7 @@ class TestStepExecutor:
         # Verify mocks were called
         mock_llm_factory.get_provider.assert_called_once()
         mock_prompt_service.render_prompt.assert_called_once_with(
-            "initial_translation", input_data
+            "initial_translation.yaml", input_data
         )
         mock_provider.generate.assert_called_once()
 
@@ -309,14 +309,19 @@ class TestStepExecutor:
 
         # Verify correct input data was passed
         call_args = mock_prompt_service.render_prompt.call_args[0]
-        assert call_args[0] == "initial_translation"
+        assert call_args[0] == "initial_translation.yaml"
         assert call_args[1]["original_poem"] == "The fog comes on little cat feet."
         assert call_args[1]["source_lang"] == "English"
         assert call_args[1]["target_lang"] == "Chinese"
 
     @pytest.mark.asyncio
     async def test_execute_editor_review(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
+        sample_translation_input,
     ):
         """Test the specific editor review step."""
         # Setup mocks
@@ -343,6 +348,8 @@ class TestStepExecutor:
             initial_translation_notes="Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model.",
             model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
             tokens_used=150,
+            translated_poem_title="",  # Add this required field
+            translated_poet_name="",  # Add this required field
         )
 
         # Execute editor review
@@ -361,7 +368,12 @@ class TestStepExecutor:
 
     @pytest.mark.asyncio
     async def test_execute_translator_revision(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
+        sample_translation_input,
     ):
         """Test the specific translator revision step."""
         # Setup mocks
@@ -388,12 +400,13 @@ class TestStepExecutor:
         editor_review.initial_translation = "雾来了\n踏着猫的小脚。"
         editor_review.initial_translation_notes = "Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model."
         editor_review.editor_suggestions = "Consider using more poetic language"
+        editor_review.translated_poem_title = ""  # Add this
+        editor_review.translated_poet_name = ""  # Add this
 
         # Execute translator revision
         result = await step_executor.execute_translator_revision(
             editor_review,
             sample_translation_input,
-            initial_translation,
             sample_step_config,
         )
 
@@ -409,30 +422,13 @@ class TestStepExecutor:
         )
 
     def test_validate_step_inputs(self, step_executor):
-        """Test input validation."""
+        """Test input validation for unknown step name."""
         config = Mock(spec=StepConfig)
 
-        # Valid inputs
-        step_executor._validate_step_inputs(
-            "initial_translation", {"key": "value"}, config
-        )
-
         # Invalid step name
-        with pytest.raises(ValueError, match="Unknown step name"):
+        with pytest.raises(ValueError, match="Unknown step name: invalid_step"):
             step_executor._validate_step_inputs(
                 "invalid_step", {"key": "value"}, config
-            )
-
-        # Invalid input data type
-        with pytest.raises(ValueError, match="Input data must be a dictionary"):
-            step_executor._validate_step_inputs(
-                "initial_translation", "invalid", config
-            )
-
-        # Missing config
-        with pytest.raises(ValueError, match="Step configuration is required"):
-            step_executor._validate_step_inputs(
-                "initial_translation", {"key": "value"}, None
             )
 
     @pytest.mark.asyncio

@@ -5,6 +5,28 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2025-12-12
+
+### 🚀 Overview
+VPSWeb v0.6.3 - **XML Parser Robustness & Configuration Updates Release**. This patch release enhances XML parsing error handling for malformed outputs and updates model configurations with improved pricing.
+
+### ✨ New Features
+- ✨ Feature: **Web UI Preview** - Added design preview HTML file for upcoming web interface enhancements
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **XML Parser Robustness** - Enhanced parser to handle missing closing tags in `initial_translation_notes` and `revised_translation_notes` fields
+- 🐛 Fix: **Test Suite Formatting** - Fixed syntax errors in test files and ensured proper code formatting across the test suite
+- 🐛 Fix: **Parser Edge Cases** - Added robust content extraction for XML tags with missing closing delimiters
+
+### 🔧 Improvements
+- 🛠️ Improvement: **Model Configuration Update** - Updated qwen3-max model name and corrected pricing structure (input: 0.0032, output: 0.0128 RMB per 1K tokens)
+- 🛠️ Improvement: **Prompt Simplification** - Removed complex alternative requirements from prompt templates to reduce LLM confusion
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Enhanced XML Error Handling** - Added `_extract_content_robustly` method for graceful handling of malformed XML outputs
+- 🔨 Technical: **Test Coverage Enhancement** - Added specific test cases for XML parsing with missing closing tags
+- 🔨 Technical: **Code Quality** - Applied Black formatting to all modified files for consistency
+
 ## [0.6.2] - 2025-12-02
 
 ### 🚀 Overview

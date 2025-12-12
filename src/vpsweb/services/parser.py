@@ -225,27 +225,57 @@ class OutputParser:
             XMLParsingError: If parsing fails or expected tags are missing
         """
         try:
+            # First, try to robustly extract initial_translation and initial_translation_notes
+            initial_translation = OutputParser._extract_content_robustly(
+                xml_string,
+                "<initial_translation>",
+                "</initial_translation>",
+                "initial_translation",
+            )
+            initial_translation_notes = OutputParser._extract_content_robustly(
+                xml_string,
+                "<initial_translation_notes>",
+                "</initial_translation_notes>",
+                "initial_translation_notes",
+            )
+
+            # Then, parse the full XML string to get other structured data, including potentially nested content
+            # This is important for "translated_poem_title" and "translated_poet_name" which are expected
+            # to be well-formed XML elements.
             parsed_data = OutputParser.parse_xml(xml_string)
 
-            # Handle nested structure - check if we have a 'translation' wrapper
-            if "translation" in parsed_data:
-                content = parsed_data["translation"]
-                if isinstance(content, str):
-                    content = OutputParser.parse_xml(content)
-            else:
-                content = parsed_data
+            # If no XML tags are found at all by the general parser, return empty content for all fields
+            if (
+                not parsed_data
+                and not initial_translation
+                and not initial_translation_notes
+            ):
+                return {
+                    "initial_translation": "",
+                    "initial_translation_notes": "",
+                    "translated_poem_title": "",
+                    "translated_poet_name": "",
+                }
 
-            # Extract specific fields (updated to include translated title and poet name)
-            initial_translation = str(content.get("initial_translation", ""))
-            initial_translation_notes = str(
-                content.get("initial_translation_notes", "")
-            )
+            # If robust extraction was empty, try to get from parsed_data (for well-formed cases)
+            if not initial_translation:
+                initial_translation = str(
+                    parsed_data.get("initial_translation", "")
+                ).strip()
+            if not initial_translation_notes:
+                initial_translation_notes = str(
+                    parsed_data.get("initial_translation_notes", "")
+                ).strip()
+
             translated_poem_title = str(
-                content.get("translated_poem_title", "")
+                parsed_data.get("translated_poem_title", "")
             ).strip()
-            translated_poet_name = str(content.get("translated_poet_name", "")).strip()
+            translated_poet_name = str(
+                parsed_data.get("translated_poet_name", "")
+            ).strip()
 
             if not initial_translation:
+                # If after all attempts, initial_translation is still missing, raise an error
                 raise XMLParsingError(
                     "Missing required 'initial_translation' tag in XML"
                 )
@@ -285,15 +315,48 @@ class OutputParser:
             XMLParsingError: If parsing fails or expected tags are missing
         """
         try:
-            parsed_data = OutputParser.parse_xml(xml_string)
-            if isinstance(parsed_data, str):
-                parsed_data = OutputParser.parse_xml(parsed_data)
-
-            # Extract specific fields (updated to include refined translated title and poet name)
-            revised_translation = str(parsed_data.get("revised_translation", ""))
-            revised_translation_notes = str(
-                parsed_data.get("revised_translation_notes", "")
+            # First, try to robustly extract revised_translation and revised_translation_notes
+            revised_translation = OutputParser._extract_content_robustly(
+                xml_string,
+                "<revised_translation>",
+                "</revised_translation>",
+                "revised_translation",
             )
+            revised_translation_notes = OutputParser._extract_content_robustly(
+                xml_string,
+                "<revised_translation_notes>",
+                "</revised_translation_notes>",
+                "revised_translation_notes",
+            )
+
+            # Then, parse the full XML string to get other structured data, including potentially nested content
+            # This is important for "refined_translated_poem_title" and "refined_translated_poet_name" which are expected
+            # to be well-formed XML elements.
+            parsed_data = OutputParser.parse_xml(xml_string)
+
+            # If no XML tags are found at all by the general parser, return empty content for all fields
+            if (
+                not parsed_data
+                and not revised_translation
+                and not revised_translation_notes
+            ):
+                return {
+                    "revised_translation": "",
+                    "revised_translation_notes": "",
+                    "refined_translated_poem_title": "",
+                    "refined_translated_poet_name": "",
+                }
+
+            # If robust extraction was empty, try to get from parsed_data (for well-formed cases)
+            if not revised_translation:
+                revised_translation = str(
+                    parsed_data.get("revised_translation", "")
+                ).strip()
+            if not revised_translation_notes:
+                revised_translation_notes = str(
+                    parsed_data.get("revised_translation_notes", "")
+                ).strip()
+
             refined_translated_poem_title = str(
                 parsed_data.get("refined_translated_poem_title", "")
             ).strip()
@@ -324,6 +387,32 @@ class OutputParser:
             )
         except Exception as e:
             raise XMLParsingError(f"Error parsing revised translation XML: {e}")
+
+    @staticmethod
+    def _extract_content_robustly(
+        xml_string: str, start_tag: str, end_tag: str, tag_name: str
+    ) -> str:
+        """
+        Robustly extracts content between a start and end XML tag.
+        Handles cases where the end tag might be missing.
+        """
+        start_index = xml_string.find(start_tag)
+        if start_index == -1:
+            return ""
+
+        content_start = start_index + len(start_tag)
+        end_index = xml_string.rfind(end_tag, content_start)
+
+        if end_index == -1:
+            # If end tag is not found, extract from start tag to the end of the string
+            logger.warning(
+                f"Missing {end_tag} closing tag for <{tag_name}>. Extracting to end of string."
+            )
+            content = xml_string[content_start:].strip()
+        else:
+            # If both tags are found, extract the content between them
+            content = xml_string[content_start:end_index].strip()
+        return content
 
     @staticmethod
     def parse_editor_review_xml(xml_string: str) -> Dict[str, str]:

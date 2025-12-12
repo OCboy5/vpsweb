@@ -445,6 +445,46 @@ class TestOutputParser:
             == "Based on editor suggestions, I refined the translation."
         )
 
+    def test_parse_initial_translation_xml_missing_notes_closing_tag(self):
+        """
+        Test parsing initial translation XML when initial_translation_notes
+        closing tag is missing.
+        """
+        xml_string = """
+        <initial_translation>雾来了\n踏着猫的小脚。</initial_translation>
+        <initial_translation_notes>This translation captures the gentle imagery.
+        """  # Missing </initial_translation_notes>
+
+        result = OutputParser.parse_initial_translation_xml(xml_string)
+
+        assert "initial_translation" in result
+        assert "initial_translation_notes" in result
+        assert result["initial_translation"] == "雾来了\n踏着猫的小脚。"
+        assert (
+            result["initial_translation_notes"]
+            == "This translation captures the gentle imagery."
+        )
+
+    def test_parse_revised_translation_xml_missing_notes_closing_tag(self):
+        """
+        Test parsing revised translation XML when revised_translation_notes
+        closing tag is missing.
+        """
+        xml_string = """
+        <revised_translation>雾悄悄地来了\n像猫一样轻盈。</revised_translation>
+        <revised_translation_notes>Based on editor suggestions, I refined the translation.
+        """  # Missing </revised_translation_notes>
+
+        result = OutputParser.parse_revised_translation_xml(xml_string)
+
+        assert "revised_translation" in result
+        assert "revised_translation_notes" in result
+        assert result["revised_translation"] == "雾悄悄地来了\n像猫一样轻盈。"
+        assert (
+            result["revised_translation_notes"]
+            == "Based on editor suggestions, I refined the translation."
+        )
+
     def test_is_valid_xml_valid(self):
         """Test XML validation with valid XML."""
         xml_string = "<tag>content</tag>"
