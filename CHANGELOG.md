@@ -5,6 +5,31 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2025-12-15
+
+### 🚀 Overview
+VPSWeb v0.6.4 - **Poem Editing & UI Enhancement Release**. This feature release adds comprehensive poem editing capabilities with an intuitive modal interface, enhances cursor behavior across text inputs, and improves modal resizing functionality throughout the application.
+
+### ✨ New Features
+- ✨ Feature: **Edit Button on Poem Detail Page** - Added an Edit button between Select and Delete buttons for convenient poem editing access
+- ✨ Feature: **Draggable and Resizable Edit Modal** - Implemented full-featured modal with drag-and-drop positioning and 8-point resize handles
+- ✨ Feature: **Real-time Content Updates** - Changes are immediately reflected on the page after successful save with no need to refresh
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Cursor Visibility in Textareas** - Resolved cursor disappearing at line beginnings in poem text areas by removing problematic CSS class conflicts
+- 🐛 Fix: **BBR Modal Vertical Resizing** - Fixed text content section not expanding when resizing modal vertically
+- 🐛 Fix: **Git Configuration** - Corrected malformed .gitignore entries and removed database temporary files from version control
+
+### 🔧 Improvements
+- 🛠️ Improvement: **Modal Flexbox Layout** - Enhanced Edit and BBR modals with responsive flexbox layouts for better resizing behavior
+- 🛠️ Improvement: **Poem Edit Form** - Pre-fills edit form with current poem data and validates required fields
+- 🛠️ Improvement: **Error Handling** - Enhanced error message display with detailed API error information
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Edit Modal Implementation** - Added comprehensive JavaScript functions for modal operations with state management
+- 🔨 Technical: **CSS Optimization** - Implemented modal-specific CSS with drag and resize cursor indicators
+- 🔨 Technical: **API Integration** - Leveraged existing PUT endpoint for poem updates with proper data preservation
+
 ## [0.6.3] - 2025-12-12
 
 ### 🚀 Overview
