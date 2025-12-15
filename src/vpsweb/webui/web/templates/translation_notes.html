@@ -579,6 +579,7 @@
 </aside>
 {% endif %}
 
+<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
 <script>
 // Translation Notes Page JavaScript
 
@@ -685,13 +686,58 @@ function initializeLayout2Elements() {
     }
 
     if (revisedCol) {
-        revisedCol.innerHTML = generateColumnHTML(window.layout2Data.revisedStep, 'green', 3, 'Final');
-        revisedCol.addEventListener('click', e => {
-            if (e.target.closest('.notes-btn')) {
-                showNotes('revised', window.layout2Data.revisedStep.notes);
+    revisedCol.innerHTML = generateColumnHTML(window.layout2Data.revisedStep, 'green', 3, 'Final');
+
+    const poetryContainer = revisedCol.querySelector('#poetry-text-column-3');
+    const initialText = window.layout2Data.initialStep ? window.layout2Data.initialStep.content.trim() : '';
+    const finalText = window.layout2Data.revisedStep.content.trim();
+
+    const toggleBtn = revisedCol.querySelector('#diff-toggle-btn');
+    const toggleText = revisedCol.querySelector('#diff-toggle-text');
+
+    if (toggleBtn && poetryContainer) {
+        let isDiffMode = false;
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            isDiffMode = !isDiffMode;
+
+            if (isDiffMode) {
+                let diff;
+                if (window.layout2Data.targetLanguage === 'zh-CN') {
+                    diff = Diff.diffChars(initialText, finalText);
+                } else {
+                    diff = Diff.diffWordsWithSpace(initialText, finalText);
+                }
+
+                let html = '';
+                diff.forEach(part => {
+                    if (part.added) {
+                        html += `<ins class="bg-green-200 text-green-900 px-1 rounded">${escapeHtml(part.value)}</ins>`;
+                    } else if (part.removed) {
+                        html += `<del class="bg-red-200 text-red-900 px-1 rounded line-through">${escapeHtml(part.value)}</del>`;
+                    } else {
+                        html += escapeHtml(part.value);
+                    }
+                });
+                poetryContainer.innerHTML = html;
+                toggleText.textContent = 'Hide Diff';
+            } else {
+                poetryContainer.innerHTML = escapeHtml(finalText);
+                toggleText.textContent = 'Show Diff';
             }
+
+            // Re-initialize sync scrolling after content change
+            initializeSyncScroll();
         });
     }
+
+    revisedCol.addEventListener('click', e => {
+        if (e.target.closest('.notes-btn')) {
+            showNotes('revised', window.layout2Data.revisedStep.notes);
+        }
+    });
+}
 }
 
 function initializeLayout1Elements() {
@@ -726,7 +772,7 @@ function generateColumnHTML(stepData, color, stepNum, stepLabel) {
         </div>`;
     }
 
-      const translatedTitle = stepData.translated_title || `${stepLabel} Translation`;
+    const translatedTitle = stepData.translated_title || `${stepLabel} Translation`;
     const translatedPoet = stepData.translated_poet_name || 'Translated';
     const notesLink = stepData.notes ?
         `<a href="#" class="notes-btn inline-flex items-center text-sm text-${color}-600 hover:text-${color}-800 font-medium whitespace-nowrap">
@@ -735,6 +781,15 @@ function generateColumnHTML(stepData, color, stepNum, stepLabel) {
             </svg>
             View Notes
         </a>` : '';
+
+    // Add "Show Diff" button only for the Final Translation column (stepNum === 3)
+    const diffToggle = (stepNum === 3) ? `
+        <button id="diff-toggle-btn" class="inline-flex items-center text-sm text-green-600 hover:text-green-800 font-medium whitespace-nowrap">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 8H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            <span id="diff-toggle-text">Show Diff</span>
+        </button>` : '';
 
     return `
         <div class="bg-gradient-to-r from-${color}-50 to-${color}-100 px-6 py-4 border-b border-gray-200 relative min-h-[93px]">
@@ -751,7 +806,7 @@ function generateColumnHTML(stepData, color, stepNum, stepLabel) {
             <p class="text-sm text-gray-600 mb-2">by ${translatedPoet}</p>
         </div>
         <div class="sync-scroll flex-grow overflow-y-auto">
-            <div class="poetry-text-container p-6 text-gray-800 leading-relaxed font-serif text-base whitespace-pre">${stepData.content.trimStart()}</div>
+            <div class="poetry-text-container p-6 text-gray-800 leading-relaxed font-serif text-base whitespace-pre" id="poetry-text-column-${stepNum}">${escapeHtml(stepData.content.trimStart())}</div>
         </div>
         <div class="px-6 pb-6 min-h-[100px] flex flex-col justify-center">
             <div class="pt-4 border-t border-gray-200">
@@ -760,7 +815,10 @@ function generateColumnHTML(stepData, color, stepNum, stepLabel) {
                         <span class="text-gray-500 text-xs">ID:</span><br>
                         <span class="text-gray-500 text-xs break-all max-w-[200px]">${window.layout2Data.translationId}</span>
                     </div>
-                    <div class="flex-shrink-0 ml-auto">${notesLink}</div>
+                    <div class="flex-shrink-0 ml-auto flex flex-col items-start space-y-2">
+                        ${notesLink}
+                        ${diffToggle}
+                    </div>
                 </div>
             </div>
         </div>
@@ -854,31 +912,7 @@ function hideNotesDisplay() {
 }
 
 // --- UTILITY FUNCTIONS (layout-agnostic) ---
-function initializeSyncScroll() {
-    // Make it layout-agnostic - find all sync-scroll elements in any layout
-    const scrollableElements = document.querySelectorAll('.sync-scroll');
-    if (scrollableElements.length === 0) return;
-
-    let isSyncing = false;
-    scrollableElements.forEach(element => {
-        element.addEventListener('scroll', event => {
-            if (isSyncing) return;
-            isSyncing = true;
-            const sourceElement = event.target;
-            const scrollPercentage = sourceElement.scrollTop / (sourceElement.scrollHeight - sourceElement.clientHeight);
-
-            scrollableElements.forEach(targetElement => {
-                if (targetElement !== sourceElement) {
-                    const targetScrollableHeight = targetElement.scrollHeight - targetElement.clientHeight;
-                    if (targetScrollableHeight > 0) {
-                        targetElement.scrollTop = targetScrollableHeight * scrollPercentage;
-                    }
-                }
-            });
-            requestAnimationFrame(() => { isSyncing = false; });
-        });
-    });
-}
+// initializeSyncScroll function is now in common.js
 
 function initializeProgressNavigation() {
     window.addEventListener('scroll', updateProgressNavigation);
@@ -946,7 +980,7 @@ function initializeDeepLinking() {
 // --- BBR FUNCTIONS ---
 // Poem data for BBR operations
 const poemId = "{{ poem.id }}";
-let currentBBR = null;
+// currentBBR is now declared in common.js
 
 // Layout 2 BBR button handler - view only existing BBR
 async function handleLayout2BBRButtonClick() {
@@ -970,58 +1004,7 @@ async function handleLayout2BBRButtonClick() {
     }
 }
 
-// Show BBR in modal (copied from poem detail page)
-function showBBRModal(bbr) {
-    // Create modal HTML
-    const modalHtml = `
-        <div id="bbr-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeBBRModal(event)">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Background Briefing Report</h3>
-                        <button onclick="closeBBRModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <!-- BBR Metadata -->
-                    <div class="mb-4 p-3 bg-gray-50 rounded-md">
-                        <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                            <div><strong>Created:</strong> ${new Date(bbr.created_at).toLocaleString()}</div>
-                            <div><strong>Model:</strong> ${JSON.parse(bbr.model_info || '{}').model || 'N/A'}</div>
-                            <div><strong>Tokens Used:</strong> ${bbr.tokens_used || 'N/A'}</div>
-                            <div><strong>Cost:</strong> ¥${(bbr.cost || 0).toFixed(4)}</div>
-                            <div><strong>Time Spent:</strong> ${bbr.time_spent ? (bbr.time_spent).toFixed(1) + 's' : 'N/A'}</div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <pre class="text-xs text-gray-700 whitespace-pre-wrap max-h-96 overflow-auto">${bbr.content}</pre>
-                    </div>
-                    <div class="mt-4 flex justify-end">
-                        <button onclick="closeBBRModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-// Close BBR modal
-function closeBBRModal(event) {
-    if (event && event.target !== event.currentTarget) {
-        return;
-    }
-    const modal = document.getElementById('bbr-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
+// showBBRModal and closeBBRModal functions are now in common.js
 
 // Initialize BBR on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -1251,20 +1234,7 @@ async function deleteBBR() {
     }
 }
 
-// Utility functions following existing patterns
-function showSuccessMessage(message) {
-    // Use existing notification pattern from the page
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.parentNode.removeChild(messageDiv);
-        }
-    }, 5000);
-}
+// showSuccessMessage function is now in common.js
 
 function showErrorMessage(message) {
     // Use existing notification pattern from the page
@@ -1346,6 +1316,20 @@ function showErrorMessage(message) {
 
 .sync-scroll::-webkit-scrollbar-thumb:hover {
   background-color: #94a3b8;
+}
+ins {
+    background-color: #dcfce7;
+    color: #166534;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    padding: 0.1em 0.2em;
+}
+del {
+    background-color: #fee2e2;
+    color: #991b1b;
+    text-decoration: line-through;
+    border-radius: 0.25rem;
+    padding: 0.1em 0.2em;
 }
 </style>
 {% endblock %}
