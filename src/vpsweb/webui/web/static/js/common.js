@@ -145,24 +145,33 @@ function addBBRModalCSS() {
     css.id = 'bbr-modal-css';
     css.textContent = `
         .bbr-modal-draggable {
-            position: absolute !important;
-            top: 5rem !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            min-width: 400px !important;
-            min-height: 300px !important;
-            max-width: 90vw !important;
-            max-height: 90vh !important;
+            position: absolute;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 400px;
+            min-height: 300px;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bbr-modal-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .bbr-modal-header {
-            cursor: move !important;
+            cursor: move;
         }
 
         .resize-handle {
-            position: absolute !important;
-            background: transparent !important;
-            z-index: 60 !important;
+            position: absolute;
+            background: transparent;
+            z-index: 60;
         }
 
         .resize-n { top: -2px; left: 10px; right: 10px; height: 5px; cursor: ns-resize; }
@@ -189,33 +198,35 @@ function showBBRModal(bbr) {
     const modalHtml = `
         <div id="bbr-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeBBRModal(event)">
             <div id="bbr-modal-content" class="p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white bbr-modal-draggable" onmousedown="startDragging(event)" onclick="event.stopPropagation()">
-                <!-- BBR Metadata -->
-                <div class="mb-4 p-3 bg-gray-50 rounded-md">
-                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div><strong>Created:</strong> ${new Date(bbr.created_at).toLocaleString()}</div>
-                        <div><strong>Model:</strong> ${JSON.parse(bbr.model_info || '{}').model || 'N/A'}</div>
-                        <div><strong>Tokens Used:</strong> ${bbr.tokens_used || 'N/A'}</div>
-                        <div><strong>Cost:</strong> ¥${(bbr.cost || 0).toFixed(4)}</div>
-                        <div><strong>Time Spent:</strong> ${bbr.time_spent ? (bbr.time_spent).toFixed(1) + 's' : 'N/A'}</div>
+                <div class="bbr-modal-content flex flex-col h-full">
+                    <!-- BBR Metadata -->
+                    <div class="mb-4 p-3 bg-gray-50 rounded-md flex-shrink-0">
+                        <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                            <div><strong>Created:</strong> ${new Date(bbr.created_at).toLocaleString()}</div>
+                            <div><strong>Model:</strong> ${JSON.parse(bbr.model_info || '{}').model || 'N/A'}</div>
+                            <div><strong>Tokens Used:</strong> ${bbr.tokens_used || 'N/A'}</div>
+                            <div><strong>Cost:</strong> ¥${(bbr.cost || 0).toFixed(4)}</div>
+                            <div><strong>Time Spent:</strong> ${bbr.time_spent ? (bbr.time_spent).toFixed(1) + 's' : 'N/A'}</div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- BBR Content -->
-                <div class="mb-4">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Report Content</h4>
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <pre class="text-xs text-gray-700 whitespace-pre-wrap break-words max-h-96 overflow-auto">${bbr.content}</pre>
+                    <!-- BBR Content -->
+                    <div class="flex-1 flex flex-col min-h-0 mb-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Report Content</h4>
+                        <div class="bg-gray-50 p-4 rounded border flex-1 overflow-hidden">
+                            <pre class="text-xs text-gray-700 whitespace-pre-wrap break-words h-full overflow-auto">${bbr.content}</pre>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Action Buttons -->
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button onclick="copyBBRContent()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                        Copy Content
-                    </button>
-                    <button onclick="closeBBRModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Close
-                    </button>
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 flex-shrink-0">
+                        <button onclick="copyBBRContent()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+                            Copy Content
+                        </button>
+                        <button onclick="closeBBRModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Close
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Resize handles -->

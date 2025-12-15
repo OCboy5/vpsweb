@@ -85,7 +85,8 @@
                         </label>
                         <div class="mt-1">
                             <textarea id="original-text" name="original_text" required rows="12"
-                                      class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 poetry-text"
+                                      class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                                      style="white-space: pre-wrap; line-height: 1.8; font-family: Georgia, serif; font-size: 1.1rem;"
                                       placeholder="Enter the full text of the poem here..."></textarea>
                             <p class="mt-2 text-sm text-gray-500">
                                 You can use line breaks and formatting as they appear in the original poem.
@@ -132,6 +133,27 @@
 </div>
 
 <script>
+// Fix cursor visibility in poem textarea
+function fixTextareaCursor() {
+    const css = document.createElement('style');
+    css.id = 'textarea-cursor-fix';
+    css.textContent = `
+        #original-text {
+            white-space: pre-wrap !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            padding: 0.75rem !important;
+            line-height: 1.5 !important;
+            resize: vertical !important;
+            min-height: 300px !important;
+        }
+    `;
+    document.head.appendChild(css);
+}
+
+// Apply the fix immediately
+fixTextareaCursor();
+
 document.addEventListener('DOMContentLoaded', function() {
     setupPoetParameter();
     setupLanguageHandling();
@@ -174,10 +196,22 @@ function setupFormValidation() {
     const poetName = document.getElementById('poet-name');
     const poemTitle = document.getElementById('poem-title');
 
-    // Auto-resize textarea
+    // Auto-resize textarea with better cursor handling
     originalText.addEventListener('input', function() {
+        // Store current scroll position and cursor position
+        const scrollPos = this.scrollTop;
+        const selectionStart = this.selectionStart;
+        const selectionEnd = this.selectionEnd;
+
+        // Reset height to auto to calculate new height
         this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
+
+        // Set new height based on scrollHeight
+        this.style.height = Math.max(300, this.scrollHeight) + 'px';
+
+        // Restore scroll position and cursor position
+        this.scrollTop = scrollPos;
+        this.setSelectionRange(selectionStart, selectionEnd);
     });
 
     // Form validation feedback

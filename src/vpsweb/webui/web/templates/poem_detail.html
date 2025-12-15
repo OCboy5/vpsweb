@@ -58,6 +58,12 @@
                         </svg>
                         <span id="selection-text">{% if poem.selected %}Selected{% else %}Select{% endif %}</span>
                     </button>
+                    <button onclick="openEditModal()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit
+                    </button>
                     <button onclick="deletePoem()" class="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -391,6 +397,379 @@
 </div>
 
 <script>
+// Add CSS for edit modal drag and resize functionality
+function addEditModalCSS() {
+    if (document.getElementById('edit-modal-css')) return;
+
+    const css = document.createElement('style');
+    css.id = 'edit-modal-css';
+    css.textContent = `
+        .edit-modal-draggable {
+            position: absolute;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 500px;
+            min-height: 400px;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .edit-modal-header {
+            cursor: move;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .edit-modal-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resize-handle {
+            position: absolute;
+            background: transparent;
+            z-index: 60;
+        }
+
+        .resize-n { top: -2px; left: 10px; right: 10px; height: 5px; cursor: ns-resize; }
+        .resize-s { bottom: -2px; left: 10px; right: 10px; height: 5px; cursor: ns-resize; }
+        .resize-e { right: -2px; top: 10px; bottom: 10px; width: 5px; cursor: ew-resize; }
+        .resize-w { left: -2px; top: 10px; bottom: 10px; width: 5px; cursor: ew-resize; }
+        .resize-ne { top: -2px; right: -2px; width: 10px; height: 10px; cursor: nesw-resize; }
+        .resize-nw { top: -2px; left: -2px; width: 10px; height: 10px; cursor: nwse-resize; }
+        .resize-se { bottom: -2px; right: -2px; width: 10px; height: 10px; cursor: nwse-resize; }
+        .resize-sw { bottom: -2px; left: -2px; width: 10px; height: 10px; cursor: nesw-resize; }
+
+        /* Fix for cursor visibility in textarea */
+        #edit-poem-text.poetry-text {
+            white-space: pre-wrap !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            padding: 0.75rem !important;
+            line-height: 1.5 !important;
+        }
+    `;
+    document.head.appendChild(css);
+}
+
+// Edit modal functions with drag and resize support
+let isEditDragging = false;
+let isEditResizing = false;
+let editDragOffset = { x: 0, y: 0 };
+let editInitialPos = { x: 0, y: 0 };
+let editInitialSize = { width: 0, height: 0 };
+let editInitialMousePos = { x: 0, y: 0 };
+let currentEditResizeHandle = '';
+
+function openEditModal() {
+    // Add CSS if not already added
+    addEditModalCSS();
+
+    // Pre-fill form with current poem data
+    const currentPoetName = document.getElementById('poet-name').textContent;
+    const currentPoemTitle = document.getElementById('poem-title').textContent.trim();
+    const currentPoemText = document.getElementById('poem-text').textContent.trim();
+
+    // Create modal HTML with resize handles
+    const modalHtml = `
+        <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeEditModal(event)">
+            <div id="edit-modal-content" class="shadow-lg rounded-md bg-white edit-modal-draggable" onmousedown="startEditDragging(event)" onclick="event.stopPropagation()">
+                <!-- Draggable Header -->
+                <div class="edit-modal-header">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Poem</h3>
+                </div>
+
+                <!-- Form Content -->
+                <form onsubmit="savePoemChanges(event)" class="flex flex-col h-full">
+                    <div class="p-6 edit-modal-content flex flex-col h-full">
+                        <div class="space-y-4 flex-1 flex flex-col">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 flex-shrink-0">
+                                <div>
+                                    <label for="edit-poet-name" class="block text-sm font-medium text-gray-700">Poet Name</label>
+                                    <input type="text" id="edit-poet-name" required
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                                           value="${currentPoetName}">
+                                </div>
+                                <div>
+                                    <label for="edit-poem-title" class="block text-sm font-medium text-gray-700">Poem Title</label>
+                                    <input type="text" id="edit-poem-title" required
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                                           value="${currentPoemTitle}">
+                                </div>
+                            </div>
+
+                            <div class="flex-1 flex flex-col min-h-0">
+                                <label for="edit-poem-text" class="block text-sm font-medium text-gray-700 mb-2">Poem Content</label>
+                                <textarea id="edit-poem-text" required
+                                          class="block w-full h-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 resize-none"
+                                          style="min-height: 200px; white-space: pre-wrap; line-height: 1.5; font-family: Georgia, serif; font-size: 1.1rem; padding: 0.75rem;">${currentPoemText}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3 flex-shrink-0">
+                        <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Resize Handles -->
+                <div class="resize-handle resize-n" onmousedown="event.stopPropagation(); startEditResizing(event, 'n')"></div>
+                <div class="resize-handle resize-s" onmousedown="event.stopPropagation(); startEditResizing(event, 's')"></div>
+                <div class="resize-handle resize-e" onmousedown="event.stopPropagation(); startEditResizing(event, 'e')"></div>
+                <div class="resize-handle resize-w" onmousedown="event.stopPropagation(); startEditResizing(event, 'w')"></div>
+                <div class="resize-handle resize-ne" onmousedown="event.stopPropagation(); startEditResizing(event, 'ne')"></div>
+                <div class="resize-handle resize-nw" onmousedown="event.stopPropagation(); startEditResizing(event, 'nw')"></div>
+                <div class="resize-handle resize-se" onmousedown="event.stopPropagation(); startEditResizing(event, 'se')"></div>
+                <div class="resize-handle resize-sw" onmousedown="event.stopPropagation(); startEditResizing(event, 'sw')"></div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Center the modal
+    const modalContent = document.getElementById('edit-modal-content');
+    if (modalContent) {
+        modalContent.style.left = '50%';
+        modalContent.style.transform = 'translateX(-50%)';
+    }
+}
+
+function closeEditModal(event) {
+    // If event exists, check if it's a click on the background overlay
+    if (event && event.target.id !== 'edit-modal') {
+        return;
+    }
+
+    const modal = document.getElementById('edit-modal');
+    if (modal) {
+        modal.remove();
+        isEditDragging = false;
+        isEditResizing = false;
+    }
+}
+
+async function savePoemChanges(event) {
+    event.preventDefault();
+
+    const poetName = document.getElementById('edit-poet-name').value;
+    const poemTitle = document.getElementById('edit-poem-title').value;
+    const poemText = document.getElementById('edit-poem-text').value;
+
+    // Show loading state
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Saving...';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/v1/poems/${poemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                poet_name: poetName,
+                poem_title: poemTitle,
+                source_language: poem.source_language, // Include current source language
+                original_text: poemText,
+                metadata: poem.metadata_json || null // Include current metadata if exists
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('API Error Response:', error);
+            let errorMessage = 'Failed to update poem';
+            if (error.detail) {
+                if (typeof error.detail === 'string') {
+                    errorMessage = error.detail;
+                } else if (error.detail.message) {
+                    errorMessage = error.detail.message;
+                } else {
+                    errorMessage = JSON.stringify(error.detail);
+                }
+            }
+            throw new Error(errorMessage);
+        }
+
+        const updatedPoem = await response.json();
+
+        // Update page content
+        document.getElementById('poet-name').textContent = updatedPoem.poet_name;
+        document.getElementById('poem-title').textContent = updatedPoem.poem_title;
+        document.getElementById('poem-full-title').textContent = `${updatedPoem.poem_title} by ${updatedPoem.poet_name}`;
+        document.getElementById('poem-text').textContent = updatedPoem.original_text;
+
+        // Update breadcrumb
+        document.getElementById('poem-title').textContent = updatedPoem.poem_title;
+
+        // Update local poem object with new data
+        poem.poet_name = updatedPoem.poet_name;
+        poem.poem_title = updatedPoem.poem_title;
+        poem.original_text = updatedPoem.original_text;
+
+        // Close modal and show success
+        closeEditModal();
+        showToast('Poem updated successfully!', 'success');
+
+    } catch (error) {
+        console.error('Error updating poem:', error);
+        showToast(error.message || 'Failed to update poem', 'error');
+    } finally {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Drag functionality for edit modal
+function startEditDragging(event) {
+    // Prevent dragging on buttons, resize handles, inputs, and textarea
+    if (event.target.closest('button') ||
+        event.target.closest('.resize-handle') ||
+        event.target.tagName === 'INPUT' ||
+        event.target.tagName === 'TEXTAREA') {
+        return;
+    }
+    event.preventDefault();
+    isEditDragging = true;
+    const modal = document.getElementById('edit-modal-content');
+    if (!modal) return;
+    const rect = modal.getBoundingClientRect();
+    editDragOffset.x = event.clientX - rect.left;
+    editDragOffset.y = event.clientY - rect.top;
+
+    // Set position in pixels and remove transform to avoid jump
+    modal.style.transform = 'none';
+    modal.style.left = `${rect.left}px`;
+    modal.style.top = `${rect.top}px`;
+    modal.style.margin = '0';
+
+    document.addEventListener('mousemove', handleEditDragging);
+    document.addEventListener('mouseup', stopEditDragging);
+}
+
+function handleEditDragging(event) {
+    if (!isEditDragging) return;
+    const modal = document.getElementById('edit-modal-content');
+    if (!modal) return;
+    let newX = event.clientX - editDragOffset.x;
+    let newY = event.clientY - editDragOffset.y;
+
+    // Constrain to viewport
+    newX = Math.max(0, Math.min(newX, window.innerWidth - modal.offsetWidth));
+    newY = Math.max(0, Math.min(newY, window.innerHeight - modal.offsetHeight));
+
+    modal.style.left = `${newX}px`;
+    modal.style.top = `${newY}px`;
+}
+
+function stopEditDragging() {
+    isEditDragging = false;
+    document.removeEventListener('mousemove', handleEditDragging);
+    document.removeEventListener('mouseup', stopEditDragging);
+}
+
+// Resize functionality for edit modal
+function startEditResizing(event, handle) {
+    event.preventDefault();
+    event.stopPropagation();
+    isEditResizing = true;
+    currentEditResizeHandle = handle;
+    const modal = document.getElementById('edit-modal-content');
+    if (!modal) return;
+
+    const rect = modal.getBoundingClientRect();
+
+    // Set position to pixels and remove transform
+    modal.style.transform = 'none';
+    modal.style.left = `${rect.left}px`;
+    modal.style.top = `${rect.top}px`;
+    modal.style.margin = '0';
+
+    editInitialPos.x = rect.left;
+    editInitialPos.y = rect.top;
+    editInitialSize.width = rect.width;
+    editInitialSize.height = rect.height;
+    editInitialMousePos.x = event.clientX;
+    editInitialMousePos.y = event.clientY;
+
+    document.addEventListener('mousemove', handleEditResizing);
+    document.addEventListener('mouseup', stopEditResizing);
+}
+
+function handleEditResizing(event) {
+    if (!isEditResizing) return;
+    const modal = document.getElementById('edit-modal-content');
+    if (!modal) return;
+
+    const dx = event.clientX - editInitialMousePos.x;
+    const dy = event.clientY - editInitialMousePos.y;
+
+    let newWidth = editInitialSize.width;
+    let newHeight = editInitialSize.height;
+    let newLeft = editInitialPos.x;
+    let newTop = editInitialPos.y;
+
+    if (currentEditResizeHandle.includes('e')) {
+        newWidth = editInitialSize.width + dx;
+    }
+    if (currentEditResizeHandle.includes('w')) {
+        newWidth = editInitialSize.width - dx;
+        newLeft = editInitialPos.x + dx;
+    }
+    if (currentEditResizeHandle.includes('s')) {
+        newHeight = editInitialSize.height + dy;
+    }
+    if (currentEditResizeHandle.includes('n')) {
+        newHeight = editInitialSize.height - dy;
+        newTop = editInitialPos.y + dy;
+    }
+
+    // Apply minimum size constraints
+    newWidth = Math.max(500, newWidth);
+    newHeight = Math.max(400, newHeight);
+
+    // Apply maximum size constraints
+    newWidth = Math.min(window.innerWidth - newLeft, newWidth);
+    newHeight = Math.min(window.innerHeight - newTop, newHeight);
+
+    modal.style.width = `${newWidth}px`;
+    modal.style.height = `${newHeight}px`;
+    modal.style.left = `${newLeft}px`;
+    modal.style.top = `${newTop}px`;
+}
+
+function stopEditResizing() {
+    isEditResizing = false;
+    document.removeEventListener('mousemove', handleEditResizing);
+    document.removeEventListener('mouseup', stopEditResizing);
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('edit-modal');
+        if (modal) {
+            closeEditModal();
+        }
+    }
+});
+
 // Get poem ID from URL parameter or template context
 const poemId = "{{ poem_id }}";
 
@@ -405,7 +784,7 @@ let currentFilters = {
     language: '',
     type: ''
 };
-let currentBBR = null;
+// currentBBR is now declared in common.js
 
 // Load poem data on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -470,19 +849,7 @@ function updatePoemDisplay() {
     updateSelectionToggle();
 }
 
-function showError(message) {
-    // Simple error display
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
-    errorDiv.textContent = message;
-    document.body.appendChild(errorDiv);
-
-    setTimeout(() => {
-        if (errorDiv.parentNode) {
-            errorDiv.parentNode.removeChild(errorDiv);
-        }
-    }, 5000);
-}
+  // showError function is now in common.js
 
 // Workflow state management
 let workflowState = {
@@ -966,97 +1333,14 @@ function refreshTranslations() {
     loadTranslations();
 }
 
-function showSuccessMessage(message) {
-    showToast(message, 'success');
-    console.log('Success:', message);
-}
-
-function showError(message) {
-    showToast(message, 'error');
-    console.error('Error:', message);
-}
+// showSuccessMessage and showError functions are now in common.js
 
 function showErrorMessage(message) {
     showToast(message, 'error');
     console.error('Error:', message);
 }
 
-// Toast notification system
-function showToast(message, type = 'info') {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
-        document.body.appendChild(toastContainer);
-    }
-
-    // Create toast element
-    const toast = document.createElement('div');
-
-    // Style based on type
-    const baseClasses = 'px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full';
-    let typeClasses = '';
-    let icon = '';
-
-    switch (type) {
-        case 'success':
-            typeClasses = 'bg-green-500 text-white';
-            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>`;
-            break;
-        case 'error':
-            typeClasses = 'bg-red-500 text-white';
-            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>`;
-            break;
-        default:
-            typeClasses = 'bg-blue-500 text-white';
-            icon = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>`;
-    }
-
-    toast.className = `${baseClasses} ${typeClasses}`;
-    toast.innerHTML = `${icon}${message}`;
-
-    // Add click to dismiss functionality
-    toast.addEventListener('click', () => {
-        toast.classList.remove('translate-x-0');
-        toast.classList.add('translate-x-full');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    });
-
-    // Add hover effect to show it's clickable
-    toast.style.cursor = 'pointer';
-
-    // Add to container
-    toastContainer.appendChild(toast);
-
-    // Animate in
-    setTimeout(() => {
-        toast.classList.remove('translate-x-full');
-        toast.classList.add('translate-x-0');
-    }, 10);
-
-    // Remove after 4 seconds
-    setTimeout(() => {
-        toast.classList.remove('translate-x-0');
-        toast.classList.add('translate-x-full');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 4000);
-}
+// showToast function is now in common.js
 
 
 function addNote(translationId) {
@@ -2608,75 +2892,7 @@ async function viewBBR() {
     }
 }
 
-function showBBRModal(bbr) {
-    // Store current BBR data for copying
-    currentBBR = bbr;
-
-    // Create modal HTML
-    const modalHtml = `
-        <div id="bbr-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onclick="closeBBRModal(event)">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" onclick="event.stopPropagation()">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Background Briefing Report</h3>
-                        <button onclick="closeBBRModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- BBR Metadata -->
-                    <div class="mb-4 p-3 bg-gray-50 rounded-md">
-                        <h4 class="text-sm font-medium text-gray-700 mb-2">Generation Information</h4>
-                        <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                            <div><strong>Created:</strong> ${new Date(bbr.created_at).toLocaleString()}</div>
-                            <div><strong>Model:</strong> ${JSON.parse(bbr.model_info || '{}').model || 'N/A'}</div>
-                            <div><strong>Tokens Used:</strong> ${bbr.tokens_used || 'N/A'}</div>
-                            <div><strong>Cost:</strong> $${(bbr.cost || 0).toFixed(4)}</div>
-                            <div><strong>Time Spent:</strong> ${bbr.time_spent ? (bbr.time_spent).toFixed(1) + 's' : 'N/A'}</div>
-                        </div>
-                    </div>
-
-                    <!-- BBR Content -->
-                    <div class="mb-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-2">Report Content</h4>
-                        <pre class="bg-gray-50 p-3 rounded border overflow-auto max-h-96 text-sm">${JSON.stringify(JSON.parse(bbr.content), null, 2)}</pre>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-2">
-                        <button onclick="copyCurrentBBR()"
-                                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                            </svg>
-                            Copy
-                        </button>
-                        <button onclick="deleteBBR()"
-                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add modal to the page
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-function closeBBRModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    const modal = document.getElementById('bbr-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
+// showBBRModal and closeBBRModal functions are now in common.js
 
 async function deleteBBR() {
     if (!confirm('Are you sure you want to delete this Background Briefing Report?')) {
@@ -2704,80 +2920,7 @@ async function deleteBBR() {
     }
 }
 
-function copyCurrentBBR() {
-    if (!currentBBR) {
-        showError('No BBR data available to copy');
-        return;
-    }
-
-    try {
-        const formattedText = JSON.stringify(currentBBR, null, 2);
-
-        // Use modern clipboard API with fallback
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(formattedText).then(() => {
-                showSuccessMessage('BBR content copied to clipboard');
-            }).catch(err => {
-                console.error('Clipboard API failed:', err);
-                fallbackCopyToClipboard(formattedText);
-            });
-        } else {
-            // Fallback for older browsers or non-HTTPS
-            fallbackCopyToClipboard(formattedText);
-        }
-    } catch (error) {
-        console.error('Error copying to clipboard:', error);
-        showError('Failed to copy BBR content');
-    }
-}
-
-function copyBBRToClipboard(encodedBBR) {
-    try {
-        const bbrData = JSON.parse(decodeURIComponent(encodedBBR));
-        const formattedText = JSON.stringify(bbrData, null, 2);
-
-        // Use modern clipboard API with fallback
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(formattedText).then(() => {
-                showSuccessMessage('BBR content copied to clipboard');
-            }).catch(err => {
-                console.error('Clipboard API failed:', err);
-                fallbackCopyToClipboard(formattedText);
-            });
-        } else {
-            // Fallback for older browsers or non-HTTPS
-            fallbackCopyToClipboard(formattedText);
-        }
-    } catch (error) {
-        console.error('Error copying to clipboard:', error);
-        showError('Failed to copy BBR content');
-    }
-}
-
-function fallbackCopyToClipboard(text) {
-    try {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-
-        if (successful) {
-            showSuccessMessage('BBR content copied to clipboard');
-        } else {
-            showError('Failed to copy BBR content');
-        }
-    } catch (error) {
-        console.error('Fallback copy failed:', error);
-        showError('Failed to copy BBR content');
-    }
-}
+// copyCurrentBBR, copyBBRToClipboard, and fallbackCopyToClipboard functions are now in common.js
 
 // Selection Toggle Functions
 function updateSelectionToggle() {

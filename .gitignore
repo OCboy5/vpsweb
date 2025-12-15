@@ -132,6 +132,8 @@ tests/fixtures/sample_poems/copyrighted_*
 *.db
 *.sqlite
 *.sqlite3
+*.db-shm
+*.db-wal
 
 # Cache and temporary data
 .cache/
