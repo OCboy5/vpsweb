@@ -418,8 +418,7 @@ class ManualWorkflowService:
 
             # Convert target language to proper code and enum
             target_lang_code = (
-                language_mapper.get_language_code(target_lang)
-                or target_lang
+                language_mapper.get_language_code(target_lang) or target_lang
             )
             # Normalize the code
             target_lang_code = language_mapper.normalize_code(target_lang_code)
@@ -474,6 +473,7 @@ class ManualWorkflowService:
     def cleanup_expired_sessions(self, max_age_hours: int = 24) -> int:
         """Clean up expired sessions."""
         from datetime import timedelta
+
         cutoff_time = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
         expired_sessions = []
 

@@ -18,18 +18,22 @@ class TestManualWorkflowService:
     def mock_prompt_service(self):
         """Create a mock prompt service."""
         service = Mock()
-        service.render_prompt = Mock(return_value=("system prompt", "user prompt with {poem_title}"))
+        service.render_prompt = Mock(
+            return_value=("system prompt", "user prompt with {poem_title}")
+        )
         return service
 
     @pytest.fixture
     def mock_output_parser(self):
         """Create a mock output parser."""
         parser = Mock(spec=OutputParser)
-        parser.parse_xml = Mock(return_value={
-            "translated_poem_title": "Test Title",
-            "translated_poem": "Test translation",
-            "translation_notes": "Test notes"
-        })
+        parser.parse_xml = Mock(
+            return_value={
+                "translated_poem_title": "Test Title",
+                "translated_poem": "Test translation",
+                "translation_notes": "Test notes",
+            }
+        )
         return parser
 
     @pytest.fixture
@@ -58,7 +62,7 @@ class TestManualWorkflowService:
         mock_output_parser,
         mock_workflow_service,
         mock_repository_service,
-        mock_storage_handler
+        mock_storage_handler,
     ):
         """Create a ManualWorkflowService instance with mocked dependencies."""
         return ManualWorkflowService(
@@ -81,16 +85,20 @@ class TestManualWorkflowService:
         return poem
 
     @pytest.mark.asyncio
-    async def test_start_session_success(self, manual_workflow_service, mock_repository_service, sample_poem):
+    async def test_start_session_success(
+        self, manual_workflow_service, mock_repository_service, sample_poem
+    ):
         """Test successful session start."""
         # Setup mock
         mock_repository_service.repo.poems.get_by_id.return_value = sample_poem
-        manual_workflow_service.prompt_service.render_prompt.return_value = ("System prompt", "Test prompt")
+        manual_workflow_service.prompt_service.render_prompt.return_value = (
+            "System prompt",
+            "Test prompt",
+        )
 
         # Execute
         result = await manual_workflow_service.start_session(
-            poem_id="test-poem-id",
-            target_lang="Chinese"
+            poem_id="test-poem-id", target_lang="Chinese"
         )
 
         # Verify
@@ -98,7 +106,10 @@ class TestManualWorkflowService:
         assert result["step_name"] == "initial_translation_nonreasoning"
         assert result["step_index"] == 0
         assert result["total_steps"] == 3
-        assert "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nTest prompt" == result["prompt"]
+        assert (
+            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nTest prompt"
+            == result["prompt"]
+        )
         assert result["poem_title"] == "Test Poem"
         assert result["poet_name"] == "Test Poet"
 
@@ -111,7 +122,9 @@ class TestManualWorkflowService:
         assert session["current_step_index"] == 0
 
     @pytest.mark.asyncio
-    async def test_start_session_poem_not_found(self, manual_workflow_service, mock_repository_service):
+    async def test_start_session_poem_not_found(
+        self, manual_workflow_service, mock_repository_service
+    ):
         """Test session start with non-existent poem."""
         # Setup mock
         mock_repository_service.repo.poems.get_by_id.return_value = None
@@ -119,8 +132,7 @@ class TestManualWorkflowService:
         # Execute and verify
         with pytest.raises(ValueError, match="Poem not found: test-poem-id"):
             await manual_workflow_service.start_session(
-                poem_id="test-poem-id",
-                target_lang="Chinese"
+                poem_id="test-poem-id", target_lang="Chinese"
             )
 
     @pytest.mark.asyncio
@@ -136,29 +148,37 @@ class TestManualWorkflowService:
             "step_sequence": [
                 "initial_translation_nonreasoning",
                 "editor_review_reasoning",
-                "translator_revision_nonreasoning"
+                "translator_revision_nonreasoning",
             ],
             "completed_steps": {},
             "created_at": datetime.now(timezone.utc),
         }
 
         # Setup mocks
-        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = sample_poem
-        manual_workflow_service.prompt_service.render_prompt.return_value = ("System prompt", "Next prompt")
+        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = (
+            sample_poem
+        )
+        manual_workflow_service.prompt_service.render_prompt.return_value = (
+            "System prompt",
+            "Next prompt",
+        )
 
         # Execute
         result = await manual_workflow_service.submit_step(
             session_id="test-session",
             step_name="initial_translation_nonreasoning",
             llm_response="<response>Test translation</response>",
-            model_name="GPT-4"
+            model_name="GPT-4",
         )
 
         # Verify
         assert result["status"] == "continue"
         assert result["step_name"] == "editor_review_reasoning"
         assert result["step_index"] == 1
-        assert "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nNext prompt" == result["prompt"]
+        assert (
+            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nNext prompt"
+            == result["prompt"]
+        )
 
         # Verify step was stored
         session = manual_workflow_service.sessions["test-session"]
@@ -180,30 +200,32 @@ class TestManualWorkflowService:
             "step_sequence": [
                 "initial_translation_nonreasoning",
                 "editor_review_reasoning",
-                "translator_revision_nonreasoning"
+                "translator_revision_nonreasoning",
             ],
             "completed_steps": {
                 "initial_translation_nonreasoning": {
                     "model_name": "GPT-4",
-                    "parsed_data": {"translation": "Step 1"}
+                    "parsed_data": {"translation": "Step 1"},
                 },
                 "editor_review_reasoning": {
                     "model_name": "GPT-4",
-                    "parsed_data": {"review": "Step 2"}
-                }
+                    "parsed_data": {"review": "Step 2"},
+                },
             },
             "created_at": datetime.now(timezone.utc),
         }
 
         # Setup mocks
-        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = sample_poem
+        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = (
+            sample_poem
+        )
 
         # Execute
         result = await manual_workflow_service.submit_step(
             session_id="test-session",
             step_name="translator_revision_nonreasoning",
             llm_response="<response>Final translation</response>",
-            model_name="GPT-4"
+            model_name="GPT-4",
         )
 
         # Verify
@@ -225,7 +247,7 @@ class TestManualWorkflowService:
                 session_id="test-session",
                 step_name="initial_translation_nonreasoning",
                 llm_response="Test response",
-                model_name="GPT-4"
+                model_name="GPT-4",
             )
 
     @pytest.mark.asyncio
@@ -240,12 +262,15 @@ class TestManualWorkflowService:
         }
 
         # Execute and verify
-        with pytest.raises(ValueError, match="Step mismatch: expected initial_translation_nonreasoning, got wrong_step"):
+        with pytest.raises(
+            ValueError,
+            match="Step mismatch: expected initial_translation_nonreasoning, got wrong_step",
+        ):
             await manual_workflow_service.submit_step(
                 session_id="test-session",
                 step_name="wrong_step",
                 llm_response="Test response",
-                model_name="GPT-4"
+                model_name="GPT-4",
             )
 
     @pytest.mark.asyncio
@@ -260,15 +285,19 @@ class TestManualWorkflowService:
         }
 
         # Setup mock to raise error
-        manual_workflow_service.output_parser.parse_xml.side_effect = Exception("Invalid XML")
+        manual_workflow_service.output_parser.parse_xml.side_effect = Exception(
+            "Invalid XML"
+        )
 
         # Execute and verify
-        with pytest.raises(ValueError, match="Failed to parse LLM response: Invalid XML"):
+        with pytest.raises(
+            ValueError, match="Failed to parse LLM response: Invalid XML"
+        ):
             await manual_workflow_service.submit_step(
                 session_id="test-session",
                 step_name="initial_translation_nonreasoning",
                 llm_response="Invalid XML response",
-                model_name="GPT-4"
+                model_name="GPT-4",
             )
 
     @pytest.mark.asyncio
@@ -302,7 +331,7 @@ class TestManualWorkflowService:
             poem=sample_poem,
             source_lang="English",
             target_lang="Chinese",
-            previous_results=None
+            previous_results=None,
         )
 
         # Verify
@@ -323,11 +352,13 @@ class TestManualWorkflowService:
                 "prosody_target": "preserve_rhythm_and_meter",
                 "repetition_policy": "preserve_meaningful_repetition",
                 "current_step": "Initial Translation Nonreasoning",
-            }
+            },
         )
 
     @pytest.mark.asyncio
-    async def test_get_step_prompt_with_previous_results(self, manual_workflow_service, sample_poem):
+    async def test_get_step_prompt_with_previous_results(
+        self, manual_workflow_service, sample_poem
+    ):
         """Test getting step prompt with previous results."""
         # Setup previous results
         previous_results = {
@@ -339,7 +370,7 @@ class TestManualWorkflowService:
             },
             "editor_review_reasoning": {
                 "editor_suggestions": "Test review",
-            }
+            },
         }
 
         # Execute
@@ -348,7 +379,7 @@ class TestManualWorkflowService:
             poem=sample_poem,
             source_lang="English",
             target_lang="Chinese",
-            previous_results=previous_results
+            previous_results=previous_results,
         )
 
         # Verify
@@ -374,7 +405,9 @@ class TestManualWorkflowService:
         }
 
         # Execute
-        cleaned_count = manual_workflow_service.cleanup_expired_sessions(max_age_hours=1)
+        cleaned_count = manual_workflow_service.cleanup_expired_sessions(
+            max_age_hours=1
+        )
 
         # Verify
         assert cleaned_count == 1
