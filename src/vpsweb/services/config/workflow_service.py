@@ -77,6 +77,10 @@ class WorkflowService:
             return self._config.non_reasoning_workflow
         elif mode == WorkflowMode.HYBRID and self._config.hybrid_workflow:
             return self._config.hybrid_workflow
+        elif mode == WorkflowMode.MANUAL:
+            # Manual workflow doesn't use YAML configuration
+            # It uses a separate session-based workflow service
+            return {}
         else:
             raise ValueError(f"Workflow mode '{mode.value}' is not configured")
 

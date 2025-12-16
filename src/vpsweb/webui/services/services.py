@@ -1380,6 +1380,11 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     "recommended_for": "complex or literary poems",
                 },
                 {
+                    "name": "manual",
+                    "description": "Manual interaction with external LLM services through copy-paste",
+                    "recommended_for": "testing various models without API integrations",
+                },
+                {
                     "name": "non_reasoning",
                     "description": "Direct translation without detailed reasoning",
                     "recommended_for": "simple or technical content",
@@ -1407,7 +1412,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 raise ValueError("Source and target languages must be different")
 
             # Validate workflow mode
-            available_modes = ["reasoning", "non_reasoning", "hybrid"]
+            available_modes = ["reasoning", "non_reasoning", "hybrid", "manual"]
             if workflow_mode not in available_modes:
                 raise ValueError(f"Invalid workflow mode: {workflow_mode}")
 

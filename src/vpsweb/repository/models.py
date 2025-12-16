@@ -297,7 +297,7 @@ class AILog(Base):
         Index("idx_ai_logs_workflow_mode", "workflow_mode"),
         Index("idx_ai_logs_created_at", "created_at"),
         CheckConstraint(
-            "workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid')",
+            "workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid', 'manual')",
             name="ck_workflow_mode",
         ),
     )

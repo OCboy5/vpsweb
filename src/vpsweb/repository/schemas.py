@@ -26,6 +26,7 @@ class WorkflowMode(str, Enum):
     REASONING = "reasoning"
     NON_REASONING = "non_reasoning"
     HYBRID = "hybrid"
+    MANUAL = "manual"
 
 
 # Base schemas
@@ -609,6 +610,7 @@ class AILogBase(BaseSchema):
             WorkflowMode.REASONING,
             WorkflowMode.NON_REASONING,
             WorkflowMode.HYBRID,
+            WorkflowMode.MANUAL,
         ],
     )
     token_usage_json: Optional[str] = Field(

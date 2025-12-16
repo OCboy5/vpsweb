@@ -8,17 +8,17 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from src.vpsweb.repository.database import get_db
-from src.vpsweb.webui.services.interfaces import (
+from vpsweb.repository.database import get_db
+from vpsweb.webui.services.interfaces import (
     IWorkflowServiceV2,
     ITaskManagementServiceV2,
 )
-from src.vpsweb.webui.services.services import (
+from vpsweb.webui.services.services import (
     WorkflowServiceV2,
     TaskManagementServiceV2,
 )
-from src.vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
-from src.vpsweb.core.container import get_container, DIContainer
+from vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
+from vpsweb.core.container import get_container, DIContainer
 
 router = APIRouter()
 
@@ -33,16 +33,16 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
         return container.resolve(IWorkflowServiceV2)
     except RuntimeError:
         # Fallback: if no global container is set, create and configure one
-        from src.vpsweb.webui.main import ApplicationFactoryV2
+        from vpsweb.webui.main import ApplicationFactoryV2
         from vpsweb.repository.database import create_session
 
         # Create a minimal container with just the workflow service
         from vpsweb.core.container import DIContainer
-        from src.vpsweb.webui.services.services import (
+        from vpsweb.webui.services.services import (
             WorkflowServiceV2,
             TaskManagementServiceV2,
         )
-        from src.vpsweb.webui.services.interfaces import ITaskManagementServiceV2
+        from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service
@@ -98,12 +98,16 @@ async def cancel_workflow_task(
     Cancel a background translation workflow task.
     """
     try:
-        if "workflow" in task:
-            task["workflow"].cancel()
+        # Get the task first
+        task = await workflow_service.get_task_status(task_id)
 
-        await task_service.update_task_status(
-            task_id, "failed", {"error": "Task cancelled by user"}
-        )
+        if task.get("status") == "completed":
+            raise HTTPException(
+                status_code=404, detail="Task not found or already completed."
+            )
+
+        success = await workflow_service.cancel_task(task_id)
+
         if success:
             return JSONResponse(
                 content={
@@ -115,5 +119,7 @@ async def cancel_workflow_task(
             raise HTTPException(
                 status_code=404, detail="Task not found or already completed."
             )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

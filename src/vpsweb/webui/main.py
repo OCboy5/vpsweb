@@ -61,7 +61,7 @@ from vpsweb.utils.config_loader import (
 from vpsweb.services.llm.factory import LLMFactory
 from vpsweb.services.prompts import PromptService
 from vpsweb.services.config import initialize_config_facade, get_config_facade
-from vpsweb.webui.api import poems, translations, statistics, poets, wechat, workflow
+from vpsweb.webui.api import poems, translations, statistics, poets, wechat, workflow, manual_workflow
 from .task_models import TaskStatus, TaskStatusEnum
 
 from vpsweb.utils.storage import StorageHandler
@@ -1324,6 +1324,9 @@ class ApplicationRouterV2:
         app.include_router(wechat.router, prefix="/api/v1/wechat", tags=["wechat"])
         app.include_router(
             workflow.router, prefix="/api/v1/workflow", tags=["workflow"]
+        )
+        app.include_router(
+            manual_workflow.router, prefix="/api/v1", tags=["manual"]
         )
 
     def _mount_static_files(self, app: FastAPI):

@@ -99,6 +99,7 @@ class WorkflowMode(str, Enum):
     REASONING = "reasoning"
     NON_REASONING = "non_reasoning"
     HYBRID = "hybrid"
+    MANUAL = "manual"
 
 
 class TaskTemplateStepConfig(BaseModel):
