@@ -5,6 +5,27 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2025-12-16
+
+### 🚀 Overview
+VPSWeb v0.6.5 - **Stabilization Release**. This release includes database cleanup, UI enhancements, and stabilization improvements before the manual workflow implementation.
+
+### ✨ New Features
+- (No new features - stabilization release)
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Database Migration Cleanup** - Added migration files to drop legacy manual mode and user model tables
+- 🐛 Fix: **BBR Modal Height** - Fixed modal height to be 80vh with proper overflow handling for better UX
+
+### 🔧 Improvements
+- 🛠️ Improvement: **BBR Modal CSS** - Enhanced modal content display with max-height constraints for better readability
+
+### 📚 Documentation Updates
+- 📚 Docs: **Manual Workflow Implementation Plan** - Created comprehensive implementation plan for manual workflow mode
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Migration Consolidation** - Added merge migration to consolidate database schema changes
+
 ## [0.6.4] - 2025-12-15
 
 ### 🚀 Overview

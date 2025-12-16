@@ -30,7 +30,7 @@ Example Usage:
     result = await workflow.execute(input_data)
 """
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 __author__ = "Vox Poetica Studio"
 __description__ = "Professional AI-powered poetry translation system"
 
