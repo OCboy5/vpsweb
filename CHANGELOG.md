@@ -5,6 +5,41 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-12-16
+
+### 🚀 Overview
+VPSWeb v0.7.0 - **Manual Translation Workflow Release**. This major release introduces a comprehensive manual translation workflow system that allows users to interact with external LLM services through copy-paste operations, providing flexibility to test and use different AI models without API integrations.
+
+### ✨ New Features
+- ✨ Feature: **Manual Workflow Service** - Session-based workflow management for external LLM interactions
+- ✨ Feature: **Manual Workflow API** - RESTful endpoints for starting sessions and submitting translation steps
+- ✨ Feature: **External LLM Integration** - Support for copy-paste workflow with any external LLM service
+- ✨ Feature: **Three-Step Manual Process** - Initial Translation → Editor Review → Translator Revision workflow
+- ✨ Feature: **Background Briefing Report Integration** - BBR content included in manual translation prompts
+- ✨ Feature: **Session Management** - Persistent session handling with automatic cleanup of expired sessions
+- ✨ Feature: **Complete UI Integration** - Manual workflow controls with progress tracking and step-by-step interface
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Workflow Mode Validation** - Fixed validation errors that prevented manual workflow mode from being accepted
+- 🐛 Fix: **Database Constraint** - Updated database check constraint to allow manual workflow mode
+- 🐛 Fix: **Language Code Mapping** - Fixed language validation by using standard language code mapping from automatic workflow
+- 🐛 Fix: **Service Layer Integration** - Fixed service layer to properly handle manual workflow requests
+
+### 🔧 Improvements
+- 🛠️ Improvement: **Workflow Mode Dropdown** - Moved "Manual Mode" to 2nd position in workflow mode selection dropdown for better accessibility
+- 🛠️ Improvement: **Error Handling** - Enhanced error messages and validation feedback for manual workflow operations
+- 🛠️ Improvement: **Documentation** - Added comprehensive test suite with unit and integration tests for manual workflow
+
+### 📚 Documentation Updates
+- 📚 Docs: **Manual Workflow Architecture** - Documented the two-tier workflow system (automated vs manual)
+- 📚 Docs: **API Documentation** - Added detailed API documentation for manual workflow endpoints
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Database Migration** - Created migration to update check constraint with manual workflow mode
+- 🔨 Technical: **Enum Updates** - Added MANUAL mode to WorkflowMode enums across all modules
+- 🔨 Technical: **Service Architecture** - Implemented singleton pattern for manual workflow service persistence
+- 🔨 Technical: **Language Support** - Integrated with existing language mapper for consistent language handling
+
 ## [0.6.5] - 2025-12-16
 
 ### 🚀 Overview

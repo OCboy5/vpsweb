@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.6.5-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.6.5)
+[![Version](https://img.shields.io/badge/Version-0.7.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.7.0)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
 
@@ -40,7 +40,7 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **📚 Complete Documentation**: User guides, API docs, architecture documentation
 - **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
 
-## 🎯 Current Status: **v0.6.3 - XML Parser Robustness & Configuration Updates Release**
+## 🎯 Current Status: **v0.7.0 - Manual Translation Workflow Release**
 
 🔧 **XML Parser Robustness**: Enhanced parser to handle malformed XML outputs with missing closing tags
 🐛 **Configuration Updates**: Updated model pricing and simplified prompt templates for better LLM performance
@@ -63,6 +63,15 @@ VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive 
 - **🔮 Reasoning Mode**: Uses reasoning models (deepseek-reasoner) for all steps - highest quality, best for complex analysis
 - **⚡ Non-Reasoning Mode**: Uses standard models (qwen-plus-latest) for all steps - faster, cost-effective
 - **🎯 Hybrid Mode**: Optimal combination - reasoning for editor review, non-reasoning for translation steps (recommended)
+- **✋ Manual Mode** (v0.7.0): Session-based workflow with external LLM integration through copy-paste - maximum flexibility for testing any AI model
+
+### 🤝 **Manual Translation Workflow** (v0.7.0)
+- **🔄 External LLM Integration**: Copy-paste workflow allowing use of any external AI service without API integration
+- **📋 Session Management**: Persistent sessions with automatic cleanup and recovery options
+- **🎯 Step-by-Step Interface**: Clear workflow guidance with prompt generation for each translation step
+- **📊 Progress Tracking**: Visual progress indicators and step completion status
+- **💾 Full Integration**: Manual translations are saved to database alongside automated workflows
+- **🔧 Model Flexibility**: Test and compare different AI models (ChatGPT, Claude, Gemini, etc.) without API configuration
 
 ### 🏗️ **Core Translation System**
 - **🔄 Three-Step Workflow**: Translator → Editor → Translator for high-quality translations
