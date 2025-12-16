@@ -155,6 +155,7 @@ function addBBRModalCSS() {
             max-height: 90vh;
             display: flex;
             flex-direction: column;
+            height: 80vh;
         }
 
         .bbr-modal-content {
@@ -214,7 +215,7 @@ function showBBRModal(bbr) {
                     <div class="flex-1 flex flex-col min-h-0 mb-4">
                         <h4 class="text-sm font-medium text-gray-700 mb-2">Report Content</h4>
                         <div class="bg-gray-50 p-4 rounded border flex-1 overflow-hidden">
-                            <pre class="text-xs text-gray-700 whitespace-pre-wrap break-words h-full overflow-auto">${bbr.content}</pre>
+                            <pre class="text-xs text-gray-700 whitespace-pre-wrap break-words overflow-auto" style="max-height: 60vh;">${bbr.content}</pre>
                         </div>
                     </div>
 
