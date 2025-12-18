@@ -1301,6 +1301,20 @@ async function submitTranslation(event) {
     const targetLanguageInput = document.getElementById('target-language').value;
     const normalizedTargetLanguage = normalizeLanguageCode(targetLanguageInput);
 
+    // Get the source language from the displayed element
+    const sourceLanguageElement = document.getElementById('source-language');
+    const sourceLanguage = sourceLanguageElement ? sourceLanguageElement.textContent.trim() : null;
+
+    // Normalize both languages for comparison
+    const normalizedSource = sourceLanguage ? normalizeLanguageCode(sourceLanguage.toLowerCase()) : null;
+    const normalizedTarget = targetLanguageInput ? normalizeLanguageCode(targetLanguageInput.toLowerCase()) : null;
+
+    // Validate that source and target languages are different
+    if (normalizedSource && normalizedSource === normalizedTarget) {
+        alert(`Source and target languages must be different. Both cannot be '${targetLanguageInput}'. Please select a different target language.`);
+        return;
+    }
+
     const formData = {
         poem_id: '{{ poem.id }}',
         target_language: normalizedTargetLanguage,
@@ -1732,6 +1746,20 @@ async function startWorkflow() {
 
     if (!targetLanguage) {
         showErrorMessage('Please select a target language for the translation.');
+        return;
+    }
+
+    // Get the source language from the displayed element
+    const sourceLanguageElement = document.getElementById('source-language');
+    const sourceLanguage = sourceLanguageElement ? sourceLanguageElement.textContent.trim() : null;
+
+    // Normalize both languages for comparison
+    const normalizedSource = sourceLanguage ? normalizeLanguageCode(sourceLanguage.toLowerCase()) : null;
+    const normalizedTarget = targetLanguage ? normalizeLanguageCode(targetLanguage.toLowerCase()) : null;
+
+    // Validate that source and target languages are different
+    if (normalizedSource && normalizedSource === normalizedTarget) {
+        showErrorMessage(`Source and target languages must be different. Both cannot be '${targetLanguage}'. Please select a different target language.`);
         return;
     }
 
@@ -3103,6 +3131,20 @@ async function startManualWorkflow() {
 
     if (!targetLang) {
         alert('Please select a target language');
+        return;
+    }
+
+    // Get the source language from the displayed element
+    const sourceLanguageElement = document.getElementById('source-language');
+    const sourceLanguage = sourceLanguageElement ? sourceLanguageElement.textContent.trim() : null;
+
+    // Normalize both languages for comparison
+    const normalizedSource = sourceLanguage ? normalizeLanguageCode(sourceLanguage.toLowerCase()) : null;
+    const normalizedTarget = targetLang ? normalizeLanguageCode(targetLang.toLowerCase()) : null;
+
+    // Validate that source and target languages are different
+    if (normalizedSource && normalizedSource === normalizedTarget) {
+        alert(`Source and target languages must be different. Both cannot be '${targetLang}'. Please select a different target language.`);
         return;
     }
 

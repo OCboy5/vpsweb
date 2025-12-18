@@ -635,8 +635,7 @@ def sample_translation_data():
 再向前走去。""",
         "translator_type": "ai",
         "translator_info": "VPSWeb AI Translator",
-        "metadata_json": '{"workflow_mode": "hybrid", "model": "test-model"}',
-    }
+            }
 
 
 @pytest.fixture
@@ -743,7 +742,6 @@ def translation_generator():
                 * 2,
                 "translator_type": "ai",
                 "translator_info": f"Test Translator {i+1}",
-                "metadata_json": f'{{"translation_index": {i+1}}}',
             }
             translations.append(translation)
         return translations
@@ -777,7 +775,6 @@ class TestDataFactory:
             "translated_text": "测试翻译内容",
             "translator_type": "ai",
             "translator_info": "Test Translator",
-            "metadata_json": "{}",
         }
         default_data.update(overrides)
         return default_data
