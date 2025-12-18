@@ -118,7 +118,7 @@ class TestEssentialModelConstraints:
         note = HumanNote(
             id=str(uuid.uuid4())[:26],
             translation_id=translation.id,
-            content="Test human note",
+            note_text="Test human note",
         )
         db_session.add(note)
         db_session.commit()
@@ -127,3 +127,4 @@ class TestEssentialModelConstraints:
         retrieved_note = db_session.get(HumanNote, note.id)
         assert retrieved_note.translation_id == translation.id
         assert retrieved_note.translation.translated_text == "测试翻译"
+        assert retrieved_note.note_text == "Test human note"

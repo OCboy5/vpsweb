@@ -121,6 +121,7 @@ def db_session(sync_test_engine) -> Generator[Session, None, None]:
         session.rollback()
         raise
     finally:
+        session.rollback()
         session.close()
 
 

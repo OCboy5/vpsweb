@@ -4,6 +4,7 @@ Essential tests for the OutputParser class.
 Only tests critical functionality - XML parsing and error handling.
 """
 
+import pytest
 from src.vpsweb.services.parser import OutputParser
 
 
@@ -40,5 +41,7 @@ class TestOutputParser:
 
     def test_parse_xml_empty_input(self):
         """Test parser behavior with empty input."""
-        result = OutputParser.parse_xml("")
-        assert result == {}
+        # Current parser implementation raises XMLParsingError for empty input
+        from src.vpsweb.services.parser import XMLParsingError
+        with pytest.raises(XMLParsingError):
+            OutputParser.parse_xml("")

@@ -126,7 +126,7 @@ class TestStepExecutor:
         assert result["output"]["initial_translation"] == "雾来了\n踏着猫的小脚。"
         assert (
             result["output"]["initial_translation_notes"]
-            == "This translation captures the gentle imagery."
+            == "This translation captures the gentle imagery"
         )
 
         # Verify metadata

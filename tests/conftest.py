@@ -560,6 +560,7 @@ def db_session(sync_test_engine) -> Generator[Session, None, None]:
         session.rollback()
         raise
     finally:
+        session.rollback()
         session.close()
 
 
@@ -643,9 +644,9 @@ async def test_client(db_session):
     )
 
     # Create test Repository service that uses test database session
-    from src.vpsweb.repository.crud import RepositoryService
+    from src.vpsweb.repository.service import RepositoryWebService
 
-    test_repository_service = RepositoryService(db_session)
+    test_repository_service = RepositoryWebService(db_session)
 
     # Patch the container's resolve method for multiple services
     from vpsweb.webui.services.interfaces import (IBBRServiceV2,
