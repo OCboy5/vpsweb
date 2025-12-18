@@ -21,8 +21,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 from vpsweb.webui.utils import (
     TranslationRunner,
     WeChatArticleRunner,
-    quick_translate,
     quick_generate_article,
+    quick_translate,
 )
 
 
@@ -63,11 +63,18 @@ class IsolationTester:
             )
 
             # 验证结果结构
-            required_fields = ["workflow_id", "input", "congregated_output", "dry_run"]
+            required_fields = [
+                "workflow_id",
+                "input",
+                "congregated_output",
+                "dry_run",
+            ]
             for field in required_fields:
                 if field not in result:
                     self.log_test(
-                        f"翻译结果字段检查 ({field})", False, f"缺少字段: {field}"
+                        f"翻译结果字段检查 ({field})",
+                        False,
+                        f"缺少字段: {field}",
                     )
                     return
 
@@ -119,7 +126,9 @@ class IsolationTester:
             for field in required_fields:
                 if not hasattr(result, field):
                     self.log_test(
-                        f"微信文章结果字段检查 ({field})", False, f"缺少字段: {field}"
+                        f"微信文章结果字段检查 ({field})",
+                        False,
+                        f"缺少字段: {field}",
                     )
                     return
 
@@ -166,7 +175,9 @@ class IsolationTester:
             )
 
             # 验证没有共享状态的意外修改
-            original_translation_workflow_id = translation_result.get("workflow_id")
+            original_translation_workflow_id = translation_result.get(
+                "workflow_id"
+            )
             if original_translation_workflow_id:
                 self.log_test("状态隔离验证", True, "翻译数据未被意外修改")
             else:
@@ -210,7 +221,9 @@ class IsolationTester:
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False, encoding="utf-8"
             ) as f:
-                json.dump(mock_translation_data, f, ensure_ascii=False, indent=2)
+                json.dump(
+                    mock_translation_data, f, ensure_ascii=False, indent=2
+                )
                 temp_file = f.name
 
             try:
@@ -222,7 +235,9 @@ class IsolationTester:
 
                 wechat_ok = hasattr(wechat_result, "article")
                 self.log_test(
-                    "快速微信文章便捷函数", wechat_ok, "quick_generate_article 正常工作"
+                    "快速微信文章便捷函数",
+                    wechat_ok,
+                    "quick_generate_article 正常工作",
                 )
 
             finally:
@@ -252,7 +267,9 @@ class IsolationTester:
             except ValueError:
                 translation_error_caught = True
 
-            self.log_test("翻译错误捕获", translation_error_caught, "成功捕获翻译错误")
+            self.log_test(
+                "翻译错误捕获", translation_error_caught, "成功捕获翻译错误"
+            )
 
             # 验证微信文章生成器仍然正常工作
             mock_translation_data = {
@@ -278,7 +295,9 @@ class IsolationTester:
                 wechat_still_works = False
 
             self.log_test(
-                "错误隔离验证", wechat_still_works, "翻译错误不影响微信文章生成"
+                "错误隔离验证",
+                wechat_still_works,
+                "翻译错误不影响微信文章生成",
             )
 
         except Exception as e:

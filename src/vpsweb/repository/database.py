@@ -6,8 +6,9 @@ Provides database session management and initialization utilities.
 """
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from sqlalchemy.pool import StaticPool
+
 from .settings import settings
 
 # Create SQLAlchemy engine with SQLite-specific settings

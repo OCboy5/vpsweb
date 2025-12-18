@@ -14,13 +14,7 @@ These tests validate the primary user experience at http://127.0.0.1:8000
 
 import pytest
 import pytest_asyncio
-import time
 from fastapi.testclient import TestClient
-from unittest.mock import patch, AsyncMock
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.vpsweb.repository.models import Poem, Translation, BackgroundBriefingReport
-from src.vpsweb.repository.crud import RepositoryService
 
 
 # ==============================================================================
@@ -117,7 +111,10 @@ class TestMainPages:
         """Test that the poems listing page loads successfully."""
         response = webui_test_client.get("/poems")
 
-        assert response.status_code in [200, 302]  # May redirect to API-first approach
+        assert response.status_code in [
+            200,
+            302,
+        ]  # May redirect to API-first approach
 
         if response.status_code == 200:
             content = response.text
@@ -157,7 +154,11 @@ class TestStaticAssets:
     def test_css_assets_load(self, webui_test_client: TestClient):
         """Test that CSS files are served."""
         # Test common CSS paths
-        css_paths = ["/static/css/style.css", "/static/css/main.css", "/css/style.css"]
+        css_paths = [
+            "/static/css/style.css",
+            "/static/css/main.css",
+            "/css/style.css",
+        ]
 
         for css_path in css_paths:
             response = webui_test_client.get(css_path)
@@ -241,7 +242,9 @@ class TestErrorPages:
 class TestWebUIAPIIntegration:
     """Test WebUI integration with API endpoints."""
 
-    def test_api_accessible_from_webui_context(self, webui_test_client: TestClient):
+    def test_api_accessible_from_webui_context(
+        self, webui_test_client: TestClient
+    ):
         """Test that API endpoints are accessible from WebUI context."""
         # Test that API endpoints work when accessed from browser-like context
         api_endpoints = [
@@ -297,7 +300,12 @@ class TestRealtimeFeatures:
         response = webui_test_client.get("/ws")
 
         # WebSocket endpoints may return specific status codes
-        assert response.status_code in [200, 404, 400, 426]  # 426 = Upgrade Required
+        assert response.status_code in [
+            200,
+            404,
+            400,
+            426,
+        ]  # 426 = Upgrade Required
 
 
 # ==============================================================================
@@ -310,7 +318,9 @@ class TestRealtimeFeatures:
 class TestPageContent:
     """Test page content and structure."""
 
-    def test_page_has_proper_html_structure(self, webui_test_client: TestClient):
+    def test_page_has_proper_html_structure(
+        self, webui_test_client: TestClient
+    ):
         """Test that pages have proper HTML structure."""
         response = webui_test_client.get("/")
 
@@ -350,7 +360,9 @@ class TestPageContent:
 
             # Look for common navigation elements
             nav_elements = ["nav", "menu", "navbar", "navigation"]
-            has_navigation = any(element in content for element in nav_elements)
+            has_navigation = any(
+                element in content for element in nav_elements
+            )
 
             # If no traditional nav, look for VPSWeb-specific elements
             has_app_elements = "poem" in content or "translation" in content
@@ -393,7 +405,6 @@ class TestWebUIPerformance:
     def test_concurrent_requests(self, webui_test_client: TestClient):
         """Test that concurrent requests are handled properly."""
         import threading
-        import time
 
         results = []
 
@@ -544,7 +555,12 @@ class TestErrorRecovery:
         response = webui_test_client.get(f"/poems?search={long_param}")
 
         # Should handle gracefully
-        assert response.status_code in [200, 400, 404, 414]  # 414 = URI Too Long
+        assert response.status_code in [
+            200,
+            400,
+            404,
+            414,
+        ]  # 414 = URI Too Long
 
     def test_malformed_request_handling(self, webui_test_client: TestClient):
         """Test handling of malformed requests."""

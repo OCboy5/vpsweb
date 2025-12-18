@@ -5,11 +5,12 @@ This module defines the interface that all LLM providers must implement,
 ensuring consistent behavior across different AI service providers.
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
-from pydantic import BaseModel, Field
-from enum import Enum
 import logging
+from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,9 @@ class LLMResponse(BaseModel):
     tokens_used: int = Field(
         ..., ge=0, description="Total number of tokens used in the request"
     )
-    prompt_tokens: int = Field(..., ge=0, description="Number of tokens in the prompt")
+    prompt_tokens: int = Field(
+        ..., ge=0, description="Number of tokens in the prompt"
+    )
     completion_tokens: int = Field(
         ..., ge=0, description="Number of tokens in the completion"
     )
@@ -35,10 +38,12 @@ class LLMResponse(BaseModel):
         ..., description="Name of the model that generated the response"
     )
     finish_reason: Optional[str] = Field(
-        None, description="Reason why generation finished (e.g., 'stop', 'length')"
+        None,
+        description="Reason why generation finished (e.g., 'stop', 'length')",
     )
     metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata from the provider"
+        default_factory=dict,
+        description="Additional metadata from the provider",
     )
 
 
@@ -63,7 +68,9 @@ class BaseLLMProvider(ABC):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.config = kwargs
-        logger.info(f"Initialized {self.__class__.__name__} with base URL: {base_url}")
+        logger.info(
+            f"Initialized {self.__class__.__name__} with base URL: {base_url}"
+        )
 
     @abstractmethod
     async def generate(
@@ -102,7 +109,6 @@ class BaseLLMProvider(ABC):
             AuthenticationError: If authentication fails
             RateLimitError: If rate limit is exceeded
         """
-        pass
 
     @abstractmethod
     def validate_config(self, config) -> bool:
@@ -118,7 +124,6 @@ class BaseLLMProvider(ABC):
         Raises:
             ConfigurationError: If configuration is invalid with details
         """
-        pass
 
     @abstractmethod
     def get_supported_models(self) -> List[str]:
@@ -128,7 +133,6 @@ class BaseLLMProvider(ABC):
         Returns:
             List of model names supported by this provider
         """
-        pass
 
     def validate_messages(self, messages: List[Dict[str, str]]) -> None:
         """
@@ -148,13 +152,21 @@ class BaseLLMProvider(ABC):
                 raise ValueError(f"Message {i} must be a dictionary")
 
             if "role" not in message or "content" not in message:
-                raise ValueError(f"Message {i} must have 'role' and 'content' keys")
+                raise ValueError(
+                    f"Message {i} must have 'role' and 'content' keys"
+                )
 
             if message["role"] not in ["system", "user", "assistant"]:
-                raise ValueError(f"Message {i} has invalid role: {message['role']}")
+                raise ValueError(
+                    f"Message {i} has invalid role: {message['role']}"
+                )
 
-            if not message["content"] or not isinstance(message["content"], str):
-                raise ValueError(f"Message {i} must have non-empty string content")
+            if not message["content"] or not isinstance(
+                message["content"], str
+            ):
+                raise ValueError(
+                    f"Message {i} must have non-empty string content"
+                )
 
     def validate_generation_params(
         self,
@@ -198,7 +210,9 @@ class BaseLLMProvider(ABC):
                 f"presence_penalty must be between -2.0 and 2.0, got {presence_penalty}"
             )
 
-    def log_request(self, messages: List[Dict[str, str]], model: str, **params) -> None:
+    def log_request(
+        self, messages: List[Dict[str, str]], model: str, **params
+    ) -> None:
         """
         Log the request for debugging and monitoring.
 
@@ -233,13 +247,17 @@ class BaseLLMProvider(ABC):
         Returns:
             Provider name string
         """
-        return self.__class__.__name__.replace("Provider", "").replace("LLM", "")
+        return self.__class__.__name__.replace("Provider", "").replace(
+            "LLM", ""
+        )
 
 
 class LLMProviderError(Exception):
     """Base exception for LLM provider errors."""
 
-    def __init__(self, message: str, provider: str = None, status_code: int = None):
+    def __init__(
+        self, message: str, provider: str = None, status_code: int = None
+    ):
         self.provider = provider
         self.status_code = status_code
         super().__init__(message)
@@ -248,28 +266,18 @@ class LLMProviderError(Exception):
 class AuthenticationError(LLMProviderError):
     """Raised when authentication fails."""
 
-    pass
-
 
 class RateLimitError(LLMProviderError):
     """Raised when rate limit is exceeded."""
-
-    pass
 
 
 class ConfigurationError(LLMProviderError):
     """Raised when configuration is invalid."""
 
-    pass
-
 
 class TimeoutError(LLMProviderError):
     """Raised when request times out."""
 
-    pass
-
 
 class ContentFilterError(LLMProviderError):
     """Raised when content is filtered by the provider."""
-
-    pass

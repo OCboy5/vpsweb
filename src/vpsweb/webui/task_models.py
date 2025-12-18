@@ -8,8 +8,8 @@ approach suitable for personal use systems.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Dict, Any
 from enum import Enum
+from typing import Any, Dict, Optional
 
 
 class TaskStatusEnum(str, Enum):
@@ -39,7 +39,9 @@ class TaskStatus:
         ""  # "Initial Translation", "Editor Review", "Translator Revision"
     )
     step_details: Optional[Dict[str, Any]] = None  # Step-specific details
-    step_progress: Optional[Dict[str, int]] = None  # Individual step percentages
+    step_progress: Optional[Dict[str, int]] = (
+        None  # Individual step percentages
+    )
     step_states: Optional[Dict[str, str]] = (
         None  # Individual step states: "waiting", "running", "completed"
     )
@@ -78,7 +80,9 @@ class TaskStatus:
             "error": self.error,
             "result": self.result,
             "created_at": self.created_at.isoformat(),
-            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "started_at": (
+                self.started_at.isoformat() if self.started_at else None
+            ),
             "completed_at": (
                 self.completed_at.isoformat() if self.completed_at else None
             ),

@@ -8,13 +8,14 @@ Create Date: 2025-10-27 16:16:46.335753
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "08eb9e1eac6d"
-down_revision: Union[str, Sequence[str], None] = "add_poet_file_organization_fields"
+down_revision: Union[str, Sequence[str], None] = (
+    "add_poet_file_organization_fields"
+)
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,10 +26,18 @@ def upgrade() -> None:
     op.create_table(
         "translation_workflow_steps",
         sa.Column("id", sa.String(length=26), nullable=False),
-        sa.Column("translation_id", sa.String(length=26), nullable=False, index=True),
-        sa.Column("ai_log_id", sa.String(length=26), nullable=False, index=True),
-        sa.Column("workflow_id", sa.String(length=26), nullable=False, index=True),
-        sa.Column("step_type", sa.String(length=30), nullable=False, index=True),
+        sa.Column(
+            "translation_id", sa.String(length=26), nullable=False, index=True
+        ),
+        sa.Column(
+            "ai_log_id", sa.String(length=26), nullable=False, index=True
+        ),
+        sa.Column(
+            "workflow_id", sa.String(length=26), nullable=False, index=True
+        ),
+        sa.Column(
+            "step_type", sa.String(length=30), nullable=False, index=True
+        ),
         sa.Column("step_order", sa.Integer(), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("notes", sa.Text(), nullable=True),
@@ -43,11 +52,15 @@ def upgrade() -> None:
         sa.Column("additional_metrics", sa.Text(), nullable=True),
         # Translated metadata (for initial_translation and revised_translation steps)
         sa.Column("translated_title", sa.String(length=500), nullable=True),
-        sa.Column("translated_poet_name", sa.String(length=200), nullable=True),
+        sa.Column(
+            "translated_poet_name", sa.String(length=200), nullable=True
+        ),
         # Timestamps
         sa.Column("timestamp", sa.DateTime(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(
             ["translation_id"], ["translations.id"], ondelete="CASCADE"
         ),
@@ -61,10 +74,14 @@ def upgrade() -> None:
         ["translation_id"],
     )
     op.create_index(
-        "idx_workflow_steps_ai_log_id", "translation_workflow_steps", ["ai_log_id"]
+        "idx_workflow_steps_ai_log_id",
+        "translation_workflow_steps",
+        ["ai_log_id"],
     )
     op.create_index(
-        "idx_workflow_steps_workflow_id", "translation_workflow_steps", ["workflow_id"]
+        "idx_workflow_steps_workflow_id",
+        "translation_workflow_steps",
+        ["workflow_id"],
     )
     op.create_index(
         "idx_workflow_steps_type_order",
@@ -73,14 +90,18 @@ def upgrade() -> None:
     )
 
     # Performance indexes for analytics
-    op.create_index("idx_workflow_steps_cost", "translation_workflow_steps", ["cost"])
+    op.create_index(
+        "idx_workflow_steps_cost", "translation_workflow_steps", ["cost"]
+    )
     op.create_index(
         "idx_workflow_steps_duration",
         "translation_workflow_steps",
         ["duration_seconds"],
     )
     op.create_index(
-        "idx_workflow_steps_tokens", "translation_workflow_steps", ["tokens_used"]
+        "idx_workflow_steps_tokens",
+        "translation_workflow_steps",
+        ["tokens_used"],
     )
     op.create_index(
         "idx_workflow_steps_step_metrics",
@@ -90,7 +111,6 @@ def upgrade() -> None:
 
     # Skip check constraint for SQLite compatibility - enforced at application level
     # Note: SQLite doesn't support ALTER of constraints directly
-    pass
 
 
 def downgrade() -> None:

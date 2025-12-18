@@ -8,9 +8,8 @@ Create Date: 2025-12-16 00:35:04.334254
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "2f53a08a2bdd"
@@ -21,7 +20,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
+    with op.batch_alter_table(
+        "translation_workflow_steps", schema=None
+    ) as batch_op:
         batch_op.drop_index(batch_op.f("idx_workflow_steps_manual_mode"))
         batch_op.drop_column("manual_mode")
         batch_op.drop_column("user_model_name")
@@ -29,7 +30,9 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
+    with op.batch_alter_table(
+        "translation_workflow_steps", schema=None
+    ) as batch_op:
         batch_op.add_column(
             sa.Column("user_model_name", sa.VARCHAR(length=200), nullable=True)
         )
@@ -42,5 +45,7 @@ def downgrade() -> None:
             )
         )
         batch_op.create_index(
-            batch_op.f("idx_workflow_steps_manual_mode"), ["manual_mode"], unique=False
+            batch_op.f("idx_workflow_steps_manual_mode"),
+            ["manual_mode"],
+            unique=False,
         )

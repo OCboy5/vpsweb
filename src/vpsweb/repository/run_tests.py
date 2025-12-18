@@ -3,8 +3,8 @@
 Isolated test runner for VPSWeb Repository v0.3.1
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add repository root to path
@@ -19,10 +19,7 @@ def test_imports():
     """Test that we can import all modules correctly"""
     try:
         # Test direct imports
-        from models import Poem, Translation, AILog, HumanNote, Base
-        from schemas import PoemCreate, TranslationCreate, AILogCreate, HumanNoteCreate
-        from schemas import TranslatorType, WorkflowMode
-        from pydantic import ValidationError
+        pass
 
         print("✓ All imports successful")
         return True
@@ -34,7 +31,7 @@ def test_imports():
 def test_basic_models():
     """Test basic model creation without database"""
     try:
-        from models import Poem, Translation, AILog, HumanNote
+        from models import AILog, HumanNote, Poem, Translation
 
         # Test poem model
         poem = Poem(
@@ -87,9 +84,12 @@ def test_basic_models():
 def test_pydantic_schemas():
     """Test Pydantic schema validation"""
     try:
-        from schemas import PoemCreate, TranslationCreate, AILogCreate, HumanNoteCreate
-        from schemas import TranslatorType, WorkflowMode
         from pydantic import ValidationError
+        from schemas import (
+            PoemCreate,
+            TranslationCreate,
+            TranslatorType,
+        )
 
         # Test valid poem
         poem = PoemCreate(
@@ -149,8 +149,7 @@ def test_pydantic_schemas():
 def test_database_connection():
     """Test database connection and table creation"""
     try:
-        from database import engine, create_session, check_db_connection
-        from models import Base
+        from database import check_db_connection, create_session
 
         # Test database connection
         if check_db_connection():

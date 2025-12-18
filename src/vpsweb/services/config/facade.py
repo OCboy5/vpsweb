@@ -8,16 +8,14 @@ away the underlying YAML structure and provides clean, typed interfaces.
 Phase 1: Wraps existing CompleteConfig without changing underlying structure
 """
 
-from typing import Optional, Dict, Any, List
+import logging
+from typing import Any, Dict, List, Optional
+
 from ...models.config import (
-    WorkflowConfig,
-    WorkflowMode,
-    StepConfig,
     CompleteConfig,
     MainConfig,
     ProvidersConfig,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +55,9 @@ class ConfigFacade:
         self._task_templates_config = task_templates_config
 
         # Initialize domain services (legacy)
-        from .workflow_service import WorkflowService
         from .model_service import ModelService
         from .system_service import SystemService
+        from .workflow_service import WorkflowService
 
         self.workflow = WorkflowService(complete_config.main.workflow)
         self.models = ModelService(complete_config.providers)
@@ -77,7 +75,9 @@ class ConfigFacade:
             self.model_registry = ModelRegistryService(models_config)
             self.task_templates = TaskTemplateService(task_templates_config)
             self._using_new_structure = True
-            logger.info("ConfigFacade initialized with new model registry structure")
+            logger.info(
+                "ConfigFacade initialized with new model registry structure"
+            )
         else:
             self.model_registry = None
             self.task_templates = None
@@ -196,7 +196,9 @@ class ConfigFacade:
             "task_name": resolved_config.task_name,
         }
 
-    def get_workflow_step_config(self, mode: str, step_name: str) -> Dict[str, Any]:
+    def get_workflow_step_config(
+        self, mode: str, step_name: str
+    ) -> Dict[str, Any]:
         """
         Get resolved configuration for a specific workflow step.
 
@@ -223,7 +225,9 @@ class ConfigFacade:
 
         mode_config = workflow_data[mode]
         if step_name not in mode_config:
-            raise ValueError(f"Step '{step_name}' not found in workflow mode '{mode}'")
+            raise ValueError(
+                f"Step '{step_name}' not found in workflow mode '{mode}'"
+            )
 
         step_config = mode_config[step_name]
 
@@ -262,7 +266,9 @@ class ConfigFacade:
                 "WeChat task resolution requires new model registry structure"
             )
 
-        task_template_name = self.task_templates.get_wechat_task_template(model_type)
+        task_template_name = self.task_templates.get_wechat_task_template(
+            model_type
+        )
         return self.resolve_task_template(task_template_name)
 
     def get_bbr_config(self) -> Dict[str, Any]:
@@ -294,7 +300,9 @@ class ConfigFacade:
             RuntimeError: If new model registry structure is not available
         """
         if not self._using_new_structure:
-            raise RuntimeError("Task listing requires new model registry structure")
+            raise RuntimeError(
+                "Task listing requires new model registry structure"
+            )
 
         return self.task_templates.list_all_tasks()
 
@@ -309,7 +317,9 @@ class ConfigFacade:
             RuntimeError: If new model registry structure is not available
         """
         if not self._using_new_structure:
-            raise RuntimeError("Model listing requires new model registry structure")
+            raise RuntimeError(
+                "Model listing requires new model registry structure"
+            )
 
         return self.model_registry.get_all_models()
 
@@ -331,12 +341,18 @@ def initialize_config_facade(
         ConfigFacade instance
     """
     global _config_facade
-    _config_facade = ConfigFacade(complete_config, models_config, task_templates_config)
+    _config_facade = ConfigFacade(
+        complete_config, models_config, task_templates_config
+    )
 
     structure_type = (
-        "new model registry" if models_config and task_templates_config else "legacy"
+        "new model registry"
+        if models_config and task_templates_config
+        else "legacy"
     )
-    logger.info(f"Global ConfigFacade initialized with {structure_type} structure")
+    logger.info(
+        f"Global ConfigFacade initialized with {structure_type} structure"
+    )
     return _config_facade
 
 

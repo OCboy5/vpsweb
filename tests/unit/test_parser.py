@@ -6,11 +6,12 @@ from docs/vpts.yml and handles various edge cases.
 """
 
 import pytest
+
 from src.vpsweb.services.parser import (
-    OutputParser,
-    XMLParsingError,
-    ValidationError,
     EmptyNotesFieldError,
+    OutputParser,
+    ValidationError,
+    XMLParsingError,
 )
 
 
@@ -52,7 +53,9 @@ class TestOutputParser:
         assert "initial_translation" in result
         assert "initial_translation_notes" in result
         # Content should preserve internal whitespace but strip leading/trailing
-        assert "雾来了\n          踏着猫的小脚。" in result["initial_translation"]
+        assert (
+            "雾来了\n          踏着猫的小脚。" in result["initial_translation"]
+        )
         assert (
             "This translation captures the gentle imagery."
             in result["initial_translation_notes"]
@@ -186,7 +189,9 @@ class TestOutputParser:
         assert isinstance(result["initial_translation"], str)
         assert isinstance(result["initial_translation_notes"], str)
         assert "雾来了" in result["initial_translation"]
-        assert "This translation captures" in result["initial_translation_notes"]
+        assert (
+            "This translation captures" in result["initial_translation_notes"]
+        )
 
     def test_parse_xml_editor_suggestions_format(self):
         """Test parsing editor suggestions in the expected format."""
@@ -234,7 +239,9 @@ class TestOutputParser:
         )
 
         assert "initial_translation" in result
-        assert "missing_tag" not in result  # Missing tag should not be in result
+        assert (
+            "missing_tag" not in result
+        )  # Missing tag should not be in result
         assert result["initial_translation"] == "Translation content"
 
     def test_extract_tags_empty_list(self):
@@ -267,7 +274,8 @@ class TestOutputParser:
 
         with pytest.raises(ValidationError) as exc_info:
             OutputParser.validate_output(
-                parsed_data, ["initial_translation", "initial_translation_notes"]
+                parsed_data,
+                ["initial_translation", "initial_translation_notes"],
             )
 
         assert "Missing fields" in str(exc_info.value)
@@ -282,7 +290,8 @@ class TestOutputParser:
 
         with pytest.raises(ValidationError) as exc_info:
             OutputParser.validate_output(
-                parsed_data, ["initial_translation", "initial_translation_notes"]
+                parsed_data,
+                ["initial_translation", "initial_translation_notes"],
             )
 
         assert "Empty fields" in str(exc_info.value)
@@ -297,7 +306,8 @@ class TestOutputParser:
 
         with pytest.raises(ValidationError) as exc_info:
             OutputParser.validate_output(
-                parsed_data, ["initial_translation", "initial_translation_notes"]
+                parsed_data,
+                ["initial_translation", "initial_translation_notes"],
             )
 
         assert "Empty fields" in str(exc_info.value)
@@ -326,7 +336,8 @@ class TestOutputParser:
 
         with pytest.raises(ValidationError) as exc_info:
             OutputParser.validate_output(
-                parsed_data, ["initial_translation", "initial_translation_notes"]
+                parsed_data,
+                ["initial_translation", "initial_translation_notes"],
             )
 
         assert "Empty fields" in str(exc_info.value)
@@ -341,7 +352,8 @@ class TestOutputParser:
 
         with pytest.raises(ValidationError) as exc_info:
             OutputParser.validate_output(
-                parsed_data, ["initial_translation", "initial_translation_notes"]
+                parsed_data,
+                ["initial_translation", "initial_translation_notes"],
             )
 
         assert "Empty fields" in str(exc_info.value)
@@ -426,7 +438,9 @@ class TestOutputParser:
         with pytest.raises(XMLParsingError) as exc_info:
             OutputParser.parse_initial_translation_xml(xml_string)
 
-        assert "Missing required 'initial_translation' tag" in str(exc_info.value)
+        assert "Missing required 'initial_translation' tag" in str(
+            exc_info.value
+        )
 
     def test_parse_revised_translation_xml(self):
         """Test parsing revised translation XML specifically."""
@@ -549,7 +563,9 @@ class TestOutputParser:
         # Check that all special characters are properly escaped
         # The original &, <, >, " should be replaced with their escaped versions
         # The count should be 5: &amp; (2 &'s), &lt;, &gt;, &quot; (2 &'s)
-        assert sanitized.count("&") == 5  # All special chars should be escaped with &
+        assert (
+            sanitized.count("&") == 5
+        )  # All special chars should be escaped with &
 
     def test_convenience_functions(self):
         """Test convenience functions for parsing."""
@@ -559,9 +575,9 @@ class TestOutputParser:
         """
 
         from src.vpsweb.services.parser import (
+            extract_translation_data,
             parse_initial_translation,
             parse_revised_translation,
-            extract_translation_data,
         )
 
         # Test initial translation parsing
@@ -600,11 +616,18 @@ class TestOutputParser:
         assert isinstance(result["initial_translation"], str)
         assert isinstance(result["initial_translation_notes"], str)
         assert "雾来了" in result["initial_translation"]
-        assert "This translation captures" in result["initial_translation_notes"]
+        assert (
+            "This translation captures" in result["initial_translation_notes"]
+        )
 
         # Test the specific convenience function
-        translation_data = OutputParser.parse_initial_translation_xml(xml_string)
-        assert translation_data["initial_translation"] == result["initial_translation"]
+        translation_data = OutputParser.parse_initial_translation_xml(
+            xml_string
+        )
+        assert (
+            translation_data["initial_translation"]
+            == result["initial_translation"]
+        )
         assert (
             translation_data["initial_translation_notes"]
             == result["initial_translation_notes"]
@@ -705,13 +728,19 @@ class TestEmptyNotesFieldError:
 
     def test_empty_notes_field_error_creation(self):
         """Test creation of EmptyNotesFieldError."""
-        error = EmptyNotesFieldError("initial_translation_notes", "initial_translation")
+        error = EmptyNotesFieldError(
+            "initial_translation_notes", "initial_translation"
+        )
 
         assert error.field_name == "initial_translation_notes"
         assert error.step_name == "initial_translation"
-        assert "Notes field 'initial_translation_notes' is empty ({})" in str(error)
+        assert "Notes field 'initial_translation_notes' is empty ({})" in str(
+            error
+        )
         assert "after initial_translation step" in str(error)
-        assert "LLM response must provide meaningful notes content" in str(error)
+        assert "LLM response must provide meaningful notes content" in str(
+            error
+        )
 
     def test_empty_notes_field_error_inheritance(self):
         """Test that EmptyNotesFieldError inherits from ValidationError."""
@@ -799,7 +828,9 @@ class TestParserConvenienceFunctions:
         with pytest.raises(ValueError) as exc_info:
             extract_translation_data("any xml", "invalid_type")
 
-        assert "Unsupported translation type: invalid_type" in str(exc_info.value)
+        assert "Unsupported translation type: invalid_type" in str(
+            exc_info.value
+        )
 
 
 class TestParserIntegration:
@@ -835,7 +866,8 @@ class TestParserIntegration:
         assert "initial_translation" in parsed_data
         assert "initial_translation_notes" in parsed_data
         assert (
-            extracted_data["initial_translation"] == parsed_data["initial_translation"]
+            extracted_data["initial_translation"]
+            == parsed_data["initial_translation"]
         )
         assert (
             extracted_data["initial_translation_notes"]
@@ -922,10 +954,12 @@ class TestParserIntegration:
         assert "initial" in result["workflow_result"]["translation"]
         assert "revised" in result["workflow_result"]["translation"]
         assert (
-            result["workflow_result"]["translation"]["initial"] == "First translation"
+            result["workflow_result"]["translation"]["initial"]
+            == "First translation"
         )
         assert (
-            result["workflow_result"]["translation"]["revised"] == "Final translation"
+            result["workflow_result"]["translation"]["revised"]
+            == "Final translation"
         )
 
         # Test structure analysis

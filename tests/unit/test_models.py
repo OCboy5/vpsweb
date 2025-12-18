@@ -5,28 +5,26 @@ Tests model validation, serialization, deserialization, and field validators
 for all translation workflow models.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
+from src.vpsweb.models.config import (
+    LoggingConfig,
+    ModelProviderConfig,
+    StepConfig,
+    WorkflowConfig,
+)
 from src.vpsweb.models.translation import (
-    TranslationInput,
-    InitialTranslation,
     EditorReview,
-    RevisedTranslation,
-    TranslationOutput,
+    InitialTranslation,
     Language,
+    RevisedTranslation,
+    TranslationInput,
+    TranslationOutput,
 )
 from src.vpsweb.services.parser import OutputParser
-from src.vpsweb.models.config import (
-    WorkflowConfig,
-    StepConfig,
-    CompleteConfig,
-    LoggingConfig,
-    MainConfig,
-    ModelProviderConfig,
-    ProvidersConfig,
-)
 
 
 class TestTranslationInput:
@@ -91,7 +89,9 @@ class TestTranslationInput:
                 target_lang=Language.ENGLISH,
             )
 
-        assert "Source and target languages must be different" in str(exc_info.value)
+        assert "Source and target languages must be different" in str(
+            exc_info.value
+        )
 
     def test_validation_invalid_target_language(self):
         """Test validation with invalid target language."""
@@ -213,7 +213,9 @@ class TestInitialTranslation:
 
         assert translation.initial_translation == "Test translation"
         assert translation.tokens_used == 100
-        assert translation.timestamp == datetime.fromisoformat("2024-01-01T12:00:00")
+        assert translation.timestamp == datetime.fromisoformat(
+            "2024-01-01T12:00:00"
+        )
 
 
 class TestEditorReview:
@@ -270,7 +272,8 @@ class TestEditorReview:
         result = review.to_dict()
 
         assert (
-            result["editor_suggestions"] == "1. Improve rhythm\n2. Use poetic language"
+            result["editor_suggestions"]
+            == "1. Improve rhythm\n2. Use poetic language"
         )
         assert result["tokens_used"] == 100
         # suggestions array and overall_assessment are no longer generated
@@ -288,7 +291,10 @@ class TestEditorReview:
 
         review = EditorReview.from_dict(data)
 
-        assert review.editor_suggestions == "1. Improve rhythm\n2. Use poetic language"
+        assert (
+            review.editor_suggestions
+            == "1. Improve rhythm\n2. Use poetic language"
+        )
         assert review.tokens_used == 100
         # Computed fields should not be stored in the model
         assert not hasattr(review, "suggestions")
@@ -308,7 +314,9 @@ class TestRevisedTranslation:
             tokens_used=300,
         )
 
-        assert translation.revised_translation == "雾来了，踏着猫儿轻盈的脚步。"
+        assert (
+            translation.revised_translation == "雾来了，踏着猫儿轻盈的脚步。"
+        )
         assert "Improved rhythm" in translation.revised_translation_notes
         assert translation.model_info["provider"] == "tongyi"
         assert translation.tokens_used == 300
@@ -340,7 +348,9 @@ class TestTranslationOutput:
         output = sample_translation_output
 
         assert output.workflow_id == "test-workflow-123"
-        assert output.input.original_poem == "The fog comes on little cat feet."
+        assert (
+            output.input.original_poem == "The fog comes on little cat feet."
+        )
         assert output.input.source_lang == "English"
         assert output.input.target_lang == "Chinese"
         assert output.total_tokens == 1250
@@ -361,7 +371,10 @@ class TestTranslationOutput:
         assert "duration_seconds" in result
 
         # Test nested structure
-        assert result["input"]["original_poem"] == "The fog comes on little cat feet."
+        assert (
+            result["input"]["original_poem"]
+            == "The fog comes on little cat feet."
+        )
         assert "initial_translation" in result["initial_translation"]
         assert "editor_suggestions" in result["editor_review"]
         assert "revised_translation" in result["revised_translation"]
@@ -390,7 +403,9 @@ class TestTranslationOutput:
         assert output.total_tokens == 1250
         assert output.duration_seconds == 15.5
 
-    def test_save_and_load_from_file(self, sample_translation_output, temp_output_dir):
+    def test_save_and_load_from_file(
+        self, sample_translation_output, temp_output_dir
+    ):
         """Test saving and loading from file."""
         file_path = temp_output_dir / "test_output.json"
 
@@ -400,10 +415,16 @@ class TestTranslationOutput:
         # Load from file
         loaded_output = TranslationOutput.load_from_file(str(file_path))
 
-        assert loaded_output.workflow_id == sample_translation_output.workflow_id
-        assert loaded_output.total_tokens == sample_translation_output.total_tokens
         assert (
-            loaded_output.duration_seconds == sample_translation_output.duration_seconds
+            loaded_output.workflow_id == sample_translation_output.workflow_id
+        )
+        assert (
+            loaded_output.total_tokens
+            == sample_translation_output.total_tokens
+        )
+        assert (
+            loaded_output.duration_seconds
+            == sample_translation_output.duration_seconds
         )
 
 
@@ -493,9 +514,13 @@ class TestConfigModels:
 class TestHelperFunctions:
     """Test cases for helper functions."""
 
-    def test_extract_initial_translation_from_xml(self, mock_llm_response_valid_xml):
+    def test_extract_initial_translation_from_xml(
+        self, mock_llm_response_valid_xml
+    ):
         """Test XML extraction helper function."""
-        result = OutputParser.parse_initial_translation_xml(mock_llm_response_valid_xml)
+        result = OutputParser.parse_initial_translation_xml(
+            mock_llm_response_valid_xml
+        )
 
         assert "initial_translation" in result
         assert "initial_translation_notes" in result
@@ -594,5 +619,11 @@ class TestModelSerialization:
         loaded_data = json.loads(json_str)
         restored_output = TranslationOutput.from_dict(loaded_data)
 
-        assert restored_output.workflow_id == sample_translation_output.workflow_id
-        assert restored_output.total_tokens == sample_translation_output.total_tokens
+        assert (
+            restored_output.workflow_id
+            == sample_translation_output.workflow_id
+        )
+        assert (
+            restored_output.total_tokens
+            == sample_translation_output.total_tokens
+        )

@@ -1,14 +1,13 @@
-from logging.config import fileConfig
-import sys
 import os
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+import sys
 
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # Add repository root to path to import our modules
-repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+repo_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
@@ -36,7 +35,6 @@ engine = create_engine(
 Base = declarative_base()
 
 # Now import models using absolute import path
-from vpsweb.repository.models import Poem, Translation, AILog, HumanNote
 
 # add your model's MetaData object here
 # for 'autogenerate' support

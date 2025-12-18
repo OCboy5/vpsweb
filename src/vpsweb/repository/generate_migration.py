@@ -30,9 +30,17 @@ Base = declarative_base()
 # Import and register models
 sys.path.insert(0, os.path.join(repo_root, "src", "vpsweb", "repository"))
 
-# Import models with their columns defined inline
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON, Integer
 from datetime import datetime
+
+# Import models with their columns defined inline
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.sql import func
 
 
@@ -46,7 +54,10 @@ class Poem(Base):
     original_text = Column(Text, nullable=False)
     metadata_json = Column(Text, nullable=True)
     created_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
     )
     updated_at = Column(
         DateTime,
@@ -74,7 +85,10 @@ class Translation(Base):
     quality_rating = Column(Integer, nullable=True)
     raw_path = Column(String(500), nullable=True)
     created_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
     )
 
 
@@ -95,7 +109,10 @@ class AILog(Base):
     runtime_seconds = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
     )
 
 
@@ -111,7 +128,10 @@ class HumanNote(Base):
     )
     note_text = Column(Text, nullable=False)
     created_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, server_default=func.now()
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
     )
 
 

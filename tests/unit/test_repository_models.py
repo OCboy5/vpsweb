@@ -17,24 +17,28 @@ Models Tested:
 - HumanNote (Human feedback)
 """
 
-import pytest
 import uuid
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session, sessionmaker
+
+import pytest
+from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from src.vpsweb.repository.models import (
+    AILog,
+    BackgroundBriefingReport,
     Base,
+    HumanNote,
     Poem,
     Translation,
-    BackgroundBriefingReport,
-    AILog,
-    HumanNote,
 )
-from src.vpsweb.repository.schemas import TranslatorType, WorkflowMode, WorkflowStepType
-
+from src.vpsweb.repository.schemas import (
+    TranslatorType,
+    WorkflowMode,
+    WorkflowStepType,
+)
 
 # ==============================================================================
 # Model Test Fixtures
@@ -56,7 +60,9 @@ def test_db_session():
     Base.metadata.create_all(bind=engine)
 
     # Create session
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    TestingSessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=engine
+    )
     session = TestingSessionLocal()
 
     yield session
@@ -179,7 +185,9 @@ def sample_human_note_data():
 class TestPoemModel:
     """Comprehensive tests for the Poem model."""
 
-    def test_create_valid_poem(self, test_db_session: Session, sample_poem_data):
+    def test_create_valid_poem(
+        self, test_db_session: Session, sample_poem_data
+    ):
         """Test creating a valid poem with all fields."""
         poem = Poem(**sample_poem_data)
         test_db_session.add(poem)
@@ -211,7 +219,9 @@ class TestPoemModel:
         test_db_session.add(poem)
         test_db_session.commit()
 
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem.id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem.id).first()
+        )
         assert retrieved_poem is not None
         assert retrieved_poem.poet_name == "Test Poet"
 
@@ -253,7 +263,9 @@ class TestPoemModel:
             "poem_title": "將進酒",
             "source_language": "Chinese",
             "original_text": "君不見黃河之水天上來...",
-            "metadata_json": str(metadata).replace("'", '"'),  # Convert to JSON string
+            "metadata_json": str(metadata).replace(
+                "'", '"'
+            ),  # Convert to JSON string
             "created_at": datetime.now(),
             "updated_at": datetime.now(),
         }
@@ -262,7 +274,9 @@ class TestPoemModel:
         test_db_session.add(poem)
         test_db_session.commit()
 
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem.id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem.id).first()
+        )
         assert retrieved_poem is not None
         assert "dynasty" in retrieved_poem.metadata_json
 
@@ -333,14 +347,20 @@ class TestPoemModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem.id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem.id).first()
+        )
         assert len(retrieved_poem.translations) == 3
-        target_languages = [t.target_language for t in retrieved_poem.translations]
+        target_languages = [
+            t.target_language for t in retrieved_poem.translations
+        ]
         assert "English" in target_languages
         assert "Japanese" in target_languages
         assert "Korean" in target_languages
 
-    def test_poem_relationship_to_bbr(self, test_db_session: Session, sample_poem_data):
+    def test_poem_relationship_to_bbr(
+        self, test_db_session: Session, sample_poem_data
+    ):
         """Test poem relationship to Background Briefing Report."""
         # Create poem
         poem = Poem(**sample_poem_data)
@@ -360,7 +380,9 @@ class TestPoemModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem.id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem.id).first()
+        )
         assert retrieved_poem.background_briefing_report is not None
         assert retrieved_poem.background_briefing_report.poem_id == poem.id
 
@@ -386,7 +408,10 @@ class TestTranslationModel:
         assert translation.id == sample_translation_data["id"]
         assert translation.poem_id == sample_translation_data["poem_id"]
         assert translation.translator_type == TranslatorType.AI
-        assert translation.target_language == sample_translation_data["target_language"]
+        assert (
+            translation.target_language
+            == sample_translation_data["target_language"]
+        )
         assert translation.quality_rating == 4
         assert translation.has_workflow_steps is True
         assert translation.workflow_step_count == 3
@@ -496,7 +521,9 @@ class TestTranslationModel:
         test_db_session.commit()
 
         retrieved_translation = (
-            test_db_session.query(Translation).filter_by(id=translation.id).first()
+            test_db_session.query(Translation)
+            .filter_by(id=translation.id)
+            .first()
         )
         assert retrieved_translation.quality_rating is None
         assert retrieved_translation.metadata_json is None
@@ -536,7 +563,9 @@ class TestTranslationModel:
 
         # Test relationship
         retrieved_translation = (
-            test_db_session.query(Translation).filter_by(id=translation.id).first()
+            test_db_session.query(Translation)
+            .filter_by(id=translation.id)
+            .first()
         )
         assert len(retrieved_translation.ai_logs) == 2
         steps = {log.workflow_step for log in retrieved_translation.ai_logs}
@@ -571,11 +600,15 @@ class TestTranslationModel:
 
         # Test relationship
         retrieved_translation = (
-            test_db_session.query(Translation).filter_by(id=translation.id).first()
+            test_db_session.query(Translation)
+            .filter_by(id=translation.id)
+            .first()
         )
         assert len(retrieved_translation.human_notes) == 3
 
-        note_texts = {note.note_text for note in retrieved_translation.human_notes}
+        note_texts = {
+            note.note_text for note in retrieved_translation.human_notes
+        }
         assert "Excellent translation" in note_texts
         assert "Good rhythm" in note_texts
         assert "Well done" in note_texts
@@ -603,7 +636,9 @@ class TestBackgroundBriefingReportModel:
         assert bbr.created_at is not None
         assert bbr.updated_at is not None
 
-    def test_bbr_content_storage(self, test_db_session: Session, sample_bbr_data):
+    def test_bbr_content_storage(
+        self, test_db_session: Session, sample_bbr_data
+    ):
         """Test BBR content storage and retrieval."""
         # Test with Markdown content
         markdown_content = """# Test BBR
@@ -632,7 +667,9 @@ print("Translation example")
         test_db_session.commit()
 
         retrieved_bbr = (
-            test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+            test_db_session.query(BackgroundBriefingReport)
+            .filter_by(id=bbr.id)
+            .first()
         )
         assert retrieved_bbr is not None
         assert markdown_content in retrieved_bbr.content
@@ -671,7 +708,9 @@ print("Translation example")
             # If constraint exists, this is expected behavior
             test_db_session.rollback()
 
-    def test_bbr_metadata_storage(self, test_db_session: Session, sample_bbr_data):
+    def test_bbr_metadata_storage(
+        self, test_db_session: Session, sample_bbr_data
+    ):
         """Test BBR metadata JSON storage."""
         metadata = {
             "generation_model": "qwen-max",
@@ -692,7 +731,9 @@ print("Translation example")
         test_db_session.commit()
 
         retrieved_bbr = (
-            test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+            test_db_session.query(BackgroundBriefingReport)
+            .filter_by(id=bbr.id)
+            .first()
         )
         assert retrieved_bbr is not None
         assert "generation_model" in retrieved_bbr.metadata_json
@@ -708,7 +749,9 @@ print("Translation example")
 class TestAILogModel:
     """Comprehensive tests for the AILog model."""
 
-    def test_create_valid_ai_log(self, test_db_session: Session, sample_ai_log_data):
+    def test_create_valid_ai_log(
+        self, test_db_session: Session, sample_ai_log_data
+    ):
         """Test creating a valid AI log."""
         ai_log = AILog(**sample_ai_log_data)
         test_db_session.add(ai_log)
@@ -745,7 +788,9 @@ class TestAILogModel:
 
         # Verify all steps were saved
         logs = (
-            test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+            test_db_session.query(AILog)
+            .filter_by(translation_id=translation_id)
+            .all()
         )
         steps = {log.workflow_step for log in logs}
         assert len(steps) == len(WorkflowStepType)
@@ -775,7 +820,9 @@ class TestAILogModel:
 
         # Verify all modes were saved
         logs = (
-            test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+            test_db_session.query(AILog)
+            .filter_by(translation_id=translation_id)
+            .all()
         )
         modes = {log.workflow_mode for log in logs}
         assert len(modes) == len(WorkflowMode)
@@ -800,7 +847,9 @@ class TestAILogModel:
         test_db_session.add(ai_log)
         test_db_session.commit()
 
-        retrieved_log = test_db_session.query(AILog).filter_by(id=ai_log.id).first()
+        retrieved_log = (
+            test_db_session.query(AILog).filter_by(id=ai_log.id).first()
+        )
         assert retrieved_log is not None
         assert retrieved_log.runtime_seconds == 45.8
         assert "total_tokens" in retrieved_log.token_usage_json
@@ -870,7 +919,9 @@ class TestAILogModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_log = test_db_session.query(AILog).filter_by(id=ai_log.id).first()
+        retrieved_log = (
+            test_db_session.query(AILog).filter_by(id=ai_log.id).first()
+        )
         assert retrieved_log.translation.id == translation.id
         assert retrieved_log.translation.translated_text == "Test translation"
 
@@ -894,8 +945,13 @@ class TestHumanNoteModel:
         test_db_session.commit()
 
         assert human_note.id == sample_human_note_data["id"]
-        assert human_note.translation_id == sample_human_note_data["translation_id"]
-        assert len(human_note.note_text) > 50  # Should have substantial content
+        assert (
+            human_note.translation_id
+            == sample_human_note_data["translation_id"]
+        )
+        assert (
+            len(human_note.note_text) > 50
+        )  # Should have substantial content
         assert human_note.created_at is not None
 
     def test_human_note_content_validation(self, test_db_session: Session):
@@ -1003,10 +1059,14 @@ class TestHumanNoteModel:
 
         # Test relationship
         retrieved_note = (
-            test_db_session.query(HumanNote).filter_by(id=human_note.id).first()
+            test_db_session.query(HumanNote)
+            .filter_by(id=human_note.id)
+            .first()
         )
         assert retrieved_note.translation.id == translation.id
-        assert retrieved_note.translation.translated_text == "Human translation"
+        assert (
+            retrieved_note.translation.translated_text == "Human translation"
+        )
 
 
 # ==============================================================================
@@ -1101,7 +1161,9 @@ class TestCrossModelRelationships:
         test_db_session.commit()
 
         # Verify complete chain
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem_id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem_id).first()
+        )
         assert retrieved_poem is not None
         assert len(retrieved_poem.translations) == 1
         assert retrieved_poem.background_briefing_report is not None
@@ -1184,7 +1246,10 @@ class TestCrossModelRelationships:
         # Verify all records exist
         assert test_db_session.query(Poem).filter_by(id=poem_id).count() == 1
         assert (
-            test_db_session.query(Translation).filter_by(poem_id=poem_id).count() == 1
+            test_db_session.query(Translation)
+            .filter_by(poem_id=poem_id)
+            .count()
+            == 1
         )
         assert (
             test_db_session.query(AILog)
@@ -1210,7 +1275,9 @@ class TestCrossModelRelationships:
         test_db_session.commit()
 
         # Check cascade behavior (results depend on cascade configuration)
-        remaining_poems = test_db_session.query(Poem).filter_by(id=poem_id).count()
+        remaining_poems = (
+            test_db_session.query(Poem).filter_by(id=poem_id).count()
+        )
         assert remaining_poems == 0  # Poem should be deleted
 
         # Other records' fate depends on cascade constraints in the model definitions
@@ -1286,7 +1353,9 @@ class TestModelConstraintsAndValidation:
         test_db_session.commit()
 
         # Verify data types are preserved correctly
-        retrieved_poem = test_db_session.query(Poem).filter_by(id=poem.id).first()
+        retrieved_poem = (
+            test_db_session.query(Poem).filter_by(id=poem.id).first()
+        )
         assert isinstance(retrieved_poem.id, str)
         assert isinstance(retrieved_poem.poet_name, str)
         assert isinstance(retrieved_poem.created_at, datetime)

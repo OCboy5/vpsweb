@@ -6,9 +6,8 @@ Create Date: 2025-11-15 15:30:00.000000
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "add_background_briefing_report_table"
@@ -37,7 +36,10 @@ def upgrade() -> None:
 
     # Create indexes
     op.create_index(
-        "idx_bbr_poem_id", "background_briefing_reports", ["poem_id"], unique=False
+        "idx_bbr_poem_id",
+        "background_briefing_reports",
+        ["poem_id"],
+        unique=False,
     )
     op.create_index(
         "idx_bbr_created_at",
@@ -58,9 +60,13 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Drop indexes
-    op.drop_index("idx_bbr_time_spent", table_name="background_briefing_reports")
+    op.drop_index(
+        "idx_bbr_time_spent", table_name="background_briefing_reports"
+    )
     op.drop_index("idx_bbr_cost", table_name="background_briefing_reports")
-    op.drop_index("idx_bbr_created_at", table_name="background_briefing_reports")
+    op.drop_index(
+        "idx_bbr_created_at", table_name="background_briefing_reports"
+    )
     op.drop_index("idx_bbr_poem_id", table_name="background_briefing_reports")
 
     # Drop table

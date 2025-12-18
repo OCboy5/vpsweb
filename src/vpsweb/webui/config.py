@@ -16,7 +16,11 @@ class WebUISettings(BaseSettings):
     log_level: str = "INFO"
     debug: bool = False
 
-    model_config = {"env_file": ".env", "env_prefix": "WEBUI_", "extra": "ignore"}
+    model_config = {
+        "env_file": ".env",
+        "env_prefix": "WEBUI_",
+        "extra": "ignore",
+    }
 
 
 # Global settings instance

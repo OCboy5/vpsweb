@@ -11,20 +11,18 @@ Usage:
     result = await runner.run_translation(...)
 """
 
-import asyncio
-import json
 import sys
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
 
 # 添加根路径以确保可以导入其他模块
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from vpsweb.core.workflow import TranslationWorkflow
-from vpsweb.services.config import initialize_config_facade, get_config_facade
+from vpsweb.services.config import get_config_facade, initialize_config_facade
+from vpsweb.utils.datetime_utils import format_iso_datetime, now_utc
 from vpsweb.utils.logger import get_logger
 from vpsweb.utils.storage import StorageHandler
-from vpsweb.utils.datetime_utils import format_iso_datetime, now_utc
 
 logger = get_logger(__name__)
 
@@ -224,7 +222,7 @@ This is a simulated result for testing purposes."""
 
         # 模拟工作流结果
         mock_result = {
-            "workflow_id": f"repo-webui-dry-run-{get_current_timestamp()}",
+            "workflow_id": f"repo-webui-dry-run-{int(asyncio.get_event_loop().time())}",
             "input": {
                 "original_poem": original_poem,
                 "source_lang": source_lang,
@@ -298,10 +296,14 @@ This is a simulated result for testing purposes."""
         output_path.mkdir(parents=True, exist_ok=True)
 
         # 使用现有的保存功能
-        saved_path = self.storage_handler.save_translation(result, str(output_path))
+        saved_path = self.storage_handler.save_translation(
+            result, str(output_path)
+        )
         return Path(saved_path)
 
-    def get_translation_summary(self, result: Dict[str, Any]) -> Dict[str, Any]:
+    def get_translation_summary(
+        self, result: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         获取翻译结果摘要
 
@@ -377,7 +379,9 @@ This is a simulated result for testing purposes."""
         results = []
         for i, task in enumerate(translation_tasks):
             try:
-                logger.info(f"执行第 {i+1}/{len(translation_tasks)} 个翻译任务")
+                logger.info(
+                    f"执行第 {i+1}/{len(translation_tasks)} 个翻译任务"
+                )
 
                 result = await self.run_translation(
                     original_poem=task["original_poem"],
@@ -409,7 +413,9 @@ This is a simulated result for testing purposes."""
                 )
 
         success_count = sum(1 for r in results if r["status"] == "success")
-        logger.info(f"批量翻译完成: {success_count}/{len(translation_tasks)} 成功")
+        logger.info(
+            f"批量翻译完成: {success_count}/{len(translation_tasks)} 成功"
+        )
 
         return results
 

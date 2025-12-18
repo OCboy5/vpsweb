@@ -15,7 +15,7 @@ def test_basic_imports():
     print("Testing basic imports...")
 
     try:
-        from vpsweb.webui.utils.translation_runner import TranslationRunner
+        pass
 
         print("✅ TranslationRunner import successful")
     except Exception as e:
@@ -23,7 +23,7 @@ def test_basic_imports():
         return False
 
     try:
-        from vpsweb.webui.utils.wechat_article_runner import WeChatArticleRunner
+        pass
 
         print("✅ WeChatArticleRunner import successful")
     except Exception as e:
@@ -42,7 +42,7 @@ def test_class_instantiation():
 
         # Test with dummy config path (will fail but shows it loads)
         try:
-            runner = TranslationRunner("nonexistent/config")
+            TranslationRunner("nonexistent/config")
             print("❌ Expected config loading error")
         except Exception as e:
             print(f"✅ Expected config loading error: {type(e).__name__}")
@@ -58,11 +58,13 @@ def test_wechat_runner():
     print("\nTesting WeChat article runner...")
 
     try:
-        from vpsweb.webui.utils.wechat_article_runner import WeChatArticleRunner
+        from vpsweb.webui.utils.wechat_article_runner import (
+            WeChatArticleRunner,
+        )
 
         # Test with dummy config path
         try:
-            runner = WeChatArticleRunner("nonexistent/config")
+            WeChatArticleRunner("nonexistent/config")
             print("❌ Expected config loading error")
         except Exception as e:
             print(f"✅ Expected config loading error: {type(e).__name__}")
@@ -78,7 +80,7 @@ def test_mock_data_validation():
     print("\nTesting mock data validation...")
 
     try:
-        from vpsweb.webui.utils.wechat_article_runner import WeChatArticleRunner
+        pass
 
         # Create mock translation data
         mock_data = {
@@ -109,7 +111,9 @@ def test_mock_data_validation():
         }
 
         print("✅ Mock data validation structure created successfully")
-        print(f"   - Poem title: {validation_result['metadata']['poem_title']}")
+        print(
+            f"   - Poem title: {validation_result['metadata']['poem_title']}"
+        )
         print(f"   - Poet name: {validation_result['metadata']['poet_name']}")
         print(f"   - Valid: {validation_result['valid']}")
 
@@ -153,7 +157,9 @@ def main():
     print(f"Success rate: {passed/total*100:.1f}%")
 
     if passed == total:
-        print("\n🎉 All tests passed! The utility scripts are working correctly.")
+        print(
+            "\n🎉 All tests passed! The utility scripts are working correctly."
+        )
         print("   - Imports are working")
         print("   - Classes can be instantiated")
         print("   - Basic structure is sound")

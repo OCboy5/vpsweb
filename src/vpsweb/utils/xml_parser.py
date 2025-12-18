@@ -5,10 +5,9 @@ This module provides specialized XML parsing functions for LLM outputs,
 particularly for WeChat translation notes structure.
 """
 
-import xml.etree.ElementTree as ET
 import re
-from typing import Dict, List, Optional, Any
-import logging
+import xml.etree.ElementTree as ET
+from typing import Any, Dict, List, Optional
 
 from ..models.wechat import TranslationNotes
 from .logger import get_logger
@@ -18,8 +17,6 @@ logger = get_logger(__name__)
 
 class XMLParseError(Exception):
     """Exception raised for XML parsing errors."""
-
-    pass
 
 
 class WeChatXMLParser:
@@ -180,7 +177,12 @@ class WeChatXMLParser:
         Returns:
             Dictionary with validation results
         """
-        result = {"is_valid": False, "errors": [], "warnings": [], "structure": {}}
+        result = {
+            "is_valid": False,
+            "errors": [],
+            "warnings": [],
+            "structure": {},
+        }
 
         try:
             # Clean and parse XML
@@ -220,12 +222,18 @@ class WeChatXMLParser:
                 result["errors"].append("Missing notes element")
             else:
                 notes_text = notes_elem.text or ""
-                bullet_points = WeChatXMLParser._parse_bullet_points(notes_text)
+                bullet_points = WeChatXMLParser._parse_bullet_points(
+                    notes_text
+                )
 
                 if len(bullet_points) < 3:
-                    result["warnings"].append("Too few bullet points (expected 3-6)")
+                    result["warnings"].append(
+                        "Too few bullet points (expected 3-6)"
+                    )
                 elif len(bullet_points) > 6:
-                    result["warnings"].append("Too many bullet points (expected 3-6)")
+                    result["warnings"].append(
+                        "Too many bullet points (expected 3-6)"
+                    )
 
                 # Check bullet point lengths
                 for i, bullet in enumerate(bullet_points):
@@ -262,7 +270,9 @@ class WeChatXMLParser:
             Extracted XML content or None if not found
         """
         # Look for XML tags
-        xml_pattern = r"<wechat_translation_notes>.*?</wechat_translation_notes>"
+        xml_pattern = (
+            r"<wechat_translation_notes>.*?</wechat_translation_notes>"
+        )
         match = re.search(xml_pattern, text, re.DOTALL | re.IGNORECASE)
 
         if match:

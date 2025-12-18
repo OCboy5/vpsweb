@@ -8,9 +8,8 @@ Create Date: 2025-11-23 11:53:25.399555
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "84e779a661b5"
@@ -24,7 +23,9 @@ def upgrade() -> None:
     # Add selected column to poems table
     op.add_column(
         "poems",
-        sa.Column("selected", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column(
+            "selected", sa.Boolean(), nullable=False, server_default="false"
+        ),
     )
 
     # Create index for selected field

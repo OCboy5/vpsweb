@@ -5,13 +5,11 @@ These tests use Click's CliRunner to test CLI commands with various input method
 configuration loading, and output generation without making actual API calls.
 """
 
-import pytest
 import tempfile
-import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from click.testing import CliRunner
+
 from src.vpsweb.__main__ import cli
 
 
@@ -58,7 +56,9 @@ class TestCLIIntegration:
                 initial_translation="雾来了，踏着猫的细步。",
                 initial_translation_notes="Test notes",
             ),
-            editor_review=MagicMock(text="1. Test suggestion\n2. Another suggestion"),
+            editor_review=MagicMock(
+                text="1. Test suggestion\n2. Another suggestion"
+            ),
             revised_translation=MagicMock(
                 revised_translation="雾来了，踏着猫儿轻盈的脚步。",
                 revised_translation_notes="Revised notes",
@@ -220,7 +220,9 @@ class TestCLIIntegration:
         # Mock the workflow
         mock_workflow = MagicMock()
         mock_workflow.execute.return_value = MagicMock(
-            workflow_id="test-workflow-output", duration_seconds=9.5, total_tokens=950
+            workflow_id="test-workflow-output",
+            duration_seconds=9.5,
+            total_tokens=950,
         )
         mock_workflow_class.return_value = mock_workflow
 
@@ -286,7 +288,9 @@ class TestCLIIntegration:
         assert result.exit_code == 0
         assert "Validating configuration and input" in result.output
         assert "Dry run completed" in result.output
-        assert "TRANSLATION COMPLETE" not in result.output  # No actual translation
+        assert (
+            "TRANSLATION COMPLETE" not in result.output
+        )  # No actual translation
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")
@@ -347,7 +351,9 @@ class TestCLIIntegration:
         result = cli_runner.invoke(cli, ["translate", "--source", "English"])
         assert result.exit_code != 0
 
-    def test_cli_translate_invalid_language(self, cli_runner, sample_poem_file):
+    def test_cli_translate_invalid_language(
+        self, cli_runner, sample_poem_file
+    ):
         """Test translate command with invalid language."""
         # Invalid source language
         result = cli_runner.invoke(
@@ -394,7 +400,9 @@ class TestCLIIntegration:
             ],
         )
         assert result.exit_code != 0
-        assert "Input file not found" in result.output or "Error" in result.output
+        assert (
+            "Input file not found" in result.output or "Error" in result.output
+        )
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")
@@ -413,7 +421,9 @@ class TestCLIIntegration:
         """Test CLI error handling when workflow fails."""
         # Mock workflow to raise an exception
         mock_workflow = MagicMock()
-        mock_workflow.execute.side_effect = Exception("Workflow execution failed")
+        mock_workflow.execute.side_effect = Exception(
+            "Workflow execution failed"
+        )
         mock_workflow_class.return_value = mock_workflow
 
         # Mock configuration loading
@@ -501,7 +511,10 @@ class TestCLIIntegration:
             input="",  # Empty input
         )
         assert result.exit_code != 0
-        assert "No poem text provided" in result.output or "Error" in result.output
+        assert (
+            "No poem text provided" in result.output
+            or "Error" in result.output
+        )
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")
@@ -521,7 +534,9 @@ class TestCLIIntegration:
         # Mock the workflow
         mock_workflow = MagicMock()
         mock_workflow.execute.return_value = MagicMock(
-            workflow_id="test-workflow-lang", duration_seconds=10.0, total_tokens=1000
+            workflow_id="test-workflow-lang",
+            duration_seconds=10.0,
+            total_tokens=1000,
         )
         mock_workflow_class.return_value = mock_workflow
 
@@ -661,7 +676,9 @@ class TestCLIFunctionalEquivalence:
         # Mock the workflow
         mock_workflow = MagicMock()
         mock_workflow.execute.return_value = MagicMock(
-            workflow_id="test-progress", duration_seconds=12.0, total_tokens=1100
+            workflow_id="test-progress",
+            duration_seconds=12.0,
+            total_tokens=1100,
         )
         mock_workflow_class.return_value = mock_workflow
 

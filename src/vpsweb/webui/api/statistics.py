@@ -4,15 +4,15 @@ VPSWeb Web UI - Statistics and Comparison API Endpoints v0.3.1
 API endpoints for repository statistics, data analysis, and translation comparisons.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_
 
-from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.schemas import RepositoryStats, ComparisonView
-from ..schemas import WebAPIResponse
+from src.vpsweb.repository.database import get_db
+from src.vpsweb.repository.schemas import ComparisonView, RepositoryStats
+
 
 router = APIRouter()
 
@@ -42,7 +42,9 @@ async def get_repository_overview(
         )
 
 
-@router.get("/translations/comparison/{poem_id}", response_model=ComparisonView)
+@router.get(
+    "/translations/comparison/{poem_id}", response_model=ComparisonView
+)
 async def get_translation_comparison(
     poem_id: str,
     target_language: Optional[str] = Query(
@@ -70,7 +72,9 @@ async def get_translation_comparison(
         )
 
     try:
-        comparison = service.get_translation_comparison(poem_id, target_language)
+        comparison = service.get_translation_comparison(
+            poem_id, target_language
+        )
         return comparison
     except Exception as e:
         raise HTTPException(
@@ -117,7 +121,9 @@ async def get_translation_quality_summary(
 
         # Calculate quality metrics
         ratings = [
-            t.quality_rating for t in translations if t.quality_rating is not None
+            t.quality_rating
+            for t in translations
+            if t.quality_rating is not None
         ]
 
         if ratings:
@@ -136,15 +142,21 @@ async def get_translation_quality_summary(
             distribution = {}
 
         # Separate AI and human translations
-        ai_translations = [t for t in translations if t.translator_type == "AI"]
-        human_translations = [t for t in translations if t.translator_type == "Human"]
+        ai_translations = [
+            t for t in translations if t.translator_type == "AI"
+        ]
+        human_translations = [
+            t for t in translations if t.translator_type == "Human"
+        ]
 
         return {
             "poem_id": poem_id,
             "total_translations": len(translations),
             "ai_translations": len(ai_translations),
             "human_translations": len(human_translations),
-            "target_languages": list(set(t.target_language for t in translations)),
+            "target_languages": list(
+                set(t.target_language for t in translations)
+            ),
             "quality_summary": {
                 "average_rating": average_rating,
                 "highest_rated": highest_rated,
@@ -155,7 +167,8 @@ async def get_translation_quality_summary(
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate quality summary: {str(e)}"
+            status_code=500,
+            detail=f"Failed to generate quality summary: {str(e)}",
         )
 
 
@@ -171,13 +184,17 @@ async def get_language_distribution(
     """
     try:
         # Get all poems
-        poems = service.poems.get_multi(skip=0, limit=10000)  # Large limit to get all
+        poems = service.poems.get_multi(
+            skip=0, limit=10000
+        )  # Large limit to get all
 
         # Count poems by source language
         source_language_counts = {}
         for poem in poems:
             lang = poem.source_language
-            source_language_counts[lang] = source_language_counts.get(lang, 0) + 1
+            source_language_counts[lang] = (
+                source_language_counts.get(lang, 0) + 1
+            )
 
         # Get all translations to count target languages
         all_translations = []
@@ -188,7 +205,9 @@ async def get_language_distribution(
         target_language_counts = {}
         for translation in all_translations:
             lang = translation.target_language
-            target_language_counts[lang] = target_language_counts.get(lang, 0) + 1
+            target_language_counts[lang] = (
+                target_language_counts.get(lang, 0) + 1
+            )
 
         return {
             "source_languages": {
@@ -292,7 +311,9 @@ async def get_translator_productivity(
 
 @router.get("/timeline/activity")
 async def get_activity_timeline(
-    days: int = Query(30, ge=1, le=365, description="Number of days to look back"),
+    days: int = Query(
+        30, ge=1, le=365, description="Number of days to look back"
+    ),
     service: RepositoryService = Depends(get_repository_service),
 ):
     """
@@ -358,7 +379,8 @@ async def get_activity_timeline(
             "summary": {
                 "total_poems_created": len(poems_in_range),
                 "total_translations_created": len(translations_in_range),
-                "total_activity": len(poems_in_range) + len(translations_in_range),
+                "total_activity": len(poems_in_range)
+                + len(translations_in_range),
                 "average_daily_activity": (
                     len(poems_in_range) + len(translations_in_range)
                 )
@@ -369,7 +391,8 @@ async def get_activity_timeline(
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate activity timeline: {str(e)}"
+            status_code=500,
+            detail=f"Failed to generate activity timeline: {str(e)}",
         )
 
 
@@ -419,5 +442,6 @@ async def get_search_metrics(
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to generate search metrics: {str(e)}"
+            status_code=500,
+            detail=f"Failed to generate search metrics: {str(e)}",
         )

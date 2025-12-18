@@ -6,13 +6,14 @@ Provides business logic for poem operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from typing import Any, Dict, List, Optional
 
-from ...repository.models import Poem
+from sqlalchemy import desc
+from sqlalchemy.orm import Session
+
 from ...repository.crud import RepositoryService
+from ...repository.models import Poem
 from ...utils.ulid_utils import generate_ulid
 
 logger = logging.getLogger(__name__)
@@ -54,8 +55,12 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                "created_at": (
+                    poem.created_at.isoformat() if poem.created_at else None
+                ),
+                "updated_at": (
+                    poem.updated_at.isoformat() if poem.updated_at else None
+                ),
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
                 "human_translation_count": poem.human_translation_count,
@@ -96,7 +101,10 @@ class PoemService:
 
             # Order by creation date (newest first) and paginate
             poems = (
-                query.order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
+                query.order_by(desc(Poem.created_at))
+                .offset(skip)
+                .limit(limit)
+                .all()
             )
 
             return [
@@ -111,10 +119,14 @@ class PoemService:
                         else poem.original_text
                     ),
                     "created_at": (
-                        poem.created_at.isoformat() if poem.created_at else None
+                        poem.created_at.isoformat()
+                        if poem.created_at
+                        else None
                     ),
                     "updated_at": (
-                        poem.updated_at.isoformat() if poem.updated_at else None
+                        poem.updated_at.isoformat()
+                        if poem.updated_at
+                        else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
@@ -188,7 +200,9 @@ class PoemService:
             self.db.commit()
             self.db.refresh(poem)
 
-            logger.info(f"Created poem: {poem_id} - {poem_title} by {poet_name}")
+            logger.info(
+                f"Created poem: {poem_id} - {poem_title} by {poet_name}"
+            )
 
             return {
                 "id": poem.id,
@@ -197,8 +211,12 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                "created_at": (
+                    poem.created_at.isoformat() if poem.created_at else None
+                ),
+                "updated_at": (
+                    poem.updated_at.isoformat() if poem.updated_at else None
+                ),
                 "translation_count": 0,
                 "ai_translation_count": 0,
                 "human_translation_count": 0,
@@ -262,7 +280,9 @@ class PoemService:
                 if not content or not content.strip():
                     raise ValueError("Poem content cannot be empty")
                 if len(content.strip()) < 10:
-                    raise ValueError("Poem content must be at least 10 characters")
+                    raise ValueError(
+                        "Poem content must be at least 10 characters"
+                    )
                 poem.original_text = content.strip()
 
             if metadata_json is not None:
@@ -283,8 +303,12 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": poem.created_at.isoformat() if poem.created_at else None,
-                "updated_at": poem.updated_at.isoformat() if poem.updated_at else None,
+                "created_at": (
+                    poem.created_at.isoformat() if poem.created_at else None
+                ),
+                "updated_at": (
+                    poem.updated_at.isoformat() if poem.updated_at else None
+                ),
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
                 "human_translation_count": poem.human_translation_count,
@@ -337,7 +361,8 @@ class PoemService:
             # Count by language
             languages = (
                 self.db.query(
-                    Poem.source_language, self.db.func.count(Poem.id).label("count")
+                    Poem.source_language,
+                    self.db.func.count(Poem.id).label("count"),
                 )
                 .group_by(Poem.source_language)
                 .all()
@@ -415,7 +440,9 @@ class PoemService:
                         else poem.original_text
                     ),
                     "created_at": (
-                        poem.created_at.isoformat() if poem.created_at else None
+                        poem.created_at.isoformat()
+                        if poem.created_at
+                        else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,

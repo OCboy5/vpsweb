@@ -5,28 +5,27 @@ SQLAlchemy ORM models for the 4-table database schema.
 Defines Poem, Translation, AILog, and HumanNote models with relationships.
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 # Define UTC+8 timezone
 UTC_PLUS_8 = timezone(timedelta(hours=8))
 
 from sqlalchemy import (
-    Column,
-    String,
-    Text,
-    DateTime,
-    ForeignKey,
-    JSON,
-    Integer,
-    Float,
     Boolean,
     CheckConstraint,
-    Index,
+    DateTime,
     Enum,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+
 from .database import Base
 
 
@@ -39,15 +38,25 @@ class Poem(Base):
     id: Mapped[str] = mapped_column(String(26), primary_key=True, index=True)
 
     # Core fields
-    poet_name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
-    poem_title: Mapped[str] = mapped_column(String(300), nullable=False, index=True)
-    source_language: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
+    poet_name: Mapped[str] = mapped_column(
+        String(200), nullable=False, index=True
+    )
+    poem_title: Mapped[str] = mapped_column(
+        String(300), nullable=False, index=True
+    )
+    source_language: Mapped[str] = mapped_column(
+        String(10), nullable=False, index=True
+    )
     original_text: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Optional metadata
     metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     selected: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, server_default="false", index=True
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+        index=True,
     )
 
     # Timestamps
@@ -121,8 +130,12 @@ class Translation(Base):
     translator_type: Mapped[str] = mapped_column(
         String(10), nullable=False, index=True
     )  # 'ai' or 'human'
-    translator_info: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
-    target_language: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
+    translator_info: Mapped[Optional[str]] = mapped_column(
+        String(200), nullable=True
+    )
+    target_language: Mapped[str] = mapped_column(
+        String(10), nullable=False, index=True
+    )
     translated_text: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Translated title and poet name metadata
@@ -194,7 +207,11 @@ class Translation(Base):
         Index("idx_translations_composite_created", "poem_id", "created_at"),
         Index("idx_translations_poet_subdir", "poet_subdirectory"),
         Index("idx_translations_file_category", "file_category"),
-        Index("idx_translations_composite_file", "poet_subdirectory", "file_category"),
+        Index(
+            "idx_translations_composite_file",
+            "poet_subdirectory",
+            "file_category",
+        ),
         CheckConstraint(
             "translator_type IN ('ai', 'human')", name="ck_translator_type"
         ),
@@ -241,7 +258,9 @@ class Translation(Base):
     @property
     def total_duration(self) -> Optional[float]:
         """Get total duration across all workflow steps"""
-        return sum(step.duration_seconds or 0.0 for step in self.workflow_steps)
+        return sum(
+            step.duration_seconds or 0.0 for step in self.workflow_steps
+        )
 
 
 class AILog(Base):
@@ -261,13 +280,17 @@ class AILog(Base):
     )
 
     # AI execution details
-    model_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    model_name: Mapped[str] = mapped_column(
+        String(100), nullable=False, index=True
+    )
     workflow_mode: Mapped[str] = mapped_column(
         String(20), nullable=False, index=True
     )  # 'reasoning', 'non_reasoning', 'hybrid'
 
     # Performance and usage data
-    token_usage_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    token_usage_json: Mapped[Optional[str]] = mapped_column(
+        Text, nullable=True
+    )
     cost_info_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     runtime_seconds: Mapped[Optional[float]] = mapped_column(nullable=True)
 
@@ -287,7 +310,9 @@ class AILog(Base):
         "Translation", back_populates="ai_logs"
     )
     workflow_steps: Mapped[List["TranslationWorkflowStep"]] = relationship(
-        "TranslationWorkflowStep", back_populates="ai_log", cascade="all, delete-orphan"
+        "TranslationWorkflowStep",
+        back_populates="ai_log",
+        cascade="all, delete-orphan",
     )
 
     # Indexes
@@ -303,9 +328,7 @@ class AILog(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"AILog(id={self.id}, model={self.model_name}, mode={self.workflow_mode})"
-        )
+        return f"AILog(id={self.id}, model={self.model_name}, mode={self.workflow_mode})"
 
     @property
     def token_usage(self) -> Optional[dict]:
@@ -398,7 +421,9 @@ class TranslationWorkflowStep(Base):
     )
 
     # Workflow identification
-    workflow_id: Mapped[str] = mapped_column(String(26), nullable=False, index=True)
+    workflow_id: Mapped[str] = mapped_column(
+        String(26), nullable=False, index=True
+    )
 
     # Step classification
     step_type: Mapped[str] = mapped_column(
@@ -415,18 +440,28 @@ class TranslationWorkflowStep(Base):
     tokens_used: Mapped[Optional[int]] = mapped_column(
         Integer, nullable=True, index=True
     )
-    prompt_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    completion_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    prompt_tokens: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True
+    )
+    completion_tokens: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True
+    )
     duration_seconds: Mapped[Optional[float]] = mapped_column(
         Float, nullable=True, index=True
     )
-    cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
+    cost: Mapped[Optional[float]] = mapped_column(
+        Float, nullable=True, index=True
+    )
 
     # Keep JSON for additional/future metrics (flexibility)
-    additional_metrics: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    additional_metrics: Mapped[Optional[str]] = mapped_column(
+        Text, nullable=True
+    )
 
     # Translated metadata (for initial_translation and revised_translation steps)
-    translated_title: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    translated_title: Mapped[Optional[str]] = mapped_column(
+        String(500), nullable=True
+    )
     translated_poet_name: Mapped[Optional[str]] = mapped_column(
         String(200), nullable=True
     )
@@ -450,7 +485,9 @@ class TranslationWorkflowStep(Base):
     translation: Mapped["Translation"] = relationship(
         "Translation", back_populates="workflow_steps"
     )
-    ai_log: Mapped["AILog"] = relationship("AILog", back_populates="workflow_steps")
+    ai_log: Mapped["AILog"] = relationship(
+        "AILog", back_populates="workflow_steps"
+    )
 
     # Indexes for performance
     __table_args__ = (
@@ -463,7 +500,10 @@ class TranslationWorkflowStep(Base):
         Index("idx_workflow_steps_duration", "duration_seconds"),
         Index("idx_workflow_steps_tokens", "tokens_used"),
         Index(
-            "idx_workflow_steps_step_metrics", "step_type", "cost", "duration_seconds"
+            "idx_workflow_steps_step_metrics",
+            "step_type",
+            "cost",
+            "duration_seconds",
         ),
         CheckConstraint(
             "step_type IN ('initial_translation', 'editor_review', 'revised_translation')",
@@ -521,7 +561,9 @@ class BackgroundBriefingReport(Base):
     tokens_used: Mapped[Optional[int]] = mapped_column(
         Integer, nullable=True, index=True
     )
-    cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
+    cost: Mapped[Optional[float]] = mapped_column(
+        Float, nullable=True, index=True
+    )
     time_spent: Mapped[Optional[float]] = mapped_column(
         Float, nullable=True, index=True
     )  # Time in seconds for BBR generation
@@ -558,7 +600,9 @@ class BackgroundBriefingReport(Base):
     )
 
     def __repr__(self) -> str:
-        return f"BackgroundBriefingReport(id={self.id}, poem_id={self.poem_id})"
+        return (
+            f"BackgroundBriefingReport(id={self.id}, poem_id={self.poem_id})"
+        )
 
     @property
     def content_data(self) -> Optional[dict]:

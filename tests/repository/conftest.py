@@ -13,21 +13,22 @@ Features:
 
 import asyncio
 import sys
-from typing import AsyncGenerator
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from vpsweb.repository.models import Base
-from vpsweb.utils.logger import get_logger
-
 
 # Configure pytest-asyncio
 pytest_asyncio.default_mode = "auto"
@@ -355,6 +356,7 @@ async def test_client(db_session):
         AsyncClient: Test HTTP client
     """
     from httpx import AsyncClient
+
     from vpsweb.repository.app import create_app
     from vpsweb.repository.database import get_session
 

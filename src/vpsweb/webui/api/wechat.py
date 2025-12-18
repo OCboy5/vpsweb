@@ -5,30 +5,28 @@ API endpoints for generating WeChat articles from translation workflow data.
 Integrates the CLI WeChat article generation workflow with the WebUI.
 """
 
-from typing import Optional, Dict, Any
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    BackgroundTasks,
     Request,
     Response,
 )
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from vpsweb.repository.database import get_db
 from vpsweb.repository.crud import RepositoryService
-from vpsweb.repository.models import Translation, TranslationWorkflowStep
-from ..schemas import WebAPIResponse
-from ..utils.wechat_article_runner import WeChatArticleRunner
-from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
-from vpsweb.services.config import get_config_facade, ConfigFacade
+from vpsweb.repository.database import get_db
+from vpsweb.repository.models import Translation
+from vpsweb.services.config import ConfigFacade, get_config_facade
 
-import json
-import tempfile
-from pathlib import Path
-from datetime import datetime
+from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
+from ..utils.wechat_article_runner import WeChatArticleRunner
 
 router = APIRouter()
 
@@ -59,13 +57,16 @@ class WeChatArticleResponse(BaseModel):
     data: Optional[Dict[str, Any]] = None
 
 
-def get_vpsweb_adapter(db: Session = Depends(get_db)) -> VPSWebWorkflowAdapterV2:
+def get_vpsweb_adapter(
+    db: Session = Depends(get_db),
+) -> VPSWebWorkflowAdapterV2:
     """Dependency to get VPSWeb workflow adapter instance"""
+    from vpsweb.core.container import DIContainer
+    from vpsweb.core.workflow_orchestrator import WorkflowOrchestratorV2
+    from vpsweb.repository.service import RepositoryWebService
+
     from ..services.poem_service import PoemService
     from ..services.vpsweb_adapter import VPSWebWorkflowAdapterV2
-    from vpsweb.repository.service import RepositoryWebService
-    from vpsweb.core.workflow_orchestrator import WorkflowOrchestratorV2
-    from vpsweb.core.container import DIContainer
 
     poem_service = PoemService(db)
     repository_service = RepositoryWebService(db)
@@ -83,7 +84,8 @@ def get_vpsweb_adapter(db: Session = Depends(get_db)) -> VPSWebWorkflowAdapterV2
 
 
 @router.post(
-    "/{translation_id}/generate-wechat-article", response_model=WeChatArticleResponse
+    "/{translation_id}/generate-wechat-article",
+    response_model=WeChatArticleResponse,
 )
 async def generate_wechat_article(
     translation_id: str,
@@ -112,7 +114,9 @@ async def generate_wechat_article(
     - Generated article information including file paths and metadata
     """
 
-    print(f"🚀 Starting WeChat article generation for translation: {translation_id}")
+    print(
+        f"🚀 Starting WeChat article generation for translation: {translation_id}"
+    )
 
     # Check if translation exists
     print(f"🔍 Looking up translation {translation_id}...")
@@ -128,14 +132,18 @@ async def generate_wechat_article(
 
     # Verify it's an AI translation with workflow steps
     if translation.translator_type != "ai":
-        error_msg = "WeChat article generation is only available for AI translations"
+        error_msg = (
+            "WeChat article generation is only available for AI translations"
+        )
         print(f"❌ {error_msg} (found: {translation.translator_type})")
         raise HTTPException(status_code=400, detail=error_msg)
 
     # Check if translation has workflow steps (translation notes)
     print(f"🔍 Checking workflow steps for translation {translation_id}...")
     try:
-        workflow_steps = service.workflow_steps.get_by_translation(translation_id)
+        workflow_steps = service.workflow_steps.get_by_translation(
+            translation_id
+        )
         print(f"✅ Found {len(workflow_steps)} workflow steps")
     except Exception as e:
         error_msg = f"Failed to retrieve workflow steps: {str(e)}"
@@ -151,7 +159,9 @@ async def generate_wechat_article(
     print(f"🔍 Looking up poem {translation.poem_id}...")
     poem = service.poems.get_by_id(translation.poem_id)
     if not poem:
-        error_msg = f"Associated poem with ID '{translation.poem_id}' not found"
+        error_msg = (
+            f"Associated poem with ID '{translation.poem_id}' not found"
+        )
         print(f"❌ {error_msg}")
         raise HTTPException(status_code=404, detail=error_msg)
 
@@ -170,7 +180,9 @@ async def generate_wechat_article(
         runner = WeChatArticleRunner(config_facade=config_facade)
         print(f"✅ WeChat article runner initialized with ConfigFacade")
 
-        print(f"📝 Starting article generation (dry_run={request_body.dry_run})...")
+        print(
+            f"📝 Starting article generation (dry_run={request_body.dry_run})..."
+        )
 
         # Generate task ID and start background generation
         import uuid
@@ -197,7 +209,9 @@ async def generate_wechat_article(
 
         def generate_article_background():
             try:
-                print(f"🔧 Background task {task_id}: Starting article generation...")
+                print(
+                    f"🔧 Background task {task_id}: Starting article generation..."
+                )
                 result = runner.generate_from_translation_data(
                     translation_data=translation_data,
                     author=request_body.author,
@@ -209,11 +223,15 @@ async def generate_wechat_article(
                         "generated_from": "webui",
                     },
                 )
-                print(f"✅ Background task {task_id}: Article generation completed")
+                print(
+                    f"✅ Background task {task_id}: Article generation completed"
+                )
 
                 # Get article summary
                 article_summary = runner.get_article_summary(result)
-                print(f"✅ Background task {task_id}: Article summary retrieved")
+                print(
+                    f"✅ Background task {task_id}: Article summary retrieved"
+                )
 
                 # Update task status
                 app_state.wechat_tasks[task_id]["status"] = "completed"
@@ -234,7 +252,9 @@ async def generate_wechat_article(
         executor = ThreadPoolExecutor(max_workers=1)
         executor.submit(generate_article_background)
 
-        print(f"🚀 Background task {task_id} started for translation {translation_id}")
+        print(
+            f"🚀 Background task {task_id} started for translation {translation_id}"
+        )
 
         return WeChatArticleResponse(
             success=True,
@@ -253,7 +273,9 @@ async def generate_wechat_article(
 
     except FileNotFoundError as e:
         # Handle file not found errors
-        error_msg = f"File not found during WeChat article generation: {str(e)}"
+        error_msg = (
+            f"File not found during WeChat article generation: {str(e)}"
+        )
         print(f"❌ WeChat API File Error: {error_msg}")
         raise HTTPException(
             status_code=500,
@@ -274,7 +296,9 @@ async def generate_wechat_article(
         elif "Permission denied" in str(e):
             detail = f"Permission error during article generation: {str(e)}"
         elif "ModuleNotFoundError" in str(e) or "ImportError" in str(e):
-            detail = f"Missing required module for article generation: {str(e)}"
+            detail = (
+                f"Missing required module for article generation: {str(e)}"
+            )
         else:
             detail = f"WeChat article generation failed: {str(e)}"
 
@@ -282,7 +306,8 @@ async def generate_wechat_article(
 
 
 @router.get(
-    "/{translation_id}/wechat-article-status", response_model=WeChatArticleResponse
+    "/{translation_id}/wechat-article-status",
+    response_model=WeChatArticleResponse,
 )
 async def check_wechat_article_status(
     translation_id: str,
@@ -307,7 +332,12 @@ async def check_wechat_article_status(
         return WeChatArticleResponse(
             success=True,
             message="No WeChat article generation tasks found",
-            data={"status": "not_found", "tasks": [], "result": None, "error": None},
+            data={
+                "status": "not_found",
+                "tasks": [],
+                "result": None,
+                "error": None,
+            },
         )
 
     # Find tasks for this translation
@@ -330,7 +360,12 @@ async def check_wechat_article_status(
         return WeChatArticleResponse(
             success=True,
             message="No WeChat article generation tasks found for this translation",
-            data={"status": "not_found", "tasks": [], "result": None, "error": None},
+            data={
+                "status": "not_found",
+                "tasks": [],
+                "result": None,
+                "error": None,
+            },
         )
 
     # Return the most recent task (latest started_at)
@@ -344,7 +379,10 @@ async def check_wechat_article_status(
 
 
 async def _build_translation_data(
-    translation: Translation, poem, workflow_steps: list, service: RepositoryService
+    translation: Translation,
+    poem,
+    workflow_steps: list,
+    service: RepositoryService,
 ) -> Dict[str, Any]:
     """
     Build translation data structure compatible with CLI article generator.
@@ -413,7 +451,9 @@ async def _build_translation_data(
             steps_data["revised_translation"] = step_data
 
     # Format original poem for CLI compatibility (prefixes handled by template)
-    formatted_poem = f"{poem.poem_title}\n{poem.poet_name}\n\n{poem.original_text}"
+    formatted_poem = (
+        f"{poem.poem_title}\n{poem.poet_name}\n\n{poem.original_text}"
+    )
 
     # Build complete translation data structure
     translation_data = {
@@ -423,7 +463,10 @@ async def _build_translation_data(
             "source_lang": poem.source_language,
             "target_lang": translation.target_language,
         },
-        "congregated_output": {"original_poem": formatted_poem, **congregated_output},
+        "congregated_output": {
+            "original_poem": formatted_poem,
+            **congregated_output,
+        },
         "steps": steps_data,
         "ai_log": (
             {
@@ -448,7 +491,9 @@ async def _build_translation_data(
     return translation_data
 
 
-@router.get("/{translation_id}/wechat-articles", response_model=WeChatArticleResponse)
+@router.get(
+    "/{translation_id}/wechat-articles", response_model=WeChatArticleResponse
+)
 async def list_wechat_articles(
     translation_id: str,
     request: Request,
@@ -512,10 +557,14 @@ async def list_wechat_articles(
         articles.append({"type": "html", "file_path": result["html_path"]})
 
     if result.get("markdown_path"):
-        articles.append({"type": "markdown", "file_path": result["markdown_path"]})
+        articles.append(
+            {"type": "markdown", "file_path": result["markdown_path"]}
+        )
 
     if result.get("metadata_path"):
-        articles.append({"type": "metadata", "file_path": result["metadata_path"]})
+        articles.append(
+            {"type": "metadata", "file_path": result["metadata_path"]}
+        )
 
     return WeChatArticleResponse(
         success=True,
@@ -557,7 +606,9 @@ async def get_wechat_article_metadata(
     # Check for completed tasks for this translation
     if not hasattr(request.app.state, "wechat_tasks"):
         return WeChatArticleResponse(
-            success=False, message="No WeChat article generation tasks found", data=None
+            success=False,
+            message="No WeChat article generation tasks found",
+            data=None,
         )
 
     # Find completed tasks for this translation
@@ -596,7 +647,9 @@ async def get_wechat_article_metadata(
 
     # The result is the article summary from get_article_summary()
     # It uses "output_directory" field name, not "output_dir"
-    output_dir = result.get("output_directory") if isinstance(result, dict) else None
+    output_dir = (
+        result.get("output_directory") if isinstance(result, dict) else None
+    )
     if not output_dir:
         return WeChatArticleResponse(
             success=False,
@@ -625,7 +678,9 @@ async def get_wechat_article_metadata(
 
     except Exception as e:
         return WeChatArticleResponse(
-            success=False, message=f"Failed to read metadata: {str(e)}", data=None
+            success=False,
+            message=f"Failed to read metadata: {str(e)}",
+            data=None,
         )
 
 
@@ -669,7 +724,9 @@ async def view_wechat_article_html(
 
             if completed_tasks:
                 # Get the most recent completed task
-                latest_task = max(completed_tasks, key=lambda t: t["completed_at"])
+                latest_task = max(
+                    completed_tasks, key=lambda t: t["completed_at"]
+                )
                 result = latest_task.get("result")
 
                 if result and result.get("output_directory"):
@@ -690,9 +747,13 @@ async def view_wechat_article_html(
                     if metadata.get("source_html_path"):
                         html_path = Path(metadata["source_html_path"])
                         if html_path.exists():
-                            html_content = html_path.read_text(encoding="utf-8")
+                            html_content = html_path.read_text(
+                                encoding="utf-8"
+                            )
             except Exception as e:
-                print(f"⚠️ Warning: Could not read metadata for HTML fallback: {e}")
+                print(
+                    f"⚠️ Warning: Could not read metadata for HTML fallback: {e}"
+                )
 
         if html_content:
             return Response(
@@ -704,7 +765,9 @@ async def view_wechat_article_html(
                 },
             )
         else:
-            raise HTTPException(status_code=404, detail="HTML article not found")
+            raise HTTPException(
+                status_code=404, detail="HTML article not found"
+            )
 
     except HTTPException:
         raise

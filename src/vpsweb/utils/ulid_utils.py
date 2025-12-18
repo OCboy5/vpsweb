@@ -13,14 +13,13 @@ Features:
 - Batch ULID generation
 """
 
-import time
 import random
 import re
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
-from dataclasses import dataclass
 import struct
-
+import time
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
 # ULID alphabet: Crockford's Base32
 CROCKFORD_BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
@@ -33,19 +32,13 @@ DECODE_MAP = {i: char for i, char in enumerate(CROCKFORD_BASE32)}
 class ULIDError(Exception):
     """Base exception for ULID operations."""
 
-    pass
-
 
 class InvalidULIDError(ULIDError):
     """Invalid ULID format or encoding."""
 
-    pass
-
 
 class TimeOverflowError(ULIDError):
     """ULID time component overflow."""
-
-    pass
 
 
 @dataclass
@@ -165,7 +158,10 @@ class ULIDGenerator:
             dt = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc)
 
             return ULIDComponents(
-                timestamp=timestamp, randomness=randomness, datetime=dt, encoded=ulid
+                timestamp=timestamp,
+                randomness=randomness,
+                datetime=dt,
+                encoded=ulid,
             )
 
         except Exception as e:

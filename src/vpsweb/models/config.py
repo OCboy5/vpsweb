@@ -5,9 +5,10 @@ This module contains Pydantic models for validating and structuring
 all configuration aspects of the translation workflow system.
 """
 
-from typing import Dict, List, Optional, Any, Literal, Union
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
+from typing import Any, Dict, List, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ProviderType(str, Enum):
@@ -29,7 +30,9 @@ class LogLevel(str, Enum):
 class ModelCapabilities(BaseModel):
     """Model capabilities classification."""
 
-    reasoning: bool = Field(False, description="Whether this is a reasoning model")
+    reasoning: bool = Field(
+        False, description="Whether this is a reasoning model"
+    )
 
 
 class ModelProviderConfig(BaseModel):
@@ -79,16 +82,24 @@ class StepConfig(BaseModel):
     temperature: float = Field(
         0.7, ge=0.0, le=2.0, description="Temperature for generation"
     )
-    max_tokens: int = Field(4096, ge=1, description="Maximum tokens to generate")
-    prompt_template: str = Field(..., description="Path to prompt template file")
-    timeout: Optional[float] = Field(120.0, description="Request timeout in seconds")
+    max_tokens: int = Field(
+        4096, ge=1, description="Maximum tokens to generate"
+    )
+    prompt_template: str = Field(
+        ..., description="Path to prompt template file"
+    )
+    timeout: Optional[float] = Field(
+        120.0, description="Request timeout in seconds"
+    )
     retry_attempts: Optional[int] = Field(
         3, description="Number of retry attempts for failed requests"
     )
     required_fields: Optional[List[str]] = Field(
         None, description="Required fields in the step output for validation"
     )
-    stop: Optional[List[str]] = Field(None, description="Stop sequences for generation")
+    stop: Optional[List[str]] = Field(
+        None, description="Stop sequences for generation"
+    )
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -106,7 +117,8 @@ class TaskTemplateStepConfig(BaseModel):
     """Configuration for a workflow step using task templates (new structure)."""
 
     task_template: str = Field(
-        ..., description="Task template name to resolve from task_templates.yaml"
+        ...,
+        description="Task template name to resolve from task_templates.yaml",
     )
 
     @field_validator("task_template")
@@ -127,13 +139,17 @@ class WorkflowConfig(BaseModel):
     # Support both old and new structures
     reasoning_workflow: Optional[
         Dict[str, Union[StepConfig, TaskTemplateStepConfig]]
-    ] = Field(None, description="Configuration for reasoning mode workflow steps")
+    ] = Field(
+        None, description="Configuration for reasoning mode workflow steps"
+    )
     non_reasoning_workflow: Optional[
         Dict[str, Union[StepConfig, TaskTemplateStepConfig]]
-    ] = Field(None, description="Configuration for non-reasoning mode workflow steps")
-    hybrid_workflow: Optional[Dict[str, Union[StepConfig, TaskTemplateStepConfig]]] = (
-        Field(None, description="Configuration for hybrid mode workflow steps")
+    ] = Field(
+        None, description="Configuration for non-reasoning mode workflow steps"
     )
+    hybrid_workflow: Optional[
+        Dict[str, Union[StepConfig, TaskTemplateStepConfig]]
+    ] = Field(None, description="Configuration for hybrid mode workflow steps")
 
     @field_validator("name")
     @classmethod
@@ -176,7 +192,9 @@ class WorkflowConfig(BaseModel):
         """Get workflow steps for the specified mode."""
         if mode == WorkflowMode.REASONING and self.reasoning_workflow:
             return self.reasoning_workflow
-        elif mode == WorkflowMode.NON_REASONING and self.non_reasoning_workflow:
+        elif (
+            mode == WorkflowMode.NON_REASONING and self.non_reasoning_workflow
+        ):
             return self.non_reasoning_workflow
         elif mode == WorkflowMode.HYBRID and self.hybrid_workflow:
             return self.hybrid_workflow
@@ -187,16 +205,21 @@ class WorkflowConfig(BaseModel):
 class StorageConfig(BaseModel):
     """Configuration for data storage."""
 
-    output_dir: str = Field("outputs", description="Directory for output files")
+    output_dir: str = Field(
+        "outputs", description="Directory for output files"
+    )
     format: Literal["json", "yaml"] = Field(
         "json", description="Output format (json or yaml)"
     )
     include_timestamp: bool = Field(
         True, description="Whether to include timestamp in output filenames"
     )
-    pretty_print: bool = Field(True, description="Whether to pretty-print JSON output")
+    pretty_print: bool = Field(
+        True, description="Whether to pretty-print JSON output"
+    )
     workflow_mode_tag: bool = Field(
-        False, description="Whether to include workflow mode in output filenames"
+        False,
+        description="Whether to include workflow mode in output filenames",
     )
 
     @field_validator("output_dir")
@@ -222,18 +245,27 @@ class LoggingConfig(BaseModel):
     max_file_size: int = Field(
         10485760, description="Maximum log file size in bytes"  # 10MB
     )
-    backup_count: int = Field(5, description="Number of backup log files to keep")
+    backup_count: int = Field(
+        5, description="Number of backup log files to keep"
+    )
     log_reasoning_tokens: bool = Field(
-        False, description="Whether to track reasoning model token usage separately"
+        False,
+        description="Whether to track reasoning model token usage separately",
     )
 
 
 class MonitoringConfig(BaseModel):
     """Configuration for performance monitoring."""
 
-    track_latency: bool = Field(True, description="Whether to track request latency")
-    track_token_usage: bool = Field(True, description="Whether to track token usage")
-    track_cost: bool = Field(False, description="Whether to estimate API costs")
+    track_latency: bool = Field(
+        True, description="Whether to track request latency"
+    )
+    track_token_usage: bool = Field(
+        True, description="Whether to track token usage"
+    )
+    track_cost: bool = Field(
+        False, description="Whether to estimate API costs"
+    )
     compare_workflows: bool = Field(
         False, description="Whether to enable A/B workflow comparison"
     )
@@ -254,7 +286,8 @@ class MainConfig(BaseModel):
         default_factory=LoggingConfig, description="Logging configuration"
     )
     monitoring: MonitoringConfig = Field(
-        default_factory=MonitoringConfig, description="Monitoring configuration"
+        default_factory=MonitoringConfig,
+        description="Monitoring configuration",
     )
 
     model_config = ConfigDict(use_enum_values=True)
@@ -275,7 +308,9 @@ class ProvidersConfig(BaseModel):
     reasoning_settings: Optional[Dict[str, Any]] = Field(
         None, description="Reasoning model settings"
     )
-    pricing: Optional[Dict[str, Any]] = Field(None, description="Pricing information")
+    pricing: Optional[Dict[str, Any]] = Field(
+        None, description="Pricing information"
+    )
     bbr_generation: Optional[Dict[str, Any]] = Field(
         None, description="BBR generation configuration"
     )
@@ -284,7 +319,9 @@ class ProvidersConfig(BaseModel):
         """Check if a model is classified as a reasoning model."""
         if not self.model_classification:
             return False
-        reasoning_models = self.model_classification.get("reasoning_models", [])
+        reasoning_models = self.model_classification.get(
+            "reasoning_models", []
+        )
         return model_name in reasoning_models
 
 
@@ -297,7 +334,9 @@ class CompleteConfig(BaseModel):
     def get_provider_config(self, provider_name: str) -> ModelProviderConfig:
         """Get configuration for a specific provider."""
         if provider_name not in self.providers.providers:
-            raise ValueError(f"Provider '{provider_name}' not found in configuration")
+            raise ValueError(
+                f"Provider '{provider_name}' not found in configuration"
+            )
         return self.providers.providers[provider_name]
 
     model_config = ConfigDict(use_enum_values=True)

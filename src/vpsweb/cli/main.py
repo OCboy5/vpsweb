@@ -6,34 +6,34 @@ and the service layer pattern for CLI operations.
 """
 
 import sys
-import click
 from pathlib import Path
-from typing import Optional
+
+import click
+
+from vpsweb.core.container import DIContainer
 
 from .interfaces import (
-    ICLIInputServiceV2,
-    ICLIConfigurationServiceV2,
-    ICLIWorkflowServiceV2,
-    ICLIStorageServiceV2,
-    ICLIOutputServiceV2,
-    ICLIWeChatServiceV2,
     ICLICommandServiceV2,
+    ICLIConfigurationServiceV2,
     ICLIErrorHandlerV2,
+    ICLIInputServiceV2,
     ICLILoggerServiceV2,
+    ICLIOutputServiceV2,
+    ICLIStorageServiceV2,
+    ICLIWeChatServiceV2,
+    ICLIWorkflowServiceV2,
 )
 from .services import (
-    CLIInputServiceV2,
-    CLIConfigurationServiceV2,
-    CLIWorkflowServiceV2,
-    CLIStorageServiceV2,
-    CLIOutputServiceV2,
-    CLIWeChatServiceV2,
     CLICommandServiceV2,
+    CLIConfigurationServiceV2,
     CLIErrorHandlerV2,
+    CLIInputServiceV2,
     CLILoggerServiceV2,
+    CLIOutputServiceV2,
+    CLIStorageServiceV2,
+    CLIWeChatServiceV2,
+    CLIWorkflowServiceV2,
 )
-from vpsweb.core.container import DIContainer
-from vpsweb.models.config import WorkflowMode
 
 
 class CLIApplicationV2:
@@ -71,7 +71,6 @@ class CLIApplicationV2:
             Translate poetry using a collaborative Translator→Editor→Translator workflow
             that produces high-fidelity translations preserving aesthetic beauty and cultural context.
             """
-            pass
 
         # Add commands
         cli.add_command(self._translate_command())
@@ -85,7 +84,10 @@ class CLIApplicationV2:
 
         @click.command()
         @click.option(
-            "--input", "-i", type=click.Path(exists=True), help="Input poem file"
+            "--input",
+            "-i",
+            type=click.Path(exists=True),
+            help="Input poem file",
         )
         @click.option(
             "--source",
@@ -114,11 +116,22 @@ class CLIApplicationV2:
             type=click.Path(exists=True),
             help="Custom config directory",
         )
-        @click.option("--output", "-o", type=click.Path(), help="Output directory")
+        @click.option(
+            "--output", "-o", type=click.Path(), help="Output directory"
+        )
         @click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
-        @click.option("--dry-run", is_flag=True, help="Validate without execution")
+        @click.option(
+            "--dry-run", is_flag=True, help="Validate without execution"
+        )
         def translate(
-            input, source, target, workflow_mode, config, output, verbose, dry_run
+            input,
+            source,
+            target,
+            workflow_mode,
+            config,
+            output,
+            verbose,
+            dry_run,
         ):
             """Translate a poem using the T-E-T workflow
 
@@ -197,9 +210,13 @@ class CLIApplicationV2:
             help="Output directory for generated article",
         )
         @click.option(
-            "--author", type=str, help="Article author name (default: 知韵VoxPoetica)"
+            "--author",
+            type=str,
+            help="Article author name (default: 知韵VoxPoetica)",
         )
-        @click.option("--digest", type=str, help="Custom digest (80-120 characters)")
+        @click.option(
+            "--digest", type=str, help="Custom digest (80-120 characters)"
+        )
         @click.option(
             "--model-type",
             "-m",
@@ -212,9 +229,17 @@ class CLIApplicationV2:
             is_flag=True,
             help="Generate article without external API calls",
         )
-        @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+        @click.option(
+            "--verbose", "-v", is_flag=True, help="Enable verbose logging"
+        )
         def generate_article(
-            input_json, output_dir, author, digest, model_type, dry_run, verbose
+            input_json,
+            output_dir,
+            author,
+            digest,
+            model_type,
+            dry_run,
+            verbose,
         ):
             """Generate a WeChat article from translation JSON output.
 
@@ -268,17 +293,25 @@ class CLIApplicationV2:
                 click.echo(
                     f"📁 Output directory: {result.get('output_directory', 'N/A')}"
                 )
-                click.echo(f"📄 Article HTML: {result.get('html_path', 'N/A')}")
-                click.echo(f"📋 Metadata: {result.get('metadata_path', 'N/A')}")
+                click.echo(
+                    f"📄 Article HTML: {result.get('html_path', 'N/A')}"
+                )
+                click.echo(
+                    f"📋 Metadata: {result.get('metadata_path', 'N/A')}"
+                )
 
                 if dry_run:
-                    click.echo("\n🔍 Dry run completed - no external API calls made")
+                    click.echo(
+                        "\n🔍 Dry run completed - no external API calls made"
+                    )
 
                 return result
 
             except Exception as e:
                 exit_code = self.error_handler.handle_cli_error(
-                    error=e, command_context="generate-article", verbose=verbose
+                    error=e,
+                    command_context="generate-article",
+                    verbose=verbose,
                 )
                 sys.exit(exit_code)
 
@@ -302,9 +335,13 @@ class CLIApplicationV2:
             help="Path to WeChat configuration file",
         )
         @click.option(
-            "--dry-run", is_flag=True, help="Preview API call without sending to WeChat"
+            "--dry-run",
+            is_flag=True,
+            help="Preview API call without sending to WeChat",
         )
-        @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
+        @click.option(
+            "--verbose", "-v", is_flag=True, help="Enable verbose logging"
+        )
         def publish_article(directory, config, dry_run, verbose):
             """Publish article from directory containing article.html and metadata.json.
 
@@ -376,7 +413,6 @@ class CLIFactoryV2:
         Returns:
             Configured CLI application
         """
-        import logging
 
         # Create DI container
         container = DIContainer()
@@ -386,7 +422,9 @@ class CLIFactoryV2:
         container.register_singleton(
             ICLIConfigurationServiceV2, CLIConfigurationServiceV2
         )
-        container.register_singleton(ICLIWorkflowServiceV2, CLIWorkflowServiceV2)
+        container.register_singleton(
+            ICLIWorkflowServiceV2, CLIWorkflowServiceV2
+        )
         container.register_singleton(ICLIStorageServiceV2, CLIStorageServiceV2)
         container.register_singleton(ICLIOutputServiceV2, CLIOutputServiceV2)
         container.register_singleton(ICLIWeChatServiceV2, CLIWeChatServiceV2)

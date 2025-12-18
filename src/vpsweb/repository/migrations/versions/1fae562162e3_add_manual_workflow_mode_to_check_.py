@@ -8,9 +8,8 @@ Create Date: 2025-12-16 22:27:20.404657
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "1fae562162e3"
@@ -43,5 +42,7 @@ def downgrade() -> None:
         # Recreate original check constraint without manual
         batch_op.create_check_constraint(
             "ck_workflow_mode",
-            sa.text("workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid')"),
+            sa.text(
+                "workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid')"
+            ),
         )

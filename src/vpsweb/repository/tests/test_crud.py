@@ -5,27 +5,21 @@ Tests for the CRUD operations: CRUDPoem, CRUDTranslation, CRUDAILog, CRUDHumanNo
 """
 
 import pytest
-from datetime import datetime
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from sqlalchemy.exc import IntegrityError
 
-from ..models import Poem, Translation, AILog, HumanNote, Base
 from ..crud import (
     RepositoryService,
-    CRUDPoem,
-    CRUDTranslation,
-    CRUDAILog,
-    CRUDHumanNote,
 )
+from ..models import Base
 from ..schemas import (
+    AILogCreate,
+    HumanNoteCreate,
     PoemCreate,
     PoemUpdate,
     TranslationCreate,
     TranslationUpdate,
-    AILogCreate,
-    HumanNoteCreate,
     TranslatorType,
     WorkflowMode,
 )
@@ -45,7 +39,9 @@ def db_session():
     Base.metadata.create_all(bind=engine)
 
     # Create session
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    TestingSessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=engine
+    )
     session = TestingSessionLocal()
 
     yield session
@@ -143,8 +139,8 @@ class TestCRUDPoem:
         poem2_data.poet_name = "杜甫"
         poem2_data.poem_title = "春望"
 
-        poem1 = repository_service.poems.create(poem1_data)
-        poem2 = repository_service.poems.create(poem2_data)
+        repository_service.poems.create(poem1_data)
+        repository_service.poems.create(poem2_data)
 
         # Get all poems
         poems = repository_service.poems.get_multi()
@@ -251,13 +247,24 @@ class TestCRUDTranslation:
         translation_create_data.poem_id = poem.id
 
         # Create translation
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         assert translation.id is not None
         assert translation.poem_id == poem.id
-        assert translation.translator_type == translation_create_data.translator_type
-        assert translation.target_language == translation_create_data.target_language
-        assert translation.translated_text == translation_create_data.translated_text
+        assert (
+            translation.translator_type
+            == translation_create_data.translator_type
+        )
+        assert (
+            translation.target_language
+            == translation_create_data.target_language
+        )
+        assert (
+            translation.translated_text
+            == translation_create_data.translated_text
+        )
         assert translation.created_at is not None
 
     def test_get_translations_by_poem(
@@ -271,7 +278,9 @@ class TestCRUDTranslation:
         translation_create_data.poem_id = poem.id
         translation_create_data.translator_type = TranslatorType.AI
         translation_create_data.translator_info = "gpt-4"
-        ai_translation = repository_service.translations.create(translation_create_data)
+        ai_translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         translation_create_data.translator_type = TranslatorType.HUMAN
         translation_create_data.translator_info = "John Translator"
@@ -317,12 +326,15 @@ class TestCRUDTranslation:
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Update translation
         update_data = TranslationUpdate(
             quality_rating=5,
-            translated_text=translation.translated_text + " (Improved version)",
+            translated_text=translation.translated_text
+            + " (Improved version)",
         )
 
         updated_translation = repository_service.translations.update(
@@ -348,7 +360,9 @@ class TestCRUDAILog:
         # Create poem and translation first
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Update AI log data with correct translation_id
         ai_log_create_data.translation_id = translation.id
@@ -373,7 +387,9 @@ class TestCRUDAILog:
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create multiple AI logs
         ai_log_create_data.translation_id = translation.id
@@ -401,7 +417,9 @@ class TestCRUDAILog:
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create AI logs for different models
         ai_log_create_data.translation_id = translation.id
@@ -431,7 +449,9 @@ class TestCRUDHumanNote:
         # Create poem and translation first
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create human note
         note_data = HumanNoteCreate(
@@ -453,11 +473,14 @@ class TestCRUDHumanNote:
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create multiple human notes
         note1_data = HumanNoteCreate(
-            translation_id=translation.id, note_text="First note: Good translation."
+            translation_id=translation.id,
+            note_text="First note: Good translation.",
         )
         note2_data = HumanNoteCreate(
             translation_id=translation.id,
@@ -468,7 +491,9 @@ class TestCRUDHumanNote:
         note2 = repository_service.human_notes.create(note2_data)
 
         # Get notes by translation
-        notes = repository_service.human_notes.get_by_translation(translation.id)
+        notes = repository_service.human_notes.get_by_translation(
+            translation.id
+        )
 
         assert len(notes) == 2
         assert note1 in notes
@@ -481,7 +506,9 @@ class TestCRUDHumanNote:
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create note
         note_data = HumanNoteCreate(
@@ -573,7 +600,9 @@ class TestRepositoryService:
 
         # Create translation
         translation_create_data.poem_id = poem.id
-        translation = repository_service.translations.create(translation_create_data)
+        translation = repository_service.translations.create(
+            translation_create_data
+        )
 
         # Create AI log
         ai_log_create_data.translation_id = translation.id
@@ -581,7 +610,8 @@ class TestRepositoryService:
 
         # Create human note
         note_data = HumanNoteCreate(
-            translation_id=translation.id, note_text="Excellent translation quality."
+            translation_id=translation.id,
+            note_text="Excellent translation quality.",
         )
         note = repository_service.human_notes.create(note_data)
 

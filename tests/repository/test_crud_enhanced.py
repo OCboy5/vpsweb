@@ -17,37 +17,32 @@ Tables Tested:
 5. human_notes - Human translator notes and feedback
 """
 
-import pytest
-import pytest_asyncio
 import asyncio
 import uuid
-from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from sqlalchemy import select, func, text
+from datetime import datetime
 
+import pytest
+import pytest_asyncio
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.models import (
-    Base,
+    AILog,
+    BackgroundBriefingReport,
+    HumanNote,
     Poem,
     Translation,
-    BackgroundBriefingReport,
-    AILog,
-    HumanNote,
 )
-from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import (
-    PoemCreate,
-    PoemUpdate,
-    PoemSelectionUpdate,
-    TranslationCreate,
-    TranslationUpdate,
     AILogCreate,
     HumanNoteCreate,
+    PoemCreate,
+    TranslationCreate,
     TranslatorType,
     WorkflowMode,
     WorkflowStepType,
 )
-
 
 # ==============================================================================
 # Enhanced CRUD Fixtures
@@ -124,7 +119,9 @@ Then lower it thinking of my hometown.""",
 
 
 @pytest_asyncio.fixture
-async def sample_workflow_data(db_session: AsyncSession, sample_poem_with_translations):
+async def sample_workflow_data(
+    db_session: AsyncSession, sample_poem_with_translations
+):
     """Create sample AI logs and human notes for workflow testing."""
     poem, translations = sample_poem_with_translations
     ai_translation = translations[0]  # AI translation
@@ -275,12 +272,16 @@ And never stops at all,""",
         assert sample_poem.selected in [False, None]
 
         # Toggle to True
-        updated = repository_service.poems.update_selection(sample_poem.id, True)
+        updated = repository_service.poems.update_selection(
+            sample_poem.id, True
+        )
         assert updated is not None
         assert updated.selected is True
 
         # Toggle back to False
-        updated = repository_service.poems.update_selection(sample_poem.id, False)
+        updated = repository_service.poems.update_selection(
+            sample_poem.id, False
+        )
         assert updated.selected is False
 
     async def test_poem_count_with_filters(
@@ -288,8 +289,12 @@ And never stops at all,""",
     ):
         """Test poem count with various filters."""
         # Create diverse poems
-        await test_context.create_poem(poet_name="李白", source_language="Chinese")
-        await test_context.create_poem(poet_name="杜甫", source_language="Chinese")
+        await test_context.create_poem(
+            poet_name="李白", source_language="Chinese"
+        )
+        await test_context.create_poem(
+            poet_name="杜甫", source_language="Chinese"
+        )
         await test_context.create_poem(
             poet_name="Shakespeare", source_language="English"
         )
@@ -299,10 +304,14 @@ And never stops at all,""",
         assert total_count == 3
 
         # Test filtered count
-        chinese_count = repository_service.poems.count(source_language="Chinese")
+        chinese_count = repository_service.poems.count(
+            source_language="Chinese"
+        )
         assert chinese_count == 2
 
-        english_count = repository_service.poems.count(source_language="English")
+        english_count = repository_service.poems.count(
+            source_language="English"
+        )
         assert english_count == 1
 
         poet_count = repository_service.poems.count(poet_name="李白")
@@ -402,7 +411,9 @@ class TestEnhancedTranslationCRUD:
             metadata_json='{"workflow_mode": "reasoning", "model": "deepseek-reasoner"}',
         )
 
-        translation = repository_service.translations.create(translation_create)
+        translation = repository_service.translations.create(
+            translation_create
+        )
 
         assert translation.id is not None
         assert translation.poem_id == sample_poem.id
@@ -427,7 +438,9 @@ class TestEnhancedTranslationCRUD:
                 translated_text="Test translation",
                 quality_rating=rating,
             )
-            translation = repository_service.translations.create(translation_create)
+            translation = repository_service.translations.create(
+                translation_create
+            )
             assert translation.quality_rating == rating
 
     async def test_get_translations_by_type_and_language(
@@ -485,7 +498,9 @@ class TestEnhancedTranslationCRUD:
             total_duration=25.7,
         )
 
-        translation = repository_service.translations.create(translation_create)
+        translation = repository_service.translations.create(
+            translation_create
+        )
 
         # Verify performance metrics are stored correctly
         assert translation.total_tokens_used == 1000
@@ -493,7 +508,9 @@ class TestEnhancedTranslationCRUD:
         assert translation.total_duration == 25.7
 
     async def test_translation_workflow_aggregation(
-        self, repository_service: RepositoryService, sample_poem_with_translations
+        self,
+        repository_service: RepositoryService,
+        sample_poem_with_translations,
     ):
         """Test getting aggregated workflow data for translations."""
         poem, translations = sample_poem_with_translations
@@ -650,7 +667,9 @@ class TestEnhancedAILogCRUD:
 
         # Test aggregation queries
         total_tokens = sum(
-            int(log.token_usage_json.split('"total_tokens": ')[1].split("}")[0])
+            int(
+                log.token_usage_json.split('"total_tokens": ')[1].split("}")[0]
+            )
             for log in ai_logs
         )
 
@@ -673,7 +692,9 @@ class TestEnhancedAILogCRUD:
 
         # Get logs by different models
         qwen_logs = repository_service.ai_logs.get_by_model("qwen-max")
-        deepseek_logs = repository_service.ai_logs.get_by_model("deepseek-chat")
+        deepseek_logs = repository_service.ai_logs.get_by_model(
+            "deepseek-chat"
+        )
 
         assert len(qwen_logs) > 0
         assert len(deepseek_logs) > 0
@@ -719,8 +740,10 @@ class TestEnhancedHumanNoteCRUD:
             assert note.created_at is not None
 
         # Verify all notes are retrievable
-        notes_by_translation = repository_service.human_notes.get_by_translation(
-            sample_translation.id
+        notes_by_translation = (
+            repository_service.human_notes.get_by_translation(
+                sample_translation.id
+            )
         )
         assert len(notes_by_translation) == len(note_texts)
 
@@ -731,7 +754,8 @@ class TestEnhancedHumanNoteCRUD:
         # Test empty note
         with pytest.raises(ValueError):
             note_create = HumanNoteCreate(
-                translation_id=sample_translation.id, note_text=""  # Empty note
+                translation_id=sample_translation.id,
+                note_text="",  # Empty note
             )
             repository_service.human_notes.create(note_create)
 
@@ -772,7 +796,10 @@ class TestEnhancedHumanNoteCRUD:
 
         # Should be ordered by created_at ascending
         for i in range(1, len(retrieved_notes)):
-            assert retrieved_notes[i].created_at >= retrieved_notes[i - 1].created_at
+            assert (
+                retrieved_notes[i].created_at
+                >= retrieved_notes[i - 1].created_at
+            )
 
 
 # ==============================================================================
@@ -799,7 +826,9 @@ class TestCrossEntityRelationships:
             has_workflow_steps=True,
             workflow_step_count=3,
         )
-        translation = repository_service.translations.create(translation_create)
+        translation = repository_service.translations.create(
+            translation_create
+        )
 
         # Step 2: Create AI logs for each workflow step
         steps = [
@@ -838,10 +867,12 @@ class TestCrossEntityRelationships:
             poem_id=sample_poem.id,
             content="Comprehensive background analysis for translation context",
         )
-        bbr = repository_service.bbrs.create(bbr_create)
+        repository_service.bbrs.create(bbr_create)
 
         # Verify complete workflow
-        poem_with_data = repository_service.get_poem_with_translations(sample_poem.id)
+        poem_with_data = repository_service.get_poem_with_translations(
+            sample_poem.id
+        )
         assert poem_with_data is not None
         assert len(poem_with_data["translations"]) == 1
 
@@ -850,7 +881,9 @@ class TestCrossEntityRelationships:
         assert len(translation_data["human_notes"]) == 3
 
     async def test_cascade_deletion_handling(
-        self, repository_service: RepositoryService, sample_poem_with_translations
+        self,
+        repository_service: RepositoryService,
+        sample_poem_with_translations,
     ):
         """Test cascade deletion behavior."""
         poem, translations = sample_poem_with_translations
@@ -872,7 +905,9 @@ class TestCrossEntityRelationships:
         assert repository_service.poems.get_by_id(poem.id) is None
 
         # Check how related data is handled (depends on cascade configuration)
-        remaining_translations = repository_service.translations.get_by_poem(poem.id)
+        remaining_translations = repository_service.translations.get_by_poem(
+            poem.id
+        )
         # Should be empty if cascade delete is configured
         assert len(remaining_translations) == 0
 
@@ -899,14 +934,18 @@ class TestCrossEntityRelationships:
                     poem_id=poem.id,
                     target_language=["English", "Japanese", "Korean"][j % 3],
                     translator_type=(
-                        TranslatorType.AI if j % 2 == 0 else TranslatorType.HUMAN
+                        TranslatorType.AI
+                        if j % 2 == 0
+                        else TranslatorType.HUMAN
                     ),
                 )
 
         # Test aggregation queries performance
         stats = repository_service.get_repository_stats()
         assert stats["total_poems"] == poem_count
-        assert stats["total_translations"] == poem_count * translations_per_poem
+        assert (
+            stats["total_translations"] == poem_count * translations_per_poem
+        )
 
         # Test filtered queries
         start_time = datetime.now()
@@ -918,7 +957,9 @@ class TestCrossEntityRelationships:
         query_time = (datetime.now() - start_time).total_seconds()
 
         assert len(ai_translations) > 0
-        assert query_time < 1.0  # Should complete quickly even with larger dataset
+        assert (
+            query_time < 1.0
+        )  # Should complete quickly even with larger dataset
 
 
 # ==============================================================================
@@ -931,7 +972,9 @@ class TestCrossEntityRelationships:
 class TestDatabaseConstraintsAndEdgeCases:
     """Test database constraints and edge cases."""
 
-    async def test_foreign_key_constraints(self, repository_service: RepositoryService):
+    async def test_foreign_key_constraints(
+        self, repository_service: RepositoryService
+    ):
         """Test foreign key constraint enforcement."""
         # Test translation with non-existent poem_id
         fake_poem_id = str(uuid.uuid4())[:26]
@@ -959,7 +1002,9 @@ class TestDatabaseConstraintsAndEdgeCases:
             target_language="English",
             translated_text="First translation",
         )
-        translation1 = repository_service.translations.create(translation_create1)
+        translation1 = repository_service.translations.create(
+            translation_create1
+        )
 
         # Create second translation (should be allowed - translations are not unique per poem)
         translation_create2 = TranslationCreate(
@@ -969,7 +1014,9 @@ class TestDatabaseConstraintsAndEdgeCases:
             target_language="English",
             translated_text="Second translation",
         )
-        translation2 = repository_service.translations.create(translation_create2)
+        translation2 = repository_service.translations.create(
+            translation_create2
+        )
 
         assert translation1.id != translation2.id
 
@@ -987,11 +1034,18 @@ class TestDatabaseConstraintsAndEdgeCases:
             # Many optional fields left as None
         )
 
-        translation = repository_service.translations.create(translation_create)
+        translation = repository_service.translations.create(
+            translation_create
+        )
 
         # Verify nullable fields are handled correctly
-        assert translation.quality_rating is None  # Should be None if not provided
-        assert translation.metadata_json is None or translation.metadata_json == {}
+        assert (
+            translation.quality_rating is None
+        )  # Should be None if not provided
+        assert (
+            translation.metadata_json is None
+            or translation.metadata_json == {}
+        )
 
     async def test_transaction_rollback(
         self, repository_service: RepositoryService, sample_poem

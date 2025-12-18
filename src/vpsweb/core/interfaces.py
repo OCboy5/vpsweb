@@ -6,11 +6,9 @@ the Phase 3 refactoring to enable better modularity and testability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, AsyncGenerator, Union
 from dataclasses import dataclass
 from enum import Enum
-import asyncio
-
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 # ============================================================================
 # LLM Provider Interfaces
@@ -67,7 +65,6 @@ class ILLMProvider(ABC):
         Returns:
             LLM response
         """
-        pass
 
     @abstractmethod
     async def generate_stream(
@@ -82,22 +79,18 @@ class ILLMProvider(ABC):
         Yields:
             Stream chunks
         """
-        pass
 
     @abstractmethod
     def get_provider_name(self) -> str:
         """Get the provider name."""
-        pass
 
     @abstractmethod
     def get_available_models(self) -> List[str]:
         """Get list of available models."""
-        pass
 
     @abstractmethod
     def validate_config(self, config: Dict[str, Any]) -> bool:
         """Validate provider configuration."""
-        pass
 
 
 class ILLMFactory(ABC):
@@ -106,24 +99,20 @@ class ILLMFactory(ABC):
     @abstractmethod
     def get_provider(self, provider_name: str) -> ILLMProvider:
         """Get a provider instance by name."""
-        pass
 
     @abstractmethod
     def get_provider_config(self, provider_name: str) -> Dict[str, Any]:
         """Get provider configuration."""
-        pass
 
     @abstractmethod
     def list_providers(self) -> List[str]:
         """List all available providers."""
-        pass
 
     @abstractmethod
     def register_provider(
         self, name: str, provider_class: type, config: Dict[str, Any]
     ) -> None:
         """Register a new provider."""
-        pass
 
 
 # ============================================================================
@@ -162,17 +151,14 @@ class IPromptService(ABC):
         Returns:
             Tuple of (system_prompt, user_prompt)
         """
-        pass
 
     @abstractmethod
     def list_templates(self) -> List[str]:
         """List all available template names."""
-        pass
 
     @abstractmethod
     def get_template(self, name: str) -> Optional[PromptTemplate]:
         """Get a template by name."""
-        pass
 
     @abstractmethod
     def validate_template(self, template_content: str) -> List[str]:
@@ -185,12 +171,10 @@ class IPromptService(ABC):
         Returns:
             List of variable names found in template
         """
-        pass
 
     @abstractmethod
     async def register_template(self, template: PromptTemplate) -> None:
         """Register a new template."""
-        pass
 
 
 # ============================================================================
@@ -233,7 +217,6 @@ class IOutputParser(ABC):
         Returns:
             Parsed output result
         """
-        pass
 
     @abstractmethod
     def parse_json(
@@ -249,7 +232,6 @@ class IOutputParser(ABC):
         Returns:
             Parsed output result
         """
-        pass
 
     @abstractmethod
     def extract_code_blocks(
@@ -265,7 +247,6 @@ class IOutputParser(ABC):
         Returns:
             List of code block contents
         """
-        pass
 
     @abstractmethod
     def validate_output(
@@ -281,7 +262,6 @@ class IOutputParser(ABC):
         Returns:
             True if valid, False otherwise
         """
-        pass
 
 
 # ============================================================================
@@ -362,7 +342,6 @@ class IWorkflowOrchestrator(ABC):
         Returns:
             Workflow execution result
         """
-        pass
 
     @abstractmethod
     async def execute_step(
@@ -378,22 +357,20 @@ class IWorkflowOrchestrator(ABC):
         Returns:
             Step execution result
         """
-        pass
 
     @abstractmethod
-    def get_workflow_status(self, workflow_id: str) -> Optional[WorkflowStatus]:
+    def get_workflow_status(
+        self, workflow_id: str
+    ) -> Optional[WorkflowStatus]:
         """Get the status of a running workflow."""
-        pass
 
     @abstractmethod
     async def cancel_workflow(self, workflow_id: str) -> bool:
         """Cancel a running workflow."""
-        pass
 
     @abstractmethod
     def list_workflows(self) -> List[str]:
         """List all available workflow configurations."""
-        pass
 
 
 # ============================================================================
@@ -407,27 +384,22 @@ class IConfigurationService(ABC):
     @abstractmethod
     def get_config(self, key: str, default: Any = None) -> Any:
         """Get configuration value by key."""
-        pass
 
     @abstractmethod
     def set_config(self, key: str, value: Any) -> None:
         """Set configuration value."""
-        pass
 
     @abstractmethod
     def get_section(self, section: str) -> Dict[str, Any]:
         """Get entire configuration section."""
-        pass
 
     @abstractmethod
     def reload_config(self) -> None:
         """Reload configuration from source."""
-        pass
 
     @abstractmethod
     def validate_config(self) -> List[str]:
         """Validate configuration and return list of errors."""
-        pass
 
 
 # ============================================================================
@@ -453,27 +425,22 @@ class IStorageService(ABC):
         self, key: str, data: Any, metadata: Optional[Dict[str, Any]] = None
     ) -> StorageResult:
         """Save data with a key."""
-        pass
 
     @abstractmethod
     async def load(self, key: str) -> StorageResult:
         """Load data by key."""
-        pass
 
     @abstractmethod
     async def delete(self, key: str) -> StorageResult:
         """Delete data by key."""
-        pass
 
     @abstractmethod
     async def list_keys(self, prefix: Optional[str] = None) -> List[str]:
         """List keys with optional prefix filter."""
-        pass
 
     @abstractmethod
     async def exists(self, key: str) -> bool:
         """Check if key exists."""
-        pass
 
 
 # ============================================================================
@@ -498,34 +465,28 @@ class ILogger(ABC):
     @abstractmethod
     def log(self, level: str, message: str, component: str, **kwargs) -> None:
         """Log a message."""
-        pass
 
     @abstractmethod
     def debug(self, message: str, component: str, **kwargs) -> None:
         """Log debug message."""
-        pass
 
     @abstractmethod
     def info(self, message: str, component: str, **kwargs) -> None:
         """Log info message."""
-        pass
 
     @abstractmethod
     def warning(self, message: str, component: str, **kwargs) -> None:
         """Log warning message."""
-        pass
 
     @abstractmethod
     def error(self, message: str, component: str, **kwargs) -> None:
         """Log error message."""
-        pass
 
     @abstractmethod
     async def log_async(
         self, level: str, message: str, component: str, **kwargs
     ) -> None:
         """Log a message asynchronously."""
-        pass
 
 
 class IMetricsCollector(ABC):
@@ -536,26 +497,22 @@ class IMetricsCollector(ABC):
         self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None
     ) -> None:
         """Increment a counter metric."""
-        pass
 
     @abstractmethod
     def record_timing(
         self, name: str, duration: float, tags: Optional[Dict[str, str]] = None
     ) -> None:
         """Record a timing metric."""
-        pass
 
     @abstractmethod
     def set_gauge(
         self, name: str, value: float, tags: Optional[Dict[str, str]] = None
     ) -> None:
         """Set a gauge metric."""
-        pass
 
     @abstractmethod
     def get_metrics(self) -> Dict[str, Any]:
         """Get all collected metrics."""
-        pass
 
 
 # ============================================================================
@@ -600,14 +557,12 @@ class IRetryService(ABC):
         Returns:
             Operation result
         """
-        pass
 
     @abstractmethod
     async def should_retry(
         self, exception: Exception, attempt: int, policy: RetryPolicy
     ) -> bool:
         """Determine if operation should be retried."""
-        pass
 
 
 # ============================================================================
@@ -632,19 +587,17 @@ class IEventBus(ABC):
     @abstractmethod
     async def publish(self, event: Event) -> None:
         """Publish an event."""
-        pass
 
     @abstractmethod
     def subscribe(self, event_name: str, handler: callable) -> str:
         """Subscribe to an event. Returns subscription ID."""
-        pass
 
     @abstractmethod
     def unsubscribe(self, subscription_id: str) -> None:
         """Unsubscribe from an event."""
-        pass
 
     @abstractmethod
-    async def get_events(self, filter_func: Optional[callable] = None) -> List[Event]:
+    async def get_events(
+        self, filter_func: Optional[callable] = None
+    ) -> List[Event]:
         """Get events with optional filter."""
-        pass

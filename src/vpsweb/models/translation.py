@@ -5,11 +5,12 @@ This module contains Pydantic models for the complete translation workflow,
 matching the exact structure specified in vpts.yml.
 """
 
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+import json
 from datetime import datetime
 from enum import Enum
-import json
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Language(str, Enum):
@@ -43,7 +44,8 @@ class TranslationInput(BaseModel):
         ..., description="Target language (English or Chinese only)"
     )
     metadata: Optional[Dict[str, Any]] = Field(
-        None, description="Additional metadata about the poem (author, title, etc.)"
+        None,
+        description="Additional metadata about the poem (author, title, etc.)",
     )
 
     @field_validator("source_lang", "target_lang")
@@ -57,7 +59,9 @@ class TranslationInput(BaseModel):
     def validate_target_language(cls, v, info):
         """Ensure target language is only English or Chinese (from vpts.yml)."""
         if v not in [Language.ENGLISH, Language.CHINESE]:
-            raise ValueError("Target language must be either English or Chinese")
+            raise ValueError(
+                "Target language must be either English or Chinese"
+            )
         return v
 
     @field_validator("target_lang")
@@ -83,22 +87,29 @@ class TranslationInput(BaseModel):
 class BackgroundBriefingReport(BaseModel):
     """Background Briefing Report with contextual analysis for translation."""
 
-    content: str = Field(..., description="BBR content with contextual analysis")
+    content: str = Field(
+        ..., description="BBR content with contextual analysis"
+    )
     timestamp: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp when BBR was created or retrieved",
     )
     model_info: Optional[Dict[str, str]] = Field(
-        None, description="Model provider and version information used to generate BBR"
+        None,
+        description="Model provider and version information used to generate BBR",
     )
     tokens_used: Optional[int] = Field(
         None, ge=0, description="Number of tokens used to generate this BBR"
     )
     prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for BBR generation"
+        None,
+        ge=0,
+        description="Number of input tokens used for BBR generation",
     )
     completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for BBR generation"
+        None,
+        ge=0,
+        description="Number of output tokens used for BBR generation",
     )
     duration: Optional[float] = Field(
         None, ge=0.0, description="Time taken to generate BBR in seconds"
@@ -127,7 +138,9 @@ class BackgroundBriefingReport(BaseModel):
 class InitialTranslation(BaseModel):
     """Output from initial translation step with XML structure from vpts.yml."""
 
-    initial_translation: str = Field(..., description="The translated poem text")
+    initial_translation: str = Field(
+        ..., description="The translated poem text"
+    )
     initial_translation_notes: str = Field(
         ...,
         description="Translator's explanation of translation choices (200-300 words)",
@@ -149,13 +162,19 @@ class InitialTranslation(BaseModel):
         ..., ge=0, description="Number of tokens used for this translation"
     )
     prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this translation"
+        None,
+        ge=0,
+        description="Number of input tokens used for this translation",
     )
     completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this translation"
+        None,
+        ge=0,
+        description="Number of output tokens used for this translation",
     )
     duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for initial translation in seconds"
+        None,
+        ge=0.0,
+        description="Time taken for initial translation in seconds",
     )
     cost: Optional[float] = Field(
         None, ge=0.0, description="Cost in RMB for this translation step"
@@ -186,10 +205,12 @@ class EditorReview(BaseModel):
     """Output from editor review step with structured suggestions from vpts.yml."""
 
     editor_suggestions: str = Field(
-        default="", description="Structured editor suggestions extracted from XML"
+        default="",
+        description="Structured editor suggestions extracted from XML",
     )
     timestamp: datetime = Field(
-        default_factory=datetime.now, description="Timestamp when review was created"
+        default_factory=datetime.now,
+        description="Timestamp when review was created",
     )
     model_info: Dict[str, str] = Field(
         ..., description="Model provider and version information"
@@ -216,7 +237,9 @@ class EditorReview(BaseModel):
 
         text_to_search = self.editor_suggestions
         # Look for numbered suggestions like "1. [suggestion text]"
-        suggestions = re.findall(r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE)
+        suggestions = re.findall(
+            r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE
+        )
         return [suggestion[1].strip() for suggestion in suggestions]
 
     def get_overall_assessment(self) -> str:
@@ -226,7 +249,9 @@ class EditorReview(BaseModel):
         text_to_search = self.editor_suggestions
         # Look for the overall assessment after the suggestions
         assessment_match = re.search(
-            r"overall assessment:?\s*(.+)", text_to_search, re.IGNORECASE | re.DOTALL
+            r"overall assessment:?\s*(.+)",
+            text_to_search,
+            re.IGNORECASE | re.DOTALL,
         )
         if assessment_match:
             return assessment_match.group(1).strip()
@@ -249,9 +274,12 @@ class EditorReview(BaseModel):
 class RevisedTranslation(BaseModel):
     """Output from translator revision step with XML structure from vpts.yml."""
 
-    revised_translation: str = Field(..., description="The final revised translation")
+    revised_translation: str = Field(
+        ..., description="The final revised translation"
+    )
     revised_translation_notes: str = Field(
-        ..., description="Explanation of key changes and decisions (200-300 words)"
+        ...,
+        description="Explanation of key changes and decisions (200-300 words)",
     )
     refined_translated_poem_title: str = Field(
         ..., description="The refined translated poem title in target language"
@@ -260,7 +288,8 @@ class RevisedTranslation(BaseModel):
         ..., description="The refined translated poet name in target language"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.now, description="Timestamp when revision was created"
+        default_factory=datetime.now,
+        description="Timestamp when revision was created",
     )
     model_info: Dict[str, str] = Field(
         ..., description="Model provider and version information"
@@ -272,20 +301,26 @@ class RevisedTranslation(BaseModel):
         None, ge=0, description="Number of input tokens used for this revision"
     )
     completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this revision"
+        None,
+        ge=0,
+        description="Number of output tokens used for this revision",
     )
     duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for translator revision in seconds"
+        None,
+        ge=0.0,
+        description="Time taken for translator revision in seconds",
     )
     cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this translator revision step"
+        None,
+        ge=0.0,
+        description="Cost in RMB for this translator revision step",
     )
 
     @field_validator("revised_translation_notes")
     @classmethod
     def validate_revision_notes_length(cls, v):
         """Validate notes length matches vpts.yml specification (200-300 words)."""
-        word_count = len(v.split())
+        len(v.split())
         # Allow any length of revision notes without warning
         return v
 
@@ -309,7 +344,9 @@ class TranslationOutput(BaseModel):
     workflow_id: str = Field(
         ..., description="Unique identifier for this translation workflow"
     )
-    input: TranslationInput = Field(..., description="Original input to the workflow")
+    input: TranslationInput = Field(
+        ..., description="Original input to the workflow"
+    )
     initial_translation: InitialTranslation = Field(
         ..., description="Initial translation with notes"
     )
@@ -368,8 +405,13 @@ class TranslationOutput(BaseModel):
         """Create from dictionary with proper deserialization."""
         # Handle optional BBR
         bbr = None
-        if "background_briefing_report" in data and data["background_briefing_report"]:
-            bbr = BackgroundBriefingReport.from_dict(data["background_briefing_report"])
+        if (
+            "background_briefing_report" in data
+            and data["background_briefing_report"]
+        ):
+            bbr = BackgroundBriefingReport.from_dict(
+                data["background_briefing_report"]
+            )
 
         return cls(
             workflow_id=data["workflow_id"],
@@ -396,7 +438,9 @@ class TranslationOutput(BaseModel):
             raise ValueError(f"Unsupported format: {format}")
 
     @classmethod
-    def load_from_file(cls, filepath: str, format: str = "json") -> "TranslationOutput":
+    def load_from_file(
+        cls, filepath: str, format: str = "json"
+    ) -> "TranslationOutput":
         """Load translation output from a file."""
         if format.lower() == "json":
             with open(filepath, "r", encoding="utf-8") as f:

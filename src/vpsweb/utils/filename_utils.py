@@ -6,7 +6,7 @@ for translation outputs, including sanitization and metadata extraction.
 """
 
 import re
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 def sanitize_filename_component(component: str, max_length: int = 30) -> str:
@@ -24,8 +24,12 @@ def sanitize_filename_component(component: str, max_length: int = 30) -> str:
         return "unknown"
 
     # Remove or replace problematic characters
-    sanitized = re.sub(r'[<>:"/\\|?*]', "", component)  # Remove invalid filename chars
-    sanitized = re.sub(r"\s+", "_", sanitized)  # Replace whitespace with underscores
+    sanitized = re.sub(
+        r'[<>:"/\\|?*]', "", component
+    )  # Remove invalid filename chars
+    sanitized = re.sub(
+        r"\s+", "_", sanitized
+    )  # Replace whitespace with underscores
     sanitized = re.sub(
         r"[^\w\-_]", "", sanitized
     )  # Remove any remaining non-alphanumeric chars except hyphen and underscore
@@ -60,7 +64,9 @@ def extract_poet_and_title(
     # First try to extract from metadata
     if metadata:
         poet = (
-            metadata.get("author") or metadata.get("poet") or metadata.get("poet_name")
+            metadata.get("author")
+            or metadata.get("poet")
+            or metadata.get("poet_name")
         )
         title = (
             metadata.get("title")
@@ -69,7 +75,9 @@ def extract_poet_and_title(
         )
 
         if poet and title:
-            return sanitize_filename_component(poet), sanitize_filename_component(title)
+            return sanitize_filename_component(
+                poet
+            ), sanitize_filename_component(title)
         elif poet:
             return sanitize_filename_component(poet), "untitled"
         elif title:
@@ -96,13 +104,17 @@ def extract_poet_and_title(
                 poet = author_match.group(1).strip()
             else:
                 poet = author_line.strip()
-            return sanitize_filename_component(poet), sanitize_filename_component(title)
+            return sanitize_filename_component(
+                poet
+            ), sanitize_filename_component(title)
 
         # Pattern 2: First line might be title, second might be author
         elif any(keyword in lines[1] for keyword in ["作者", "author", "by"]):
             title = lines[0] if lines[0].strip() else "untitled"
             poet = lines[1].strip()
-            return sanitize_filename_component(poet), sanitize_filename_component(title)
+            return sanitize_filename_component(
+                poet
+            ), sanitize_filename_component(title)
 
     # Fallback: use first line as title, unknown author
     title = lines[0] if lines and lines[0].strip() else "untitled"
@@ -201,8 +213,6 @@ def generate_legacy_filename(
         return f"translation_log_{source_lang.lower()}_{target_lang.lower()}_{timestamp}_{hash_suffix}.{file_format}"
     else:
         if workflow_mode:
-            return (
-                f"translation_{workflow_mode}_{timestamp}_{hash_suffix}.{file_format}"
-            )
+            return f"translation_{workflow_mode}_{timestamp}_{hash_suffix}.{file_format}"
         else:
             return f"translation_{timestamp}_{hash_suffix}.{file_format}"

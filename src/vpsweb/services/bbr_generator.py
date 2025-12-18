@@ -6,22 +6,20 @@ for poems to enhance translation quality in the V2 workflow.
 """
 
 import json
+import logging
 import time
 import uuid
-import logging
-from typing import Dict, Any, Optional, Tuple
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, Optional
 
-from .llm.factory import LLMFactory
-from .prompts import PromptService
-from ..repository.models import BackgroundBriefingReport
-from ..services.config import get_config_facade, ConfigFacade
 from ..models.config import ProvidersConfig
+from ..repository.models import BackgroundBriefingReport
+from ..services.config import ConfigFacade, get_config_facade
 from ..utils.text_processing import (
-    count_effective_lines,
-    add_line_labels,
     detect_stanza_structure,
 )
+from .llm.factory import LLMFactory
+from .prompts import PromptService
 
 logger = logging.getLogger(__name__)
 
@@ -32,25 +30,17 @@ UTC_PLUS_8 = timezone(timedelta(hours=8))
 class BBRGeneratorError(Exception):
     """Base exception for BBR generation errors."""
 
-    pass
-
 
 class BBRLoadError(BBRGeneratorError):
     """Raised when BBR loading fails."""
-
-    pass
 
 
 class BBRGenerationError(BBRGeneratorError):
     """Raised when BBR generation fails."""
 
-    pass
-
 
 class BBRValidationError(BBRGeneratorError):
     """Raised when BBR validation fails."""
-
-    pass
 
 
 class BBRGenerator:
@@ -118,9 +108,10 @@ class BBRGenerator:
             try:
                 return self._config_facade.get_bbr_config()
             except (RuntimeError, ValueError) as e:
-                logger.warning(f"Could not get BBR config from task templates: {e}")
+                logger.warning(
+                    f"Could not get BBR config from task templates: {e}"
+                )
                 # Fallback to hardcoded config
-                pass
         else:
             # Legacy pattern
             if hasattr(self.providers_config, "bbr_generation"):
@@ -173,7 +164,9 @@ class BBRGenerator:
 
             # Get provider instance
             provider = self.llm_factory.get_provider(provider_name)
-            logger.debug(f"Using provider: {provider_name}, model: {model_name}")
+            logger.debug(
+                f"Using provider: {provider_name}, model: {model_name}"
+            )
 
             # Prepare prompt variables
             def get_friendly_language_name(lang_code):
@@ -195,7 +188,9 @@ class BBRGenerator:
                     return lang_code.upper()
 
             friendly_source_lang = get_friendly_language_name(source_language)
-            target_lang = "Chinese" if friendly_source_lang == "English" else "English"
+            target_lang = (
+                "Chinese" if friendly_source_lang == "English" else "English"
+            )
 
             from vpsweb.utils.text_processing import (
                 add_line_labels,
@@ -260,7 +255,9 @@ class BBRGenerator:
             bbr = BackgroundBriefingReport(
                 id=str(uuid.uuid4()),
                 poem_id=poem_id,
-                content=json.dumps(validated_content, ensure_ascii=False, indent=2),
+                content=json.dumps(
+                    validated_content, ensure_ascii=False, indent=2
+                ),
                 model_info=json.dumps(
                     {
                         "provider": provider_name,
@@ -354,10 +351,14 @@ class BBRGenerator:
         """
         try:
             # Try to find model reference from model name for pricing lookup
-            if self._using_facade and hasattr(self._config_facade, "model_registry"):
+            if self._using_facade and hasattr(
+                self._config_facade, "model_registry"
+            ):
                 # New pattern: find model reference from actual model name
-                model_ref = self._config_facade.model_registry.find_model_ref_by_name(
-                    model_name
+                model_ref = (
+                    self._config_facade.model_registry.find_model_ref_by_name(
+                        model_name
+                    )
                 )
                 if model_ref:
                     # Use the model registry calculate_cost method
@@ -390,7 +391,9 @@ class BBRGenerator:
                     )
                 elif model_name in pricing:
                     model_pricing = pricing[model_name]
-                    logger.debug(f"Found pricing for model {model_name} directly")
+                    logger.debug(
+                        f"Found pricing for model {model_name} directly"
+                    )
                 else:
                     logger.warning(
                         f"No pricing information found for model {model_name} (tried ref: {model_ref})"
@@ -398,8 +401,12 @@ class BBRGenerator:
                     return 0.0
 
                 # Pricing is RMB per 1K tokens
-                input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
-                output_cost = (output_tokens / 1000) * model_pricing.get("output", 0)
+                input_cost = (input_tokens / 1000) * model_pricing.get(
+                    "input", 0
+                )
+                output_cost = (output_tokens / 1000) * model_pricing.get(
+                    "output", 0
+                )
                 total_cost = input_cost + output_cost
                 logger.debug(
                     f"Cost calculation: input={input_cost:.4f}, output={output_cost:.4f}, total={total_cost:.4f}"
@@ -412,7 +419,9 @@ class BBRGenerator:
             )
             return 0.0
 
-    def _find_model_reference_dynamically(self, model_name: str) -> Optional[str]:
+    def _find_model_reference_dynamically(
+        self, model_name: str
+    ) -> Optional[str]:
         """
         Find model reference dynamically using exact matching from model registry.
 
@@ -426,9 +435,13 @@ class BBRGenerator:
             Model reference if found, None otherwise
         """
         # Try to use ConfigFacade model registry if available (preferred approach)
-        if self._using_facade and hasattr(self._config_facade, "model_registry"):
-            model_ref = self._config_facade.model_registry.find_model_ref_by_name(
-                model_name
+        if self._using_facade and hasattr(
+            self._config_facade, "model_registry"
+        ):
+            model_ref = (
+                self._config_facade.model_registry.find_model_ref_by_name(
+                    model_name
+                )
             )
             if model_ref:
                 logger.debug(
@@ -451,7 +464,9 @@ class BBRGenerator:
                     return ref
 
         except Exception as e:
-            logger.warning(f"Failed to load model registry for reference lookup: {e}")
+            logger.warning(
+                f"Failed to load model registry for reference lookup: {e}"
+            )
 
         # Final fallback: Return None if no exact match found
         logger.warning(f"No exact match found for model name: {model_name}")
@@ -513,7 +528,9 @@ class BBRGenerator:
         """
         # Check for required top-level fields
         required_fields = ["text_anchor", "poet_style", "thematic_analysis"]
-        missing_fields = [field for field in required_fields if field not in content]
+        missing_fields = [
+            field for field in required_fields if field not in content
+        ]
 
         if missing_fields:
             logger.warning(f"Missing recommended BBR fields: {missing_fields}")
@@ -526,8 +543,12 @@ class BBRGenerator:
             if not isinstance(text_anchor, dict):
                 raise BBRValidationError("text_anchor must be a dictionary")
 
-            if "lines" in text_anchor and not isinstance(text_anchor["lines"], int):
-                raise BBRValidationError("text_anchor.lines must be an integer")
+            if "lines" in text_anchor and not isinstance(
+                text_anchor["lines"], int
+            ):
+                raise BBRValidationError(
+                    "text_anchor.lines must be an integer"
+                )
 
         # Log validation success
         logger.debug("BBR content schema validation passed")
@@ -562,7 +583,9 @@ class BBRGenerator:
         # Base time plus scaling factor for poem length
         base_time = 30.0  # 30 seconds base
         length_factor = poem_length / 1000.0  # Scale per 1000 characters
-        estimated_time = base_time + (length_factor * 20.0)  # 20s per 1000 chars
+        estimated_time = base_time + (
+            length_factor * 20.0
+        )  # 20s per 1000 chars
 
         # Cap at reasonable maximum
         return min(estimated_time, 300.0)  # Max 5 minutes

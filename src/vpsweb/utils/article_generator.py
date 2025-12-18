@@ -5,37 +5,32 @@ This module handles conversion from translation JSON to WeChat-compatible HTML a
 including metadata extraction, HTML rendering, and file management.
 """
 
+import asyncio
 import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
-import logging
-import asyncio
-import shutil
+from typing import Any, Dict, Optional, Tuple
 
 from jinja2 import Environment, FileSystemLoader
 
 from ..models.wechat import (
+    ArticleGenerationConfig,
+    ArticleGenerationResult,
     WeChatArticle,
     WeChatArticleMetadata,
-    ArticleGenerationResult,
-    ArticleGenerationConfig,
     WeChatArticleStatus,
 )
-from ..models.translation import TranslationOutput
+from ..services.config import ConfigFacade, get_config_facade
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService
 from .logger import get_logger
-from ..services.config import get_config_facade, ConfigFacade
 
 logger = get_logger(__name__)
 
 
 class ArticleGeneratorError(Exception):
     """Exception raised for article generation errors."""
-
-    pass
 
 
 class ArticleGenerator:
@@ -90,8 +85,8 @@ class ArticleGenerator:
                 self._using_facade = True
                 try:
                     # Try to get reasoning model config for WeChat notes
-                    self.wechat_llm_config = self._config_facade.get_wechat_task_config(
-                        "reasoning"
+                    self.wechat_llm_config = (
+                        self._config_facade.get_wechat_task_config("reasoning")
                     )
                 except (ValueError, RuntimeError):
                     # Fallback to legacy method
@@ -108,7 +103,9 @@ class ArticleGenerator:
                 self._config_facade = None
                 self.wechat_llm_config = wechat_llm_config
                 actual_providers_config = providers_config
-                logger.info("ArticleGenerator using legacy configuration pattern")
+                logger.info(
+                    "ArticleGenerator using legacy configuration pattern"
+                )
 
         self.system_config = system_config or {}
 
@@ -123,7 +120,9 @@ class ArticleGenerator:
             self._cached_translation_notes = (
                 None  # Cache translation notes to avoid duplicate calls
             )
-            logger.info("Article generator initialized with LLM synthesis capabilities")
+            logger.info(
+                "Article generator initialized with LLM synthesis capabilities"
+            )
         else:
             self.llm_factory = None
             self.prompt_service = None
@@ -138,7 +137,9 @@ class ArticleGenerator:
         try:
             # Get the template directory path
             current_dir = Path(__file__).parent.parent.parent.parent
-            template_dir = current_dir / "config" / "html_templates" / "wechat_articles"
+            template_dir = (
+                current_dir / "config" / "html_templates" / "wechat_articles"
+            )
 
             if not template_dir.exists():
                 raise ArticleGeneratorError(
@@ -162,7 +163,9 @@ class ArticleGenerator:
             self._validate_default_cover_image(current_dir)
 
         except Exception as e:
-            raise ArticleGeneratorError(f"Failed to initialize template system: {e}")
+            raise ArticleGeneratorError(
+                f"Failed to initialize template system: {e}"
+            )
 
     def _validate_default_cover_image(self, project_root: Path) -> None:
         """
@@ -175,7 +178,9 @@ class ArticleGenerator:
             ArticleGeneratorError: If default cover image validation fails
         """
         try:
-            default_cover_path = project_root / self.config.default_cover_image_path
+            default_cover_path = (
+                project_root / self.config.default_cover_image_path
+            )
 
             if not default_cover_path.exists():
                 logger.warning(
@@ -196,7 +201,9 @@ class ArticleGenerator:
             # Check file size (should be reasonable for an image)
             file_size = default_cover_path.stat().st_size
             if file_size == 0:
-                logger.warning(f"⚠️ Default cover image is empty: {default_cover_path}")
+                logger.warning(
+                    f"⚠️ Default cover image is empty: {default_cover_path}"
+                )
                 return
 
             logger.info(
@@ -233,17 +240,21 @@ class ArticleGenerator:
         """
         try:
             # Load translation JSON
-            translation_data = self._load_translation_json(translation_json_path)
+            translation_data = self._load_translation_json(
+                translation_json_path
+            )
 
             # Extract metadata
-            metadata = self._extract_metadata(translation_data, translation_json_path)
+            metadata = self._extract_metadata(
+                translation_data, translation_json_path
+            )
 
             # Determine output directory and slug
             if output_dir is None:
                 # Get default wechat articles directory from config
-                wechat_articles_dir = self.system_config.get("storage", {}).get(
-                    "wechat_articles_dir", "outputs/wechat_articles"
-                )
+                wechat_articles_dir = self.system_config.get(
+                    "storage", {}
+                ).get("wechat_articles_dir", "outputs/wechat_articles")
                 output_dir = f"{wechat_articles_dir}/{metadata.slug}"
             else:
                 output_dir = Path(output_dir) / metadata.slug
@@ -252,14 +263,18 @@ class ArticleGenerator:
             output_dir.mkdir(parents=True, exist_ok=True)
 
             # Handle cover image fallback logic
-            cover_image_abs_path = self._handle_cover_image_fallback(output_dir)
+            cover_image_abs_path = self._handle_cover_image_fallback(
+                output_dir
+            )
 
             # Pre-generate translation notes to get the LLM digest
             llm_digest = None
             if self.config.include_translation_notes and not dry_run:
                 # This will trigger the LLM call and populate self.llm_metrics with digest
-                translation_notes_section = self._generate_translation_notes_section(
-                    translation_data, metadata
+                translation_notes_section = (
+                    self._generate_translation_notes_section(
+                        translation_data, metadata
+                    )
                 )
 
                 if self.llm_metrics and "digest" in self.llm_metrics:
@@ -362,7 +377,9 @@ class ArticleGenerator:
                 "target_lang": metadata.target_lang,
                 "workflow_id": metadata.workflow_id,
                 "cover_image": (
-                    Path(cover_image_abs_path).name if cover_image_abs_path else None
+                    Path(cover_image_abs_path).name
+                    if cover_image_abs_path
+                    else None
                 ),  # Store only filename for reference
             }
 
@@ -391,14 +408,18 @@ class ArticleGenerator:
         """Load and validate translation JSON file."""
         json_path = Path(json_path)
         if not json_path.exists():
-            raise ArticleGeneratorError(f"Translation JSON file not found: {json_path}")
+            raise ArticleGeneratorError(
+                f"Translation JSON file not found: {json_path}"
+            )
 
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             return data
         except json.JSONDecodeError as e:
-            raise ArticleGeneratorError(f"Invalid JSON in file {json_path}: {e}")
+            raise ArticleGeneratorError(
+                f"Invalid JSON in file {json_path}: {e}"
+            )
         except Exception as e:
             raise ArticleGeneratorError(
                 f"Error loading translation JSON {json_path}: {e}"
@@ -427,7 +448,9 @@ class ArticleGenerator:
 
             # Default cover image path from configuration
             project_root = Path(__file__).parent.parent.parent.parent
-            default_cover_path = project_root / self.config.default_cover_image_path
+            default_cover_path = (
+                project_root / self.config.default_cover_image_path
+            )
 
             if local_cover_path.exists():
                 # Local cover image exists, use it
@@ -435,7 +458,9 @@ class ArticleGenerator:
                 return str(local_cover_path)
             elif default_cover_path.exists():
                 # Fallback to default cover image without copying (storage efficient)
-                logger.info(f"📸 Using default cover image: {default_cover_path}")
+                logger.info(
+                    f"📸 Using default cover image: {default_cover_path}"
+                )
                 return str(default_cover_path)
             else:
                 # No cover image available
@@ -461,7 +486,9 @@ class ArticleGenerator:
 
             # Extract poem and poet information
             original_poem = input_data.get("original_poem", "")
-            poem_title, poet_name, series_index = self._parse_poem_header(original_poem)
+            poem_title, poet_name, series_index = self._parse_poem_header(
+                original_poem
+            )
 
             # Generate slug
             slug = self._generate_slug(poet_name, poem_title, source_lang)
@@ -495,7 +522,9 @@ class ArticleGenerator:
         except Exception as e:
             raise ArticleGeneratorError(f"Error extracting metadata: {e}")
 
-    def _parse_poem_header(self, original_poem: str) -> Tuple[str, str, Optional[str]]:
+    def _parse_poem_header(
+        self, original_poem: str
+    ) -> Tuple[str, str, Optional[str]]:
         """
         Parse poem header to extract title, poet, and series index.
 
@@ -672,9 +701,13 @@ class ArticleGenerator:
 
             if target_lang in ["english", "en", "英文"]:
                 # Use extracted target language title and poet (for English format)
-                target_title = target_lang_title if target_lang_title else poem_title
+                target_title = (
+                    target_lang_title if target_lang_title else poem_title
+                )
                 # Clean up poet name by removing any existing prefixes
-                extracted_poet = target_lang_poet if target_lang_poet else poet_name
+                extracted_poet = (
+                    target_lang_poet if target_lang_poet else poet_name
+                )
                 if extracted_poet.startswith("By "):
                     target_poet = extracted_poet[3:]  # Remove "By " prefix
                 else:
@@ -682,9 +715,13 @@ class ArticleGenerator:
                 target_author_prefix = "By "
             elif target_lang in ["chinese", "中文", "zh", "zh-cn", "zh_cn"]:
                 # For Chinese target languages
-                target_title = target_lang_title if target_lang_title else poem_title
+                target_title = (
+                    target_lang_title if target_lang_title else poem_title
+                )
                 # Clean up poet name by removing any existing prefixes
-                extracted_poet = target_lang_poet if target_lang_poet else poet_name
+                extracted_poet = (
+                    target_lang_poet if target_lang_poet else poet_name
+                )
                 if extracted_poet.startswith("作者："):
                     target_poet = extracted_poet[3:]  # Remove "作者：" prefix
                 else:
@@ -692,8 +729,12 @@ class ArticleGenerator:
                 target_author_prefix = "作者："
             else:
                 # For other target languages, use the extracted title and translated poet name if available
-                target_title = target_lang_title if target_lang_title else poem_title
-                target_poet = target_lang_poet if target_lang_poet else poet_name
+                target_title = (
+                    target_lang_title if target_lang_title else poem_title
+                )
+                target_poet = (
+                    target_lang_poet if target_lang_poet else poet_name
+                )
                 target_author_prefix = (
                     "作者："  # Default to Chinese prefix for other languages
                 )
@@ -705,8 +746,10 @@ class ArticleGenerator:
             elif self._cached_translation_notes is not None:
                 translation_notes_section = self._cached_translation_notes
             else:
-                translation_notes_section = self._generate_translation_notes_section(
-                    translation_data, metadata
+                translation_notes_section = (
+                    self._generate_translation_notes_section(
+                        translation_data, metadata
+                    )
                 )
 
             template_vars = {
@@ -757,7 +800,9 @@ class ArticleGenerator:
 
         return "\n".join(poem_lines)
 
-    def _extract_translation_text(self, final_translation: str) -> tuple[str, str, str]:
+    def _extract_translation_text(
+        self, final_translation: str
+    ) -> tuple[str, str, str]:
         """Extract target language title, poet name, and clean translation text.
 
         Returns:
@@ -809,7 +854,9 @@ class ArticleGenerator:
             # Extract first few lines of translation
             lines = final_translation.strip().split("\n")[:4]
             digest_lines = [
-                line.strip() for line in lines if line.strip() and "By " not in line
+                line.strip()
+                for line in lines
+                if line.strip() and "By " not in line
             ]
 
             digest_text = " ".join(digest_lines)
@@ -828,7 +875,8 @@ class ArticleGenerator:
             logger.warning(f"Error generating digest: {e}")
             # Get default digest from system config
             default_digest = self.system_config.get("system", {}).get(
-                "default_digest", "诗歌翻译作品，展现中英文学之美，传递文化精髓。"
+                "default_digest",
+                "诗歌翻译作品，展现中英文学之美，传递文化精髓。",
             )
             return default_digest
 
@@ -868,7 +916,9 @@ class ArticleGenerator:
 
             # Run async synthesis in sync context using asyncio.run
             result = asyncio.run(
-                self._synthesize_translation_notes_async(translation_data, metadata)
+                self._synthesize_translation_notes_async(
+                    translation_data, metadata
+                )
             )
 
             # Cache the result
@@ -894,9 +944,13 @@ class ArticleGenerator:
             final_translation = congregated.get("revised_translation", "")
 
             # Extract notes from congregated output where they actually exist
-            initial_translation_notes = congregated.get("initial_translation_notes", "")
+            initial_translation_notes = congregated.get(
+                "initial_translation_notes", ""
+            )
             editor_suggestions = congregated.get("editor_suggestions", "")
-            revised_translation_notes = congregated.get("revised_translation_notes", "")
+            revised_translation_notes = congregated.get(
+                "revised_translation_notes", ""
+            )
 
             synthesis_input = {
                 "original_poem": original_poem,
@@ -937,7 +991,8 @@ class ArticleGenerator:
                     ),
                 )
                 default_temp = model_config.get(
-                    "temperature", 0.3 if model_type == "non_reasoning" else 0.1
+                    "temperature",
+                    0.3 if model_type == "non_reasoning" else 0.1,
                 )
                 default_max_tokens = model_config.get("max_tokens", 8192)
             else:
@@ -956,7 +1011,9 @@ class ArticleGenerator:
                     default_max_tokens = 8192
 
             # Fall back to legacy prompt_template if available
-            prompt_template = getattr(self.config, "prompt_template", prompt_template)
+            prompt_template = getattr(
+                self.config, "prompt_template", prompt_template
+            )
 
             # Render prompt template using PromptService
             system_prompt, user_prompt = self.prompt_service.render_prompt(
@@ -978,15 +1035,22 @@ class ArticleGenerator:
                 logger.warning(
                     f"Provider {provider_name} not available, trying fallback"
                 )
-                for available_provider in self.llm_factory.providers_config.providers:
-                    provider = self.llm_factory.get_provider(available_provider)
+                for (
+                    available_provider
+                ) in self.llm_factory.providers_config.providers:
+                    provider = self.llm_factory.get_provider(
+                        available_provider
+                    )
                     if provider:
                         provider_name = available_provider
-                        provider_config = self.llm_factory.providers_config.providers[
-                            available_provider
-                        ]
+                        provider_config = (
+                            self.llm_factory.providers_config.providers[
+                                available_provider
+                            ]
+                        )
                         model_name = (
-                            provider_config.default_model or provider_config.models[0]
+                            provider_config.default_model
+                            or provider_config.models[0]
                         )
                         break
 
@@ -1025,7 +1089,9 @@ class ArticleGenerator:
             xml_parser = WeChatXMLParser()
 
             try:
-                translation_notes = xml_parser.parse_translation_notes(response.content)
+                translation_notes = xml_parser.parse_translation_notes(
+                    response.content
+                )
 
                 # Extract digest and notes from TranslationNotes object
                 digest = translation_notes.digest
@@ -1086,7 +1152,9 @@ class ArticleGenerator:
                     digest_match = re.search(
                         r"digest:\s*(.+?)(?=\nnotes:|$)", content, re.DOTALL
                     )
-                    digest = digest_match.group(1).strip() if digest_match else ""
+                    digest = (
+                        digest_match.group(1).strip() if digest_match else ""
+                    )
 
                     # Extract notes
                     notes_match = re.search(
@@ -1094,7 +1162,9 @@ class ArticleGenerator:
                         content,
                         re.DOTALL,
                     )
-                    notes_text = notes_match.group(1).strip() if notes_match else ""
+                    notes_text = (
+                        notes_match.group(1).strip() if notes_match else ""
+                    )
 
                     # Parse bullet points
                     notes = []
@@ -1153,7 +1223,9 @@ class ArticleGenerator:
                         return f"<p><em>翻译笔记：</em><br>{content}</p>"
 
                 except Exception as fallback_error:
-                    logger.error(f"Fallback parsing also failed: {fallback_error}")
+                    logger.error(
+                        f"Fallback parsing also failed: {fallback_error}"
+                    )
                     return f"<p><em>翻译笔记：</em><br>{response.content}</p>"
 
         except Exception as e:
@@ -1166,10 +1238,15 @@ class ArticleGenerator:
         """Calculate cost for a single step using the same method as workflow."""
         try:
             # Get pricing from configuration
-            if self.llm_factory and hasattr(self.llm_factory, "providers_config"):
+            if self.llm_factory and hasattr(
+                self.llm_factory, "providers_config"
+            ):
                 providers_config = self.llm_factory.providers_config
 
-                if hasattr(providers_config, "pricing") and providers_config.pricing:
+                if (
+                    hasattr(providers_config, "pricing")
+                    and providers_config.pricing
+                ):
                     pricing = providers_config.pricing
 
                     # Get pricing for this provider and model
@@ -1179,9 +1256,9 @@ class ArticleGenerator:
                         input_cost = (input_tokens / 1000) * model_pricing.get(
                             "input", 0
                         )
-                        output_cost = (output_tokens / 1000) * model_pricing.get(
-                            "output", 0
-                        )
+                        output_cost = (
+                            output_tokens / 1000
+                        ) * model_pricing.get("output", 0)
                         return input_cost + output_cost
 
             logger.warning(
@@ -1190,4 +1267,6 @@ class ArticleGenerator:
             return None
 
         except Exception as e:
-            logger.warning(f"Failed to calculate cost for {provider}/{model}: {e}")
+            logger.warning(
+                f"Failed to calculate cost for {provider}/{model}: {e}"
+            )

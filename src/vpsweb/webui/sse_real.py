@@ -8,9 +8,9 @@ and provides accurate progress updates based on the actual translation workflow 
 import asyncio
 import json
 import time
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from fastapi import Request
-from sse_starlette import EventSourceResponse
 
 
 class TranslationTaskManager:
@@ -38,7 +38,11 @@ class TranslationTaskManager:
             "created_at": time.time(),
             "started_at": None,
             "completed_at": None,
-            "steps": ["Initial Translation", "Editor Review", "Translator Revision"],
+            "steps": [
+                "Initial Translation",
+                "Editor Review",
+                "Translator Revision",
+            ],
         }
         self.tasks[task_id] = task
         return task
@@ -102,7 +106,8 @@ class TranslationTaskManager:
             if (
                 task["status"] == "completed"
                 and task.get("completed_at")
-                and current_time - task["completed_at"] > self.task_retention_time
+                and current_time - task["completed_at"]
+                > self.task_retention_time
             ):
                 expired_tasks.append(task_id)
 

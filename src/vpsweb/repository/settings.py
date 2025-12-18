@@ -24,7 +24,11 @@ class RepositorySettings(BaseSettings):
     # Logging settings
     log_level: str = "INFO"
 
-    model_config = {"env_file": ".env.local", "env_prefix": "REPO_", "extra": "ignore"}
+    model_config = {
+        "env_file": ".env.local",
+        "env_prefix": "REPO_",
+        "extra": "ignore",
+    }
 
 
 # Global settings instance

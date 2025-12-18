@@ -7,13 +7,12 @@ to well-formatted markdown files.
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict
 
 from ..models.translation import TranslationOutput
 from .filename_utils import (
     extract_poet_and_title,
     generate_translation_filename,
-    sanitize_filename_component,
 )
 
 
@@ -50,7 +49,8 @@ class MarkdownExporter:
         """
         # Extract poet and title information
         poet, title = extract_poet_and_title(
-            translation_output.input.original_poem, translation_output.input.metadata
+            translation_output.input.original_poem,
+            translation_output.input.metadata,
         )
 
         # Generate new descriptive filename
@@ -66,7 +66,9 @@ class MarkdownExporter:
             is_log=is_log,
         )
 
-    def export_final_translation(self, translation_output: TranslationOutput) -> str:
+    def export_final_translation(
+        self, translation_output: TranslationOutput
+    ) -> str:
         """
         Export final translation to markdown format.
 
@@ -124,7 +126,9 @@ class MarkdownExporter:
 
         return str(file_path)
 
-    def export_both(self, translation_output: TranslationOutput) -> Dict[str, str]:
+    def export_both(
+        self, translation_output: TranslationOutput
+    ) -> Dict[str, str]:
         """
         Export both final translation and full log.
 
@@ -134,10 +138,15 @@ class MarkdownExporter:
         Returns:
             Dictionary with file paths
         """
-        final_translation_path = self.export_final_translation(translation_output)
+        final_translation_path = self.export_final_translation(
+            translation_output
+        )
         full_log_path = self.export_full_log(translation_output)
 
-        return {"final_translation": final_translation_path, "full_log": full_log_path}
+        return {
+            "final_translation": final_translation_path,
+            "full_log": full_log_path,
+        }
 
     def _format_final_translation_markdown(
         self, translation_output: TranslationOutput
@@ -179,12 +188,16 @@ class MarkdownExporter:
         content.append(f"**Language:** {translation_output.input.target_lang}")
         content.append("")
         content.append("```")
-        content.append(translation_output.revised_translation.revised_translation)
+        content.append(
+            translation_output.revised_translation.revised_translation
+        )
         content.append("```")
 
         return "\n".join(content)
 
-    def _format_full_log_markdown(self, translation_output: TranslationOutput) -> str:
+    def _format_full_log_markdown(
+        self, translation_output: TranslationOutput
+    ) -> str:
         """
         Format full translation log as markdown.
 
@@ -206,7 +219,9 @@ class MarkdownExporter:
         content.append(
             f"- **Total Duration:** {translation_output.duration_seconds:.2f} seconds"
         )
-        content.append(f"- **Total Tokens:** {translation_output.total_tokens}")
+        content.append(
+            f"- **Total Tokens:** {translation_output.total_tokens}"
+        )
         content.append(
             f"- **Editor Suggestions:** {len(translation_output.editor_review.editor_suggestions)} characters"
         )
@@ -240,13 +255,17 @@ class MarkdownExporter:
         content.append("### 🎭 Initial Translation")
         content.append("")
         content.append("```")
-        content.append(translation_output.initial_translation.initial_translation)
+        content.append(
+            translation_output.initial_translation.initial_translation
+        )
         content.append("```")
         content.append("")
 
         content.append("### 📝 Initial Translation Notes")
         content.append("")
-        content.append(translation_output.initial_translation.initial_translation_notes)
+        content.append(
+            translation_output.initial_translation.initial_translation_notes
+        )
         content.append("")
 
         # Step 2: Editor Review
@@ -254,11 +273,15 @@ class MarkdownExporter:
         content.append("")
         content.append("## 👁️ Step 2: Editor Review")
         content.append("")
-        content.append(f"**Model:** {translation_output.editor_review.model_info}")
+        content.append(
+            f"**Model:** {translation_output.editor_review.model_info}"
+        )
         content.append(
             f"**Tokens Used:** {translation_output.editor_review.tokens_used}"
         )
-        content.append(f"**Timestamp:** {translation_output.editor_review.timestamp}")
+        content.append(
+            f"**Timestamp:** {translation_output.editor_review.timestamp}"
+        )
         content.append("")
 
         content.append("### 🔍 Editor Suggestions")
@@ -285,13 +308,17 @@ class MarkdownExporter:
         content.append("### 🎭 Final Translation")
         content.append("")
         content.append("```")
-        content.append(translation_output.revised_translation.revised_translation)
+        content.append(
+            translation_output.revised_translation.revised_translation
+        )
         content.append("```")
         content.append("")
 
         content.append("### 📝 Revision Notes")
         content.append("")
-        content.append(translation_output.revised_translation.revised_translation_notes)
+        content.append(
+            translation_output.revised_translation.revised_translation_notes
+        )
         content.append("")
 
         return "\n".join(content)

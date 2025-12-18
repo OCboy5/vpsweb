@@ -14,20 +14,20 @@ BBR is a key v0.7.0 feature that provides AI-generated contextual analysis
 for poems to enhance translation quality.
 """
 
-import pytest
-import pytest_asyncio
 import asyncio
 import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime
+from unittest.mock import AsyncMock, patch
+
+import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.vpsweb.repository.models import Poem, BackgroundBriefingReport, Translation
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.services.bbr_generator import BBRGenerator
+from src.vpsweb.repository.models import (
+    BackgroundBriefingReport,
+)
 from src.vpsweb.webui.services.interfaces import IBBRServiceV2
-
 
 # ==============================================================================
 # BBR Test Fixtures
@@ -185,7 +185,9 @@ def mock_bbr_service():
 class TestBBRService:
     """Test the BBR service functionality."""
 
-    async def test_bbr_generation_workflow(self, mock_bbr_service, sample_poem_for_bbr):
+    async def test_bbr_generation_workflow(
+        self, mock_bbr_service, sample_poem_for_bbr
+    ):
         """Test complete BBR generation workflow."""
         # Initial state - no BBR exists
         mock_bbr_service.has_bbr.return_value = False
@@ -221,7 +223,9 @@ class TestBBRService:
         assert bbr["poem_id"] == "test-poem-id"
         assert "content" in bbr
 
-    async def test_bbr_exists_check(self, mock_bbr_service, sample_poem_for_bbr):
+    async def test_bbr_exists_check(
+        self, mock_bbr_service, sample_poem_for_bbr
+    ):
         """Test BBR existence checking."""
         # Test when BBR exists
         mock_bbr_service.has_bbr.return_value = True
@@ -243,7 +247,9 @@ class TestBBRService:
         assert deleted is True
 
         # Verify service was called
-        mock_bbr_service.delete_bbr.assert_called_once_with(sample_poem_for_bbr.id)
+        mock_bbr_service.delete_bbr.assert_called_once_with(
+            sample_poem_for_bbr.id
+        )
 
 
 # ==============================================================================
@@ -263,7 +269,9 @@ class TestBBRGeneratorService:
         generator = BBRGeneratorService(repository_service)
 
         # Mock LLM response
-        mock_llm_response = {"choices": [{"message": {"content": mock_bbr_content()}}]}
+        mock_llm_response = {
+            "choices": [{"message": {"content": mock_bbr_content()}}]
+        }
 
         with patch(
             "src.vpsweb.services.llm.factory.LLMFactory.get_provider"
@@ -273,7 +281,9 @@ class TestBBRGeneratorService:
             mock_llm_factory.return_value = mock_llm
 
             # Generate BBR
-            bbr_content = await generator.generate_bbr_content(sample_poem_for_bbr)
+            bbr_content = await generator.generate_bbr_content(
+                sample_poem_for_bbr
+            )
 
         assert bbr_content is not None
         assert len(bbr_content) > 1000  # Should be substantial
@@ -316,7 +326,9 @@ class TestBBRGeneratorService:
             mock_llm_factory.return_value = mock_llm
 
             # Generate BBR
-            bbr_content = await generator.generate_bbr_content(complex_poem_for_bbr)
+            bbr_content = await generator.generate_bbr_content(
+                complex_poem_for_bbr
+            )
 
         assert bbr_content is not None
         assert "Historical Context" in bbr_content
@@ -359,7 +371,9 @@ class TestBBRGeneratorService:
             mock_llm.generate.return_value = quality_mock_response
             mock_llm_factory.return_value = mock_llm
 
-            bbr_content = await generator.generate_bbr_content(sample_poem_for_bbr)
+            bbr_content = await generator.generate_bbr_content(
+                sample_poem_for_bbr
+            )
 
         # Validate content structure
         required_sections = [
@@ -370,11 +384,15 @@ class TestBBRGeneratorService:
         ]
 
         for section in required_sections:
-            assert section in bbr_content, f"Missing required section: {section}"
+            assert (
+                section in bbr_content
+            ), f"Missing required section: {section}"
 
         # Validate content length and quality
         assert len(bbr_content) > 2000  # Should be comprehensive
-        assert bbr_content.count("#") >= 5  # Should have proper markdown structure
+        assert (
+            bbr_content.count("#") >= 5
+        )  # Should have proper markdown structure
 
     async def test_bbr_generator_with_different_poems(
         self, repository_service: RepositoryService, test_context
@@ -399,7 +417,9 @@ class TestBBRGeneratorService:
             ),
         ]
 
-        mock_response = {"choices": [{"message": {"content": mock_bbr_content()}}]}
+        mock_response = {
+            "choices": [{"message": {"content": mock_bbr_content()}}]
+        }
 
         with patch(
             "src.vpsweb.services.llm.factory.LLMFactory.get_provider"
@@ -433,15 +453,21 @@ class TestBBRAPIEndpoints:
         with patch("src.vpsweb.webui.container.container") as mock_container:
             mock_container.resolve.return_value = mock_bbr_service
 
-            response = test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
+            response = test_client.post(
+                f"/api/v1/poems/{sample_poem.id}/bbr/generate"
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["message"] == "Background Briefing Report generation started"
+        assert (
+            data["message"] == "Background Briefing Report generation started"
+        )
         assert "task_id" in data["data"]
 
-    def test_generate_bbr_already_exists(self, test_client: TestClient, sample_poem):
+    def test_generate_bbr_already_exists(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test BBR generation when BBR already exists."""
         # Mock service that returns existing BBR
         with patch(
@@ -455,7 +481,9 @@ class TestBBRAPIEndpoints:
             }
             mock_service.return_value = mock_instance
 
-            response = test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
+            response = test_client.post(
+                f"/api/v1/poems/{sample_poem.id}/bbr/generate"
+            )
 
         assert response.status_code == 200
         data = response.json()
@@ -512,12 +540,17 @@ class TestBBRAPIEndpoints:
             mock_instance.delete_bbr.return_value = True
             mock_service.return_value = mock_instance
 
-            response = test_client.delete(f"/api/v1/poems/{sample_poem.id}/bbr")
+            response = test_client.delete(
+                f"/api/v1/poems/{sample_poem.id}/bbr"
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["message"] == "Background Briefing Report deleted successfully"
+        assert (
+            data["message"]
+            == "Background Briefing Report deleted successfully"
+        )
         assert data["data"]["deleted"] is True
 
     def test_delete_bbr_not_found(self, test_client: TestClient, sample_poem):
@@ -529,7 +562,9 @@ class TestBBRAPIEndpoints:
             mock_instance.has_bbr.return_value = False
             mock_service.return_value = mock_instance
 
-            response = test_client.delete(f"/api/v1/poems/{sample_poem.id}/bbr")
+            response = test_client.delete(
+                f"/api/v1/poems/{sample_poem.id}/bbr"
+            )
 
         assert response.status_code == 200
         data = response.json()
@@ -542,7 +577,9 @@ class TestBBRAPIEndpoints:
         fake_poem_id = str(uuid.uuid4())[:26]
 
         # Test generate BBR
-        response = test_client.post(f"/api/v1/poems/{fake_poem_id}/bbr/generate")
+        response = test_client.post(
+            f"/api/v1/poems/{fake_poem_id}/bbr/generate"
+        )
         assert response.status_code == 404
 
         # Test get BBR
@@ -574,7 +611,9 @@ class TestBBRIntegration:
         ) as mock_bbr_service:
             mock_bbr_instance = AsyncMock()
             mock_bbr_instance.has_bbr.return_value = False
-            mock_bbr_instance.generate_bbr.return_value = {"task_id": "bbr-123"}
+            mock_bbr_instance.generate_bbr.return_value = {
+                "task_id": "bbr-123"
+            }
             mock_bbr_service.return_value = mock_bbr_instance
 
             bbr_response = test_client.post(
@@ -593,7 +632,9 @@ class TestBBRIntegration:
             "src.vpsweb.webui.services.interfaces.IWorkflowServiceV2"
         ) as mock_workflow:
             mock_instance = AsyncMock()
-            mock_instance.start_translation_workflow.return_value = "translation-456"
+            mock_instance.start_translation_workflow.return_value = (
+                "translation-456"
+            )
             mock_workflow.return_value = mock_instance
 
             translation_response = test_client.post(
@@ -713,7 +754,10 @@ class TestBBRPerformanceAndEdgeCases:
     """Test BBR performance and edge cases."""
 
     async def test_bbr_generation_performance(
-        self, repository_service: RepositoryService, test_context, performance_timer
+        self,
+        repository_service: RepositoryService,
+        test_context,
+        performance_timer,
     ):
         """Test BBR generation performance with large poems."""
         # Create a very long poem
@@ -728,7 +772,9 @@ class TestBBRPerformanceAndEdgeCases:
         generator = BBRGeneratorService(repository_service)
 
         # Mock LLM response
-        mock_response = {"choices": [{"message": {"content": mock_bbr_content()}}]}
+        mock_response = {
+            "choices": [{"message": {"content": mock_bbr_content()}}]
+        }
 
         with patch(
             "src.vpsweb.services.llm.factory.LLMFactory.get_provider"
@@ -816,7 +862,9 @@ This BBR is necessarily limited due to the minimal source material available."""
         generator = BBRGeneratorService(repository_service)
 
         # Mock LLM response
-        mock_response = {"choices": [{"message": {"content": mock_bbr_content()}}]}
+        mock_response = {
+            "choices": [{"message": {"content": mock_bbr_content()}}]
+        }
 
         with patch(
             "src.vpsweb.services.llm.factory.LLMFactory.get_provider"
@@ -905,7 +953,9 @@ This BBR is necessarily limited due to the minimal source material available."""
         ]
 
         for case in test_cases:
-            mock_response = {"choices": [{"message": {"content": case["content"]}}]}
+            mock_response = {
+                "choices": [{"message": {"content": case["content"]}}]
+            }
 
             with patch(
                 "src.vpsweb.services.llm.factory.LLMFactory.get_provider"

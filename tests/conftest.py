@@ -5,28 +5,28 @@ This module provides common fixtures for unit and integration tests,
 including sample data, mock responses, and temporary directories.
 """
 
-import pytest
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
-from typing import Dict, Any
 
-from src.vpsweb.models.translation import (
-    TranslationInput,
-    InitialTranslation,
-    EditorReview,
-    RevisedTranslation,
-    TranslationOutput,
-)
+import pytest
+
 from src.vpsweb.models.config import (
-    WorkflowConfig,
-    StepConfig,
     CompleteConfig,
     LoggingConfig,
     MainConfig,
     ModelProviderConfig,
     ProvidersConfig,
+    StepConfig,
     StorageConfig,
+    WorkflowConfig,
+)
+from src.vpsweb.models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
+    TranslationOutput,
 )
 
 
@@ -369,7 +369,7 @@ def mock_llm_factory_integration(mocker):
             return response
 
     # Create mock that returns our mock LLM
-    original_create = LLMFactory.get_provider
+    LLMFactory.get_provider
 
     def mock_create_llm(self, provider: str, model: str, **kwargs):
         responses = [
@@ -438,25 +438,27 @@ def integration_workflow_config():
 # Enhanced Database Fixtures for P2.1
 # ==============================================================================
 
-import asyncio
 import sys
 from typing import AsyncGenerator, Generator
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from vpsweb.repository.models import Base
 from vpsweb.repository.crud import RepositoryService
+from vpsweb.repository.models import Base
 from vpsweb.repository.service import RepositoryWebService
-from vpsweb.webui.services.poem_service import PoemService
-from vpsweb.webui.main import app
 from vpsweb.utils.logger import get_logger
+from vpsweb.webui.main import app
+from vpsweb.webui.services.poem_service import PoemService
 
 # Configure pytest-asyncio
 pytest_asyncio.default_mode = "auto"
@@ -653,8 +655,9 @@ def sample_workflow_task_data():
 @pytest_asyncio.fixture
 async def sample_poem(db_session, sample_poem_data):
     """Create a sample poem in the database."""
-    from vpsweb.repository.models import Poem
     import uuid
+
+    from vpsweb.repository.models import Poem
 
     poem_data = sample_poem_data.copy()
     poem_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
@@ -670,8 +673,9 @@ async def sample_poem(db_session, sample_poem_data):
 @pytest_asyncio.fixture
 async def sample_chinese_poem(db_session, sample_chinese_poem_data):
     """Create a sample Chinese poem in the database."""
-    from vpsweb.repository.models import Poem
     import uuid
+
+    from vpsweb.repository.models import Poem
 
     poem_data = sample_chinese_poem_data.copy()
     poem_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
@@ -687,8 +691,9 @@ async def sample_chinese_poem(db_session, sample_chinese_poem_data):
 @pytest_asyncio.fixture
 async def sample_translation(db_session, sample_poem, sample_translation_data):
     """Create a sample translation in the database."""
-    from vpsweb.repository.models import Translation
     import uuid
+
+    from vpsweb.repository.models import Translation
 
     translation_data = sample_translation_data.copy()
     translation_data["id"] = str(uuid.uuid4())[:26]  # Generate ULID-like ID
@@ -793,8 +798,9 @@ class AsyncTestContext:
 
     async def create_poem(self, **kwargs):
         """Create a poem with default values."""
-        from vpsweb.repository.models import Poem
         import uuid
+
+        from vpsweb.repository.models import Poem
 
         default_data = TestDataFactory.create_poem()
         default_data["id"] = str(uuid.uuid4())[:26]
@@ -808,8 +814,9 @@ class AsyncTestContext:
 
     async def create_translation(self, poem_id: str, **kwargs):
         """Create a translation with default values."""
-        from vpsweb.repository.models import Translation
         import uuid
+
+        from vpsweb.repository.models import Translation
 
         default_data = TestDataFactory.create_translation(poem_id)
         default_data["id"] = str(uuid.uuid4())[:26]

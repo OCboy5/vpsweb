@@ -14,7 +14,6 @@ from .translation_runner import (
     quick_translate,
     quick_translate_file,
 )
-
 from .wechat_article_runner import (
     WeChatArticleRunner,
     quick_generate_article,

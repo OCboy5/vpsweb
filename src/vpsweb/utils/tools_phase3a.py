@@ -7,18 +7,16 @@ operations, error handling, and resource management.
 """
 
 import asyncio
-import time
-import uuid
-from typing import Dict, List, Any, Optional, Callable, AsyncGenerator, Union
-from dataclasses import dataclass, field
-from contextlib import asynccontextmanager, contextmanager
-from enum import Enum
 import hashlib
 import json
 import logging
-from functools import wraps, partial
+import time
 import traceback
-
+import uuid
+from contextlib import asynccontextmanager, contextmanager
+from dataclasses import dataclass, field
+from functools import wraps
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 
 # ============================================================================
 # Async Utilities
@@ -55,7 +53,9 @@ class AsyncTimer:
 
 
 @asynccontextmanager
-async def timeout_context(timeout_seconds: float, operation_name: str = "operation"):
+async def timeout_context(
+    timeout_seconds: float, operation_name: str = "operation"
+):
     """
     Async context manager with timeout.
 
@@ -78,7 +78,9 @@ async def timeout_context(timeout_seconds: float, operation_name: str = "operati
         )
 
 
-async def gather_with_errors(*tasks, return_exceptions: bool = False) -> List[Any]:
+async def gather_with_errors(
+    *tasks, return_exceptions: bool = False
+) -> List[Any]:
     """
     Gather tasks with better error handling.
 
@@ -111,7 +113,10 @@ async def gather_with_errors(*tasks, return_exceptions: bool = False) -> List[An
 
 
 async def batch_process(
-    items: List[Any], processor: Callable, batch_size: int = 10, concurrency: int = 5
+    items: List[Any],
+    processor: Callable,
+    batch_size: int = 10,
+    concurrency: int = 5,
 ) -> AsyncGenerator[Any, None]:
     """
     Process items in batches with controlled concurrency.
@@ -224,11 +229,15 @@ def async_error_handler(
                 return await func(*args, **kwargs)
             except Exception as e:
                 if error_collector:
-                    error_collector.add_error(e, context={"function": func.__name__})
+                    error_collector.add_error(
+                        e, context={"function": func.__name__}
+                    )
 
                 if log_errors:
                     logger = logging.getLogger(func.__module__)
-                    logger.error(f"Error in {func.__name__}: {e}", exc_info=True)
+                    logger.error(
+                        f"Error in {func.__name__}: {e}", exc_info=True
+                    )
 
                 if default_return is not None:
                     return default_return
@@ -315,7 +324,9 @@ class ResourceManager:
                     cleanup_func(resource)
             except Exception as e:
                 logger = logging.getLogger(__name__)
-                logger.warning(f"Error cleaning up {resource_info['name']}: {e}")
+                logger.warning(
+                    f"Error cleaning up {resource_info['name']}: {e}"
+                )
 
         # Generic cleanup methods
         for attr in ["close", "cleanup", "dispose"]:
@@ -412,7 +423,9 @@ def generate_unique_id(prefix: Optional[str] = None) -> str:
     return unique_id
 
 
-def deep_merge_dict(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
+def deep_merge_dict(
+    dict1: Dict[str, Any], dict2: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Deep merge two dictionaries.
 
@@ -426,7 +439,11 @@ def deep_merge_dict(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, A
     result = dict1.copy()
 
     for key, value in dict2.items():
-        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+        if (
+            key in result
+            and isinstance(result[key], dict)
+            and isinstance(value, dict)
+        ):
             result[key] = deep_merge_dict(result[key], value)
         else:
             result[key] = value
@@ -469,10 +486,10 @@ def flatten_dict(
 class ValidationError(Exception):
     """Custom validation error."""
 
-    pass
 
-
-def validate_required_fields(data: Dict[str, Any], required_fields: List[str]) -> None:
+def validate_required_fields(
+    data: Dict[str, Any], required_fields: List[str]
+) -> None:
     """
     Validate that required fields are present in data.
 
@@ -488,7 +505,9 @@ def validate_required_fields(data: Dict[str, Any], required_fields: List[str]) -
         raise ValidationError(f"Missing required fields: {missing_fields}")
 
 
-def validate_field_types(data: Dict[str, Any], field_types: Dict[str, type]) -> None:
+def validate_field_types(
+    data: Dict[str, Any], field_types: Dict[str, type]
+) -> None:
     """
     Validate field types in data.
 
@@ -617,7 +636,10 @@ class PerformanceMonitor:
 
     def get_all_metrics(self) -> Dict[str, Dict[str, Any]]:
         """Get all metrics as a dictionary."""
-        return {name: metrics.get_summary() for name, metrics in self.metrics.items()}
+        return {
+            name: metrics.get_summary()
+            for name, metrics in self.metrics.items()
+        }
 
     def reset_metrics(self, operation_name: Optional[str] = None) -> None:
         """Reset metrics for specific operation or all."""

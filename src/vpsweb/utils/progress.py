@@ -4,11 +4,11 @@ Progress tracking and display utilities for VPSWeb workflow.
 This module provides simple CLI progress display with step-by-step results.
 """
 
-import time
 import logging
-from typing import Dict, Any, Optional, Callable
-from enum import Enum
+import time
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Callable, Dict, Optional
 
 logger = logging.getLogger(__name__)
 

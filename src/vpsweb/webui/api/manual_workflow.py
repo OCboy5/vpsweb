@@ -6,20 +6,21 @@ interact with external LLM services through copy-paste operations.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from vpsweb.repository.database import get_db
-from vpsweb.webui.services.manual_workflow_service import ManualWorkflowService
 from vpsweb.webui.schemas import WebAPIResponse
+from vpsweb.webui.services.manual_workflow_service import ManualWorkflowService
 
 
 # Request models
 class ManualWorkflowStartRequest(BaseModel):
     """Request model for starting a manual workflow."""
 
-    target_lang: str = Field(..., description="Target language for translation")
+    target_lang: str = Field(
+        ..., description="Target language for translation"
+    )
 
 
 class ManualWorkflowStepRequest(BaseModel):
@@ -37,7 +38,9 @@ router = APIRouter()
 _manual_workflow_service_instance = None
 
 
-def get_manual_workflow_service(db: Session = Depends(get_db)) -> ManualWorkflowService:
+def get_manual_workflow_service(
+    db: Session = Depends(get_db),
+) -> ManualWorkflowService:
     """Dependency to get manual workflow service instance."""
     global _manual_workflow_service_instance
 
@@ -51,11 +54,11 @@ def get_manual_workflow_service(db: Session = Depends(get_db)) -> ManualWorkflow
         container = get_container()
 
         # Get required services from container
-        from vpsweb.webui.services.interfaces import IWorkflowServiceV2
-        from vpsweb.services.prompts import PromptService
-        from vpsweb.services.parser import OutputParser
         from vpsweb.repository.service import RepositoryWebService
+        from vpsweb.services.parser import OutputParser
+        from vpsweb.services.prompts import PromptService
         from vpsweb.utils.storage import StorageHandler
+        from vpsweb.webui.services.interfaces import IWorkflowServiceV2
 
         # Resolve dependencies
         prompt_service = container.resolve_by_type(PromptService)
@@ -73,18 +76,18 @@ def get_manual_workflow_service(db: Session = Depends(get_db)) -> ManualWorkflow
             storage_handler=storage_handler,
         )
 
-    except Exception as e:
+    except Exception:
         # Fallback: create services manually
-        from vpsweb.repository.service import RepositoryWebService
-        from vpsweb.services.prompts import PromptService
-        from vpsweb.services.parser import OutputParser
-        from vpsweb.utils.storage import StorageHandler
-        from vpsweb.webui.services.services import (
-            WorkflowServiceV2,
-            TaskManagementServiceV2,
-        )
-        from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
         from vpsweb.core.container import DIContainer
+        from vpsweb.repository.service import RepositoryWebService
+        from vpsweb.services.parser import OutputParser
+        from vpsweb.services.prompts import PromptService
+        from vpsweb.utils.storage import StorageHandler
+        from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
+        from vpsweb.webui.services.services import (
+            TaskManagementServiceV2,
+            WorkflowServiceV2,
+        )
 
         # Create container
         container = DIContainer()
@@ -93,7 +96,9 @@ def get_manual_workflow_service(db: Session = Depends(get_db)) -> ManualWorkflow
         container.register_instance(
             ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None)
         )
-        container.register_singleton(type(WorkflowServiceV2), WorkflowServiceV2)
+        container.register_singleton(
+            type(WorkflowServiceV2), WorkflowServiceV2
+        )
 
         # Create services
         repository_service = RepositoryWebService(db)
@@ -118,7 +123,9 @@ def get_manual_workflow_service(db: Session = Depends(get_db)) -> ManualWorkflow
     return _manual_workflow_service_instance
 
 
-@router.post("/poems/{poem_id}/translate/manual/start", response_model=WebAPIResponse)
+@router.post(
+    "/poems/{poem_id}/translate/manual/start", response_model=WebAPIResponse
+)
 async def start_manual_workflow(
     poem_id: str,
     request: ManualWorkflowStartRequest,
@@ -150,7 +157,8 @@ async def start_manual_workflow(
 
 
 @router.post(
-    "/poems/{poem_id}/translate/manual/step/{step_name}", response_model=WebAPIResponse
+    "/poems/{poem_id}/translate/manual/step/{step_name}",
+    response_model=WebAPIResponse,
 )
 async def submit_manual_workflow_step(
     poem_id: str,
@@ -245,7 +253,9 @@ async def cleanup_expired_sessions(
     This is a maintenance endpoint that removes old sessions.
     """
     try:
-        cleaned_count = manual_workflow_service.cleanup_expired_sessions(max_age_hours)
+        cleaned_count = manual_workflow_service.cleanup_expired_sessions(
+            max_age_hours
+        )
 
         return WebAPIResponse(
             success=True,

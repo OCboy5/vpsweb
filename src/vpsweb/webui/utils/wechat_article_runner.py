@@ -15,17 +15,19 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
 
 # 添加根路径以确保可以导入其他模块
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
-from vpsweb.utils.article_generator import ArticleGenerator, ArticleGeneratorError
-from vpsweb.services.config import get_config_facade, ConfigFacade
 from vpsweb.models.wechat import (
     ArticleGenerationResult,
-    ArticleGenerationConfig,
     WeChatArticleStatus,
+)
+from vpsweb.services.config import ConfigFacade, get_config_facade
+from vpsweb.utils.article_generator import (
+    ArticleGenerator,
+    ArticleGeneratorError,
 )
 from vpsweb.utils.logger import get_logger
 
@@ -69,12 +71,8 @@ class WeChatArticleRunner:
                 from vpsweb.models.config import (
                     CompleteConfig,
                     MainConfig,
-                    WorkflowConfig,
                     ProvidersConfig,
-                )
-                from vpsweb.utils.config_loader import (
-                    load_model_registry_config,
-                    load_task_templates_config,
+                    WorkflowConfig,
                 )
 
                 # Create a minimal compatibility config
@@ -96,7 +94,8 @@ class WeChatArticleRunner:
             from vpsweb.models.wechat import ArticleGenerationConfig
 
             wechat_config = (
-                self._config_facade.models.get_wechat_article_generation_config() or {}
+                self._config_facade.models.get_wechat_article_generation_config()
+                or {}
             )
             article_config = ArticleGenerationConfig(**wechat_config)
             self.article_generator = ArticleGenerator(
@@ -108,7 +107,9 @@ class WeChatArticleRunner:
                 self.config.wechat, "article_generation"
             ):
                 # Use complete WeChat configuration
-                wechat_config = self.config.wechat.article_generation.model_dump()
+                wechat_config = (
+                    self.config.wechat.article_generation.model_dump()
+                )
                 print("✅ Using WeChat configuration from legacy config")
             else:
                 # Use default configuration
@@ -120,19 +121,25 @@ class WeChatArticleRunner:
                     "default_local_cover_image_name": "cover_image_big.jpg",
                     "model_type": "non_reasoning",
                 }
-                print("⚠️ Using default WeChat configuration (config.wechat not found)")
+                print(
+                    "⚠️ Using default WeChat configuration (config.wechat not found)"
+                )
 
             # Initialize article generator with legacy config
             self.article_config = ArticleGenerationConfig(**wechat_config)
             self.article_generator = ArticleGenerator(
                 config=self.article_config,
                 providers_config=(
-                    self.config.providers if hasattr(self.config, "providers") else None
+                    self.config.providers
+                    if hasattr(self.config, "providers")
+                    else None
                 ),
                 wechat_llm_config=(
                     self.config.providers.wechat_translation_notes.model_dump()
                     if hasattr(self.config, "providers")
-                    and hasattr(self.config.providers, "wechat_translation_notes")
+                    and hasattr(
+                        self.config.providers, "wechat_translation_notes"
+                    )
                     else None
                 ),
                 system_config=self.config.model_dump(),
@@ -235,7 +242,9 @@ class WeChatArticleRunner:
             print(f"✅ Temporary JSON file created: {temp_json_path}")
 
             try:
-                print(f"🚀 Starting article generation from translation data...")
+                print(
+                    f"🚀 Starting article generation from translation data..."
+                )
                 # 生成文章
                 result = self.generate_from_translation(
                     translation_json_path=temp_json_path,
@@ -262,7 +271,9 @@ class WeChatArticleRunner:
         except Exception as e:
             print(f"❌ Failed to generate article from data: {e}")
             logger.error(f"从翻译数据生成微信文章失败: {e}")
-            raise ArticleGeneratorError(f"Failed to generate article from data: {e}")
+            raise ArticleGeneratorError(
+                f"Failed to generate article from data: {e}"
+            )
 
     def _fix_webui_metadata(
         self,
@@ -303,11 +314,14 @@ class WeChatArticleRunner:
             # Fix source_json_path - remove temporary file path and add meaningful reference
             if "source_json_path" in metadata_dict:
                 temp_path = metadata_dict["source_json_path"]
-                if temp_path.startswith("/var/folders/") or temp_path.startswith(
-                    "/tmp/"
-                ):
+                if temp_path.startswith(
+                    "/var/folders/"
+                ) or temp_path.startswith("/tmp/"):
                     # Replace with meaningful translation reference
-                    if "poet_name" in metadata_dict and "poem_title" in metadata_dict:
+                    if (
+                        "poet_name" in metadata_dict
+                        and "poem_title" in metadata_dict
+                    ):
                         poet = metadata_dict["poet_name"]
                         title = metadata_dict["poem_title"]
                         metadata_dict["source_json_path"] = (
@@ -324,8 +338,12 @@ class WeChatArticleRunner:
             # Add source_html_path for browser viewing
             html_file_path = Path(output_dir) / "article.html"
             if html_file_path.exists():
-                metadata_dict["source_html_path"] = str(html_file_path.absolute())
-                print(f"🔧 Added source_html_path: {metadata_dict['source_html_path']}")
+                metadata_dict["source_html_path"] = str(
+                    html_file_path.absolute()
+                )
+                print(
+                    f"🔧 Added source_html_path: {metadata_dict['source_html_path']}"
+                )
             else:
                 print(f"⚠️ HTML file not found: {html_file_path}")
 
@@ -365,7 +383,9 @@ class WeChatArticleRunner:
         Returns:
             生成结果列表
         """
-        logger.info(f"开始批量生成微信文章，共 {len(translation_files)} 个文件")
+        logger.info(
+            f"开始批量生成微信文章，共 {len(translation_files)} 个文件"
+        )
 
         results = []
         for i, translation_file in enumerate(translation_files):
@@ -406,11 +426,15 @@ class WeChatArticleRunner:
                 )
 
         success_count = sum(1 for r in results if r["status"] == "success")
-        logger.info(f"批量生成完成: {success_count}/{len(translation_files)} 成功")
+        logger.info(
+            f"批量生成完成: {success_count}/{len(translation_files)} 成功"
+        )
 
         return results
 
-    def get_article_summary(self, result: ArticleGenerationResult) -> Dict[str, Any]:
+    def get_article_summary(
+        self, result: ArticleGenerationResult
+    ) -> Dict[str, Any]:
         """
         获取文章生成结果摘要
 
@@ -451,7 +475,9 @@ class WeChatArticleRunner:
             and result.article.cover_image_path
         ):
             summary["cover_image_path"] = result.article.cover_image_path
-            summary["show_cover_pic"] = getattr(result.article, "show_cover_pic", False)
+            summary["show_cover_pic"] = getattr(
+                result.article, "show_cover_pic", False
+            )
 
         # 自定义元数据
         if hasattr(result, "custom_metadata") and result.custom_metadata:
@@ -459,7 +485,9 @@ class WeChatArticleRunner:
 
         return summary
 
-    def validate_translation_file(self, translation_json_path: str) -> Dict[str, Any]:
+    def validate_translation_file(
+        self, translation_json_path: str
+    ) -> Dict[str, Any]:
         """
         验证翻译JSON文件是否适合生成微信文章
 
@@ -493,21 +521,34 @@ class WeChatArticleRunner:
             required_fields = ["workflow_id", "input", "congregated_output"]
             for field in required_fields:
                 if field not in translation_data:
-                    validation_result["errors"].append(f"缺少必需字段: {field}")
+                    validation_result["errors"].append(
+                        f"缺少必需字段: {field}"
+                    )
 
             # 验证输入数据
             input_data = translation_data.get("input", {})
-            required_input_fields = ["original_poem", "source_lang", "target_lang"]
+            required_input_fields = [
+                "original_poem",
+                "source_lang",
+                "target_lang",
+            ]
             for field in required_input_fields:
                 if field not in input_data:
-                    validation_result["errors"].append(f"输入数据缺少必需字段: {field}")
+                    validation_result["errors"].append(
+                        f"输入数据缺少必需字段: {field}"
+                    )
 
             # 验证聚合输出
             congregated = translation_data.get("congregated_output", {})
-            required_congregated_fields = ["original_poem", "revised_translation"]
+            required_congregated_fields = [
+                "original_poem",
+                "revised_translation",
+            ]
             for field in required_congregated_fields:
                 if field not in congregated:
-                    validation_result["warnings"].append(f"聚合输出缺少字段: {field}")
+                    validation_result["warnings"].append(
+                        f"聚合输出缺少字段: {field}"
+                    )
 
             # 提取元数据
             if not validation_result["errors"]:

@@ -5,16 +5,15 @@ This module handles access token caching, refresh, and management
 for WeChat Official Account API calls.
 """
 
+import asyncio
 import json
 import time
-import asyncio
 from pathlib import Path
-from typing import Optional, Dict, Any
-import logging
+from typing import Any, Dict, Optional
 
 import httpx
 
-from ...models.wechat import WeChatConfig, WeChatApiResponse
+from ...models.wechat import WeChatConfig
 from ...utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -22,8 +21,6 @@ logger = get_logger(__name__)
 
 class TokenManagerError(Exception):
     """Exception raised for token management errors."""
-
-    pass
 
 
 class TokenManager:
@@ -35,7 +32,9 @@ class TokenManager:
     """
 
     def __init__(
-        self, config: WeChatConfig, system_config: Optional[Dict[str, Any]] = None
+        self,
+        config: WeChatConfig,
+        system_config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize token manager with configuration.

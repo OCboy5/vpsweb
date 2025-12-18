@@ -34,20 +34,19 @@ Features:
 - Database synchronization validation
 """
 
-import os
-import json
-import shutil
-import zipfile
-import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Union, BinaryIO
-from datetime import datetime, timezone
-import aiofiles
 import asyncio
+import hashlib
+import json
 
 # Simple configuration for v0.3.1 repository system
 import os
+import shutil
+import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import aiofiles
 
 
 def get_default_repo_root() -> Path:
@@ -66,25 +65,17 @@ def get_default_repo_root() -> Path:
 class FileStorageError(Exception):
     """Base exception for file storage operations."""
 
-    pass
-
 
 class FileNotFoundError(FileStorageError):
     """File not found in storage."""
-
-    pass
 
 
 class InvalidFileTypeError(FileStorageError):
     """Invalid file type for operation."""
 
-    pass
-
 
 class SecurityValidationError(FileStorageError):
     """Security validation failed."""
-
-    pass
 
 
 class FileStorageManager:
@@ -191,7 +182,9 @@ class FileStorageManager:
         try:
             file_path.resolve().relative_to(self.repo_root.resolve())
         except ValueError:
-            raise SecurityValidationError(f"Path outside repository: {file_path}")
+            raise SecurityValidationError(
+                f"Path outside repository: {file_path}"
+            )
 
         # Check file extension
         if allowed_extensions:
@@ -223,7 +216,9 @@ class FileStorageManager:
         file_str = str(file_path).lower()
         for pattern in dangerous_patterns:
             if pattern in file_str:
-                raise SecurityValidationError(f"Dangerous pattern in path: {pattern}")
+                raise SecurityValidationError(
+                    f"Dangerous pattern in path: {pattern}"
+                )
 
         return True
 
@@ -259,7 +254,9 @@ class FileStorageManager:
 
             # Write file
             if isinstance(content, str):
-                async with aiofiles.open(file_path, "w", encoding="utf-8") as f:
+                async with aiofiles.open(
+                    file_path, "w", encoding="utf-8"
+                ) as f:
                     await f.write(content)
             else:
                 async with aiofiles.open(file_path, "wb") as f:
@@ -272,8 +269,12 @@ class FileStorageManager:
             metadata = {
                 "path": str(file_path),
                 "size": stat.st_size,
-                "created": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc),
-                "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+                "created": datetime.fromtimestamp(
+                    stat.st_ctime, tz=timezone.utc
+                ),
+                "modified": datetime.fromtimestamp(
+                    stat.st_mtime, tz=timezone.utc
+                ),
                 "hash": file_hash,
                 "extension": file_path.suffix,
             }
@@ -281,9 +282,13 @@ class FileStorageManager:
             return metadata
 
         except Exception as e:
-            raise FileStorageError(f"Failed to save file {file_path}: {str(e)}")
+            raise FileStorageError(
+                f"Failed to save file {file_path}: {str(e)}"
+            )
 
-    async def load_file(self, file_path: Path, mode: str = "r") -> Union[str, bytes]:
+    async def load_file(
+        self, file_path: Path, mode: str = "r"
+    ) -> Union[str, bytes]:
         """
         Load file content from storage.
 
@@ -312,7 +317,9 @@ class FileStorageManager:
         except FileNotFoundError:
             raise
         except Exception as e:
-            raise FileStorageError(f"Failed to load file {file_path}: {str(e)}")
+            raise FileStorageError(
+                f"Failed to load file {file_path}: {str(e)}"
+            )
 
     async def delete_file(self, file_path: Path) -> bool:
         """
@@ -337,7 +344,9 @@ class FileStorageManager:
             return False
 
         except Exception as e:
-            raise FileStorageError(f"Failed to delete file {file_path}: {str(e)}")
+            raise FileStorageError(
+                f"Failed to delete file {file_path}: {str(e)}"
+            )
 
     async def calculate_file_hash(
         self, file_path: Path, algorithm: str = "sha256"
@@ -379,7 +388,9 @@ class FileStorageManager:
         """
         try:
             if not source_dir.exists():
-                raise FileNotFoundError(f"Source directory not found: {source_dir}")
+                raise FileNotFoundError(
+                    f"Source directory not found: {source_dir}"
+                )
 
             # Generate backup name
             if not backup_name:
@@ -394,18 +405,24 @@ class FileStorageManager:
                 await self._create_zip_backup(source_dir, backup_path)
             else:
                 backup_path = backup_dir / backup_name
-                await asyncio.to_thread(shutil.copytree, source_dir, backup_path)
+                await asyncio.to_thread(
+                    shutil.copytree, source_dir, backup_path
+                )
 
             return backup_path
 
         except Exception as e:
             raise FileStorageError(f"Failed to create backup: {str(e)}")
 
-    async def _create_zip_backup(self, source_dir: Path, backup_path: Path) -> None:
+    async def _create_zip_backup(
+        self, source_dir: Path, backup_path: Path
+    ) -> None:
         """Create a compressed zip backup."""
 
         def create_zip():
-            with zipfile.ZipFile(backup_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+            with zipfile.ZipFile(
+                backup_path, "w", zipfile.ZIP_DEFLATED
+            ) as zipf:
                 for file_path in source_dir.rglob("*"):
                     if file_path.is_file():
                         arcname = file_path.relative_to(source_dir)
@@ -413,7 +430,9 @@ class FileStorageManager:
 
         await asyncio.to_thread(create_zip)
 
-    async def restore_backup(self, backup_path: Path, target_dir: Path) -> None:
+    async def restore_backup(
+        self, backup_path: Path, target_dir: Path
+    ) -> None:
         """
         Restore a backup to target directory.
 
@@ -427,7 +446,9 @@ class FileStorageManager:
             self.validate_file_path(target_dir)
 
             if not backup_path.exists():
-                raise FileNotFoundError(f"Backup file not found: {backup_path}")
+                raise FileNotFoundError(
+                    f"Backup file not found: {backup_path}"
+                )
 
             # Remove target directory if it exists
             if target_dir.exists():
@@ -438,12 +459,16 @@ class FileStorageManager:
             if backup_path.suffix == ".zip":
                 await self._extract_zip_backup(backup_path, target_dir)
             else:
-                await asyncio.to_thread(shutil.copytree, backup_path, target_dir)
+                await asyncio.to_thread(
+                    shutil.copytree, backup_path, target_dir
+                )
 
         except Exception as e:
             raise FileStorageError(f"Failed to restore backup: {str(e)}")
 
-    async def _extract_zip_backup(self, backup_path: Path, target_dir: Path) -> None:
+    async def _extract_zip_backup(
+        self, backup_path: Path, target_dir: Path
+    ) -> None:
         """Extract a zip backup."""
 
         def extract_zip():
@@ -513,7 +538,9 @@ class FileStorageManager:
             allowed_extensions=[".json"],
         )
 
-    async def load_translation_data(self, translation_id: str) -> Dict[str, Any]:
+    async def load_translation_data(
+        self, translation_id: str
+    ) -> Dict[str, Any]:
         """
         Load translation data from file storage.
 
@@ -554,7 +581,9 @@ class FileStorageManager:
 
             files = []
             glob_pattern = (
-                directory.rglob(pattern) if recursive else directory.glob(pattern)
+                directory.rglob(pattern)
+                if recursive
+                else directory.glob(pattern)
             )
 
             for file_path in glob_pattern:
@@ -575,14 +604,18 @@ class FileStorageManager:
                             ),
                             "hash": file_hash,
                             "extension": file_path.suffix,
-                            "relative_path": str(file_path.relative_to(self.repo_root)),
+                            "relative_path": str(
+                                file_path.relative_to(self.repo_root)
+                            ),
                         }
                     )
 
             return sorted(files, key=lambda x: x["name"])
 
         except Exception as e:
-            raise FileStorageError(f"Failed to list files in {directory}: {str(e)}")
+            raise FileStorageError(
+                f"Failed to list files in {directory}: {str(e)}"
+            )
 
     async def cleanup_temp_files(self, max_age_hours: int = 24) -> int:
         """
@@ -603,7 +636,10 @@ class FileStorageManager:
             cleaned_count = 0
 
             for file_path in temp_dir.rglob("*"):
-                if file_path.is_file() and file_path.stat().st_mtime < cutoff_time:
+                if (
+                    file_path.is_file()
+                    and file_path.stat().st_mtime < cutoff_time
+                ):
                     await self.delete_file(file_path)
                     cleaned_count += 1
 
@@ -649,7 +685,9 @@ class FileStorageManager:
 _file_storage_manager: Optional[FileStorageManager] = None
 
 
-def get_file_storage_manager(repo_root: Optional[Path] = None) -> FileStorageManager:
+def get_file_storage_manager(
+    repo_root: Optional[Path] = None,
+) -> FileStorageManager:
     """
     Get the global file storage manager instance.
 

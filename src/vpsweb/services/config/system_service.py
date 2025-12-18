@@ -5,9 +5,10 @@ This service provides high-level interfaces for accessing system-level
 configuration like storage, logging, and monitoring settings.
 """
 
-from typing import Dict, Any, Optional, List
-from ...models.config import StorageConfig, LoggingConfig, MonitoringConfig
 import logging
+from typing import Any, Dict, List, Optional
+
+from ...models.config import LoggingConfig, MonitoringConfig, StorageConfig
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,9 @@ class SystemService:
 
     def get_wechat_articles_directory(self) -> str:
         """Get WeChat articles output directory."""
-        return getattr(self._storage, "wechat_articles_dir", "outputs/wechat_articles")
+        return getattr(
+            self._storage, "wechat_articles_dir", "outputs/wechat_articles"
+        )
 
     def get_cache_directory(self) -> str:
         """Get cache directory."""
@@ -118,7 +121,9 @@ class SystemService:
 
     def should_track_token_usage(self) -> bool:
         """Check if token usage should be tracked."""
-        return self._monitoring.track_token_usage if self._monitoring else False
+        return (
+            self._monitoring.track_token_usage if self._monitoring else False
+        )
 
     def should_track_cost(self) -> bool:
         """Check if API costs should be estimated."""
@@ -126,7 +131,9 @@ class SystemService:
 
     def should_compare_workflows(self) -> bool:
         """Check if A/B workflow comparison is enabled."""
-        return self._monitoring.compare_workflows if self._monitoring else False
+        return (
+            self._monitoring.compare_workflows if self._monitoring else False
+        )
 
     def get_monitoring_config_summary(self) -> Dict[str, Any]:
         """Get complete monitoring configuration summary."""
@@ -155,9 +162,15 @@ class SystemService:
         if hasattr(main_config, "translation_strategy"):
             strategy = main_config.translation_strategy
             return {
-                "adaptation_level": getattr(strategy, "adaptation_level", "balanced"),
-                "repetition_policy": getattr(strategy, "repetition_policy", "strict"),
-                "additions_policy": getattr(strategy, "additions_policy", "forbid"),
+                "adaptation_level": getattr(
+                    strategy, "adaptation_level", "balanced"
+                ),
+                "repetition_policy": getattr(
+                    strategy, "repetition_policy", "strict"
+                ),
+                "additions_policy": getattr(
+                    strategy, "additions_policy", "forbid"
+                ),
                 "prosody_target": getattr(
                     strategy, "prosody_target", "free verse, cadence-aware"
                 ),

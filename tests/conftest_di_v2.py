@@ -5,19 +5,20 @@ This module provides enhanced fixtures for Phase 3 testing, including
 dependency injection container, test databases, and advanced mock management.
 """
 
-import pytest
 import asyncio
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Generator
-from unittest.mock import Mock, AsyncMock
+from typing import Any, Dict, Generator
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 
 # Phase 3 DI framework imports (will be created)
 try:
     from src.vpsweb.core.container import DIContainer
     from src.vpsweb.core.interfaces import (
-        IPromptService,
         IOutputParser,
+        IPromptService,
         IWorkflowOrchestrator,
     )
 except ImportError:
@@ -28,22 +29,15 @@ except ImportError:
     IOutputParser = None
     IWorkflowOrchestrator = None
 
-from src.vpsweb.models.translation import (
-    TranslationInput,
-    InitialTranslation,
-    EditorReview,
-    RevisedTranslation,
-    TranslationOutput,
-)
 from src.vpsweb.models.config import (
-    WorkflowConfig,
     StepConfig,
-    CompleteConfig,
-    LoggingConfig,
-    MainConfig,
-    ModelProviderConfig,
-    ProvidersConfig,
-    StorageConfig,
+    WorkflowConfig,
+)
+from src.vpsweb.models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
 )
 
 
@@ -92,7 +86,9 @@ def mock_llm_factory():
 def mock_prompt_service():
     """Mock prompt service for testing."""
     service = Mock(spec=IPromptService)
-    service.render_prompt = AsyncMock(return_value=("system_prompt", "user_prompt"))
+    service.render_prompt = AsyncMock(
+        return_value=("system_prompt", "user_prompt")
+    )
     return service
 
 
@@ -180,7 +176,10 @@ def async_test_db():
         db_path = Path(temp_dir) / "test.db"
 
         # Import here to avoid circular imports
-        from src.vpsweb.repository.database import create_database_engine, create_tables
+        from src.vpsweb.repository.database import (
+            create_database_engine,
+            create_tables,
+        )
 
         engine = create_database_engine(db_path)
         await create_tables(engine)
@@ -506,10 +505,14 @@ class AsyncTestHelpers:
         return False
 
     @staticmethod
-    async def assert_async_result(async_func, expected_result, timeout: float = 5.0):
+    async def assert_async_result(
+        async_func, expected_result, timeout: float = 5.0
+    ):
         """Assert that an async function returns the expected result."""
         result = await asyncio.wait_for(async_func(), timeout=timeout)
-        assert result == expected_result, f"Expected {expected_result}, got {result}"
+        assert (
+            result == expected_result
+        ), f"Expected {expected_result}, got {result}"
 
 
 # Memory and resource management
@@ -527,7 +530,9 @@ class ResourceManager:
 
     def add_resource(self, resource, cleanup_func=None):
         """Add a resource to be managed."""
-        self.resources.append({"resource": resource, "cleanup_func": cleanup_func})
+        self.resources.append(
+            {"resource": resource, "cleanup_func": cleanup_func}
+        )
 
     def cleanup_all(self):
         """Cleanup all managed resources."""

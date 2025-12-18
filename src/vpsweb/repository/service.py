@@ -5,27 +5,25 @@ Service layer that provides a clean interface between the webui and repository l
 Handles database operations, error handling, and business logic.
 """
 
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from sqlalchemy.orm import Session
 
 from .crud import RepositoryService
+from .models import AILog, HumanNote, Poem, Translation
 from .schemas import (
-    PoemCreate,
-    PoemUpdate,
-    PoemResponse,
-    TranslationCreate,
-    TranslationUpdate,
-    TranslationResponse,
     AILogCreate,
     AILogResponse,
     HumanNoteCreate,
     HumanNoteResponse,
+    PoemCreate,
+    PoemResponse,
+    PoemUpdate,
     RepositoryStats,
-    TaskStatus,
-    WorkflowMode,
+    TranslationCreate,
+    TranslationResponse,
+    TranslationUpdate,
 )
-from .models import Poem, Translation, AILog, HumanNote
 
 
 class RepositoryWebService:
@@ -82,7 +80,9 @@ class RepositoryWebService:
 
         if search:
             poems = self.repo.search_poems(search, limit=page_size)
-            total = len(poems)  # Note: For large datasets, this should be optimized
+            total = len(
+                poems
+            )  # Note: For large datasets, this should be optimized
         else:
             poems = self.repo.poems.get_multi(
                 skip=offset, limit=page_size, poet_name=poet, language=language
@@ -135,14 +135,18 @@ class RepositoryWebService:
             # Verify poem exists
             poem = self.repo.poems.get_by_id(translation_data.poem_id)
             if not poem:
-                raise ValueError(f"Poem with ID {translation_data.poem_id} not found")
+                raise ValueError(
+                    f"Poem with ID {translation_data.poem_id} not found"
+                )
 
             translation = self.repo.translations.create(translation_data)
             return self._translation_to_response(translation)
         except Exception as e:
             raise self._handle_error("Failed to create translation", e)
 
-    def get_translation(self, translation_id: str) -> Optional[TranslationResponse]:
+    def get_translation(
+        self, translation_id: str
+    ) -> Optional[TranslationResponse]:
         """Get a translation by ID"""
         translation = self.repo.translations.get_by_id(translation_id)
         if translation:
@@ -180,7 +184,9 @@ class RepositoryWebService:
         return {
             "translation": self._translation_to_response(translation),
             "ai_logs": [self._ai_log_to_response(log) for log in ai_logs],
-            "human_notes": [self._human_note_to_response(note) for note in human_notes],
+            "human_notes": [
+                self._human_note_to_response(note) for note in human_notes
+            ],
         }
 
     def update_translation(
@@ -209,7 +215,9 @@ class RepositoryWebService:
         """Create a new AI log entry"""
         try:
             # Verify translation exists
-            translation = self.repo.translations.get_by_id(ai_log_data.translation_id)
+            translation = self.repo.translations.get_by_id(
+                ai_log_data.translation_id
+            )
             if not translation:
                 raise ValueError(
                     f"Translation with ID {ai_log_data.translation_id} not found"
@@ -220,7 +228,9 @@ class RepositoryWebService:
         except Exception as e:
             raise self._handle_error("Failed to create AI log", e)
 
-    def get_ai_logs_by_translation(self, translation_id: str) -> List[AILogResponse]:
+    def get_ai_logs_by_translation(
+        self, translation_id: str
+    ) -> List[AILogResponse]:
         """Get all AI logs for a translation"""
         ai_logs = self.repo.ai_logs.get_by_translation(translation_id)
         return [self._ai_log_to_response(log) for log in ai_logs]
@@ -231,11 +241,15 @@ class RepositoryWebService:
         return [self._ai_log_to_response(log) for log in ai_logs]
 
     # Human Note Methods
-    def create_human_note(self, note_data: HumanNoteCreate) -> HumanNoteResponse:
+    def create_human_note(
+        self, note_data: HumanNoteCreate
+    ) -> HumanNoteResponse:
         """Create a new human note"""
         try:
             # Verify translation exists
-            translation = self.repo.translations.get_by_id(note_data.translation_id)
+            translation = self.repo.translations.get_by_id(
+                note_data.translation_id
+            )
             if not translation:
                 raise ValueError(
                     f"Translation with ID {note_data.translation_id} not found"
@@ -347,7 +361,7 @@ class RepositoryWebService:
         min_translations: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get all poets with statistics and activity metrics"""
-        from sqlalchemy import func, desc, case
+        from sqlalchemy import case, desc, func
 
         # Base query with poet statistics (separated by AI and Human)
         query = (
@@ -355,14 +369,18 @@ class RepositoryWebService:
                 Poem.poet_name,
                 func.count(func.distinct(Poem.id)).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
-                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label(
-                    "ai_translation_count"
-                ),
+                func.sum(
+                    case((Translation.translator_type == "ai", 1), else_=0)
+                ).label("ai_translation_count"),
                 func.sum(
                     case((Translation.translator_type == "human", 1), else_=0)
                 ).label("human_translation_count"),
-                func.avg(Translation.quality_rating).label("avg_quality_rating"),
-                func.max(Translation.created_at).label("last_translation_date"),
+                func.avg(Translation.quality_rating).label(
+                    "avg_quality_rating"
+                ),
+                func.max(Translation.created_at).label(
+                    "last_translation_date"
+                ),
                 func.max(Poem.created_at).label("last_poem_date"),
             )
             .outerjoin(
@@ -377,10 +395,14 @@ class RepositoryWebService:
             query = query.filter(Poem.poet_name.ilike(f"%{search}%"))
 
         if min_poems is not None:
-            query = query.having(func.count(func.distinct(Poem.id)) >= min_poems)
+            query = query.having(
+                func.count(func.distinct(Poem.id)) >= min_poems
+            )
 
         if min_translations is not None:
-            query = query.having(func.count(Translation.id) >= min_translations)
+            query = query.having(
+                func.count(Translation.id) >= min_translations
+            )
 
         # Apply sorting
         if sort_by == "name":
@@ -396,7 +418,8 @@ class RepositoryWebService:
 
             order_column = case(
                 (
-                    func.max(Translation.created_at) >= func.max(Poem.created_at),
+                    func.max(Translation.created_at)
+                    >= func.max(Poem.created_at),
                     func.max(Translation.created_at),
                 ),
                 else_=func.max(Poem.created_at),
@@ -420,7 +443,8 @@ class RepositoryWebService:
                     "poem_count": row.poem_count,
                     "translation_count": row.translation_count or 0,
                     "ai_translation_count": row.ai_translation_count or 0,
-                    "human_translation_count": row.human_translation_count or 0,
+                    "human_translation_count": row.human_translation_count
+                    or 0,
                     "avg_quality_rating": (
                         float(row.avg_quality_rating)
                         if row.avg_quality_rating
@@ -447,14 +471,16 @@ class RepositoryWebService:
         sort_order: str = "asc",
     ) -> Dict[str, Any]:
         """Get poems by a specific poet with translation information"""
-        from sqlalchemy import func, desc
+        from sqlalchemy import desc, func
 
         # Base query for poems by poet with translation counts
         query = (
             self.db.query(
                 Poem,
                 func.count(Translation.id).label("translation_count"),
-                func.max(Translation.created_at).label("last_translation_date"),
+                func.max(Translation.created_at).label(
+                    "last_translation_date"
+                ),
             )
             .outerjoin(
                 Translation,
@@ -544,10 +570,14 @@ class RepositoryWebService:
 
         # Apply filters
         if target_language:
-            query = query.filter(Translation.target_language == target_language)
+            query = query.filter(
+                Translation.target_language == target_language
+            )
 
         if translator_type:
-            query = query.filter(Translation.translator_type == translator_type)
+            query = query.filter(
+                Translation.translator_type == translator_type
+            )
 
         if min_quality is not None:
             query = query.filter(Translation.quality_rating >= min_quality)
@@ -622,7 +652,9 @@ class RepositoryWebService:
         from sqlalchemy import func
 
         # Check if poet exists
-        poet_exists = self.db.query(Poem).filter(Poem.poet_name == poet_name).first()
+        poet_exists = (
+            self.db.query(Poem).filter(Poem.poet_name == poet_name).first()
+        )
 
         if not poet_exists:
             raise ValueError(f"Poet '{poet_name}' not found")
@@ -648,12 +680,18 @@ class RepositoryWebService:
                 func.count(func.distinct(Translation.target_language)).label(
                     "target_languages_count"
                 ),
-                func.avg(Translation.quality_rating).label("avg_quality_rating"),
+                func.avg(Translation.quality_rating).label(
+                    "avg_quality_rating"
+                ),
                 func.count(func.distinct(Translation.translator_type)).label(
                     "translator_types_count"
                 ),
-                func.min(Translation.created_at).label("first_translation_date"),
-                func.max(Translation.created_at).label("last_translation_date"),
+                func.min(Translation.created_at).label(
+                    "first_translation_date"
+                ),
+                func.max(Translation.created_at).label(
+                    "last_translation_date"
+                ),
             )
             .join(
                 Poem,
@@ -672,14 +710,17 @@ class RepositoryWebService:
                 "last_poem_date": poem_stats.last_poem_date,
             },
             "translation_statistics": {
-                "total_translations": translation_stats.total_translations or 0,
-                "target_languages_count": translation_stats.target_languages_count or 0,
+                "total_translations": translation_stats.total_translations
+                or 0,
+                "target_languages_count": translation_stats.target_languages_count
+                or 0,
                 "avg_quality_rating": (
                     float(translation_stats.avg_quality_rating)
                     if translation_stats.avg_quality_rating
                     else None
                 ),
-                "translator_types_count": translation_stats.translator_types_count or 0,
+                "translator_types_count": translation_stats.translator_types_count
+                or 0,
                 "first_translation_date": translation_stats.first_translation_date,
                 "last_translation_date": translation_stats.last_translation_date,
             },

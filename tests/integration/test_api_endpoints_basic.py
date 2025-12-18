@@ -4,9 +4,9 @@ Basic API Endpoint Tests for VPSWeb v0.7.0
 Simplified API tests that work with existing test infrastructure.
 """
 
-import pytest
-import json
 import uuid
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -143,7 +143,9 @@ And never stops at all,""",
         fake_poem_id = str(uuid.uuid4())[:26]
 
         # Test generate BBR
-        response = test_client.post(f"/api/v1/poems/{fake_poem_id}/bbr/generate")
+        response = test_client.post(
+            f"/api/v1/poems/{fake_poem_id}/bbr/generate"
+        )
         assert response.status_code == 404
 
         # Test get BBR

@@ -4,38 +4,39 @@ VPSWeb Web UI - Translation API Endpoints v0.3.1
 API endpoints for translation management and workflow operations.
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks, Request
+from typing import Any, Dict, Optional
+
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+)
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ...repository.database import get_db
-from ...repository.service import RepositoryWebService
 from ...repository.schemas import (
-    TranslationCreate,
-    TranslationUpdate,
-    TranslationResponse,
-    AILogCreate,
     HumanNoteCreate,
-    TranslationWorkflowStepResponse,
-    TranslatorType,
-    WorkflowStepType,
+    TranslationCreate,
+    TranslationResponse,
+    TranslationUpdate,
 )
+from ...repository.service import RepositoryWebService
+from ..container import container
 from ..schemas import (
-    WebAPIResponse,
-    WorkflowMode,
-    TranslationFormResponse,
-    TranslationFormCreate,
     TranslationRequest,
+    WebAPIResponse,
 )
 from ..services.interfaces import IWorkflowServiceV2
-from ..container import container
-
 
 router = APIRouter(tags=["translations"])
 
 
-def get_repository_service(db: Session = Depends(get_db)) -> RepositoryWebService:
+def get_repository_service(
+    db: Session = Depends(get_db),
+) -> RepositoryWebService:
     """Dependency to get repository service instance"""
     return RepositoryWebService(db)
 
@@ -102,7 +103,9 @@ async def list_translations(
     )
 
     # Convert SQLAlchemy models to Pydantic response schemas
-    translations = [TranslationResponse.model_validate(t) for t in raw_translations]
+    translations = [
+        TranslationResponse.model_validate(t) for t in raw_translations
+    ]
 
     return {
         "translations": translations,
@@ -138,7 +141,8 @@ async def create_translation(
 
 @router.get("/{translation_id}", response_model=TranslationResponse)
 async def get_translation(
-    translation_id: str, service: RepositoryWebService = Depends(get_repository_service)
+    translation_id: str,
+    service: RepositoryWebService = Depends(get_repository_service),
 ):
     """
     Get detailed information about a specific translation.
@@ -146,7 +150,8 @@ async def get_translation(
     translation = service.repo.translations.get_by_id(translation_id)
     if not translation:
         raise HTTPException(
-            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404,
+            detail=f"Translation with ID '{translation_id}' not found",
         )
     return translation
 
@@ -163,7 +168,8 @@ async def update_translation(
     existing_translation = service.repo.translations.get_by_id(translation_id)
     if not existing_translation:
         raise HTTPException(
-            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404,
+            detail=f"Translation with ID '{translation_id}' not found",
         )
 
     try:
@@ -197,7 +203,8 @@ async def update_quality_rating(
     existing_translation = service.repo.translations.get_by_id(translation_id)
     if not existing_translation:
         raise HTTPException(
-            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404,
+            detail=f"Translation with ID '{translation_id}' not found",
         )
 
     try:
@@ -205,7 +212,9 @@ async def update_quality_rating(
         from sqlalchemy import text
 
         result = service.db.execute(
-            text("UPDATE translations SET quality_rating = :rating WHERE id = :id"),
+            text(
+                "UPDATE translations SET quality_rating = :rating WHERE id = :id"
+            ),
             {"rating": rating_data.quality_rating, "id": translation_id},
         )
         service.db.commit()
@@ -230,13 +239,15 @@ async def update_quality_rating(
     except Exception as e:
         service.db.rollback()
         raise HTTPException(
-            status_code=400, detail=f"Failed to update quality rating: {str(e)}"
+            status_code=400,
+            detail=f"Failed to update quality rating: {str(e)}",
         )
 
 
 @router.delete("/{translation_id}", response_model=WebAPIResponse)
 async def delete_translation(
-    translation_id: str, service: RepositoryWebService = Depends(get_repository_service)
+    translation_id: str,
+    service: RepositoryWebService = Depends(get_repository_service),
 ):
     """
     Delete a translation and its associated logs and notes.
@@ -244,12 +255,15 @@ async def delete_translation(
     existing_translation = service.repo.translations.get_by_id(translation_id)
     if not existing_translation:
         raise HTTPException(
-            status_code=404, detail=f"Translation with ID '{translation_id}' not found"
+            status_code=404,
+            detail=f"Translation with ID '{translation_id}' not found",
         )
 
     try:
         service.repo.translations.delete(translation_id)
-        return WebAPIResponse(success=True, message="Translation deleted successfully")
+        return WebAPIResponse(
+            success=True, message="Translation deleted successfully"
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to delete translation: {str(e)}"
@@ -260,8 +274,12 @@ async def delete_translation(
 class HumanNoteCreateRequest(BaseModel):
     """Schema for creating a human note"""
 
-    translation_id: str = Field(..., description="Translation ID to attach the note to")
-    note_text: str = Field(..., min_length=1, description="The note text content")
+    translation_id: str = Field(
+        ..., description="Translation ID to attach the note to"
+    )
+    note_text: str = Field(
+        ..., min_length=1, description="The note text content"
+    )
 
 
 class HumanNoteResponse(BaseModel):
@@ -317,7 +335,8 @@ async def create_human_note(
     try:
         # Create the human note
         human_note_create = HumanNoteCreate(
-            translation_id=note_data.translation_id, note_text=note_data.note_text
+            translation_id=note_data.translation_id,
+            note_text=note_data.note_text,
         )
 
         human_note = service.repo.human_notes.create(human_note_create)
@@ -351,11 +370,15 @@ async def list_human_notes(
 
     try:
         # Get human notes for this translation
-        human_notes = service.repo.human_notes.get_by_translation(translation_id)
+        human_notes = service.repo.human_notes.get_by_translation(
+            translation_id
+        )
 
         return {
             "success": True,
-            "data": [HumanNoteResponse.model_validate(note) for note in human_notes],
+            "data": [
+                HumanNoteResponse.model_validate(note) for note in human_notes
+            ],
             "count": len(human_notes),
         }
     except Exception as e:
@@ -384,7 +407,9 @@ async def delete_human_note(
         # Delete the note
         service.repo.human_notes.delete(note_id)
 
-        return WebAPIResponse(success=True, message="Human note deleted successfully")
+        return WebAPIResponse(
+            success=True, message="Human note deleted successfully"
+        )
     except HTTPException:
         raise
     except Exception as e:

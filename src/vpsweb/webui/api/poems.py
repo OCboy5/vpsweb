@@ -4,31 +4,35 @@ VPSWeb Web UI - Poem API Endpoints v0.3.1
 API endpoints for poem management operations with comprehensive CRUD functionality.
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
-from sqlalchemy.orm import Session
-from sqlalchemy import func, select, case
+from typing import List, Optional
 
-from src.vpsweb.repository.database import get_db
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
 from src.vpsweb.repository.crud import RepositoryService
+from src.vpsweb.repository.database import get_db
+from src.vpsweb.repository.models import (
+    Poem,
+    Translation,
+)
 from src.vpsweb.repository.schemas import (
     PoemCreate,
-    PoemUpdate,
     PoemResponse,
     PoemSelectionUpdate,
+    PoemUpdate,
 )
-from src.vpsweb.repository.models import Poem, Translation, BackgroundBriefingReport
+from vpsweb.utils.logger import get_logger
+
 from ..schemas import (
-    PoemFormCreate,
-    WebAPIResponse,
-    PaginationInfo,
-    PoemTranslationWithWorkflow,
     PaginatedPoemResponse,
+    PaginationInfo,
     PoemFilterOptions,
+    PoemFormCreate,
+    PoemTranslationWithWorkflow,
+    WebAPIResponse,
 )
 from ..services.interfaces import IBBRServiceV2
-
-from vpsweb.utils.logger import get_logger
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -50,12 +54,21 @@ def get_bbr_service(db: Session = Depends(get_db)) -> IBBRServiceV2:
 async def list_poems(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(
-        20, ge=1, le=100, description="Number of items per page (default: 20, max: 100)"
+        20,
+        ge=1,
+        le=100,
+        description="Number of items per page (default: 20, max: 100)",
     ),
     poet_name: Optional[str] = Query(None, description="Filter by poet name"),
-    language: Optional[str] = Query(None, description="Filter by source language"),
-    title_search: Optional[str] = Query(None, description="Search in poem title"),
-    selected: Optional[bool] = Query(None, description="Filter by selection status"),
+    language: Optional[str] = Query(
+        None, description="Filter by source language"
+    ),
+    title_search: Optional[str] = Query(
+        None, description="Search in poem title"
+    ),
+    selected: Optional[bool] = Query(
+        None, description="Filter by selection status"
+    ),
     service: RepositoryService = Depends(get_repository_service),
 ):
     """
@@ -105,7 +118,9 @@ async def list_poems(
         placeholders = ",".join([f":id_{i}" for i in range(len(poem_ids))])
         params = {f"id_{i}": poem_id for i, poem_id in enumerate(poem_ids)}
         selected_results = service.db.execute(
-            text(f"SELECT id, selected FROM poems WHERE id IN ({placeholders})"),
+            text(
+                f"SELECT id, selected FROM poems WHERE id IN ({placeholders})"
+            ),
             params,
         ).fetchall()
 
@@ -129,7 +144,8 @@ async def list_poems(
         ai_translation_count = (
             service.db.execute(
                 select(func.count(Translation.id)).where(
-                    Translation.poem_id == poem.id, Translation.translator_type == "ai"
+                    Translation.poem_id == poem.id,
+                    Translation.translator_type == "ai",
                 )
             ).scalar()
             or 0
@@ -163,7 +179,9 @@ async def list_poems(
         response_data.append(poem_dict)
 
     # Calculate pagination info
-    total_pages = (total_count + page_size - 1) // page_size  # Ceiling division
+    total_pages = (
+        total_count + page_size - 1
+    ) // page_size  # Ceiling division
     has_next = page < total_pages
     has_previous = page > 1
 
@@ -178,7 +196,7 @@ async def list_poems(
     if page_size != 20:  # Include page_size if not default
         base_query_params.append(f"page_size={page_size}")
 
-    query_string = "&".join(base_query_params) if base_query_params else ""
+    "&".join(base_query_params) if base_query_params else ""
 
     next_page_url = None
     if has_next:
@@ -238,7 +256,9 @@ async def create_poem(
         poem = service.poems.create(poem_create)
         return poem
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to create poem: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to create poem: {str(e)}"
+        )
 
 
 @router.get("/filter-options", response_model=PoemFilterOptions)
@@ -253,13 +273,19 @@ async def get_filter_options(
     """
     try:
         # Get all unique poets from database
-        poets_query = select(Poem.poet_name).distinct().order_by(Poem.poet_name)
+        poets_query = (
+            select(Poem.poet_name).distinct().order_by(Poem.poet_name)
+        )
         poets_result = service.db.execute(poets_query).scalars().all()
-        poets = [poet for poet in poets_result if poet]  # Filter out None values
+        poets = [
+            poet for poet in poets_result if poet
+        ]  # Filter out None values
 
         # Get all unique languages from database
         languages_query = (
-            select(Poem.source_language).distinct().order_by(Poem.source_language)
+            select(Poem.source_language)
+            .distinct()
+            .order_by(Poem.source_language)
         )
         languages_result = service.db.execute(languages_query).scalars().all()
         languages = [
@@ -306,8 +332,9 @@ async def get_recent_activity(
     """
     try:
         # Use the PoemServiceV2 to get recent activity
-        from ..services.interfaces import IPoemServiceV2
         from vpsweb.webui.container import container
+
+        from ..services.interfaces import IPoemServiceV2
 
         poem_service = container.resolve(IPoemServiceV2)
 
@@ -354,7 +381,8 @@ async def get_poem(
     from sqlalchemy import text
 
     result = service.db.execute(
-        text("SELECT selected FROM poems WHERE id = :poem_id"), {"poem_id": poem_id}
+        text("SELECT selected FROM poems WHERE id = :poem_id"),
+        {"poem_id": poem_id},
     )
     direct_db_value = result.scalar()
 
@@ -362,7 +390,12 @@ async def get_poem(
     if direct_db_value is not None:
         # Handle SQLite's string boolean representation
         if isinstance(direct_db_value, str):
-            selected_value = direct_db_value.lower() in ("true", "1", "t", "yes")
+            selected_value = direct_db_value.lower() in (
+                "true",
+                "1",
+                "t",
+                "yes",
+            )
         else:
             selected_value = bool(direct_db_value)
     else:
@@ -424,7 +457,9 @@ async def update_poem(
         updated_poem = service.poems.update(poem_id, poem_update)
         return updated_poem
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to update poem: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to update poem: {str(e)}"
+        )
 
 
 @router.patch("/{poem_id}/selected", response_model=PoemResponse)
@@ -458,7 +493,8 @@ async def toggle_poem_selection(
         )
         if not updated_poem:
             raise HTTPException(
-                status_code=500, detail="Failed to update poem selection status"
+                status_code=500,
+                detail="Failed to update poem selection status",
             )
 
         return PoemResponse(
@@ -479,7 +515,8 @@ async def toggle_poem_selection(
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to update poem selection: {str(e)}"
+            status_code=500,
+            detail=f"Failed to update poem selection: {str(e)}",
         )
 
 
@@ -510,7 +547,9 @@ async def delete_poem(
             message=f"Poem '{existing_poem.poem_title}' deleted successfully",
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to delete poem: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to delete poem: {str(e)}"
+        )
 
 
 @router.get("/{poem_id}/translations", response_model=List[dict])
@@ -568,7 +607,9 @@ async def get_poem_translations(
 
 @router.post("/search", response_model=List[PoemResponse])
 async def search_poems(
-    query: str = Query(..., min_length=1, max_length=100, description="Search query"),
+    query: str = Query(
+        ..., min_length=1, max_length=100, description="Search query"
+    ),
     search_type: str = Query(
         "title", regex="^(title|poet|text|all)$", description="Search field"
     ),
@@ -710,7 +751,9 @@ async def generate_bbr(
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"BBR generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"BBR generation failed: {str(e)}"
+        )
 
 
 @router.get("/{poem_id}/bbr", response_model=WebAPIResponse)
@@ -752,7 +795,9 @@ async def get_bbr(
             )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get BBR: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get BBR: {str(e)}"
+        )
 
 
 @router.delete("/{poem_id}/bbr", response_model=WebAPIResponse)
@@ -796,8 +841,11 @@ async def delete_bbr(
             )
         else:
             raise HTTPException(
-                status_code=500, detail="Failed to delete Background Briefing Report"
+                status_code=500,
+                detail="Failed to delete Background Briefing Report",
             )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete BBR: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete BBR: {str(e)}"
+        )

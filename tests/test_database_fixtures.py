@@ -6,8 +6,6 @@ database work correctly and can be used for comprehensive testing.
 """
 
 import pytest
-import asyncio
-from httpx import AsyncClient
 
 # Mark these tests as database tests
 pytestmark = pytest.mark.database
@@ -193,8 +191,9 @@ def test_performance_timer_fixture(performance_timer):
 async def test_database_isolation(db_session):
     """Test that database sessions are properly isolated."""
     # Create a poem in one session
-    from vpsweb.repository.models import Poem
     import uuid
+
+    from vpsweb.repository.models import Poem
 
     poem_id = str(uuid.uuid4())[:26]
     poem = Poem(
@@ -225,14 +224,17 @@ async def test_database_isolation(db_session):
     async with new_session() as isolated_session:
         # The poem should not be visible in a rolled back session
         result = await isolated_session.execute(
-            "SELECT COUNT(*) FROM poems WHERE id = :poem_id", {"poem_id": poem_id}
+            "SELECT COUNT(*) FROM poems WHERE id = :poem_id",
+            {"poem_id": poem_id},
         )
         # The count should be 0 because changes are rolled back when session exits
         assert result.scalar() == 0
 
 
 @pytest.mark.integration
-async def test_full_workflow_integration(test_client, sample_poem, sample_translation):
+async def test_full_workflow_integration(
+    test_client, sample_poem, sample_translation
+):
     """Test full workflow integration with all fixtures."""
     # Test getting poems via API
     response = test_client.get("/api/v1/poems/")

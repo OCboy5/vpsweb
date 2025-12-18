@@ -5,27 +5,22 @@ These tests verify the core execution engine that orchestrates the poetry transl
 workflow by coordinating LLM providers, prompt templates, and output parsing.
 """
 
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-import asyncio
-from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
 
 from src.vpsweb.core.executor import (
-    StepExecutor,
-    PromptRenderingError,
     LLMCallError,
     OutputParsingError,
+    PromptRenderingError,
+    StepExecutor,
 )
-from src.vpsweb.models.config import StepConfig, ModelProviderConfig
+from src.vpsweb.models.config import StepConfig
 from src.vpsweb.models.translation import (
-    TranslationInput,
     InitialTranslation,
-    EditorReview,
-    RevisedTranslation,
+    TranslationInput,
 )
-from src.vpsweb.services.llm.factory import LLMFactory
 from src.vpsweb.services.prompts import PromptService
-from src.vpsweb.services.parser import OutputParser
 
 
 class TestStepExecutor:
@@ -68,7 +63,10 @@ class TestStepExecutor:
             prompt_template="initial_translation.yaml",
             timeout=30,
             retry_attempts=2,
-            required_fields=["initial_translation", "initial_translation_notes"],
+            required_fields=[
+                "initial_translation",
+                "initial_translation_notes",
+            ],
         )
 
     @pytest.fixture
@@ -130,7 +128,9 @@ class TestStepExecutor:
         assert result["status"] == "success"
         assert "output" in result
         assert "metadata" in result
-        assert result["output"]["initial_translation"] == "雾来了\n踏着猫的小脚。"
+        assert (
+            result["output"]["initial_translation"] == "雾来了\n踏着猫的小脚。"
+        )
         assert (
             result["output"]["initial_translation_notes"]
             == "This translation captures the gentle imagery."
@@ -190,7 +190,11 @@ class TestStepExecutor:
 
     @pytest.mark.asyncio
     async def test_execute_step_retry_exhausted(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
     ):
         """Test step execution fails after exhausting retries."""
         # Setup mocks - all calls fail
@@ -246,7 +250,11 @@ class TestStepExecutor:
 
     @pytest.mark.asyncio
     async def test_execute_step_output_parsing_error(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
     ):
         """Test handling of output parsing errors."""
         # Setup mocks
@@ -310,7 +318,10 @@ class TestStepExecutor:
         # Verify correct input data was passed
         call_args = mock_prompt_service.render_prompt.call_args[0]
         assert call_args[0] == "initial_translation.yaml"
-        assert call_args[1]["original_poem"] == "The fog comes on little cat feet."
+        assert (
+            call_args[1]["original_poem"]
+            == "The fog comes on little cat feet."
+        )
         assert call_args[1]["source_lang"] == "English"
         assert call_args[1]["target_lang"] == "Chinese"
 
@@ -399,7 +410,9 @@ class TestStepExecutor:
         editor_review.target_lang = "Chinese"
         editor_review.initial_translation = "雾来了\n踏着猫的小脚。"
         editor_review.initial_translation_notes = "Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model."
-        editor_review.editor_suggestions = "Consider using more poetic language"
+        editor_review.editor_suggestions = (
+            "Consider using more poetic language"
+        )
         editor_review.translated_poem_title = ""  # Add this
         editor_review.translated_poet_name = ""  # Add this
 
@@ -418,7 +431,8 @@ class TestStepExecutor:
         call_args = mock_prompt_service.render_prompt.call_args[0]
         assert call_args[0] == "translator_revision"
         assert (
-            call_args[1]["editor_suggestions"] == "Consider using more poetic language"
+            call_args[1]["editor_suggestions"]
+            == "Consider using more poetic language"
         )
 
     def test_validate_step_inputs(self, step_executor):
@@ -426,22 +440,30 @@ class TestStepExecutor:
         config = Mock(spec=StepConfig)
 
         # Invalid step name
-        with pytest.raises(ValueError, match="Unknown step name: invalid_step"):
+        with pytest.raises(
+            ValueError, match="Unknown step name: invalid_step"
+        ):
             step_executor._validate_step_inputs(
                 "invalid_step", {"key": "value"}, config
             )
 
     @pytest.mark.asyncio
-    async def test_get_llm_provider_error(self, step_executor, mock_llm_factory):
+    async def test_get_llm_provider_error(
+        self, step_executor, mock_llm_factory
+    ):
         """Test LLM provider initialization error handling."""
         # Setup mock to raise exception
-        mock_llm_factory.get_provider_config.side_effect = Exception("Provider error")
+        mock_llm_factory.get_provider_config.side_effect = Exception(
+            "Provider error"
+        )
 
         config = Mock(spec=StepConfig)
         config.provider = "openai"
 
         # Should raise LLMCallError
-        with pytest.raises(LLMCallError, match="Failed to initialize LLM provider"):
+        with pytest.raises(
+            LLMCallError, match="Failed to initialize LLM provider"
+        ):
             await step_executor._get_llm_provider(config)
 
     def test_build_step_result(
@@ -490,7 +512,11 @@ class TestStepExecutor:
 
     @pytest.mark.asyncio
     async def test_empty_llm_response_handling(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
     ):
         """Test handling of empty LLM responses."""
         # Setup mocks with empty response
@@ -520,7 +546,11 @@ class TestStepExecutor:
 
     @pytest.mark.asyncio
     async def test_plain_text_response_fallback(
-        self, step_executor, mock_llm_factory, mock_prompt_service, sample_step_config
+        self,
+        step_executor,
+        mock_llm_factory,
+        mock_prompt_service,
+        sample_step_config,
     ):
         """Test fallback handling when no XML tags are found."""
         # Setup mocks with plain text response (no XML tags)
@@ -557,7 +587,10 @@ class TestStepExecutor:
         )
 
         assert result["status"] == "success"
-        assert result["output"]["content"] == "This is plain text without XML tags"
+        assert (
+            result["output"]["content"]
+            == "This is plain text without XML tags"
+        )
 
 
 if __name__ == "__main__":

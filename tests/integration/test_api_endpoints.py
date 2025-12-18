@@ -13,16 +13,11 @@ Key Features:
 - Validates response models and status codes
 """
 
-import pytest
-import json
 import uuid
-from unittest.mock import patch, AsyncMock, MagicMock
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
+from unittest.mock import AsyncMock, patch
 
-from src.vpsweb.repository.models import Poem, Translation, BackgroundBriefingReport
-from src.vpsweb.repository.schemas import PoemCreate, TranslationCreate
-from src.vpsweb.webui.schemas import WorkflowMode, TranslationRequest
+import pytest
+from fastapi.testclient import TestClient
 
 
 # ==============================================================================
@@ -63,7 +58,9 @@ class TestPoemEndpoints:
         assert poem["human_translation_count"] == 0
 
     @pytest.mark.asyncio
-    async def test_list_poems_pagination(self, test_client: TestClient, test_context):
+    async def test_list_poems_pagination(
+        self, test_client: TestClient, test_context
+    ):
         """Test poem list pagination functionality."""
         # Create multiple poems
         poems = []
@@ -94,14 +91,18 @@ class TestPoemEndpoints:
         assert data["pagination"]["has_previous"] is True
 
     @pytest.mark.asyncio
-    async def test_list_poems_filters(self, test_client: TestClient, test_context):
+    async def test_list_poems_filters(
+        self, test_client: TestClient, test_context
+    ):
         """Test poem list filtering functionality."""
         # Create poems with different attributes
         await test_context.create_poem(
             poet_name="李白", poem_title="静夜思", source_language="Chinese"
         )
         await test_context.create_poem(
-            poet_name="Shakespeare", poem_title="Sonnet 18", source_language="English"
+            poet_name="Shakespeare",
+            poem_title="Sonnet 18",
+            source_language="English",
         )
 
         # Test poet name filter
@@ -202,7 +203,9 @@ And never stops at all,""",
             "metadata": '{"updated": true}',
         }
 
-        response = test_client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
+        response = test_client.put(
+            f"/api/v1/poems/{sample_poem.id}", json=update_data
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -221,7 +224,9 @@ And never stops at all,""",
             "original_text": "Test content",
         }
 
-        response = test_client.put(f"/api/v1/poems/{fake_id}", json=update_data)
+        response = test_client.put(
+            f"/api/v1/poems/{fake_id}", json=update_data
+        )
         assert response.status_code == 404
 
     def test_toggle_poem_selection(self, test_client: TestClient, sample_poem):
@@ -266,9 +271,13 @@ And never stops at all,""",
 
         assert response.status_code == 404
 
-    def test_get_poem_translations_empty(self, test_client: TestClient, sample_poem):
+    def test_get_poem_translations_empty(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test GET /api/v1/poems/{poem_id}/translations with no translations."""
-        response = test_client.get(f"/api/v1/poems/{sample_poem.id}/translations")
+        response = test_client.get(
+            f"/api/v1/poems/{sample_poem.id}/translations"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -278,7 +287,9 @@ And never stops at all,""",
         self, test_client: TestClient, sample_poem, sample_translation
     ):
         """Test GET /api/v1/poems/{poem_id}/translations with existing translations."""
-        response = test_client.get(f"/api/v1/poems/{sample_poem.id}/translations")
+        response = test_client.get(
+            f"/api/v1/poems/{sample_poem.id}/translations"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -286,12 +297,23 @@ And never stops at all,""",
 
         translation = data[0]
         assert translation["id"] == sample_translation.id
-        assert translation["translator_type"] == sample_translation.translator_type
-        assert translation["target_language"] == sample_translation.target_language
-        assert translation["translated_text"] == sample_translation.translated_text
+        assert (
+            translation["translator_type"]
+            == sample_translation.translator_type
+        )
+        assert (
+            translation["target_language"]
+            == sample_translation.target_language
+        )
+        assert (
+            translation["translated_text"]
+            == sample_translation.translated_text
+        )
 
     @pytest.mark.asyncio
-    async def test_search_poems_by_title(self, test_client: TestClient, test_context):
+    async def test_search_poems_by_title(
+        self, test_client: TestClient, test_context
+    ):
         """Test POST /api/v1/poems/search by title."""
         # Create test poems
         await test_context.create_poem(
@@ -306,7 +328,9 @@ And never stops at all,""",
         )
 
         # Search for "Rose"
-        response = test_client.post("/api/v1/poems/search?search_type=title&query=Rose")
+        response = test_client.post(
+            "/api/v1/poems/search?search_type=title&query=Rose"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -314,14 +338,20 @@ And never stops at all,""",
         assert "Rose" in data[0]["poem_title"]
 
     @pytest.mark.asyncio
-    async def test_get_filter_options(self, test_client: TestClient, test_context):
+    async def test_get_filter_options(
+        self, test_client: TestClient, test_context
+    ):
         """Test GET /api/v1/poems/filter-options."""
         # Create poems with different poets and languages
-        await test_context.create_poem(poet_name="李白", source_language="Chinese")
+        await test_context.create_poem(
+            poet_name="李白", source_language="Chinese"
+        )
         await test_context.create_poem(
             poet_name="Shakespeare", source_language="English"
         )
-        await test_context.create_poem(poet_name="Du Fu", source_language="Chinese")
+        await test_context.create_poem(
+            poet_name="Du Fu", source_language="Chinese"
+        )
 
         response = test_client.get("/api/v1/poems/filter-options")
 
@@ -336,7 +366,9 @@ And never stops at all,""",
         assert "English" in data["languages"]
 
     @pytest.mark.asyncio
-    async def test_get_recent_activity(self, test_client: TestClient, test_context):
+    async def test_get_recent_activity(
+        self, test_client: TestClient, test_context
+    ):
         """Test GET /api/v1/poems/recent-activity."""
         # Create a recent poem
         await test_context.create_poem(
@@ -384,7 +416,10 @@ class TestTranslationEndpoints:
 
         translation = data["translations"][0]
         assert translation["id"] == sample_translation.id
-        assert translation["target_language"] == sample_translation.target_language
+        assert (
+            translation["target_language"]
+            == sample_translation.target_language
+        )
 
     def test_trigger_translation_hybrid_mode(
         self, test_client: TestClient, sample_poem
@@ -401,7 +436,9 @@ class TestTranslationEndpoints:
             "src.vpsweb.webui.services.interfaces.IWorkflowServiceV2"
         ) as mock_service:
             mock_instance = AsyncMock()
-            mock_instance.start_translation_workflow.return_value = "test-task-123"
+            mock_instance.start_translation_workflow.return_value = (
+                "test-task-123"
+            )
             mock_service.return_value = mock_instance
 
             response = test_client.post(
@@ -414,7 +451,9 @@ class TestTranslationEndpoints:
         assert data["task_id"] == "test-task-123"
         assert "workflow started" in data["message"].lower()
 
-    def test_trigger_translation_all_modes(self, test_client: TestClient, sample_poem):
+    def test_trigger_translation_all_modes(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test POST /api/v1/translations/trigger with all workflow modes."""
         modes = ["hybrid", "manual", "reasoning", "non-reasoning"]
 
@@ -443,7 +482,9 @@ class TestTranslationEndpoints:
             assert data["success"] is True
             assert data["task_id"] == f"test-task-{mode}"
 
-    def test_trigger_translation_validation_errors(self, test_client: TestClient):
+    def test_trigger_translation_validation_errors(
+        self, test_client: TestClient
+    ):
         """Test POST /api/v1/translations/trigger with invalid data."""
         # Test missing poem_id
         invalid_request = {"target_lang": "Chinese", "workflow_mode": "hybrid"}
@@ -479,7 +520,9 @@ class TestTranslationEndpoints:
             poem_id=poem.id, target_language="Chinese", translator_type="ai"
         )
         await test_context.create_translation(
-            poem_id=poem.id, target_language="Japanese", translator_type="human"
+            poem_id=poem.id,
+            target_language="Japanese",
+            translator_type="human",
         )
 
         # Test filter by poem_id
@@ -489,7 +532,9 @@ class TestTranslationEndpoints:
         assert len(data["translations"]) == 2
 
         # Test filter by target_language
-        response = test_client.get("/api/v1/translations/?target_language=Chinese")
+        response = test_client.get(
+            "/api/v1/translations/?target_language=Chinese"
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data["translations"]) == 1
@@ -521,18 +566,26 @@ class TestBBREndpoints:
         ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.has_bbr.return_value = False
-            mock_instance.generate_bbr.return_value = {"task_id": "bbr-task-123"}
+            mock_instance.generate_bbr.return_value = {
+                "task_id": "bbr-task-123"
+            }
             mock_service.return_value = mock_instance
 
-            response = test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
+            response = test_client.post(
+                f"/api/v1/poems/{sample_poem.id}/bbr/generate"
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["message"] == "Background Briefing Report generation started"
+        assert (
+            data["message"] == "Background Briefing Report generation started"
+        )
         assert data["data"]["task_id"] == "bbr-task-123"
 
-    def test_generate_bbr_already_exists(self, test_client: TestClient, sample_poem):
+    def test_generate_bbr_already_exists(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test POST /api/v1/poems/{poem_id}/bbr/generate when BBR already exists."""
         # Mock BBR service that returns existing BBR
         with patch(
@@ -546,7 +599,9 @@ class TestBBREndpoints:
             }
             mock_service.return_value = mock_instance
 
-            response = test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
+            response = test_client.post(
+                f"/api/v1/poems/{sample_poem.id}/bbr/generate"
+            )
 
         assert response.status_code == 200
         data = response.json()
@@ -615,12 +670,17 @@ class TestBBREndpoints:
             mock_instance.delete_bbr.return_value = True
             mock_service.return_value = mock_instance
 
-            response = test_client.delete(f"/api/v1/poems/{sample_poem.id}/bbr")
+            response = test_client.delete(
+                f"/api/v1/poems/{sample_poem.id}/bbr"
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["message"] == "Background Briefing Report deleted successfully"
+        assert (
+            data["message"]
+            == "Background Briefing Report deleted successfully"
+        )
         assert data["data"]["deleted"] is True
 
     def test_delete_bbr_not_found(self, test_client: TestClient, sample_poem):
@@ -633,7 +693,9 @@ class TestBBREndpoints:
             mock_instance.has_bbr.return_value = False
             mock_service.return_value = mock_instance
 
-            response = test_client.delete(f"/api/v1/poems/{sample_poem.id}/bbr")
+            response = test_client.delete(
+                f"/api/v1/poems/{sample_poem.id}/bbr"
+            )
 
         assert response.status_code == 200
         data = response.json()
@@ -696,12 +758,18 @@ class TestErrorHandling:
         )
         assert response.status_code == 422
 
-    def test_database_error_handling(self, test_client: TestClient, sample_poem):
+    def test_database_error_handling(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test API behavior when database operations fail."""
         # This would require mocking the database session to raise exceptions
         # For now, we just verify that the API responds gracefully
         response = test_client.get(f"/api/v1/poems/{sample_poem.id}")
-        assert response.status_code in [200, 404, 500]  # Should be one of these
+        assert response.status_code in [
+            200,
+            404,
+            500,
+        ]  # Should be one of these
 
 
 # ==============================================================================
@@ -804,7 +872,9 @@ class TestMultiEntityIntegration:
         assert poem_data["translation_count"] == 2
 
         # Verify translations list
-        translations_response = test_client.get(f"/api/v1/poems/{poem.id}/translations")
+        translations_response = test_client.get(
+            f"/api/v1/poems/{poem.id}/translations"
+        )
         assert translations_response.status_code == 200
         translations_data = translations_response.json()
         assert len(translations_data) == 2
@@ -852,7 +922,9 @@ class TestMultiEntityIntegration:
         assert len(data["poems"]) == 2
 
         # Test search within filtered results
-        response = test_client.post("/api/v1/poems/search?search_type=title&query=静")
+        response = test_client.post(
+            "/api/v1/poems/search?search_type=title&query=静"
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1

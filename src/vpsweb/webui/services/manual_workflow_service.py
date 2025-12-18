@@ -5,18 +5,16 @@ This module provides a service for managing manual translation workflows
 where users interact with external LLM services through copy-paste operations.
 """
 
-import uuid
-import json
-from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
 import logging
+import uuid
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
-from vpsweb.webui.services.interfaces import IWorkflowServiceV2
-from vpsweb.services.prompts import PromptService
-from vpsweb.services.parser import OutputParser
 from vpsweb.repository.service import RepositoryWebService
+from vpsweb.services.parser import OutputParser
+from vpsweb.services.prompts import PromptService
 from vpsweb.utils.storage import StorageHandler
-
+from vpsweb.webui.services.interfaces import IWorkflowServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +45,9 @@ class ManualWorkflowService:
         self.logger = logger or logging.getLogger(__name__)
         self.sessions: Dict[str, Dict[str, Any]] = {}
 
-    async def start_session(self, poem_id: str, target_lang: str) -> Dict[str, Any]:
+    async def start_session(
+        self, poem_id: str, target_lang: str
+    ) -> Dict[str, Any]:
         """
         Initialize a new manual workflow session.
 
@@ -81,7 +81,9 @@ class ManualWorkflowService:
                         f"Found existing BBR for poem {poem_id} (content length: {len(bbr_content)} chars)"
                     )
             except Exception as e:
-                self.logger.warning(f"Failed to retrieve BBR for poem {poem_id}: {e}")
+                self.logger.warning(
+                    f"Failed to retrieve BBR for poem {poem_id}: {e}"
+                )
 
             # Define workflow steps (same as hybrid mode)
             step_sequence = [
@@ -135,7 +137,11 @@ class ManualWorkflowService:
             raise
 
     async def submit_step(
-        self, session_id: str, step_name: str, llm_response: str, model_name: str
+        self,
+        session_id: str,
+        step_name: str,
+        llm_response: str,
+        model_name: str,
     ) -> Dict[str, Any]:
         """
         Process user-submitted step response.
@@ -196,11 +202,14 @@ class ManualWorkflowService:
                 next_step = step_sequence[next_step_index]
 
                 # Get poem for next step prompt
-                poem = self.repository_service.repo.poems.get_by_id(session["poem_id"])
+                poem = self.repository_service.repo.poems.get_by_id(
+                    session["poem_id"]
+                )
 
                 # Get previous results for context
                 previous_results = {
-                    k: v["parsed_data"] for k, v in session["completed_steps"].items()
+                    k: v["parsed_data"]
+                    for k, v in session["completed_steps"].items()
                 }
 
                 # Generate next step prompt
@@ -326,36 +335,44 @@ class ManualWorkflowService:
             # Create a mock result object that matches the expected structure
             # This simulates the output from an automated workflow
             from ...models.translation import (
-                TranslationOutput,
-                TranslationInput,
-                InitialTranslation,
                 EditorReview,
-                RevisedTranslation,
+                InitialTranslation,
                 Language,
+                RevisedTranslation,
+                TranslationInput,
+                TranslationOutput,
             )
 
             # Extract data from completed steps
             initial_data = completed_steps["initial_translation_nonreasoning"][
                 "parsed_data"
             ]
-            editor_data = completed_steps["editor_review_reasoning"]["parsed_data"]
-            revision_data = completed_steps["translator_revision_nonreasoning"][
+            editor_data = completed_steps["editor_review_reasoning"][
                 "parsed_data"
             ]
+            revision_data = completed_steps[
+                "translator_revision_nonreasoning"
+            ]["parsed_data"]
 
             # Create InitialTranslation from parsed XML data
             initial_translation = InitialTranslation(
-                initial_translation=initial_data.get("initial_translation", ""),
+                initial_translation=initial_data.get(
+                    "initial_translation", ""
+                ),
                 initial_translation_notes=initial_data.get(
                     "initial_translation_notes", ""
                 ),
-                translated_poem_title=initial_data.get("translated_poem_title", ""),
-                translated_poet_name=initial_data.get("translated_poet_name", ""),
+                translated_poem_title=initial_data.get(
+                    "translated_poem_title", ""
+                ),
+                translated_poet_name=initial_data.get(
+                    "translated_poet_name", ""
+                ),
                 model_info={
                     "provider": "manual",
-                    "model": completed_steps["initial_translation_nonreasoning"][
-                        "model_name"
-                    ],
+                    "model": completed_steps[
+                        "initial_translation_nonreasoning"
+                    ]["model_name"],
                     "temperature": "0.7",
                     "max_tokens": "4000",
                 },
@@ -367,7 +384,9 @@ class ManualWorkflowService:
                 editor_suggestions=editor_data.get("editor_suggestions", ""),
                 model_info={
                     "provider": "manual",
-                    "model": completed_steps["editor_review_reasoning"]["model_name"],
+                    "model": completed_steps["editor_review_reasoning"][
+                        "model_name"
+                    ],
                     "temperature": "0.5",
                     "max_tokens": "2000",
                 },
@@ -376,7 +395,9 @@ class ManualWorkflowService:
             )
 
             revised_translation = RevisedTranslation(
-                revised_translation=revision_data.get("revised_translation", ""),
+                revised_translation=revision_data.get(
+                    "revised_translation", ""
+                ),
                 revised_translation_notes=revision_data.get(
                     "revised_translation_notes", ""
                 ),
@@ -388,9 +409,9 @@ class ManualWorkflowService:
                 ),
                 model_info={
                     "provider": "manual",
-                    "model": completed_steps["translator_revision_nonreasoning"][
-                        "model_name"
-                    ],
+                    "model": completed_steps[
+                        "translator_revision_nonreasoning"
+                    ]["model_name"],
                     "temperature": "0.7",
                     "max_tokens": "4000",
                 },
@@ -424,8 +445,12 @@ class ManualWorkflowService:
             target_lang_code = language_mapper.normalize_code(target_lang_code)
 
             # Convert to Language enums using LANGUAGE_CODE_MAP
-            source_lang_enum = LANGUAGE_CODE_MAP.get(source_lang_code, Language.ENGLISH)
-            target_lang_enum = LANGUAGE_CODE_MAP.get(target_lang_code, Language.CHINESE)
+            source_lang_enum = LANGUAGE_CODE_MAP.get(
+                source_lang_code, Language.ENGLISH
+            )
+            target_lang_enum = LANGUAGE_CODE_MAP.get(
+                target_lang_code, Language.CHINESE
+            )
 
             translation_input = TranslationInput(
                 original_poem=poem.original_text,
@@ -474,7 +499,9 @@ class ManualWorkflowService:
         """Clean up expired sessions."""
         from datetime import timedelta
 
-        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(
+            hours=max_age_hours
+        )
         expired_sessions = []
 
         for session_id, session in self.sessions.items():

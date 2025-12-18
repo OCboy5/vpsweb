@@ -8,25 +8,21 @@ dependency injection, providing better modularity and testability.
 import asyncio
 import logging
 import uuid
-from typing import Dict, Any, Optional
 from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
 from fastapi import BackgroundTasks
 
-from vpsweb.core.interfaces import IWorkflowOrchestrator, IConfigurationService
+from vpsweb.core.interfaces import IConfigurationService, IWorkflowOrchestrator
 from vpsweb.core.workflow_orchestrator import (
-    WorkflowOrchestratorV2,
     WorkflowConfig,
     WorkflowStep,
 )
-from vpsweb.models.translation import TranslationInput, TranslationOutput
-from vpsweb.models.config import WorkflowMode
-from vpsweb.core.container import DIContainer
-
-from .poem_service import PoemService
+from vpsweb.models.translation import TranslationInput
 from vpsweb.repository.service import RepositoryWebService
-from vpsweb.repository.schemas import TaskStatus
+
 from ..task_models import TaskStatusEnum
+from .poem_service import PoemService
 
 
 class VPSWebWorkflowAdapterV2:
@@ -132,7 +128,9 @@ class VPSWebWorkflowAdapterV2:
             },
         )
 
-    def _create_workflow_config_from_mode(self, workflow_mode: str) -> WorkflowConfig:
+    def _create_workflow_config_from_mode(
+        self, workflow_mode: str
+    ) -> WorkflowConfig:
         """
         Create workflow configuration from mode string.
 
@@ -303,7 +301,9 @@ class VPSWebWorkflowAdapterV2:
             )
         )
 
-        self.logger.info(f"Asynchronous workflow task {task_id} has been scheduled.")
+        self.logger.info(
+            f"Asynchronous workflow task {task_id} has been scheduled."
+        )
 
         return {
             "task_id": task_id,
@@ -348,7 +348,9 @@ class VPSWebWorkflowAdapterV2:
             )
 
             # Create workflow configuration
-            workflow_config = self._create_workflow_config_from_mode(workflow_mode_str)
+            workflow_config = self._create_workflow_config_from_mode(
+                workflow_mode_str
+            )
 
             # Create progress callback for SSE compatibility
             async def progress_callback(
@@ -375,10 +377,15 @@ class VPSWebWorkflowAdapterV2:
                     if step_state == "completed":
                         current_task_status.update_step(
                             step_name=step_name,
-                            step_details={"step_status": "completed", **details},
+                            step_details={
+                                "step_status": "completed",
+                                **details,
+                            },
                             step_state="completed",
                         )
-                        current_task_status.progress = progress_map.get(step_name, 0)
+                        current_task_status.progress = progress_map.get(
+                            step_name, 0
+                        )
                     elif step_state == "failed":
                         current_task_status.update_step(
                             step_name=step_name,
@@ -407,7 +414,10 @@ class VPSWebWorkflowAdapterV2:
                 task_status.status = TaskStatusEnum.RUNNING
                 task_status.started_at = datetime.now()
                 task_status.current_step = "Initial Translation"
-                task_status.step_details = {"provider": "AI", "step_status": "running"}
+                task_status.step_details = {
+                    "provider": "AI",
+                    "step_status": "running",
+                }
                 task_status.message = "Executing translation workflow..."
 
             # Execute workflow using the refactored orchestrator
@@ -420,11 +430,15 @@ class VPSWebWorkflowAdapterV2:
             # Process result and save to database
             if result.status.value == "completed":
                 # Debug: Log the workflow result structure
-                self.logger.info(f"🔍 [DEBUG] Workflow result type: {type(result)}")
+                self.logger.info(
+                    f"🔍 [DEBUG] Workflow result type: {type(result)}"
+                )
                 self.logger.info(
                     f"🔍 [DEBUG] Workflow result dir: {[attr for attr in dir(result) if not attr.startswith('_')]}"
                 )
-                self.logger.info(f"🔍 [DEBUG] Results type: {type(result.results)}")
+                self.logger.info(
+                    f"🔍 [DEBUG] Results type: {type(result.results)}"
+                )
                 self.logger.info(
                     f"🔍 [DEBUG] Results keys: {list(result.results.keys()) if hasattr(result.results, 'keys') else 'N/A'}"
                 )
@@ -494,7 +508,9 @@ class VPSWebWorkflowAdapterV2:
             else:
                 # Workflow failed
                 error_msg = (
-                    "; ".join(result.errors) if result.errors else "Unknown error"
+                    "; ".join(result.errors)
+                    if result.errors
+                    else "Unknown error"
                 )
                 with app.state.task_locks[task_id]:
                     task_status.set_failed(
@@ -506,7 +522,8 @@ class VPSWebWorkflowAdapterV2:
 
         except Exception as e:
             self.logger.error(
-                f"Error in refactored workflow task {task_id}: {e}", exc_info=True
+                f"Error in refactored workflow task {task_id}: {e}",
+                exc_info=True,
             )
 
             # Update task status to failed
@@ -566,7 +583,9 @@ class VPSWebWorkflowAdapterV2:
             # self.logger.info(f"Translation saved with ID: {saved_translation.id}")
 
         except Exception as e:
-            self.logger.error(f"Failed to save workflow result: {e}", exc_info=True)
+            self.logger.error(
+                f"Failed to save workflow result: {e}", exc_info=True
+            )
             # Don't fail the workflow, just log the error
 
     def get_workflow_status(self, workflow_id: str) -> Optional[str]:
@@ -644,5 +663,3 @@ class VPSWebWorkflowAdapterV2:
 
 class WorkflowExecutionError(Exception):
     """Exception for workflow execution errors."""
-
-    pass

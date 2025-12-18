@@ -5,19 +5,19 @@ This module provides a service for loading, validating, and rendering
 prompt templates using Jinja2 templating engine.
 """
 
-import os
+import logging
 import re
-import yaml
+from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional, Set
+from typing import Any, Dict, Optional, Set, Tuple
+
+import yaml
 from jinja2 import (
     Environment,
     FileSystemLoader,
     TemplateError,
     UndefinedError,
 )
-import logging
-from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -25,19 +25,13 @@ logger = logging.getLogger(__name__)
 class PromptServiceError(Exception):
     """Base exception for prompt service errors."""
 
-    pass
-
 
 class TemplateLoadError(PromptServiceError):
     """Raised when template loading fails."""
 
-    pass
-
 
 class TemplateVariableError(PromptServiceError):
     """Raised when template variables are invalid or missing."""
-
-    pass
 
 
 class PromptService:
@@ -59,7 +53,9 @@ class PromptService:
         if prompts_dir is None:
             # Default to config/prompts relative to this file's location
             current_dir = Path(__file__).parent
-            prompts_dir = current_dir.parent.parent.parent / "config" / "prompts"
+            prompts_dir = (
+                current_dir.parent.parent.parent / "config" / "prompts"
+            )
 
         self.prompts_dir = Path(prompts_dir)
         self.templates_dir = self.prompts_dir
@@ -69,7 +65,9 @@ class PromptService:
 
         # Validate prompts directory exists
         if not self.prompts_dir.exists():
-            raise TemplateLoadError(f"Prompts directory not found: {self.prompts_dir}")
+            raise TemplateLoadError(
+                f"Prompts directory not found: {self.prompts_dir}"
+            )
 
         if not self.prompts_dir.is_dir():
             raise TemplateLoadError(
@@ -94,7 +92,9 @@ class PromptService:
             f"Initialized PromptService with prompts directory: {self.prompts_dir}"
         )
         if self.fallback_dir.exists():
-            logger.info(f"V1 fallback directory available: {self.fallback_dir}")
+            logger.info(
+                f"V1 fallback directory available: {self.fallback_dir}"
+            )
 
     def _setup_custom_filters(self) -> None:
         """Setup custom Jinja2 filters."""
@@ -102,7 +102,9 @@ class PromptService:
         self.jinja_env.filters["strip"] = lambda x: x.strip() if x else x
 
         # Add word count filter
-        self.jinja_env.filters["wordcount"] = lambda x: len(x.split()) if x else 0
+        self.jinja_env.filters["wordcount"] = lambda x: (
+            len(x.split()) if x else 0
+        )
 
     @lru_cache(maxsize=32)
     def _load_template_file(self, template_name: str) -> Dict[str, Any]:
@@ -125,7 +127,9 @@ class PromptService:
             if self.fallback_dir.exists():
                 fallback_file = self.fallback_dir / f"{template_name}.yaml"
                 if fallback_file.exists():
-                    logger.debug(f"Loading V1 template from fallback: {template_name}")
+                    logger.debug(
+                        f"Loading V1 template from fallback: {template_name}"
+                    )
                     template_file = fallback_file
                 else:
                     available_templates = list(self.prompts_dir.glob("*.yaml"))
@@ -250,7 +254,9 @@ class PromptService:
 
         # Extract variables from system prompt
         if "system" in template_data:
-            system_vars = self._extract_jinja_variables(template_data["system"])
+            system_vars = self._extract_jinja_variables(
+                template_data["system"]
+            )
             required_vars.update(system_vars)
 
         # Extract variables from user prompt
@@ -299,21 +305,33 @@ class PromptService:
         system_prompt = ""
         if "system" in template_data:
             try:
-                system_template = self.jinja_env.from_string(template_data["system"])
+                system_template = self.jinja_env.from_string(
+                    template_data["system"]
+                )
                 system_prompt = system_template.render(**variables)
-                logger.debug(f"Rendered system prompt ({len(system_prompt)} chars)")
+                logger.debug(
+                    f"Rendered system prompt ({len(system_prompt)} chars)"
+                )
             except (TemplateError, UndefinedError) as e:
-                raise TemplateVariableError(f"Error rendering system prompt: {e}")
+                raise TemplateVariableError(
+                    f"Error rendering system prompt: {e}"
+                )
 
         # Render user prompt if present
         user_prompt = ""
         if "user" in template_data:
             try:
-                user_template = self.jinja_env.from_string(template_data["user"])
+                user_template = self.jinja_env.from_string(
+                    template_data["user"]
+                )
                 user_prompt = user_template.render(**variables)
-                logger.debug(f"Rendered user prompt ({len(user_prompt)} chars)")
+                logger.debug(
+                    f"Rendered user prompt ({len(user_prompt)} chars)"
+                )
             except (TemplateError, UndefinedError) as e:
-                raise TemplateVariableError(f"Error rendering user prompt: {e}")
+                raise TemplateVariableError(
+                    f"Error rendering user prompt: {e}"
+                )
 
         logger.info(f"Successfully rendered template: {template_name}")
         return system_prompt, user_prompt
@@ -369,12 +387,16 @@ class PromptService:
 
             system_prompt = ""
             if "system" in template_data:
-                system_template = permissive_env.from_string(template_data["system"])
+                system_template = permissive_env.from_string(
+                    template_data["system"]
+                )
                 system_prompt = system_template.render(**variables)
 
             user_prompt = ""
             if "user" in template_data:
-                user_template = permissive_env.from_string(template_data["user"])
+                user_template = permissive_env.from_string(
+                    template_data["user"]
+                )
                 user_prompt = user_template.render(**variables)
 
             return system_prompt, user_prompt
@@ -457,7 +479,9 @@ class PromptService:
                         logger.debug(f"Loaded V1 template: {template_name}")
                         return template_data
                 except Exception as e:
-                    logger.warning(f"Failed to load V1 template {template_name}: {e}")
+                    logger.warning(
+                        f"Failed to load V1 template {template_name}: {e}"
+                    )
 
         # Default to regular loading (V2 priority with V1 fallback)
         return self.get_template(template_name)
@@ -491,11 +515,15 @@ class PromptService:
                 logger.debug(f"V2 template validation passed: {template_name}")
                 return True
             else:
-                logger.warning(f"Template {template_name} does not follow V2 structure")
+                logger.warning(
+                    f"Template {template_name} does not follow V2 structure"
+                )
                 return False
 
         except Exception as e:
-            logger.error(f"V2 template validation failed for {template_name}: {e}")
+            logger.error(
+                f"V2 template validation failed for {template_name}: {e}"
+            )
             return False
 
     def clear_cache(self) -> None:
@@ -530,7 +558,9 @@ class PromptService:
             return True
 
         except Exception as e:
-            logger.error(f"Template validation failed for {template_name}: {e}")
+            logger.error(
+                f"Template validation failed for {template_name}: {e}"
+            )
             return False
 
     def get_template_info(self, template_name: str) -> Dict[str, Any]:
@@ -560,20 +590,30 @@ class PromptService:
                 "has_user": "user" in template_data,
                 "file_path": str(template_file),
                 "file_size": (
-                    template_file.stat().st_size if template_file.exists() else 0
+                    template_file.stat().st_size
+                    if template_file.exists()
+                    else 0
                 ),
                 "validation_status": self.validate_template(template_name),
             }
 
             # Add V2-specific validation
             if version == "v2":
-                info["v2_validation"] = self.validate_v2_template(template_name)
+                info["v2_validation"] = self.validate_v2_template(
+                    template_name
+                )
 
             return info
 
         except Exception as e:
-            logger.error(f"Failed to get template info for {template_name}: {e}")
-            return {"name": template_name, "error": str(e), "validation_status": False}
+            logger.error(
+                f"Failed to get template info for {template_name}: {e}"
+            )
+            return {
+                "name": template_name,
+                "error": str(e),
+                "validation_status": False,
+            }
 
     def __repr__(self) -> str:
         """String representation of the service."""

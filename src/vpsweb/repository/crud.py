@@ -6,44 +6,37 @@ Provides create, read, update, and delete operations for poems, translations,
 AI logs, and human notes with proper error handling and type safety.
 """
 
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timezone, timedelta
-import uuid
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
 
 # Define UTC+8 timezone
 UTC_PLUS_8 = timezone(timedelta(hours=8))
 
+from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import Session
+
 # Import ULID generation utility from v0.3.0 utils
 from vpsweb.utils.ulid_utils import generate_ulid
 
-from sqlalchemy import select, update, delete, func, and_, or_
-from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
 from .models import (
+    AILog,
+    BackgroundBriefingReport,
+    HumanNote,
     Poem,
     Translation,
-    AILog,
-    HumanNote,
     TranslationWorkflowStep,
-    BackgroundBriefingReport,
 )
 from .schemas import (
+    AILogCreate,
+    HumanNoteCreate,
     PoemCreate,
     PoemUpdate,
-    PoemResponse,
     TranslationCreate,
     TranslationUpdate,
-    TranslationResponse,
-    AILogCreate,
-    AILogResponse,
-    HumanNoteCreate,
-    HumanNoteResponse,
     TranslationWorkflowStepCreate,
-    TranslationWorkflowStepResponse,
     TranslatorType,
     WorkflowMode,
-    TaskStatus,
     WorkflowStepType,
 )
 
@@ -294,6 +287,7 @@ class CRUDPoem:
             List of poems with activity metadata
         """
         from datetime import datetime, timedelta
+
         from sqlalchemy import text
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
@@ -364,7 +358,9 @@ class CRUDPoem:
                         last_activity.replace(" ", "T")
                     )
                     if last_activity.tzinfo is None:
-                        last_activity = last_activity.replace(tzinfo=timezone.utc)
+                        last_activity = last_activity.replace(
+                            tzinfo=timezone.utc
+                        )
                 except (ValueError, AttributeError):
                     # Fallback to poem creation date if parsing fails
                     last_activity = row.created_at
@@ -384,9 +380,12 @@ class CRUDPoem:
 
         return poems_with_activity
 
-    def _determine_activity_type(self, poem_id, last_activity, cutoff_date) -> str:
+    def _determine_activity_type(
+        self, poem_id, last_activity, cutoff_date
+    ) -> str:
         """Determine the type of activity for the poem"""
         from datetime import datetime, timezone
+
         from sqlalchemy import text
 
         # Get the most recent activity timestamps for each type
@@ -395,7 +394,9 @@ class CRUDPoem:
             SELECT created_at, updated_at FROM poems WHERE id = :poem_id
         """
         )
-        poem_result = self.db.execute(poem_query, {"poem_id": poem_id}).fetchone()
+        poem_result = self.db.execute(
+            poem_query, {"poem_id": poem_id}
+        ).fetchone()
 
         translation_query = text(
             """
@@ -449,7 +450,9 @@ class CRUDPoem:
         ):
             # Check if this is a new poem creation (created_at and updated_at are very close)
             if poem_created_time:
-                time_diff = abs((poem_updated_time - poem_created_time).total_seconds())
+                time_diff = abs(
+                    (poem_updated_time - poem_created_time).total_seconds()
+                )
                 if time_diff <= 5:
                     # This is a newly created poem
                     return "new_poem"
@@ -558,7 +561,11 @@ class CRUDTranslation:
         if poem_id:
             stmt = stmt.where(Translation.poem_id == poem_id)
 
-        stmt = stmt.order_by(Translation.created_at.desc()).offset(skip).limit(limit)
+        stmt = (
+            stmt.order_by(Translation.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+        )
         result = self.db.execute(stmt).scalars().all()
         return result
 
@@ -831,7 +838,9 @@ class CRUDTranslationWorkflowStep:
         result = self.db.execute(stmt).scalar_one_or_none()
         return result
 
-    def get_by_translation(self, translation_id: str) -> List[TranslationWorkflowStep]:
+    def get_by_translation(
+        self, translation_id: str
+    ) -> List[TranslationWorkflowStep]:
         """Get all workflow steps for a translation"""
         stmt = (
             select(TranslationWorkflowStep)
@@ -857,7 +866,9 @@ class CRUDTranslationWorkflowStep:
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def get_by_workflow(self, workflow_id: str) -> List[TranslationWorkflowStep]:
+    def get_by_workflow(
+        self, workflow_id: str
+    ) -> List[TranslationWorkflowStep]:
         """Get all workflow steps for a workflow execution"""
         stmt = (
             select(TranslationWorkflowStep)
@@ -891,9 +902,13 @@ class CRUDTranslationWorkflowStep:
     def get_workflow_metrics(self, workflow_id: str) -> Dict[str, Any]:
         """Get aggregated metrics for a workflow execution"""
         stmt = select(
-            func.sum(TranslationWorkflowStep.tokens_used).label("total_tokens"),
+            func.sum(TranslationWorkflowStep.tokens_used).label(
+                "total_tokens"
+            ),
             func.sum(TranslationWorkflowStep.cost).label("total_cost"),
-            func.sum(TranslationWorkflowStep.duration_seconds).label("total_duration"),
+            func.sum(TranslationWorkflowStep.duration_seconds).label(
+                "total_duration"
+            ),
             func.count(TranslationWorkflowStep.id).label("step_count"),
         ).where(TranslationWorkflowStep.workflow_id == workflow_id)
 
@@ -1137,7 +1152,9 @@ class RepositoryService:
                 )
             ).scalar(),
             "languages": list(
-                self.db.execute(select(Poem.source_language).distinct()).scalars()
+                self.db.execute(
+                    select(Poem.source_language).distinct()
+                ).scalars()
             ),
             "latest_translation": self.db.execute(
                 select(func.max(Translation.created_at))
@@ -1160,7 +1177,9 @@ class RepositoryService:
         )
         return self.db.execute(stmt).scalars().all()
 
-    def get_poem_with_translations(self, poem_id: str) -> Optional[Dict[str, Any]]:
+    def get_poem_with_translations(
+        self, poem_id: str
+    ) -> Optional[Dict[str, Any]]:
         """Get poem with all its translations and related data"""
         poem = self.poems.get_by_id(poem_id)
         if not poem:
@@ -1173,7 +1192,9 @@ class RepositoryService:
         for translation in translations:
             ai_logs = self.ai_logs.get_by_translation(translation.id)
             human_notes = self.human_notes.get_by_translation(translation.id)
-            workflow_steps = self.workflow_steps.get_by_translation(translation.id)
+            workflow_steps = self.workflow_steps.get_by_translation(
+                translation.id
+            )
 
             result["translations"].append(
                 {

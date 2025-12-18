@@ -4,21 +4,15 @@ VPSWeb Web UI - Workflow API Endpoints v0.3.12
 API endpoints for managing and executing translation workflows.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from vpsweb.repository.database import get_db
+from vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
 from vpsweb.webui.services.interfaces import (
     IWorkflowServiceV2,
-    ITaskManagementServiceV2,
 )
-from vpsweb.webui.services.services import (
-    WorkflowServiceV2,
-    TaskManagementServiceV2,
-)
-from vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
-from vpsweb.core.container import get_container, DIContainer
 
 router = APIRouter()
 
@@ -33,16 +27,13 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
         return container.resolve(IWorkflowServiceV2)
     except RuntimeError:
         # Fallback: if no global container is set, create and configure one
-        from vpsweb.webui.main import ApplicationFactoryV2
-        from vpsweb.repository.database import create_session
-
         # Create a minimal container with just the workflow service
         from vpsweb.core.container import DIContainer
-        from vpsweb.webui.services.services import (
-            WorkflowServiceV2,
-            TaskManagementServiceV2,
-        )
         from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
+        from vpsweb.webui.services.services import (
+            TaskManagementServiceV2,
+            WorkflowServiceV2,
+        )
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service
@@ -65,10 +56,13 @@ async def start_translation_workflow(
     """
     try:
         # Fetch the poem to get the source language
-        poem = workflow_service.repository_service.repo.poems.get_by_id(request.poem_id)
+        poem = workflow_service.repository_service.repo.poems.get_by_id(
+            request.poem_id
+        )
         if not poem:
             raise HTTPException(
-                status_code=404, detail=f"Poem with ID {request.poem_id} not found"
+                status_code=404,
+                detail=f"Poem with ID {request.poem_id} not found",
             )
 
         source_lang = poem.source_language

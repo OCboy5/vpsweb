@@ -6,8 +6,8 @@ of task templates to actual LLM configurations using the model registry.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +162,9 @@ class TaskTemplateService:
                     return existing_key
 
         # List available WeChat tasks for debugging
-        wechat_tasks = [k for k in self._task_templates.keys() if "wechat" in k.lower()]
+        wechat_tasks = [
+            k for k in self._task_templates.keys() if "wechat" in k.lower()
+        ]
         available_tasks = ", ".join(wechat_tasks)
         raise ValueError(
             f"WeChat task template for '{model_type}' not found. Available: {available_tasks}"
@@ -175,7 +177,9 @@ class TaskTemplateService:
         Returns:
             List of task template names containing 'wechat'
         """
-        return [k for k in self._task_templates.keys() if "wechat" in k.lower()]
+        return [
+            k for k in self._task_templates.keys() if "wechat" in k.lower()
+        ]
 
     def list_all_tasks(self) -> List[str]:
         """
@@ -201,7 +205,9 @@ class TaskTemplateService:
 
         workflow_tasks = []
         for task_name in self._task_templates.keys():
-            if any(task_name.startswith(pattern) for pattern in workflow_patterns):
+            if any(
+                task_name.startswith(pattern) for pattern in workflow_patterns
+            ):
                 workflow_tasks.append(task_name)
 
         return workflow_tasks
@@ -221,7 +227,9 @@ class TaskTemplateService:
 
         specialized_tasks = []
         for task_name in self._task_templates.keys():
-            if not any(task_name.startswith(pattern) for pattern in workflow_patterns):
+            if not any(
+                task_name.startswith(pattern) for pattern in workflow_patterns
+            ):
                 specialized_tasks.append(task_name)
 
         return specialized_tasks

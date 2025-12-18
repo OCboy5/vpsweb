@@ -9,8 +9,6 @@ Create Date: 2025-10-19 20:09:45.460734
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = "94bcac9585c9"
@@ -27,15 +25,21 @@ def upgrade() -> None:
     op.create_index(
         "idx_poems_poet_name_created_at", "poems", ["poet_name", "created_at"]
     )
-    op.create_index("idx_poems_poet_title", "poems", ["poet_name", "poem_title"])
     op.create_index(
-        "idx_poems_language_created_at", "poems", ["source_language", "created_at"]
+        "idx_poems_poet_title", "poems", ["poet_name", "poem_title"]
+    )
+    op.create_index(
+        "idx_poems_language_created_at",
+        "poems",
+        ["source_language", "created_at"],
     )
 
     # Composite indexes for Translation table
     # Common queries: "Get translations by poem and language" and "Filter by type and language"
     op.create_index(
-        "idx_translations_poem_language", "translations", ["poem_id", "target_language"]
+        "idx_translations_poem_language",
+        "translations",
+        ["poem_id", "target_language"],
     )
     op.create_index(
         "idx_translations_type_language",
@@ -43,7 +47,9 @@ def upgrade() -> None:
         ["translator_type", "target_language"],
     )
     op.create_index(
-        "idx_translations_poem_type", "translations", ["poem_id", "translator_type"]
+        "idx_translations_poem_type",
+        "translations",
+        ["poem_id", "translator_type"],
     )
     op.create_index(
         "idx_translations_language_created_at",
@@ -57,10 +63,14 @@ def upgrade() -> None:
         "idx_ai_logs_model_created_at", "ai_logs", ["model_name", "created_at"]
     )
     op.create_index(
-        "idx_ai_logs_mode_created_at", "ai_logs", ["workflow_mode", "created_at"]
+        "idx_ai_logs_mode_created_at",
+        "ai_logs",
+        ["workflow_mode", "created_at"],
     )
     op.create_index(
-        "idx_ai_logs_translation_model", "ai_logs", ["translation_id", "model_name"]
+        "idx_ai_logs_translation_model",
+        "ai_logs",
+        ["translation_id", "model_name"],
     )
 
     # Composite indexes for WorkflowTask table removed
