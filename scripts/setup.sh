@@ -58,10 +58,10 @@ check_requirements() {
         MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
         MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
 
-        if [[ $MAJOR -gt 3 ]] || [[ $MAJOR -eq 3 && $MINOR -ge 8 ]]; then
-            success "Python $PYTHON_VERSION meets requirements (>= 3.8)"
+        if [[ $MAJOR -eq 3 && $MINOR -eq 13 ]]; then
+            success "Python $PYTHON_VERSION meets requirements (== 3.13)"
         else
-            error "Python $PYTHON_VERSION is too old. Requires Python 3.8 or higher"
+            error "Python $PYTHON_VERSION is not 3.13. Requires Python 3.13"
             exit 1
         fi
     else

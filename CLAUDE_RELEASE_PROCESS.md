@@ -4,12 +4,12 @@ This document defines the **standardized release process** that Claude Code foll
 
 ## User Instructions (How to trigger a release)
 
-**Simple command**: Just tell me `"Create release v0.4.4"` (or any version number)
+**Simple command**: Just tell me `"Create release v0.7.1"` (or any version number)
 
 **Alternative commands**:
-- `"Release v0.5.0"`
+- `"Release v0.8.0"`
 - `"I want to release v1.0.0"`
-- `"Help me create release v0.4.3.1"`
+- `"Help me create release v0.7.1.1"`
 
 ## Claude's Release Process (Step-by-Step)
 
@@ -40,6 +40,10 @@ This document defines the **standardized release process** that Claude Code foll
    - Test core CLI functionality
    - Verify model imports work
    - Test basic import functionality
+   - **Test WebUI startup**: Ensure `./scripts/start.sh` launches successfully
+   - **Test WebUI accessibility**: Verify http://127.0.0.1:8000 is accessible
+   - **Test BBR functionality**: Verify BBR generation works through WebUI
+   - **Test SSE streaming**: Verify real-time updates work during translation
 
 6. **Code quality checks**
    - Run Black formatting check
@@ -51,8 +55,12 @@ This document defines the **standardized release process** that Claude Code foll
      - `pyproject.toml`
      - `src/vpsweb/__init__.py`
      - `src/vpsweb/__main__.py`
+     - `src/vpsweb/webui/main.py` (WebUI main application)
      - `CHANGELOG.md`
      - `README.md`
+     - `scripts/setup.sh` (Setup script)
+     - `scripts/start.sh` (Server start script)
+     - `scripts/stop.sh` (Server stop script)
 
 ### Phase 3: Version Management
 8. **Update version files**

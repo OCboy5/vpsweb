@@ -1,121 +1,46 @@
-# Vox Poetica Studio Web (vpsweb)
+# VPSWeb: AI-Powered Poetry Translation Platform
 
-> Professional AI-powered poetry translation using intelligent workflow modes and collaborative Translator→Editor→Translator process
+> Professional poetry translation with AI-enhanced contextual analysis and real-time collaborative workflow
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
-[![Poetry](https://img.shields.io/badge/Poetry-Managed-orange.svg)](https://python-poetry.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-0.7.0-blue.svg)](https://github.com/OCboy5/vpsweb/releases/tag/v0.7.0)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your-org/vpsweb)
-[![Coverage](https://img.shields.io/badge/Coverage-95%25-green.svg)](https://github.com/your-org/vpsweb)
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**VPSWeb** is a production-ready Python application that implements the proven Dify poetry translation workflow, producing high-fidelity translations that preserve aesthetic beauty, musicality, emotional resonance, and cultural context.
+**VPSWeb** is a professional AI-powered poetry translation platform that provides sophisticated translation capabilities through a modern web interface. It combines AI-generated Background Briefing Reports (BBR) with real-time collaborative workflows to produce high-fidelity translations that preserve cultural context, aesthetic beauty, and emotional resonance.
 
-## 🏗️ Architecture & Quality
+## ✨ Key Features
 
-VPSWeb v0.4.0 represents a **major architectural milestone** with comprehensive dependency injection and professional-grade architecture:
+### 🎨 **Modern Web Interface**
+- **Primary Interface**: FastAPI-based web application with responsive design
+- **Real-time Dashboard**: Live statistics and activity monitoring
+- **Interactive Workflow Management**: Visual translation progress with Server-Sent Events
+- **Mobile-Responsive**: Works seamlessly across all devices
 
-### **Phase-3 Dependency Injection Architecture** (v0.4.0)
-- **🏗️ Complete DI Container**: Full dependency injection container system with service interfaces
-- **🔄 Workflow Orchestrator**: Refactored workflow orchestration with clean service abstractions
-- **🎯 Modular Service Design**: Enhanced separation of concerns across all application layers
-- **🧪 Enhanced Testing Infrastructure**: Comprehensive testing support with dependency injection
+### 🧠 **AI-Enhanced Translation**
+- **Background Briefing Reports (BBR)**: AI-generated contextual analysis for enhanced translation quality
+- **3-Step Collaborative Workflow**: Translator → Editor → Translator process
+- **Multiple Translation Modes**: Hybrid, Manual, Reasoning, and Non-Reasoning modes
+- **Multi-language Support**: English, Chinese, Japanese, and Korean
 
-### **System Architecture**
-- **🎯 Modular FastAPI Monolith**: Clean separation between repository/ (data layer) and webui/ (interface layer)
-- **📊 Dual-Storage Strategy**: SQLite database for structured data + file system for immutable AI outputs
-- **🔄 Background Task Processing**: Async workflow execution with comprehensive task tracking
-- **🎨 Modern Web Interface**: Responsive design with Tailwind CSS and real-time statistics
+### 🔄 **Real-time Features**
+- **Server-Sent Events (SSE)**: Live progress updates during translation workflows
+- **Interactive BBR Modals**: Draggable, resizable interfaces for contextual analysis
+- **Dynamic Content Loading**: AJAX-based updates without page refreshes
+- **Toast Notifications**: Non-intrusive user feedback
 
-### **Code Quality Metrics**
-- **📈 Development Velocity**: 56,802 lines of production-ready code delivered in 7 days
-- **✅ Test Coverage**: Comprehensive testing with 100% core functionality validation
-- **🔧 Modern Standards**: Pydantic V2, SQLAlchemy 2.0, type annotations throughout
-- **📋 Quality Assurance**: 5 critical bugs identified and resolved during development
-- **🚀 Performance**: <200ms API response times with optimized database queries
+### 📊 **Repository Management**
+- **Centralized Storage**: SQLite database with comprehensive metadata
+- **Poet & Poem Organization**: Structured content management
+- **Translation Comparison**: Side-by-side analysis of different translations
+- **Quality Rating System**: 0-10 scale with human notes and AI logs
 
-### **Production-Ready Features**
-- **💾 Enterprise Backup System**: Automated backup/restore with integrity validation
-- **🛠️ Developer Experience**: One-command environment setup with comprehensive validation
-- **📚 Complete Documentation**: User guides, API docs, architecture documentation
-- **🔄 Backward Compatibility**: 100% compatibility with existing CLI workflows preserved
+## 🚀 Quick Start (5 Minutes)
 
-## 🎯 Current Status: **v0.7.0 - Manual Translation Workflow Release**
+### Prerequisites
+- Python 3.9 or higher
+- Git
 
-🔧 **XML Parser Robustness**: Enhanced parser to handle malformed XML outputs with missing closing tags
-🐛 **Configuration Updates**: Updated model pricing and simplified prompt templates for better LLM performance
-✨ **Web UI Preview**: Added design preview file for upcoming web interface enhancements
-📊 **Improved Data Accuracy**: Fixed poems list API variable scoping for correct translation count reporting
-🏗️ **Modular Pipeline Architecture**: Flexible N-Best pipeline design with configurable parameters and performance optimization
-📋 **Template Management System**: Support for template versioning, dynamic selection, and built-in testing capabilities
-🔧 **Full Backward Compatibility**: Existing configurations continue to work unchanged while new features enhance performance
-
-### **Previous v0.3.x Features**
-🗃️ **Async Database Support**: Async database layer with SQLAlchemy 2.0
-🌐 **Complete Web Interface**: FastAPI web application with responsive design
-📊 **Repository Database**: 4-table schema with 15+ REST endpoints
-🔄 **Workflow Integration**: Seamless integration with translation workflows
-🎨 **Modern UI/UX**: Dashboard with real-time statistics and management
-
-## ✨ Features
-
-### 🤖 **Intelligent Workflow Modes** (v0.2.0)
-- **🔮 Reasoning Mode**: Uses reasoning models (deepseek-reasoner) for all steps - highest quality, best for complex analysis
-- **⚡ Non-Reasoning Mode**: Uses standard models (qwen-plus-latest) for all steps - faster, cost-effective
-- **🎯 Hybrid Mode**: Optimal combination - reasoning for editor review, non-reasoning for translation steps (recommended)
-- **✋ Manual Mode** (v0.7.0): Session-based workflow with external LLM integration through copy-paste - maximum flexibility for testing any AI model
-
-### 🤝 **Manual Translation Workflow** (v0.7.0)
-- **🔄 External LLM Integration**: Copy-paste workflow allowing use of any external AI service without API integration
-- **📋 Session Management**: Persistent sessions with automatic cleanup and recovery options
-- **🎯 Step-by-Step Interface**: Clear workflow guidance with prompt generation for each translation step
-- **📊 Progress Tracking**: Visual progress indicators and step completion status
-- **💾 Full Integration**: Manual translations are saved to database alongside automated workflows
-- **🔧 Model Flexibility**: Test and compare different AI models (ChatGPT, Claude, Gemini, etc.) without API configuration
-
-### 🏗️ **Core Translation System**
-- **🔄 Three-Step Workflow**: Translator → Editor → Translator for high-quality translations
-  - **Step 1**: Initial translation with detailed translator notes
-  - **Step 2**: Professional editorial review with structured suggestions
-  - **Step 3**: Translator revision incorporating editorial feedback
-- **🧩 Modular Architecture**: Clean separation of workflow, LLM services, and data models
-- **📝 Structured XML Output**: Comprehensive metadata and XML parsing following exact vpts.yml specifications
-
-### 🔧 **Advanced Capabilities**
-- **🤖 Model Classification**: Automatic prompt selection based on reasoning capabilities
-- **📊 Real-time Progress Display**: Step-by-step model information (provider, model, temperature, reasoning type)
-- **💰 Accurate Cost Tracking**: Real-time RMB pricing using actual API token data (prompt_tokens/completion_tokens)
-- **📈 Advanced Token Tracking**: Per-step token usage with detailed timing information
-- **🔧 Multi-Provider Support**: Compatible with Tongyi, DeepSeek, and other OpenAI-compatible APIs
-- **💻 Dual Interface**: Both CLI and Python API for flexible integration
-- **⚙️ Configurable**: YAML-based configuration for easy customization
-- **📊 Comprehensive Logging**: Structured logging with rotation and workflow tracking
-- **🚀 Production Ready**: Error handling, retry logic, timeout management, and detailed progress reporting
-
-### 🌐 **Web Interface & Repository System** (v0.3.1)
-- **🎨 Modern FastAPI Web Application**: Full-featured responsive web interface with Tailwind CSS
-- **📊 Dashboard with Real-time Statistics**: Live poem counts, translation statistics, and quick actions
-- **📝 Poem Management Interface**: Create, edit, delete poems with comprehensive metadata support
-- **🔄 Translation Management**: Add/edit translations with quality ratings and human notes system
-- **⚖️ Side-by-Side Comparison**: Advanced translation comparison with filtering and selection capabilities
-- **📱 Mobile Responsive Design**: Mobile-first interface that works seamlessly across all devices
-- **🛠️ REST API Architecture**: 15+ comprehensive endpoints with full CRUD operations
-- **🗄️ Repository Database**: 4-table schema (poems, translations, ai_logs, human_notes) with performance optimization
-- **🔄 Background Task Processing**: Async workflow execution with comprehensive task tracking
-
-### 📱 **WeChat Official Account Integration** (v0.2.2)
-- **🔄 Complete Article Generation**: Generate WeChat articles directly from translation JSON outputs
-- **🤖 AI-Powered Translation Notes**: LLM-synthesized Chinese translation notes for WeChat audience
-- **🎨 Professional HTML Templates**: Author-approved styling compatible with WeChat platform
-- **📊 Advanced Metrics Display**: Detailed token breakdown and cost tracking for WeChat content generation
-- **⚙️ Flexible Configuration**: Support for reasoning and non-reasoning models for translation notes
-- **🔗 Direct Publishing**: Integrated publishing to WeChat drafts and articles
-
-## 🚀 Quick Start
-
-VPSWeb v0.4.0 features a **one-command automated setup** that configures the entire development environment with the new dependency injection architecture in minutes.
-
-### Automated Setup (Recommended)
+### Automated Setup
 
 ```bash
 # Clone the repository
@@ -125,280 +50,116 @@ cd vpsweb
 # One-command setup (installs dependencies, initializes database, starts web interface)
 ./scripts/setup.sh
 
+# Initialize database
+./scripts/setup-database.sh init
+
 # Start the web application
 ./scripts/start.sh
 ```
 
 **Access the web interface**: http://127.0.0.1:8000
 
-### Manual Installation
+## 🎯 Getting Started
 
-```bash
-# Install dependencies
-poetry install
+### 1. **Dashboard Overview**
+- View real-time statistics: total poems, translations, and AI/human breakdown
+- Monitor recent activity with color-coded badges
+- Quick access to all major sections
 
-# Set up environment
-export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
+### 2. **Add Your First Poem**
+1. Click **"Add Poem"** in the navigation
+2. Fill in poet name, title, source language, and poem text
+3. Click **"Save Poem"**
 
-# Install with Poetry (recommended)
-poetry install
+### 3. **Generate Background Briefing Report (Optional)**
+1. On the poem detail page, click the **BBR button** (bottom-right)
+2. AI generates contextual analysis including cultural background and linguistic insights
+3. View in an interactive modal with drag/resize capabilities
 
-# Or install with pip (development mode)
-pip install -e .
+### 4. **Start Translation**
+1. Select target language (Chinese, English, Japanese, or Korean)
+2. Choose workflow mode:
+   - **Hybrid** (Recommended): Balanced approach
+   - **Manual Mode**: Human-controlled with external LLM
+   - **Reasoning Mode**: Detailed step-by-step analysis
+   - **Non-Reasoning Mode**: Fast, direct translation
+3. Click **"Start Translation"**
+4. Watch real-time progress with 3-step indicators
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys
-
-# Test the installation
-python -c "from vpsweb import __main__; print('Installation successful!')"
-```
-
-### Basic Usage
-
-#### CLI Translation
-
-```bash
-# Translate from file (PYTHONPATH should be set globally in ~/.zshrc)
-vpsweb translate --input poem.txt --source English --target Chinese --verbose
-
-# Translate using short flags
-vpsweb translate -i poem.txt -s English -t Chinese -v
-
-# Choose workflow mode (hybrid recommended for poetry)
-vpsweb translate -i poem.txt -s English -t Chinese -w hybrid --verbose
-
-# Example with workflow modes:
-vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w hybrid --verbose
-vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w reasoning --verbose
-vpsweb translate -i examples/poems/short_english.txt -s English -t Chinese -w non_reasoning --verbose
-
-# Output will show detailed progress with model information:
-# 🎭 Vox Poetica Studio Web - Professional Poetry Translation
-# ⚙️ Loading configuration...
-# 🚀 Starting translation workflow (hybrid mode)...
-# 📄 Original Poem (English → Chinese):
-# 🎭 Poetry Translation Progress
-#   Step 1: Initial Translation... ✅ Completed (1352 tokens | 15.61s | ¥0.000002)
-#   Step 2: Editor Review... ✅ Completed (5115 tokens | 178.22s | ¥0.000015)
-#   Step 3: Translator Revision... ✅ Completed (3206 tokens | 49.99s | ¥0.000004)
-# 📈 Overall: 9673 total tokens | 243.82s total time | ¥0.000020 total cost
-# 💾 Results saved to: outputs/translation_hybrid_YYYYMMDD_HHMMSS.json
-```
-
-**Note**: Ensure PYTHONPATH is set globally in your shell configuration (e.g., `export PYTHONPATH="/path/to/vpsweb/src:$PYTHONPATH"` in ~/.zshrc).
-
-#### Python API
-
-```python
-from vpsweb.core.workflow import TranslationWorkflow
-from vpsweb.models.translation import TranslationInput
-from vpsweb.models.config import WorkflowMode
-from vpsweb.utils.config_loader import load_config
-
-# Load configuration
-config = load_config()
-
-# Create workflow with providers config and mode
-workflow = TranslationWorkflow(
-    config.main.workflow,
-    config.providers,
-    workflow_mode=WorkflowMode.HYBRID  # Options: REASONING, NON_REASONING, HYBRID
-)
-
-# Prepare input
-input_data = TranslationInput(
-    original_poem="My candle burns at both ends; It will not last the night; But ah, my foes, and oh, my friends --- It gives a lovely light!",
-    source_lang="English",
-    target_lang="Chinese"
-)
-
-# Execute workflow
-result = await workflow.execute(input_data)
-
-# Access results with enhanced information
-print(f"Workflow Mode: {result.workflow_mode}")
-print(f"Initial: {result.initial_translation.initial_translation}")
-print(f"Revised: {result.revised_translation.revised_translation}")
-print(f"Editor suggestions: {result.editor_review.editor_suggestions}")
-print(f"Total tokens: {result.total_tokens}")
-print(f"Total duration: {result.duration_seconds:.2f}s")
-print(f"Total cost: ¥{result.total_cost:.6f}")
-
-# Access detailed step information
-print(f"Step 1 cost: ¥{result.initial_translation.cost:.6f}")
-print(f"Step 2 cost: ¥{result.editor_review.cost:.6f}")
-print(f"Step 3 cost: ¥{result.revised_translation.cost:.6f}")
-```
-
-#### WeChat Article Generation
-
-```bash
-# Generate WeChat article from translation JSON
-vpsweb generate-article -j outputs/json/陶渊明_歸園田居_chinese_english_hybrid_20251012_184234_81e865f8.json
-
-# Generate with model type override
-vpsweb generate-article -j translation.json -m reasoning --verbose
-
-# Generate with custom output directory
-vpsweb generate-article -j translation.json -o my_articles/
-
-# Cover Image Handling:
-# - If cover_image_big.jpg exists in the output directory, it will be used
-# - Otherwise, the default cover_image_big.jpg from config/html_templates/ will be copied
-# - Cover image is automatically included at the top of the WeChat article
-
-# Output will show detailed progress with metrics:
-# 🚀 Generating WeChat article from translation JSON...
-# ✅ Article generated successfully!
-# 📊 LLM Translation Notes Metrics:
-#    🧮 Tokens Used: 4427
-#       ⬇️ Prompt: 3919
-#       ⬆️ Completion: 508
-#    ⏱️  Time Spent: 23.58s
-#    💰 Cost: ¥0.004151
-#    🤖 Model: tongyi/qwen-plus-latest (non_reasoning)
-
-# Publish to WeChat (if configured)
-vpsweb publish-article -a outputs/wechat_articles/陶渊明-歸園田居-20251013/metadata.json
-```
-
-```python
-from vpsweb.utils.article_generator import ArticleGenerator
-from vpsweb.utils.config_loader import load_article_generation_config, load_config
-
-# Load configurations
-complete_config = load_config()
-article_gen_config = load_article_generation_config()
-
-# Create article generator
-article_generator = ArticleGenerator(
-    article_gen_config,
-    providers_config=complete_config.providers
-)
-
-# Generate WeChat article
-result = article_generator.generate_article(
-    translation_json_path="outputs/json/translation.json",
-    dry_run=False
-)
-
-print(f"Article generated: {result.article_path}")
-print(f"Metadata: {result.metadata_path}")
-print(f"Digest: {result.metadata.digest}")
-print(f"Cost: ¥{result.metadata.cost:.6f}")
-```
-
-## 📋 Requirements
-
-- Python 3.9+
-- Poetry (for development)
-- API keys for LLM providers (Tongyi, DeepSeek, etc.)
-
-## ⚙️ Configuration
-
-VPSWeb uses YAML configuration files. Create a `config` directory with:
-
-VPSWeb comes with pre-configured workflow settings. Current production configuration:
-
-```yaml
-# config/default.yaml (Production Setup)
-workflow:
-  name: "vox_poetica_translation"
-  version: "1.0.0"
-  steps:
-    initial_translation:
-      provider: "tongyi"
-      model: "qwen-max-latest"
-      temperature: 0.7
-      max_tokens: 4096
-      timeout: 120.0
-    editor_review:
-      provider: "tongyi"  # Changed from deepseek due to response parsing issues
-      model: "qwen-max-latest"
-      temperature: 0.3
-      max_tokens: 8192
-      timeout: 120.0
-    translator_revision:
-      provider: "tongyi"
-      model: "qwen-max-latest"
-      temperature: 0.2
-      max_tokens: 8001
-      timeout: 120.0
-
-# config/models.yaml
-providers:
-  tongyi:
-    api_key_env: "TONGYI_API_KEY"
-    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    type: "openai_compatible"
-    models: ["qwen-max-latest", "qwen-max-0919"]
-  deepseek:
-    api_key_env: "DEEPSEEK_API_KEY"
-    base_url: "https://api.deepseek.com/v1"
-    type: "openai_compatible"
-    models: ["deepseek-reasoner", "deepseek-chat"]
-```
-
-**Environment Setup** (copy `.env.example` to `.env`):
-
-```bash
-# Required: Python Path (for src layout)
-PYTHONPATH="/path/to/vpsweb/src"
-
-# Required API Keys
-TONGYI_API_KEY="your-tongyi-key-here"
-DEEPSEEK_API_KEY="your-deepseek-key-here"
-
-# Optional: Additional logging
-LOG_LEVEL="INFO"
-LOG_FILE="vpsweb.log"
-```
-
-**Note**: Ensure PYTHONPATH is set globally in your shell configuration to use the `vpsweb` command directly.
+### 5. **Review Results**
+- View completed translations with quality ratings
+- Compare different translation versions
+- Add human notes and feedback
+- Access detailed AI workflow logs
 
 ## 🏗️ Architecture
 
-VPSWeb follows a clean, modular architecture with comprehensive dependency injection:
+VPSWeb implements a modern web-centric architecture with real-time capabilities:
 
 ```
-src/vpsweb/
-├── core/                    # Workflow orchestration & DI
-│   ├── workflow.py          # Main workflow orchestrator
-│   ├── workflow_orchestrator.py # Enhanced orchestrator with DI
-│   ├── container.py         # Dependency injection container
-│   └── interfaces.py        # Service interface definitions
-├── models/                  # Data models (Pydantic)
-│   ├── translation.py       # Translation workflow models
-│   └── config.py           # Configuration models
-├── services/                # External service integrations
-│   ├── llm/               # LLM provider abstractions
-│   │   ├── base.py        # Base provider interface
-│   │   ├── factory.py     # Provider factory
-│   │   └── openai_compatible.py  # OpenAI-compatible provider
-│   ├── parser.py          # XML output parsing
-│   └── prompts.py         # Prompt management
-├── cli/                     # Command-line interface with DI
-│   ├── main.py            # CLI entry point
-│   ├── services.py        # CLI service implementations
-│   └── interfaces.py      # CLI service interfaces
-├── webui/                   # FastAPI web application
-│   ├── main.py             # FastAPI app entry point with DI
-│   ├── container.py        # WebUI DI container
-│   ├── services/           # WebUI service layer
-│   │   ├── services.py     # Service implementations
-│   │   ├── interfaces.py  # Service interfaces
-│   │   └── vpsweb_adapter.py # VPSWeb adapter
-│   └── api/                # REST API routers
-├── repository/              # Database layer and services
-│   ├── database.py         # SQLAlchemy async database setup
-│   ├── models.py           # Database ORM models
-│   └── service.py          # Repository business logic
-└── utils/                   # Utilities
-    ├── logger.py           # Logging configuration
-    ├── storage.py          # File operations
-    ├── config_loader.py    # Configuration loading
-    └── tools_phase3a.py    # Phase-3 utilities
+VPSWeb v0.7.0 Architecture
+├── Web Interface Layer (FastAPI + Tailwind CSS + SSE)
+│   ├── Real-time Dashboard with Statistics
+│   ├── Poem Management Interface
+│   ├── Translation Workflow with Live Progress
+│   └── BBR Modal System
+├── Translation Engine Layer
+│   ├── 3-Step AI Workflow (Initial → Editor → Revision)
+│   ├── Background Briefing Report Generation
+│   └── Multiple LLM Provider Support
+├── Real-time Communication Layer
+│   ├── Server-Sent Events (SSE)
+│   ├── Task State Management
+│   └── Progress Tracking
+└── Repository Layer (SQLite Database)
+    ├── 5-Table Schema with BBR Support
+    └── Dual-Storage Strategy
+```
+
+## ⚙️ Configuration
+
+### Environment Setup
+
+Copy the environment template and configure your API keys:
+
+```bash
+cp .env.local.template .env.local
+```
+
+Edit `.env.local` with your configuration:
+
+```bash
+# Repository Configuration
+REPO_ROOT=./repository_root
+REPO_DATABASE_URL=sqlite+aiosqlite:///./repository_root/repo.db
+REPO_HOST=127.0.0.1
+REPO_PORT=8000
+REPO_DEBUG=false
+
+# LLM Provider Configuration (required for translations)
+TONGYI_API_KEY=your_tongyi_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
+
+# Optional: OpenAI-compatible provider
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+### Provider Configuration
+
+VPSWeb supports multiple LLM providers through YAML configuration:
+
+```yaml
+# config/models.yaml
+providers:
+  tongyi:
+    api_key: "${TONGYI_API_KEY}"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen-max"
+  deepseek:
+    api_key: "${DEEPSEEK_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-chat"
 ```
 
 ## 🔧 Development
@@ -406,97 +167,162 @@ src/vpsweb/
 ### Setup Development Environment
 
 ```bash
-# Clone and install dependencies
-git clone https://github.com/your-org/vpsweb.git
-cd vpsweb
+# Install dependencies
 poetry install
 
-# Install development dependencies
-poetry install --with dev
+# Set Python path
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
 
 # Run tests
-pytest tests/
-
-# Run with coverage
-pytest tests/ --cov=vpsweb --cov-report=html
+poetry run pytest tests/ -v
 
 # Code formatting
-black src/ tests/
-
-# Linting
-flake8 src/ tests/
+poetry run black src/ tests/
 
 # Type checking
-mypy src/
+poetry run mypy src/
 ```
 
-### Project Structure
+### Daily Development Commands
 
-- `src/vpsweb/` - Main package source code
-- `tests/` - Comprehensive test suite
-  - `unit/` - Unit tests for individual components
-  - `integration/` - Integration tests for workflows and CLI
-  - `fixtures/` - Test data and sample poems
-- `config/` - Configuration files
-- `docs/` - Documentation
+```bash
+# Start development server with auto-reload
+uvicorn vpsweb.webui.main:app --host 127.0.0.1 --port 8000 --reload
 
-## 📚 Documentation
+# Clean restart
+./scripts/clean-start.sh
 
-### **System Documentation**
-- **[Architecture Documentation](ARCHITECTURE.md)** - Comprehensive system architecture and design patterns
-- **[Development Setup Guide](docs/Development_Setup.md)** - Detailed developer onboarding guide
-- **[User Guide](docs/User_Guide.md)** - Complete user documentation with examples
-- **[Backup & Restore Guide](docs/backup_restore_guide.md)** - Enterprise backup procedures
+# Stop server
+./scripts/stop.sh
+
+# Run test suite
+./scripts/test.sh
+```
+
+## 📊 Translation Workflow Modes
+
+### **Hybrid Mode** (Recommended)
+- Optimal balance of speed and quality
+- Uses reasoning for editorial review
+- Uses standard models for translation steps
+- Best for most poetry translation needs
+
+### **Manual Mode**
+- Human-controlled translation workflow
+- External LLM integration through copy-paste
+- Maximum flexibility for testing any AI model
+- Session-based progress tracking
+
+### **Reasoning Mode**
+- Detailed step-by-step analysis
+- Uses reasoning models for all steps
+- Highest quality for complex analysis
+- Comprehensive explanation generation
+
+### **Non-Reasoning Mode**
+- Fast, direct translation approach
+- Uses standard models for all steps
+- Cost-effective for high-volume translation
+- Quick turnaround time
+
+## 📖 Documentation
+
+### **User Documentation**
+- **[User Guide](docs/User_Guide.md)** - Complete user manual with WebUI walkthrough
+- **[Development Setup Guide](docs/Development_Setup.md)** - Developer onboarding and setup
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - System architecture and design
 
 ### **API Documentation**
-- **[Interactive API Docs](http://127.0.0.1:8000/docs)** - Swagger UI (when application is running)
-- **[API Reference](http://127.0.0.1:8000/redoc)** - ReDoc documentation (when application is running)
+- **[Interactive API Docs](http://127.0.0.1:8000/docs)** - Swagger UI (when running)
+- **[API Patterns Documentation](docs/api-patterns.md)** - API integration patterns
 
-### **Historical Documentation**
-- **[Product Specifications](docs/PSD_Collection/)** - Complete project specification documents
-- **[Reflection & Analysis](docs/reflections/)** - Post-implementation reflections and lessons learned
-- **[Implementation Summaries](docs/Day*)** - Daily implementation progress and decisions
-
-### **Configuration**
-- **[Dify Workflow](config/vpts.yml)** - Original workflow definition
-- **[Repository Configuration](config/repository.yaml)** - Repository system settings
-
-## 📚 Quick References
-
-### Key Configuration Files
-- `config/default.yaml`: Main workflow configuration
-- `config/models.yaml`: Provider configurations
-- `config/wechat.yaml`: WeChat Official Account integration
-- `config/repository.yaml`: Central Repository and WebUI configurations
-
-### Configuration Structure
-- YAML format for readability
-- Environment variable substitution using `${VAR_NAME}` syntax
-- Pydantic model validation
-- Support for workflow modes: reasoning, non_reasoning, hybrid
-
-### Release Management
-🚨 **CRITICAL**: All releases MUST follow the strict workflow in `VERSION_WORKFLOW.md`.
+### **Project Documentation**
+- **[Release Process](CLAUDE_RELEASE_PROCESS.md)** - Standardized release procedure
+- **[API Reference](http://127.0.0.1:8000/redoc)** - ReDoc documentation (when running)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+We welcome contributions! Please see our contributing guidelines:
 
-- Code style and standards
-- Testing requirements
-- Pull request process
-- Development setup
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+4. **Push to the branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+### Code Style
+- Follow Python PEP 8
+- Use `poetry run black` for formatting
+- Include type hints
+- Write tests for new features
+
+## 📋 Requirements
+
+- Python 3.13
+- Poetry (package manager)
+- API keys for LLM providers
+- Modern web browser (for WebUI)
+
+## 🚀 Production Deployment
+
+### Database Setup
+
+```bash
+# Initialize database with migrations
+./scripts/setup-database.sh init
+
+# Create backup before first use
+cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db
+```
+
+### Server Management
+
+```bash
+# Production start
+./scripts/start.sh
+
+# Graceful stop
+./scripts/stop.sh
+
+# Health check
+curl http://127.0.0.1:8000/health
+```
+
+### Backup and Restore
+
+```bash
+# Create complete backup
+./scripts/backup.sh
+
+# List available backups
+./backup.sh --list
+
+# Restore from backup
+./restore.sh --clean backup_timestamp
+```
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🏆 Release History
+
+- **v0.7.0** - Manual Translation Workflow Release with BBR system
+- **v0.6.x** - WebUI refinements and multi-language support
+- **v0.5.x** - Script-based setup and management
+- **v0.4.x** - Initial WebUI implementation
+- **v0.3.x** - Core translation workflow system
+- **v0.2.x** - Early development versions
+
 ## 🙏 Acknowledgments
 
-- Based on the proven poetry translation workflow from Dify
-- Inspired by professional translation practices
 - Built with modern Python best practices
+- Inspired by professional translation workflows
+- Enhanced by community contributions
+- Powered by advanced AI language models
 
 ---
 
-**VPSWeb** - Bringing professional poetry translation to the command line and Python ecosystem.
+**VPSWeb** - Professional poetry translation with AI-powered contextual analysis and real-time collaborative workflows.
+
+Access at: **http://127.0.0.1:8000**
