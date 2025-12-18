@@ -188,9 +188,10 @@ function addBBRModalCSS() {
 }
 
 // Show BBR modal with drag and resize support
-function showBBRModal(bbr) {
+function showBBRModal(bbr, poemId = null) {
     // Store current BBR data
     currentBBR = bbr;
+    currentPoemId = poemId;
 
     // Add CSS if not already added
     addBBRModalCSS();
@@ -220,13 +221,21 @@ function showBBRModal(bbr) {
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-3 flex-shrink-0">
-                        <button onclick="copyBBRContent()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                            Copy Content
+                    <div class="flex justify-between space-x-3 flex-shrink-0">
+                        <button id="delete-bbr-btn" onclick="deleteFromModal()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                            <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" clip-rule="evenodd"/>
+                            </svg>
+                            Delete BBR
                         </button>
-                        <button onclick="closeBBRModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Close
-                        </button>
+                        <div class="flex space-x-3">
+                            <button onclick="copyBBRContent()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+                                Copy Content
+                            </button>
+                            <button onclick="closeBBRModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -267,6 +276,80 @@ function closeBBRModal(event) {
         isDragging = false;
         isResizing = false;
     }
+}
+
+// Delete BBR from modal with confirmation
+function deleteFromModal() {
+    if (!currentPoemId) {
+        showError('Cannot delete BBR: poem ID not available');
+        return;
+    }
+
+    // First confirmation dialog
+    if (!confirm('Are you sure you want to delete this Background Briefing Report?')) {
+        return;
+    }
+
+    // Show inline confirmation
+    const deleteBtn = document.getElementById('delete-bbr-btn');
+    deleteBtn.innerHTML = `
+        <div class="inline-flex items-center">
+            <span class="mr-2">Really delete?</span>
+            <button onclick="confirmDeleteFromModal()" class="px-3 py-1 bg-red-700 text-white rounded text-sm hover:bg-red-800 mr-2">
+                Yes, Delete
+            </button>
+            <button onclick="cancelDelete()" class="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400">
+                Cancel
+            </button>
+        </div>
+    `;
+}
+
+function confirmDeleteFromModal() {
+    if (!currentPoemId) return;
+
+    const deleteBtn = document.getElementById('delete-bbr-btn');
+    deleteBtn.innerHTML = `
+        <svg class="animate-spin h-4 w-4 text-white inline mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Deleting...
+    `;
+
+    fetch(`/api/v1/poems/${currentPoemId}/bbr`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.detail) {
+            throw new Error(result.detail);
+        }
+        showSuccessMessage('Background Briefing Report deleted successfully');
+        closeBBRModal();
+        // Trigger page refresh by calling loadPoemData if available
+        if (typeof loadPoemData === 'function') {
+            loadPoemData();
+        } else {
+            // Fallback: reload the page
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting BBR:', error);
+        showError(error.message || 'Failed to delete Background Briefing Report');
+        cancelDelete();
+    });
+}
+
+function cancelDelete() {
+    const deleteBtn = document.getElementById('delete-bbr-btn');
+    deleteBtn.innerHTML = `
+        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" clip-rule="evenodd"/>
+        </svg>
+        Delete BBR
+    `;
 }
 
 // Copy BBR content
@@ -418,6 +501,9 @@ window.VPSWeb = {
     showBBRModal,
     closeBBRModal,
     copyBBRContent,
+    deleteFromModal,
+    confirmDeleteFromModal,
+    cancelDelete,
     startDragging,
     handleDragging,
     stopDragging,
@@ -433,3 +519,8 @@ window.stopDragging = stopDragging;
 window.startResizing = startResizing;
 window.handleResizing = handleResizing;
 window.stopResizing = stopResizing;
+
+// Export BBR delete functions for inline handlers
+window.deleteFromModal = deleteFromModal;
+window.confirmDeleteFromModal = confirmDeleteFromModal;
+window.cancelDelete = cancelDelete;

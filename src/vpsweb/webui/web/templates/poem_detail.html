@@ -2962,7 +2962,7 @@ async function viewBBR() {
             const result = await response.json();
             // BBR data is nested under result.data
             if (result.data && result.data.has_bbr && result.data.bbr) {
-                showBBRModal(result.data.bbr);
+                showBBRModal(result.data.bbr, poemId);
             } else {
                 showError('No Background Briefing Report found');
             }

@@ -118,9 +118,10 @@ class PoemBase(BaseSchema):
         if len(v) < 1:
             raise ValueError("Poem title must be at least 1 character long")
 
-        # Allow letters, numbers, spaces, and common punctuation
-        if not re.match(r"^[\w\s\-\.\,\!\?\:\;\'\"()\u4e00-\u9fff]+$", v):
-            raise ValueError("Poem title contains invalid characters")
+        # Relaxed validation: allow any printable characters except control characters and angle brackets
+        # This prevents potential HTML/JS injection while allowing all reasonable title characters
+        if re.match(r'[<>]', v):
+            raise ValueError("Poem title cannot contain angle brackets")
 
         return v
 
