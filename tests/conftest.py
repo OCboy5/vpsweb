@@ -369,8 +369,6 @@ def mock_llm_factory_integration(mocker):
             return response
 
     # Create mock that returns our mock LLM
-    LLMFactory.get_provider
-
     def mock_create_llm(self, provider: str, model: str, **kwargs):
         responses = [
             mock_llm_response_initial_translation(),
@@ -379,8 +377,16 @@ def mock_llm_factory_integration(mocker):
         ]
         return MockLLM(responses)
 
+    # Mock the get_provider method
+    mock_factory = mocker.MagicMock()
+    mock_factory.get_provider = mock_create_llm
+
     mocker.patch.object(LLMFactory, "get_provider", mock_create_llm)
-    return LLMFactory()
+
+    # Return a mock factory instance that has the patched method
+    mock_factory_instance = mocker.MagicMock()
+    mock_factory_instance.get_provider = mock_create_llm
+    return mock_factory_instance
 
 
 @pytest.fixture
@@ -400,13 +406,36 @@ def cli_runner():
 
 
 @pytest.fixture
+def integration_providers_config():
+    """Providers configuration for integration tests."""
+    from src.vpsweb.models.config import ProvidersConfig, ModelProviderConfig, ProviderType
+
+    return ProvidersConfig(
+        providers={
+            "tongyi": ModelProviderConfig(
+                api_key_env="TEST_TONGYI_API_KEY",
+                base_url="https://test-tongyi.com",
+                type=ProviderType.OPENAI_COMPATIBLE,
+                models=["qwen-max", "qwen-plus"]
+            ),
+            "deepseek": ModelProviderConfig(
+                api_key_env="TEST_DEEPSEEK_API_KEY",
+                base_url="https://test-deepseek.com",
+                type=ProviderType.OPENAI_COMPATIBLE,
+                models=["deepseek-chat", "deepseek-coder"]
+            )
+        }
+    )
+
+
+@pytest.fixture
 def integration_workflow_config():
     """Workflow configuration for integration tests."""
     return WorkflowConfig(
         name="integration_test_workflow",
         version="1.0.0",
-        steps=[
-            StepConfig(
+        hybrid_workflow={
+            "initial_translation": StepConfig(
                 name="initial_translation",
                 provider="tongyi",
                 model="qwen-max",
@@ -414,7 +443,7 @@ def integration_workflow_config():
                 max_tokens=1000,
                 prompt_template="test_template.yaml",
             ),
-            StepConfig(
+            "editor_review": StepConfig(
                 name="editor_review",
                 provider="deepseek",
                 model="deepseek-chat",
@@ -422,7 +451,7 @@ def integration_workflow_config():
                 max_tokens=800,
                 prompt_template="test_template.yaml",
             ),
-            StepConfig(
+            "translator_revision": StepConfig(
                 name="translator_revision",
                 provider="tongyi",
                 model="qwen-max",
@@ -430,7 +459,7 @@ def integration_workflow_config():
                 max_tokens=1000,
                 prompt_template="test_template.yaml",
             ),
-        ],
+        }
     )
 
 

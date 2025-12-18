@@ -357,17 +357,17 @@ async def test_client(db_session):
     """
     from httpx import AsyncClient
 
-    from vpsweb.repository.app import create_app
-    from vpsweb.repository.database import get_session
+    from src.vpsweb.webui.main import create_app
+    from src.vpsweb.repository.database import get_db
 
     # Create the FastAPI app
-    app = create_app(debug=True)
+    app = create_app()
 
     # Override the database dependency
     def override_get_db():
         return db_session
 
-    app.dependency_overrides[get_session] = override_get_db
+    app.dependency_overrides[get_db] = override_get_db
 
     # Create test client
     async with AsyncClient(app=app, base_url="http://test") as client:

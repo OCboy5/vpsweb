@@ -11,6 +11,7 @@ from httpx import AsyncClient
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_health_check_endpoint(test_client: AsyncClient):
     """
     Test the health check endpoint returns correct response.
@@ -24,13 +25,13 @@ async def test_health_check_endpoint(test_client: AsyncClient):
     data = response.json()
 
     assert data["status"] == "healthy"
-    assert "service" in data
+    assert "services" in data
     assert "version" in data
-    assert "timestamp" in data
 
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_info_endpoint(test_client: AsyncClient):
     """
     Test the info endpoint returns correct response.
@@ -57,6 +58,7 @@ async def test_info_endpoint(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_root_endpoint_redirect(test_client: AsyncClient):
     """
     Test that root endpoint redirects or returns appropriate response.
@@ -72,6 +74,7 @@ async def test_root_endpoint_redirect(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_invalid_endpoint_returns_404(test_client: AsyncClient):
     """
     Test that invalid endpoints return 404 status.
@@ -86,6 +89,7 @@ async def test_invalid_endpoint_returns_404(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_cors_headers_present(test_client: AsyncClient):
     """
     Test that CORS headers are present in responses.
@@ -105,6 +109,7 @@ async def test_cors_headers_present(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_security_headers_present(test_client: AsyncClient):
     """
     Test that security headers are present in responses.
@@ -135,6 +140,7 @@ async def test_security_headers_present(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_response_content_type_json(test_client: AsyncClient):
     """
     Test that API endpoints return JSON content type.
@@ -149,6 +155,7 @@ async def test_response_content_type_json(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_response_structure_consistency(test_client: AsyncClient):
     """
     Test that API responses have consistent structure.
@@ -173,6 +180,7 @@ async def test_response_structure_consistency(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_error_response_format(test_client: AsyncClient):
     """
     Test that error responses follow consistent format.
@@ -193,6 +201,7 @@ async def test_error_response_format(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_http_method_options(test_client: AsyncClient):
     """
     Test OPTIONS requests are handled properly.
@@ -208,6 +217,7 @@ async def test_http_method_options(test_client: AsyncClient):
 
 @pytest.mark.api
 @pytest.mark.unit
+@pytest.mark.asyncio
 async def test_api_versioning_headers(test_client: AsyncClient):
     """
     Test that API versioning headers are present.

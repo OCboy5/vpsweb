@@ -11,6 +11,7 @@ import pytest
 
 from src.vpsweb.core.workflow import TranslationWorkflow
 from src.vpsweb.models.translation import TranslationInput, TranslationOutput
+from src.vpsweb.models.config import WorkflowMode
 from src.vpsweb.services.llm.factory import LLMFactory
 
 
@@ -22,11 +23,22 @@ class TestTranslationWorkflowIntegration:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        integration_providers_config,
+        mock_llm_factory_integration,
     ):
         """Test complete workflow execution with mocked LLM calls."""
-        # Create workflow
-        workflow = TranslationWorkflow(integration_workflow_config)
+        # Create workflow with legacy parameters and system config
+        system_config = {
+            "preview_lengths": {
+                "input_preview": 100
+            }
+        }
+        workflow = TranslationWorkflow(
+            integration_workflow_config,
+            integration_providers_config,
+            WorkflowMode.HYBRID,
+            system_config=system_config
+        )
 
         # Execute workflow
         result = await workflow.execute(sample_translation_input)
@@ -66,7 +78,7 @@ class TestTranslationWorkflowIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_with_different_poem(
-        self, integration_workflow_config, _mock_llm_factory_integration
+        self, integration_workflow_config, integration_providers_config, mock_llm_factory_integration
     ):
         """Test workflow with a different poem."""
         input_data = TranslationInput(
@@ -136,7 +148,7 @@ class TestTranslationWorkflowIntegration:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Test that workflow properly aggregates metadata from all steps."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -165,7 +177,7 @@ class TestTranslationWorkflowIntegration:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Test that workflow produces correct congregated output format."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -190,7 +202,7 @@ class TestTranslationWorkflowIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_with_empty_poem(
-        self, integration_workflow_config, _mock_llm_factory_integration
+        self, integration_workflow_config, mock_llm_factory_integration
     ):
         """Test workflow with very short poem."""
         input_data = TranslationInput(
@@ -211,7 +223,7 @@ class TestTranslationWorkflowIntegration:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Test that workflow executes steps in correct order."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -243,7 +255,7 @@ class TestTranslationWorkflowIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_with_custom_config(
-        self, sample_translation_input, _mock_llm_factory_integration
+        self, sample_translation_input, mock_llm_factory_integration
     ):
         """Test workflow with custom step configuration."""
         custom_config = WorkflowConfig(
@@ -286,7 +298,7 @@ class TestTranslationWorkflowIntegration:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
         temp_output_dir,
     ):
         """Test that workflow output can be saved and loaded."""
@@ -324,7 +336,7 @@ class TestWorkflowFunctionalEquivalence:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Verify the workflow follows the Translator→Editor→Translator structure."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -353,7 +365,7 @@ class TestWorkflowFunctionalEquivalence:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Verify XML parsing follows the exact logic from vpts.yml."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -384,7 +396,7 @@ class TestWorkflowFunctionalEquivalence:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Verify editor suggestions follow the expected numbered format."""
         workflow = TranslationWorkflow(integration_workflow_config)
@@ -414,7 +426,7 @@ class TestWorkflowFunctionalEquivalence:
         self,
         sample_translation_input,
         integration_workflow_config,
-        _mock_llm_factory_integration,
+        mock_llm_factory_integration,
     ):
         """Verify complete metadata generation matches Dify workflow."""
         workflow = TranslationWorkflow(integration_workflow_config)

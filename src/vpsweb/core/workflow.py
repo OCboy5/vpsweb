@@ -310,16 +310,20 @@ class TranslationWorkflow:
                 f"=== STEP 1: INITIAL TRANSLATION ({self._get_workflow_mode().value.upper()} MODE) ==="
             )
             # Get input preview length from config
-            input_preview_length = (
-                getattr(
+            if self._using_facade and self._config_facade:
+                input_preview_length = getattr(
                     self._config_facade.main.system.preview_lengths,
                     "input_preview",
                     100,
+                ) if (hasattr(self._config_facade.main, "system")
+                    and hasattr(self._config_facade.main.system, "preview_lengths")) else 100
+            else:
+                # Legacy mode - use system_config or default
+                input_preview_length = (
+                    self.system_config.get("preview_lengths", {}).get("input_preview", 100)
+                    if self.system_config
+                    else 100
                 )
-                if hasattr(self._config_facade.main, "system")
-                and hasattr(self._config_facade.main.system, "preview_lengths")
-                else 100
-            )
             log_entries.append(
                 f"Input: {input_data.original_poem[:input_preview_length]}..."
             )
