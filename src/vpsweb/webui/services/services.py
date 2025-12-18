@@ -1044,6 +1044,16 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 TranslationInput,
             )
 
+            # Validate that source and target languages are different
+            if source_lang == target_lang:
+                from fastapi import HTTPException
+
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Source and target languages must be different. "
+                    f"Both cannot be '{source_lang}'. Please select different languages.",
+                )
+
             input_data = TranslationInput(
                 original_poem=poem.original_text,
                 source_lang=LANGUAGE_CODE_MAP.get(source_lang, source_lang),

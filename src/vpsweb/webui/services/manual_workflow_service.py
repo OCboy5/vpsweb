@@ -452,6 +452,13 @@ class ManualWorkflowService:
                 target_lang_code, Language.CHINESE
             )
 
+            # Validate that source and target languages are different
+            if source_lang_enum == target_lang_enum:
+                raise ValueError(
+                    f"Source and target languages must be different. "
+                    f"Both cannot be '{source_lang_enum.value}'. Please select different languages."
+                )
+
             translation_input = TranslationInput(
                 original_poem=poem.original_text,
                 source_lang=source_lang_enum,
