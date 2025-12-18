@@ -14,21 +14,22 @@ Features:
 import asyncio
 import sys
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import pool
+from sqlalchemy import pool, create_engine
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import Session, sessionmaker
 
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from vpsweb.repository.models import Base
+from src.vpsweb.repository.models import Base
 
 # Configure pytest-asyncio
 pytest_asyncio.default_mode = "auto"
@@ -71,23 +72,59 @@ async def test_engine():
     await engine.dispose()
 
 
-@pytest_asyncio.fixture
-async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+@pytest.fixture(scope="session")
+def sync_test_engine():
     """
-    Create a database session for testing.
+    Create a synchronous test database engine with in-memory SQLite.
 
-    Yields:
-        AsyncSession: Database session with automatic rollback
+    This matches production setup and uses synchronous SQLAlchemy.
     """
-    async_session = async_sessionmaker(
-        bind=test_engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
+    # Use regular SQLite for testing (like production)
+    test_url = "sqlite:///:memory:"
+
+    engine = create_engine(
+        test_url,
+        echo=False,
+        poolclass=pool.StaticPool,
+        connect_args={
+            "check_same_thread": False,
+        },
     )
 
-    async with async_session() as session:
+    # Create all tables
+    Base.metadata.create_all(bind=engine)
+
+    yield engine
+
+    # Clean up
+    engine.dispose()
+
+
+@pytest.fixture
+def db_session(sync_test_engine) -> Generator[Session, None, None]:
+    """
+    Create a synchronous database session for testing.
+
+    Matches production setup and provides proper test isolation.
+
+    Yields:
+        Session: Synchronous database session matching production
+    """
+    from sqlalchemy.orm import sessionmaker
+
+    session = sessionmaker(
+        bind=sync_test_engine,
+        autocommit=False,
+        autoflush=False,
+    )()
+
+    try:
         yield session
-        # Session automatically rolls back after context exit
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
 @pytest.fixture
@@ -98,11 +135,8 @@ def sample_poem_data():
         "poem_title": "Test Poem Title",
         "source_language": "en",
         "original_text": "This is a test poem with enough content to pass validation requirements. It contains meaningful verses and proper structure for testing purposes.",
-        "author_birth_year": 1990,
-        "publication_year": 2020,
-        "genre": "test",
-        "tags": "test,poetry,validation",
-        "is_active": True,
+        "selected": False,
+        "metadata_json": '{"test": "sample_poem_data"}',
     }
 
 
@@ -175,28 +209,28 @@ def mock_language_validator():
     return _validate_language_code
 
 
-@pytest_asyncio.fixture
-async def sample_poem(db_session, sample_poem_data, mock_ulid_generator):
+@pytest.fixture
+def sample_poem(db_session, sample_poem_data, mock_ulid_generator):
     """Create a sample poem in the database."""
-    from vpsweb.repository.models import Poem
+    from src.vpsweb.repository.models import Poem
 
     poem_data = sample_poem_data.copy()
     poem_data["id"] = mock_ulid_generator()
 
     poem = Poem(**poem_data)
     db_session.add(poem)
-    await db_session.commit()
-    await db_session.refresh(poem)
+    db_session.commit()
+    db_session.refresh(poem)
 
     return poem
 
 
-@pytest_asyncio.fixture
-async def sample_translation(
+@pytest.fixture
+def sample_translation(
     db_session, sample_poem, sample_translation_data, mock_ulid_generator
 ):
     """Create a sample translation in the database."""
-    from vpsweb.repository.models import Translation
+    from src.vpsweb.repository.models import Translation
 
     translation_data = sample_translation_data.copy()
     translation_data["id"] = mock_ulid_generator()
@@ -204,8 +238,8 @@ async def sample_translation(
 
     translation = Translation(**translation_data)
     db_session.add(translation)
-    await db_session.commit()
-    await db_session.refresh(translation)
+    db_session.commit()
+    db_session.refresh(translation)
 
     return translation
 
@@ -250,7 +284,7 @@ class AsyncTestContext:
 
     async def create_poem(self, **kwargs):
         """Create a poem with default values."""
-        from vpsweb.repository.models import Poem
+        from src.vpsweb.repository.models import Poem
 
         default_data = {
             "id": "01HXRQ8YJ9P9N7Q4J8K2R4S4T3",
@@ -270,7 +304,7 @@ class AsyncTestContext:
 
     async def create_translation(self, poem_id: str, **kwargs):
         """Create a translation with default values."""
-        from vpsweb.repository.models import Translation
+        from src.vpsweb.repository.models import Translation
 
         default_data = {
             "id": "01HXRQ8YJ9P9N7Q4J8K2R4S4T4",
@@ -291,8 +325,8 @@ class AsyncTestContext:
         return translation
 
 
-@pytest_asyncio.fixture
-async def test_context(db_session) -> AsyncGenerator[AsyncTestContext, None]:
+@pytest.fixture
+def test_context(db_session):
     """Create a test context helper."""
     yield AsyncTestContext(db_session)
 
@@ -303,7 +337,7 @@ def raise_database_error():
     """Utility to raise database errors in tests."""
 
     def _raise_error(message="Test database error"):
-        from vpsweb.repository.exceptions import DatabaseException
+        from src.vpsweb.repository.exceptions import DatabaseException
 
         raise DatabaseException(message)
 
@@ -315,7 +349,7 @@ def raise_validation_error():
     """Utility to raise validation errors in tests."""
 
     def _raise_error(message="Test validation error"):
-        from vpsweb.repository.exceptions import ValidationException
+        from src.vpsweb.repository.exceptions import ValidationException
 
         raise ValidationException(message)
 

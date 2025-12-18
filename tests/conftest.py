@@ -124,32 +124,29 @@ def sample_config():
             workflow=WorkflowConfig(
                 name="test_workflow",
                 version="1.0.0",
-                steps=[
-                    StepConfig(
-                        name="initial_translation",
+                hybrid_workflow={
+                    "initial_translation": StepConfig(
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.7,
                         max_tokens=1000,
                         prompt_template="test_template.yaml",
                     ),
-                    StepConfig(
-                        name="editor_review",
+                    "editor_review": StepConfig(
                         provider="deepseek",
                         model="deepseek-chat",
                         temperature=0.5,
                         max_tokens=800,
                         prompt_template="test_template.yaml",
                     ),
-                    StepConfig(
-                        name="translator_revision",
+                    "translator_revision": StepConfig(
                         provider="tongyi",
                         model="qwen-max",
                         temperature=0.6,
                         max_tokens=1000,
                         prompt_template="test_template.yaml",
                     ),
-                ],
+                },
             ),
             storage=StorageConfig(output_dir="./output"),
             logging=LoggingConfig(
@@ -473,6 +470,7 @@ from typing import AsyncGenerator, Generator
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import pool
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -525,8 +523,60 @@ async def test_engine():
     await engine.dispose()
 
 
+@pytest.fixture(scope="session")
+def sync_test_engine():
+    """
+    Create a synchronous test database engine with in-memory SQLite.
+
+    This matches production setup and uses synchronous SQLAlchemy.
+    """
+    # Use regular SQLite for testing (like production)
+    from sqlalchemy import create_engine
+
+    test_url = "sqlite:///:memory:"
+
+    engine = create_engine(
+        test_url,
+        echo=False,
+        poolclass=pool.StaticPool,
+        connect_args={
+            "check_same_thread": False,
+        },
+    )
+
+    # Create all tables
+    Base.metadata.create_all(bind=engine)
+
+    yield engine
+
+    # Clean up
+    engine.dispose()
+
+
+@pytest.fixture
+def db_session(sync_test_engine) -> Generator[Session, None, None]:
+    """
+    Create a synchronous database session for testing.
+
+    Matches production setup and provides proper test isolation.
+    """
+    session = sessionmaker(
+        bind=sync_test_engine,
+        autocommit=False,
+        autoflush=False,
+    )()
+
+    try:
+        yield session
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
 @pytest_asyncio.fixture
-async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def db_session_async(test_engine) -> AsyncGenerator[AsyncSession, None]:
     """
     Create a database session for testing.
 
@@ -547,8 +597,8 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
         # Session automatically rolls back after context exit
 
 
-@pytest.fixture
-def test_client(db_session) -> Generator[TestClient, None, None]:
+@pytest_asyncio.fixture
+async def test_client(db_session):
     """
     Create a FastAPI test client with database override.
 
@@ -561,7 +611,13 @@ def test_client(db_session) -> Generator[TestClient, None, None]:
     Yields:
         TestClient: FastAPI test client
     """
-    from vpsweb.repository.database import get_db
+    from httpx import AsyncClient
+
+    from src.vpsweb.webui.main import create_app
+    from src.vpsweb.repository.database import get_db
+
+    # Create the FastAPI app
+    app = create_app()
 
     # Override the database dependency
     def override_get_db():
@@ -569,21 +625,84 @@ def test_client(db_session) -> Generator[TestClient, None, None]:
 
     app.dependency_overrides[get_db] = override_get_db
 
+    # Use aggressive mocking with unittest.mock to override container resolution
+    from unittest.mock import patch, MagicMock, AsyncMock
+    from vpsweb.webui.container import container
+
+    # Create comprehensive mock BBR service
+    mock_bbr_service = MagicMock()
+    mock_bbr_service.has_bbr.return_value = False
+    mock_bbr_service.generate_bbr = AsyncMock(return_value={"task_id": "mock-task", "status": "started"})
+    mock_bbr_service.get_bbr = AsyncMock(return_value={"id": "mock-bbr", "content": "Mock BBR content"})
+    mock_bbr_service.delete_bbr = AsyncMock(return_value={"success": True})
+
+    # Create mock Poem service
+    mock_poem_service = MagicMock()
+    mock_poem_service.get_recent_activity = AsyncMock(return_value={"poems": []})
+
+    # Create mock Workflow service
+    mock_workflow_service = MagicMock()
+    mock_workflow_service.start_workflow = AsyncMock(return_value={"task_id": "mock-workflow", "status": "started"})
+    mock_workflow_service.start_translation_workflow = AsyncMock(return_value="mock-task-id")
+
+    # Create test Repository service that uses test database session
+    from src.vpsweb.repository.crud import RepositoryService
+    test_repository_service = RepositoryService(db_session)
+
+    # Patch the container's resolve method for multiple services
+    from vpsweb.webui.services.interfaces import IBBRServiceV2, IPoemServiceV2, IWorkflowServiceV2
+
+    # Store original resolve method before patching
+    original_container_resolve = container.resolve
+
+    def mock_resolve(self, dependency_type):
+        if dependency_type == IBBRServiceV2:
+            return mock_bbr_service
+        elif dependency_type == IPoemServiceV2:
+            return mock_poem_service
+        elif dependency_type == IWorkflowServiceV2:
+            return mock_workflow_service
+        # CRITICAL: Ensure container services use test database, not production!
+        # This prevents tests from writing to production database
+        try:
+            original_service = original_container_resolve(dependency_type)
+            # Override repository service with test database
+            if hasattr(original_service, 'repository_service'):
+                original_service.repository_service = test_repository_service
+            # Override any direct repository access
+            if hasattr(original_service, 'repo'):
+                original_service.repo = test_repository_service.repo
+            if hasattr(original_service, 'poems'):
+                original_service.poems = test_repository_service.poems
+            if hasattr(original_service, 'translations'):
+                original_service.translations = test_repository_service.translations
+            return original_service
+        except:
+            # Fall back to test repository service for direct RepositoryService requests
+            if dependency_type == RepositoryService:
+                return test_repository_service
+            # Fall back to original resolve for unknown dependencies
+            return original_container_resolve(dependency_type)
+
+    # Apply the patch to the container
+    container.resolve = mock_resolve.__get__(container, type(container))
+
+    
     # Create test client
-    with TestClient(app) as client:
+    async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
 
     # Clean up
     app.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture
-async def repository_service(db_session) -> RepositoryService:
+@pytest.fixture
+def repository_service(db_session) -> RepositoryService:
     """
     Create a repository service for testing.
 
     Args:
-        db_session: Async database session
+        db_session: Synchronous database session (matching production)
 
     Returns:
         RepositoryService: Repository service instance
@@ -591,13 +710,13 @@ async def repository_service(db_session) -> RepositoryService:
     return RepositoryService(db_session)
 
 
-@pytest_asyncio.fixture
-async def repository_web_service(db_session) -> RepositoryWebService:
+@pytest.fixture
+def repository_web_service(db_session) -> RepositoryWebService:
     """
     Create a repository web service for testing.
 
     Args:
-        db_session: Async database session
+        db_session: Synchronous database session (matching production)
 
     Returns:
         RepositoryWebService: Repository web service instance
@@ -616,7 +735,7 @@ def poem_service(repository_service: RepositoryService) -> PoemService:
     Returns:
         PoemService: Poem service instance
     """
-    return PoemService(repository_service)
+    return PoemService(repository_service.db)
 
 
 # Sample data fixtures for database testing
@@ -626,7 +745,7 @@ def sample_poem_data():
     return {
         "poet_name": "Test Poet",
         "poem_title": "Test Poem Title",
-        "source_language": "English",
+        "source_language": "en",
         "original_text": """The fog comes
 on little cat feet.
 It sits looking
@@ -643,7 +762,7 @@ def sample_chinese_poem_data():
     return {
         "poet_name": "李白",
         "poem_title": "静夜思",
-        "source_language": "Chinese",
+        "source_language": "zh-CN",
         "original_text": """床前明月光，
 疑是地上霜。
 举头望明月，
@@ -680,8 +799,8 @@ def sample_workflow_task_data():
 
 
 # Database entity fixtures
-@pytest_asyncio.fixture
-async def sample_poem(db_session, sample_poem_data):
+@pytest.fixture
+def sample_poem(db_session, sample_poem_data):
     """Create a sample poem in the database."""
     import uuid
 
@@ -692,14 +811,14 @@ async def sample_poem(db_session, sample_poem_data):
 
     poem = Poem(**poem_data)
     db_session.add(poem)
-    await db_session.commit()
-    await db_session.refresh(poem)
+    db_session.commit()
+    db_session.refresh(poem)
 
     return poem
 
 
-@pytest_asyncio.fixture
-async def sample_chinese_poem(db_session, sample_chinese_poem_data):
+@pytest.fixture
+def sample_chinese_poem(db_session, sample_chinese_poem_data):
     """Create a sample Chinese poem in the database."""
     import uuid
 
@@ -710,14 +829,14 @@ async def sample_chinese_poem(db_session, sample_chinese_poem_data):
 
     poem = Poem(**poem_data)
     db_session.add(poem)
-    await db_session.commit()
-    await db_session.refresh(poem)
+    db_session.commit()
+    db_session.refresh(poem)
 
     return poem
 
 
-@pytest_asyncio.fixture
-async def sample_translation(db_session, sample_poem, sample_translation_data):
+@pytest.fixture
+def sample_translation(db_session, sample_poem, sample_translation_data):
     """Create a sample translation in the database."""
     import uuid
 
@@ -729,8 +848,8 @@ async def sample_translation(db_session, sample_poem, sample_translation_data):
 
     translation = Translation(**translation_data)
     db_session.add(translation)
-    await db_session.commit()
-    await db_session.refresh(translation)
+    db_session.commit()
+    db_session.refresh(translation)
 
     return translation
 
@@ -788,7 +907,7 @@ class TestDataFactory:
         default_data = {
             "poet_name": "Test Poet",
             "poem_title": "Test Poem",
-            "source_language": "English",
+            "source_language": "en",
             "original_text": "Test poem content for testing purposes.",
             "metadata_json": "{}",
         }
@@ -817,48 +936,62 @@ def test_data_factory():
 
 # Async test context helper
 class AsyncTestContext:
-    """Helper class for async test context management."""
+    """Helper class for test context management."""
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session):
         self.session = session
 
-    async def create_poem(self, **kwargs):
+    def create_poem(self, **kwargs):
         """Create a poem with default values."""
         import uuid
 
         from vpsweb.repository.models import Poem
 
         default_data = TestDataFactory.create_poem()
-        default_data["id"] = str(uuid.uuid4())[:26]
+        # Use time + random for better uniqueness across test runs
+        import time
+        import random
+        unique_id = f"test_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"[:26]
+        default_data["id"] = unique_id
         default_data.update(kwargs)
 
         poem = Poem(**default_data)
         self.session.add(poem)
-        await self.session.commit()
-        await self.session.refresh(poem)
+        self.session.flush()  # Don't commit - use flush to make object available in current transaction
+        self.session.refresh(poem)
         return poem
 
-    async def create_translation(self, poem_id: str, **kwargs):
+    def create_translation(self, poem_id: str, **kwargs):
         """Create a translation with default values."""
         import uuid
 
         from vpsweb.repository.models import Translation
 
         default_data = TestDataFactory.create_translation(poem_id)
-        default_data["id"] = str(uuid.uuid4())[:26]
+        # Use time + random for better uniqueness across test runs
+        import time
+        import random
+        unique_id = f"tr_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"[:26]
+        default_data["id"] = unique_id
         default_data.update(kwargs)
 
         translation = Translation(**default_data)
         self.session.add(translation)
-        await self.session.commit()
-        await self.session.refresh(translation)
+        self.session.flush()  # Don't commit - use flush to make object available in current transaction
+        self.session.refresh(translation)
         return translation
 
 
-@pytest_asyncio.fixture
-async def test_context(db_session) -> AsyncGenerator[AsyncTestContext, None]:
+@pytest.fixture
+def test_context(db_session):
     """Create a test context helper."""
     yield AsyncTestContext(db_session)
+
+
+@pytest.fixture
+async def async_test_context(db_session_async):
+    """Create an async test context helper with async session."""
+    yield AsyncTestContext(db_session_async)
 
 
 # Performance testing fixtures
