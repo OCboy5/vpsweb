@@ -1,9 +1,10 @@
 """
 Vox Poetica Studio Web - Professional AI-powered poetry translation system.
 
-This package provides a modular Python application for professional poetry translation
-using a Translator→Editor→Translator workflow that produces high-fidelity translations
-preserving aesthetic beauty, musicality, emotional resonance, and cultural context.
+This package provides a modular Python application for professional poetry
+translation using a Translator→Editor→Translator workflow that produces
+high-fidelity translations preserving aesthetic beauty, musicality, emotional
+resonance, and cultural context.
 
 Key Features:
 - Multi-stage collaborative translation workflow

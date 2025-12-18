@@ -1,8 +1,9 @@
 """
 Unit tests for the StepExecutor class.
 
-These tests verify the core execution engine that orchestrates the poetry translation
-workflow by coordinating LLM providers, prompt templates, and output parsing.
+These tests verify the core execution engine that orchestrates the poetry
+translation workflow by coordinating LLM providers, prompt templates,
+and output parsing.
 """
 
 from unittest.mock import AsyncMock, Mock
@@ -16,10 +17,7 @@ from src.vpsweb.core.executor import (
     StepExecutor,
 )
 from src.vpsweb.models.config import StepConfig
-from src.vpsweb.models.translation import (
-    InitialTranslation,
-    TranslationInput,
-)
+from src.vpsweb.models.translation import TranslationInput
 from src.vpsweb.services.prompts import PromptService
 
 
@@ -76,7 +74,8 @@ class TestStepExecutor:
         response.content = """
         <initial_translation>雾来了
 踏着猫的小脚。</initial_translation>
-        <initial_translation_notes>This translation captures the gentle imagery.</initial_translation_notes>
+        <initial_translation_notes>This translation captures the gentle imagery
+        </initial_translation_notes>
         """
         response.tokens_used = 150
         response.prompt_tokens = 50
@@ -339,7 +338,8 @@ class TestStepExecutor:
         mock_provider = AsyncMock()
         editor_response = Mock()
         editor_response.content = """
-        <editor_suggestions>1. Consider using more poetic language\n2. Check rhythm consistency</editor_suggestions>
+        <editor_suggestions>1. Consider using more poetic language
+        2. Check rhythm consistency</editor_suggestions>
         """
         editor_response.tokens_used = 80
         mock_provider.generate.return_value = editor_response
@@ -351,21 +351,35 @@ class TestStepExecutor:
         )
 
         # Create initial translation
+        from src.vpsweb.models.translation import InitialTranslation
+
+        notes = ("Translation notes with sufficient length to meet the word count "
+                "requirement for validation. This needs to be longer to "
+                "pass the 200-300 word validation check that is built into "
+                "the model.")
+
         initial_translation = InitialTranslation(
-            original_poem="The fog comes on little cat feet.",
-            source_lang="English",
-            target_lang="Chinese",
             initial_translation="雾来了\n踏着猫的小脚。",
-            initial_translation_notes="Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model.",
+            initial_translation_notes=notes,
+            translated_poem_title="Fog",
+            translated_poet_name="Carl Sandburg",
             model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
             tokens_used=150,
-            translated_poem_title="",  # Add this required field
-            translated_poet_name="",  # Add this required field
+        )
+
+        # Create appropriate config for editor review step
+        editor_review_config = StepConfig(
+            provider=sample_step_config.provider,
+            model=sample_step_config.model,
+            temperature=sample_step_config.temperature,
+            max_tokens=sample_step_config.max_tokens,
+            prompt_template="editor_review.yaml",
+            required_fields=["editor_suggestions"],  # Correct required fields for editor review
         )
 
         # Execute editor review
         result = await step_executor.execute_editor_review(
-            initial_translation, sample_translation_input, sample_step_config
+            initial_translation, sample_translation_input, editor_review_config
         )
 
         # Verify results
@@ -374,7 +388,7 @@ class TestStepExecutor:
 
         # Verify correct input data was passed
         call_args = mock_prompt_service.render_prompt.call_args[0]
-        assert call_args[0] == "editor_review"
+        assert call_args[0] == "editor_review.yaml"
         assert call_args[1]["initial_translation"] == "雾来了\n踏着猫的小脚。"
 
     @pytest.mark.asyncio
@@ -403,24 +417,40 @@ class TestStepExecutor:
             "Revision user prompt",
         )
 
-        # Create editor review
-        editor_review = Mock()
-        editor_review.original_poem = "The fog comes on little cat feet."
-        editor_review.source_lang = "English"
-        editor_review.target_lang = "Chinese"
-        editor_review.initial_translation = "雾来了\n踏着猫的小脚。"
-        editor_review.initial_translation_notes = "Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model."
-        editor_review.editor_suggestions = (
-            "Consider using more poetic language"
+        # Create editor review and initial translation
+        from src.vpsweb.models.translation import EditorReview, InitialTranslation
+
+        initial_translation = InitialTranslation(
+            initial_translation="雾来了\n踏着猫的小脚。",
+            initial_translation_notes="Translation notes with sufficient length to meet the word count requirement for validation. This needs to be longer to pass the 200-300 word validation check that is built into the model.",
+            translated_poem_title="Fog",
+            translated_poet_name="Carl Sandburg",
+            model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
+            tokens_used=150,
         )
-        editor_review.translated_poem_title = ""  # Add this
-        editor_review.translated_poet_name = ""  # Add this
+
+        editor_review = EditorReview(
+            editor_suggestions="Consider using more poetic language",
+            model_info={"provider": "openai", "model": "gpt-3.5-turbo"},
+            tokens_used=80,
+        )
+
+        # Create appropriate config for translator revision step
+        translator_revision_config = StepConfig(
+            provider=sample_step_config.provider,
+            model=sample_step_config.model,
+            temperature=sample_step_config.temperature,
+            max_tokens=sample_step_config.max_tokens,
+            prompt_template="translator_revision.yaml",
+            required_fields=["revised_translation", "revised_translation_notes"],  # Correct required fields
+        )
 
         # Execute translator revision
         result = await step_executor.execute_translator_revision(
             editor_review,
             sample_translation_input,
-            sample_step_config,
+            initial_translation,
+            translator_revision_config,
         )
 
         # Verify results
@@ -429,23 +459,44 @@ class TestStepExecutor:
 
         # Verify correct input data was passed
         call_args = mock_prompt_service.render_prompt.call_args[0]
-        assert call_args[0] == "translator_revision"
+        assert call_args[0] == "translator_revision.yaml"
         assert (
             call_args[1]["editor_suggestions"]
             == "Consider using more poetic language"
         )
 
     def test_validate_step_inputs(self, step_executor):
-        """Test input validation for unknown step name."""
+        """Test input validation for step inputs."""
         config = Mock(spec=StepConfig)
 
-        # Invalid step name
+        # Empty step name should raise ValueError
         with pytest.raises(
-            ValueError, match="Unknown step name: invalid_step"
+            ValueError, match="Step name cannot be empty"
         ):
             step_executor._validate_step_inputs(
-                "invalid_step", {"key": "value"}, config
+                "", {"key": "value"}, config
             )
+
+        # Invalid input data type should raise ValueError
+        with pytest.raises(
+            ValueError, match="Input data must be a dictionary"
+        ):
+            step_executor._validate_step_inputs(
+                "test_step", "not_a_dict", config
+            )
+
+        # None config should raise ValueError
+        with pytest.raises(
+            ValueError, match="Step configuration is required"
+        ):
+            step_executor._validate_step_inputs(
+                "test_step", {"key": "value"}, None
+            )
+
+        # Valid inputs should not raise any errors
+        step_executor._validate_step_inputs(
+            "any_step_name", {"key": "value"}, config
+        )  # Should not raise
 
     @pytest.mark.asyncio
     async def test_get_llm_provider_error(
@@ -582,8 +633,9 @@ class TestStepExecutor:
         }
 
         # Execute step - should succeed with fallback
+        # Use a generic step name to trigger the generic XML parser with fallback
         result = await step_executor.execute_step(
-            "initial_translation", input_data, config_no_required
+            "generic_step", input_data, config_no_required
         )
 
         assert result["status"] == "success"

@@ -107,8 +107,8 @@ class TestManualWorkflowService:
         assert result["step_index"] == 0
         assert result["total_steps"] == 3
         assert (
-            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nTest prompt"
-            == result["prompt"]
+            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\n"
+            "Test prompt" == result["prompt"]
         )
         assert result["poem_title"] == "Test Poem"
         assert result["poet_name"] == "Test Poet"

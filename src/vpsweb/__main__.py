@@ -1,7 +1,8 @@
 """
 Vox Poetica Studio Web - CLI Entry Point
 
-Professional AI-powered poetry translation using a Translator→Editor→Translator workflow.
+Professional AI-powered poetry translation using a
+Translator→Editor→Translator workflow.
 """
 
 import asyncio
@@ -192,7 +193,8 @@ async def execute_translation_workflow(
 
         # Display original poem
         click.echo(
-            f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):"
+            f"\n📄 Original Poem ({input_data.source_lang} → "
+            f"{input_data.target_lang}):"
         )
         click.echo("-" * 30)
         # Show poem with proper formatting, limiting length for display
@@ -252,19 +254,36 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
             return "N/A"
         return f"¥{cost:.6f}"
 
-    click.echo(
-        f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.initial_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.initial_translation, 'cost', None))}"
-    )
-    click.echo(
-        f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.editor_review, 'duration', None))} | 💰 {format_cost(getattr(translation_output.editor_review, 'cost', None))}"
-    )
-    click.echo(
-        f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens | ⏱️  {format_duration(getattr(translation_output.revised_translation, 'duration', None))} | 💰 {format_cost(getattr(translation_output.revised_translation, 'cost', None))}"
-    )
+    # Step 1 details
+    step1_tokens = translation_output.initial_translation.tokens_used
+    step1_duration = getattr(translation_output.initial_translation, 'duration', None)
+    step1_cost = getattr(translation_output.initial_translation, 'cost', None)
+    click.echo(f"  Step 1 (Initial): 🧮 {step1_tokens} tokens | "
+          f"⏱️  {format_duration(step1_duration)} | "
+          f"💰 {format_cost(step1_cost)}")
+    # Step 2 details
+    step2_tokens = translation_output.editor_review.tokens_used
+    step2_duration = getattr(translation_output.editor_review, 'duration', None)
+    step2_cost = getattr(translation_output.editor_review, 'cost', None)
+    click.echo(f"  Step 2 (Editor): 🧮 {step2_tokens} tokens | "
+          f"⏱️  {format_duration(step2_duration)} | "
+          f"💰 {format_cost(step2_cost)}")
+    # Step 3 details
+    step3_tokens = translation_output.revised_translation.tokens_used
+    step3_duration = getattr(translation_output.revised_translation, 'duration', None)
+    step3_cost = getattr(translation_output.revised_translation, 'cost', None)
+    click.echo(f"  Step 3 (Revision): 🧮 {step3_tokens} tokens | "
+          f"⏱️  {format_duration(step3_duration)} | "
+          f"💰 {format_cost(step3_cost)}")
 
     # Total summary
+    total_tokens = translation_output.total_tokens
+    total_time = f"{translation_output.duration_seconds:.2f}s"
+    total_cost = format_cost(translation_output.total_cost)
     click.echo(
-        f"\n📈 Overall: 🧮 {translation_output.total_tokens} total tokens | ⏱️  {translation_output.duration_seconds:.2f}s total time | 💰 {format_cost(translation_output.total_cost)} total cost"
+        f"\n📈 Overall: 🧮 {total_tokens} total tokens | "
+        f"⏱️  {total_time} total time | "
+        f"💰 {total_cost} total cost"
     )
 
     # Editor suggestions count (improved counting)

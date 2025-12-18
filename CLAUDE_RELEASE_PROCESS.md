@@ -45,10 +45,13 @@ This document defines the **standardized release process** that Claude Code foll
    - **Test BBR functionality**: Verify BBR generation works through WebUI
    - **Test SSE streaming**: Verify real-time updates work during translation
 
-6. **Code quality checks**
-   - Run Black formatting check
-   - Fix any formatting issues automatically
-   - Skip optional linting (as per workflow design)
+6. **Code quality checks** ⭐ **UPDATED - Full CI/CD Compliance**
+   - Run Black formatting check: `poetry run black --check src/ tests/`
+   - Check import sorting: `poetry run isort --check-only src/ tests/`
+   - Lint with flake8: `poetry run flake8 src/ tests/`
+   - Type checking with mypy: `poetry run mypy src/`
+   - **FIX ALL ISSUES**: All checks must pass for release (GitHub Actions CI will fail without compliance)
+   - **CI/CD Requirements**: These checks match exactly what `.github/workflows/ci.yml` enforces
 
 7. **File verification**
    - Confirm all required files exist:
@@ -239,8 +242,16 @@ python -c "from vpsweb.models.translation import InitialTranslation, RevisedTran
 # Test CLI entry point
 python -c "from vpsweb.__main__ import cli; print('✅ CLI entry point available')"
 
-# Check formatting
-poetry run black --check src/ tests/
+# 🚀 FULL CODE QUALITY CHECKS (STEP 6) - CI/CD COMPLIANCE
+echo "🔍 Running full code quality checks..." && \
+poetry run black --check src/ tests/ && \
+echo "✅ Black formatting check passed" && \
+poetry run isort --check-only src/ tests/ && \
+echo "✅ Import sorting check passed" && \
+poetry run flake8 src/ tests/ && \
+echo "✅ Flake8 linting check passed" && \
+poetry run mypy src/ && \
+echo "✅ MyPy type checking check passed"
 
 # 🛡️ FINAL DATABASE CHECK (STEP 11) - PRE-COMMIT SAFETY
 echo "🔍 Final database safety check..." && \
