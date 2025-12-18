@@ -18,6 +18,7 @@ Tables Tested:
 """
 
 import pytest
+import pytest_asyncio
 import asyncio
 import uuid
 from datetime import datetime, timedelta
@@ -26,21 +27,32 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy import select, func, text
 
 from src.vpsweb.repository.models import (
-    Base, Poem, Translation, BackgroundBriefingReport, AILog, HumanNote
+    Base,
+    Poem,
+    Translation,
+    BackgroundBriefingReport,
+    AILog,
+    HumanNote,
 )
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.schemas import (
-    PoemCreate, PoemUpdate, PoemSelectionUpdate,
-    TranslationCreate, TranslationUpdate,
-    AILogCreate, HumanNoteCreate,
-    BackgroundBriefingReportCreate,
-    TranslatorType, WorkflowMode, WorkflowStepType
+    PoemCreate,
+    PoemUpdate,
+    PoemSelectionUpdate,
+    TranslationCreate,
+    TranslationUpdate,
+    AILogCreate,
+    HumanNoteCreate,
+    TranslatorType,
+    WorkflowMode,
+    WorkflowStepType,
 )
 
 
 # ==============================================================================
 # Enhanced CRUD Fixtures
 # ==============================================================================
+
 
 @pytest_asyncio.fixture
 async def sample_poem_with_translations(db_session: AsyncSession):
@@ -123,13 +135,17 @@ async def sample_workflow_data(db_session: AsyncSession, sample_poem_with_transl
     for step_type in [
         WorkflowStepType.INITIAL_TRANSLATION,
         WorkflowStepType.EDITOR_REVIEW,
-        WorkflowStepType.TRANSLATOR_REVISION
+        WorkflowStepType.TRANSLATOR_REVISION,
     ]:
         log_data = {
             "id": str(uuid.uuid4())[:26],
             "translation_id": ai_translation.id,
             "workflow_step": step_type,
-            "model_name": "qwen-max" if step_type != WorkflowStepType.EDITOR_REVIEW else "deepseek-chat",
+            "model_name": (
+                "qwen-max"
+                if step_type != WorkflowStepType.EDITOR_REVIEW
+                else "deepseek-chat"
+            ),
             "workflow_mode": WorkflowMode.HYBRID,
             "runtime_seconds": 5.5 + len(ai_logs),
             "token_usage_json": f'{{"prompt_tokens": {100 + len(ai_logs) * 50}, "completion_tokens": {80 + len(ai_logs) * 40}, "total_tokens": {180 + len(ai_logs) * 90}}}',
@@ -145,7 +161,7 @@ async def sample_workflow_data(db_session: AsyncSession, sample_poem_with_transl
     note_texts = [
         "Excellent rhythm and flow preservation",
         "Could improve cultural context in line 2",
-        "Final version captures poetic essence well"
+        "Final version captures poetic essence well",
     ]
     for note_text in note_texts:
         note_data = {
@@ -203,12 +219,15 @@ Focus on preserving the emotional core while adapting imagery for target cultura
 # Enhanced Poem CRUD Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestEnhancedPoemCRUD:
     """Enhanced tests for Poem CRUD operations."""
 
-    async def test_create_poem_with_validation(self, repository_service: RepositoryService):
+    async def test_create_poem_with_validation(
+        self, repository_service: RepositoryService
+    ):
         """Test poem creation with comprehensive validation."""
         poem_create = PoemCreate(
             poet_name="Emily Dickinson",
@@ -234,7 +253,9 @@ And never stops at all,""",
         assert poem.updated_at is not None
         assert poem.created_at == poem.updated_at  # Should be same on creation
 
-    async def test_create_poem_constraint_validation(self, repository_service: RepositoryService):
+    async def test_create_poem_constraint_validation(
+        self, repository_service: RepositoryService
+    ):
         """Test poem creation violates database constraints."""
         # Test empty required fields
         with pytest.raises(ValueError):  # Should raise validation error
@@ -242,11 +263,13 @@ And never stops at all,""",
                 poet_name="",  # Empty name
                 poem_title="Test",
                 source_language="English",
-                original_text="Test content"
+                original_text="Test content",
             )
             repository_service.poems.create(poem_create)
 
-    async def test_update_poem_selection_toggle(self, repository_service: RepositoryService, sample_poem):
+    async def test_update_poem_selection_toggle(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test updating poem selection status."""
         # Initially should be False/None
         assert sample_poem.selected in [False, None]
@@ -260,12 +283,16 @@ And never stops at all,""",
         updated = repository_service.poems.update_selection(sample_poem.id, False)
         assert updated.selected is False
 
-    async def test_poem_count_with_filters(self, repository_service: RepositoryService, test_context):
+    async def test_poem_count_with_filters(
+        self, repository_service: RepositoryService, test_context
+    ):
         """Test poem count with various filters."""
         # Create diverse poems
         await test_context.create_poem(poet_name="李白", source_language="Chinese")
         await test_context.create_poem(poet_name="杜甫", source_language="Chinese")
-        await test_context.create_poem(poet_name="Shakespeare", source_language="English")
+        await test_context.create_poem(
+            poet_name="Shakespeare", source_language="English"
+        )
 
         # Test total count
         total_count = repository_service.poems.count()
@@ -281,20 +308,22 @@ And never stops at all,""",
         poet_count = repository_service.poems.count(poet_name="李白")
         assert poet_count == 1
 
-    async def test_poem_complex_search(self, repository_service: RepositoryService, test_context):
+    async def test_poem_complex_search(
+        self, repository_service: RepositoryService, test_context
+    ):
         """Test complex poem search with multiple criteria."""
         # Create test poems
         await test_context.create_poem(
             poet_name="Li Bai",
             poem_title="Quiet Night Thoughts",
             source_language="Chinese",
-            original_text="Contains moon and homesickness themes"
+            original_text="Contains moon and homesickness themes",
         )
         await test_context.create_poem(
             poet_name="Wang Wei",
             poem_title="Deer Enclosure",
             source_language="Chinese",
-            original_text="Contains nature imagery"
+            original_text="Contains nature imagery",
         )
 
         # Test title search
@@ -304,13 +333,14 @@ And never stops at all,""",
 
         # Test combined filters
         results = repository_service.poems.get_multi(
-            poet_name="Li",
-            source_language="Chinese"
+            poet_name="Li", source_language="Chinese"
         )
         assert len(results) == 1
         assert results[0].poet_name == "Li Bai"
 
-    async def test_poem_pagination_performance(self, repository_service: RepositoryService, test_context):
+    async def test_poem_pagination_performance(
+        self, repository_service: RepositoryService, test_context
+    ):
         """Test poem pagination with large dataset."""
         # Create many poems
         poem_ids = []
@@ -318,7 +348,7 @@ And never stops at all,""",
             poem = await test_context.create_poem(
                 poet_name=f"Poet {i}",
                 poem_title=f"Poem Title {i}",
-                original_text=f"Content for poem {i}" * 10
+                original_text=f"Content for poem {i}" * 10,
             )
             poem_ids.append(poem.id)
 
@@ -345,12 +375,15 @@ And never stops at all,""",
 # Enhanced Translation CRUD Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestEnhancedTranslationCRUD:
     """Enhanced tests for Translation CRUD operations."""
 
-    async def test_translation_with_workflow_support(self, repository_service: RepositoryService, sample_poem):
+    async def test_translation_with_workflow_support(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test creating translation with workflow metadata."""
         translation_create = TranslationCreate(
             poem_id=sample_poem.id,
@@ -366,7 +399,7 @@ class TestEnhancedTranslationCRUD:
             total_tokens_used=500,
             total_cost=0.015,
             total_duration=12.5,
-            metadata_json='{"workflow_mode": "reasoning", "model": "deepseek-reasoner"}'
+            metadata_json='{"workflow_mode": "reasoning", "model": "deepseek-reasoner"}',
         )
 
         translation = repository_service.translations.create(translation_create)
@@ -379,7 +412,9 @@ class TestEnhancedTranslationCRUD:
         assert translation.total_cost == 0.015
         assert translation.total_duration == 12.5
 
-    async def test_translation_quality_rating_bounds(self, repository_service: RepositoryService, sample_poem):
+    async def test_translation_quality_rating_bounds(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test translation quality rating constraints."""
         # Test valid ratings
         valid_ratings = [1, 2, 3, 4, 5]
@@ -390,12 +425,14 @@ class TestEnhancedTranslationCRUD:
                 translator_info="Test",
                 target_language="English",
                 translated_text="Test translation",
-                quality_rating=rating
+                quality_rating=rating,
             )
             translation = repository_service.translations.create(translation_create)
             assert translation.quality_rating == rating
 
-    async def test_get_translations_by_type_and_language(self, repository_service: RepositoryService, test_context):
+    async def test_get_translations_by_type_and_language(
+        self, repository_service: RepositoryService, test_context
+    ):
         """Test filtering translations by type and language."""
         # Create poem
         poem = await test_context.create_poem()
@@ -404,17 +441,17 @@ class TestEnhancedTranslationCRUD:
         await test_context.create_translation(
             poem_id=poem.id,
             translator_type=TranslatorType.AI,
-            target_language="English"
+            target_language="English",
         )
         await test_context.create_translation(
             poem_id=poem.id,
             translator_type=TranslatorType.AI,
-            target_language="Japanese"
+            target_language="Japanese",
         )
         await test_context.create_translation(
             poem_id=poem.id,
             translator_type=TranslatorType.HUMAN,
-            target_language="English"
+            target_language="English",
         )
 
         # Test filtering
@@ -429,12 +466,13 @@ class TestEnhancedTranslationCRUD:
         assert len(english_translations) == 2
 
         ai_english = repository_service.translations.get_multi(
-            translator_type=TranslatorType.AI,
-            target_language="English"
+            translator_type=TranslatorType.AI, target_language="English"
         )
         assert len(ai_english) == 1
 
-    async def test_translation_performance_metrics(self, repository_service: RepositoryService, sample_poem):
+    async def test_translation_performance_metrics(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test translation with performance metrics."""
         translation_create = TranslationCreate(
             poem_id=sample_poem.id,
@@ -444,7 +482,7 @@ class TestEnhancedTranslationCRUD:
             translated_text="Test",
             total_tokens_used=1000,
             total_cost=0.03,
-            total_duration=25.7
+            total_duration=25.7,
         )
 
         translation = repository_service.translations.create(translation_create)
@@ -454,7 +492,9 @@ class TestEnhancedTranslationCRUD:
         assert translation.total_cost == 0.03
         assert translation.total_duration == 25.7
 
-    async def test_translation_workflow_aggregation(self, repository_service: RepositoryService, sample_poem_with_translations):
+    async def test_translation_workflow_aggregation(
+        self, repository_service: RepositoryService, sample_poem_with_translations
+    ):
         """Test getting aggregated workflow data for translations."""
         poem, translations = sample_poem_with_translations
 
@@ -472,12 +512,15 @@ class TestEnhancedTranslationCRUD:
 # Enhanced BBR CRUD Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestEnhancedBBRCRUD:
     """Enhanced tests for Background Briefing Report CRUD operations."""
 
-    async def test_create_bbr_with_validation(self, repository_service: RepositoryService, sample_poem):
+    async def test_create_bbr_with_validation(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test BBR creation with content validation."""
         bbr_create = BackgroundBriefingReportCreate(
             poem_id=sample_poem.id,
@@ -491,7 +534,7 @@ Deep cultural context and significance.
 
 ## Translation Guidelines
 Specific advice for translators working with this poem.""",
-            metadata_json='{"model": "qwen-max", "tokens_used": 1500}'
+            metadata_json='{"model": "qwen-max", "tokens_used": 1500}',
         )
 
         bbr = repository_service.bbrs.create(bbr_create)
@@ -501,20 +544,20 @@ Specific advice for translators working with this poem.""",
         assert len(bbr.content) > 100  # Should have substantial content
         assert bbr.created_at is not None
 
-    async def test_bbr_unique_poem_constraint(self, repository_service: RepositoryService, sample_poem):
+    async def test_bbr_unique_poem_constraint(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test that each poem can only have one BBR."""
         # Create first BBR
         bbr_create1 = BackgroundBriefingReportCreate(
-            poem_id=sample_poem.id,
-            content="First BBR content"
+            poem_id=sample_poem.id, content="First BBR content"
         )
         bbr1 = repository_service.bbrs.create(bbr_create1)
         assert bbr1 is not None
 
         # Attempt to create second BBR for same poem
         bbr_create2 = BackgroundBriefingReportCreate(
-            poem_id=sample_poem.id,
-            content="Second BBR content"
+            poem_id=sample_poem.id, content="Second BBR content"
         )
 
         # This should either update existing BBR or raise constraint error
@@ -522,7 +565,9 @@ Specific advice for translators working with this poem.""",
         with pytest.raises((IntegrityError, ValueError)):
             repository_service.bbrs.create(bbr_create2)
 
-    async def test_get_bbr_with_poem_data(self, repository_service: RepositoryService, sample_bbr):
+    async def test_get_bbr_with_poem_data(
+        self, repository_service: RepositoryService, sample_bbr
+    ):
         """Test getting BBR with associated poem information."""
         bbr = repository_service.bbrs.get_by_id(sample_bbr.id)
         assert bbr is not None
@@ -533,9 +578,14 @@ Specific advice for translators working with this poem.""",
         assert bbr_by_poem is not None
         assert bbr_by_poem.id == sample_bbr.id
 
-    async def test_update_bbr_content(self, repository_service: RepositoryService, sample_bbr):
+    async def test_update_bbr_content(
+        self, repository_service: RepositoryService, sample_bbr
+    ):
         """Test updating BBR content."""
-        updated_content = sample_bbr.content + "\n\n## Additional Notes\nAdditional translation insights."
+        updated_content = (
+            sample_bbr.content
+            + "\n\n## Additional Notes\nAdditional translation insights."
+        )
 
         # Update method would need to be implemented in repository
         # updated_bbr = repository_service.bbrs.update(sample_bbr.id, {"content": updated_content})
@@ -549,18 +599,21 @@ Specific advice for translators working with this poem.""",
 # Enhanced AI Log CRUD Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestEnhancedAILogCRUD:
     """Enhanced tests for AI Log CRUD operations."""
 
-    async def test_ai_log_workflow_step_tracking(self, repository_service: RepositoryService, sample_translation):
+    async def test_ai_log_workflow_step_tracking(
+        self, repository_service: RepositoryService, sample_translation
+    ):
         """Test AI log creation for different workflow steps."""
         workflow_steps = [
             WorkflowStepType.INITIAL_TRANSLATION,
             WorkflowStepType.EDITOR_REVIEW,
             WorkflowStepType.TRANSLATOR_REVISION,
-            WorkflowStepType.QUALITY_ASSESSMENT
+            WorkflowStepType.QUALITY_ASSESSMENT,
         ]
 
         created_logs = []
@@ -573,7 +626,7 @@ class TestEnhancedAILogCRUD:
                 runtime_seconds=5.0 + len(created_logs),
                 token_usage_json=f'{{"total_tokens": {200 + len(created_logs) * 100}}}',
                 cost_info_json=f'{{"total_cost": {0.01 + len(created_logs) * 0.005}}}',
-                notes=f"Completed {step.value} step"
+                notes=f"Completed {step.value} step",
             )
 
             ai_log = repository_service.ai_logs.create(log_create)
@@ -584,21 +637,25 @@ class TestEnhancedAILogCRUD:
             assert ai_log.workflow_mode == WorkflowMode.HYBRID
 
         # Verify all logs are associated with the translation
-        logs_by_translation = repository_service.ai_logs.get_by_translation(sample_translation.id)
+        logs_by_translation = repository_service.ai_logs.get_by_translation(
+            sample_translation.id
+        )
         assert len(logs_by_translation) == len(workflow_steps)
 
-    async def test_ai_log_performance_aggregation(self, repository_service: RepositoryService, sample_workflow_data):
+    async def test_ai_log_performance_aggregation(
+        self, repository_service: RepositoryService, sample_workflow_data
+    ):
         """Test aggregating AI log performance metrics."""
         ai_logs, _ = sample_workflow_data
 
         # Test aggregation queries
         total_tokens = sum(
-            int(log.token_usage_json.split('"total_tokens": ')[1].split('}')[0])
+            int(log.token_usage_json.split('"total_tokens": ')[1].split("}")[0])
             for log in ai_logs
         )
 
         total_cost = sum(
-            float(log.cost_info_json.split('"total_cost": ')[1].split('}')[0])
+            float(log.cost_info_json.split('"total_cost": ')[1].split("}")[0])
             for log in ai_logs
         )
 
@@ -608,7 +665,9 @@ class TestEnhancedAILogCRUD:
         assert total_cost > 0
         assert total_runtime > 0
 
-    async def test_ai_log_by_model_filtering(self, repository_service: RepositoryService, sample_workflow_data):
+    async def test_ai_log_by_model_filtering(
+        self, repository_service: RepositoryService, sample_workflow_data
+    ):
         """Test filtering AI logs by model name."""
         ai_logs, _ = sample_workflow_data
 
@@ -631,24 +690,26 @@ class TestEnhancedAILogCRUD:
 # Enhanced Human Note CRUD Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestEnhancedHumanNoteCRUD:
     """Enhanced tests for Human Note CRUD operations."""
 
-    async def test_human_note_creation(self, repository_service: RepositoryService, sample_translation):
+    async def test_human_note_creation(
+        self, repository_service: RepositoryService, sample_translation
+    ):
         """Test human note creation with validation."""
         note_texts = [
             "Excellent poetic quality and cultural adaptation.",
             "Consider adjusting rhythm in the second stanza.",
-            "Final version successfully captures emotional depth."
+            "Final version successfully captures emotional depth.",
         ]
 
         created_notes = []
         for note_text in note_texts:
             note_create = HumanNoteCreate(
-                translation_id=sample_translation.id,
-                note_text=note_text
+                translation_id=sample_translation.id, note_text=note_text
             )
             note = repository_service.human_notes.create(note_create)
             created_notes.append(note)
@@ -658,24 +719,26 @@ class TestEnhancedHumanNoteCRUD:
             assert note.created_at is not None
 
         # Verify all notes are retrievable
-        notes_by_translation = repository_service.human_notes.get_by_translation(sample_translation.id)
+        notes_by_translation = repository_service.human_notes.get_by_translation(
+            sample_translation.id
+        )
         assert len(notes_by_translation) == len(note_texts)
 
-    async def test_human_note_content_validation(self, repository_service: RepositoryService, sample_translation):
+    async def test_human_note_content_validation(
+        self, repository_service: RepositoryService, sample_translation
+    ):
         """Test human note content validation."""
         # Test empty note
         with pytest.raises(ValueError):
             note_create = HumanNoteCreate(
-                translation_id=sample_translation.id,
-                note_text=""  # Empty note
+                translation_id=sample_translation.id, note_text=""  # Empty note
             )
             repository_service.human_notes.create(note_create)
 
         # Test very long note
         long_note = "A" * 10000  # Very long note
         note_create = HumanNoteCreate(
-            translation_id=sample_translation.id,
-            note_text=long_note
+            translation_id=sample_translation.id, note_text=long_note
         )
 
         # Should either succeed or fail based on max length constraints
@@ -686,7 +749,9 @@ class TestEnhancedHumanNoteCRUD:
             # Expected if there's a max length constraint
             pass
 
-    async def test_human_note_chronological_ordering(self, repository_service: RepositoryService, sample_translation):
+    async def test_human_note_chronological_ordering(
+        self, repository_service: RepositoryService, sample_translation
+    ):
         """Test that human notes maintain chronological order."""
         note_texts = ["First note", "Second note", "Third note"]
 
@@ -694,31 +759,35 @@ class TestEnhancedHumanNoteCRUD:
         created_notes = []
         for note_text in note_texts:
             note_create = HumanNoteCreate(
-                translation_id=sample_translation.id,
-                note_text=note_text
+                translation_id=sample_translation.id, note_text=note_text
             )
             note = repository_service.human_notes.create(note_create)
             created_notes.append(note)
             await asyncio.sleep(0.01)  # Small delay
 
         # Retrieve notes and verify chronological order
-        retrieved_notes = repository_service.human_notes.get_by_translation(sample_translation.id)
+        retrieved_notes = repository_service.human_notes.get_by_translation(
+            sample_translation.id
+        )
 
         # Should be ordered by created_at ascending
         for i in range(1, len(retrieved_notes)):
-            assert retrieved_notes[i].created_at >= retrieved_notes[i-1].created_at
+            assert retrieved_notes[i].created_at >= retrieved_notes[i - 1].created_at
 
 
 # ==============================================================================
 # Cross-Entity Relationship Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestCrossEntityRelationships:
     """Test relationships and operations across multiple entities."""
 
-    async def test_complete_poem_workflow(self, repository_service: RepositoryService, sample_poem):
+    async def test_complete_poem_workflow(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test complete workflow from poem creation through translation and review."""
         # Step 1: Create AI translation
         translation_create = TranslationCreate(
@@ -728,7 +797,7 @@ class TestCrossEntityRelationships:
             target_language="English",
             translated_text="AI-generated translation",
             has_workflow_steps=True,
-            workflow_step_count=3
+            workflow_step_count=3,
         )
         translation = repository_service.translations.create(translation_create)
 
@@ -736,7 +805,7 @@ class TestCrossEntityRelationships:
         steps = [
             WorkflowStepType.INITIAL_TRANSLATION,
             WorkflowStepType.EDITOR_REVIEW,
-            WorkflowStepType.TRANSLATOR_REVISION
+            WorkflowStepType.TRANSLATOR_REVISION,
         ]
 
         for i, step in enumerate(steps):
@@ -748,7 +817,7 @@ class TestCrossEntityRelationships:
                 runtime_seconds=3.0 + i,
                 token_usage_json=f'{{"total_tokens": {150 + i * 50}}}',
                 cost_info_json=f'{{"total_cost": {0.005 + i * 0.002}}}',
-                notes=f"Step {i+1} completed"
+                notes=f"Step {i+1} completed",
             )
             repository_service.ai_logs.create(log_create)
 
@@ -756,19 +825,18 @@ class TestCrossEntityRelationships:
         note_texts = [
             "Good initial translation quality",
             "Cultural adaptation well handled",
-            "Final version approved"
+            "Final version approved",
         ]
         for note_text in note_texts:
             note_create = HumanNoteCreate(
-                translation_id=translation.id,
-                note_text=note_text
+                translation_id=translation.id, note_text=note_text
             )
             repository_service.human_notes.create(note_create)
 
         # Step 4: Create BBR
         bbr_create = BackgroundBriefingReportCreate(
             poem_id=sample_poem.id,
-            content="Comprehensive background analysis for translation context"
+            content="Comprehensive background analysis for translation context",
         )
         bbr = repository_service.bbrs.create(bbr_create)
 
@@ -781,13 +849,17 @@ class TestCrossEntityRelationships:
         assert len(translation_data["ai_logs"]) == 3
         assert len(translation_data["human_notes"]) == 3
 
-    async def test_cascade_deletion_handling(self, repository_service: RepositoryService, sample_poem_with_translations):
+    async def test_cascade_deletion_handling(
+        self, repository_service: RepositoryService, sample_poem_with_translations
+    ):
         """Test cascade deletion behavior."""
         poem, translations = sample_poem_with_translations
 
         # Get initial counts
         initial_poem_count = repository_service.poems.count()
-        initial_translation_count = len(repository_service.translations.get_by_poem(poem.id))
+        initial_translation_count = len(
+            repository_service.translations.get_by_poem(poem.id)
+        )
 
         assert initial_poem_count > 0
         assert initial_translation_count > 0
@@ -804,7 +876,9 @@ class TestCrossEntityRelationships:
         # Should be empty if cascade delete is configured
         assert len(remaining_translations) == 0
 
-    async def test_performance_with_large_dataset(self, repository_service: RepositoryService, test_context):
+    async def test_performance_with_large_dataset(
+        self, repository_service: RepositoryService, test_context
+    ):
         """Test performance with large dataset across all entities."""
         # Create multiple poems with translations
         poem_count = 20
@@ -815,7 +889,7 @@ class TestCrossEntityRelationships:
             poem = await test_context.create_poem(
                 poet_name=f"Poet {i}",
                 poem_title=f"Poem {i}",
-                original_text=f"Content for poem {i}" * 5
+                original_text=f"Content for poem {i}" * 5,
             )
             created_poems.append(poem)
 
@@ -824,7 +898,9 @@ class TestCrossEntityRelationships:
                 await test_context.create_translation(
                     poem_id=poem.id,
                     target_language=["English", "Japanese", "Korean"][j % 3],
-                    translator_type=TranslatorType.AI if j % 2 == 0 else TranslatorType.HUMAN
+                    translator_type=(
+                        TranslatorType.AI if j % 2 == 0 else TranslatorType.HUMAN
+                    ),
                 )
 
         # Test aggregation queries performance
@@ -849,6 +925,7 @@ class TestCrossEntityRelationships:
 # Database Constraint and Edge Case Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.database
 class TestDatabaseConstraintsAndEdgeCases:
@@ -864,13 +941,15 @@ class TestDatabaseConstraintsAndEdgeCases:
             translator_type=TranslatorType.AI,
             translator_info="Test",
             target_language="English",
-            translated_text="Test"
+            translated_text="Test",
         )
 
         with pytest.raises(IntegrityError):
             repository_service.translations.create(translation_create)
 
-    async def test_unique_constraints(self, repository_service: RepositoryService, sample_poem):
+    async def test_unique_constraints(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test unique constraint enforcement where applicable."""
         # Create first translation
         translation_create1 = TranslationCreate(
@@ -878,7 +957,7 @@ class TestDatabaseConstraintsAndEdgeCases:
             translator_type=TranslatorType.AI,
             translator_info="Test Model",
             target_language="English",
-            translated_text="First translation"
+            translated_text="First translation",
         )
         translation1 = repository_service.translations.create(translation_create1)
 
@@ -888,13 +967,15 @@ class TestDatabaseConstraintsAndEdgeCases:
             translator_type=TranslatorType.HUMAN,
             translator_info="Human Translator",
             target_language="English",
-            translated_text="Second translation"
+            translated_text="Second translation",
         )
         translation2 = repository_service.translations.create(translation_create2)
 
         assert translation1.id != translation2.id
 
-    async def test_null_handling(self, repository_service: RepositoryService, sample_poem):
+    async def test_null_handling(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test proper handling of nullable fields."""
         # Create translation with minimal required fields
         translation_create = TranslationCreate(
@@ -902,7 +983,7 @@ class TestDatabaseConstraintsAndEdgeCases:
             translator_type=TranslatorType.AI,
             translator_info="Test",
             target_language="English",
-            translated_text="Minimal translation"
+            translated_text="Minimal translation",
             # Many optional fields left as None
         )
 
@@ -912,7 +993,9 @@ class TestDatabaseConstraintsAndEdgeCases:
         assert translation.quality_rating is None  # Should be None if not provided
         assert translation.metadata_json is None or translation.metadata_json == {}
 
-    async def test_transaction_rollback(self, repository_service: RepositoryService, sample_poem):
+    async def test_transaction_rollback(
+        self, repository_service: RepositoryService, sample_poem
+    ):
         """Test transaction rollback on errors."""
         initial_count = repository_service.translations.count()
 
@@ -923,7 +1006,7 @@ class TestDatabaseConstraintsAndEdgeCases:
                 translator_type=TranslatorType.AI,
                 translator_info="Test",
                 target_language="",  # Invalid empty language code
-                translated_text="Test"
+                translated_text="Test",
             )
             repository_service.translations.create(translation_create)
         except (ValueError, IntegrityError):

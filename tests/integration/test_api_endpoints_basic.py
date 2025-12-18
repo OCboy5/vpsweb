@@ -19,7 +19,10 @@ class TestBasicAPIEndpoints:
         """Test that the API is responsive."""
         # Test root endpoint or health check
         response = test_client.get("/")
-        assert response.status_code in [200, 404]  # 404 is acceptable if no root endpoint
+        assert response.status_code in [
+            200,
+            404,
+        ]  # 404 is acceptable if no root endpoint
 
     def test_list_poems_empty(self, test_client: TestClient):
         """Test GET /api/v1/poems/ with empty database."""
@@ -40,7 +43,7 @@ class TestBasicAPIEndpoints:
 That perches in the soul,
 And sings the tune without the words,
 And never stops at all,""",
-            "metadata": '{"theme": "hope", "style": "lyrical"}'
+            "metadata": '{"theme": "hope", "style": "lyrical"}',
         }
 
         response = test_client.post("/api/v1/poems/", json=poem_data)
@@ -68,7 +71,7 @@ And never stops at all,""",
             "poet_name": "Test Poet",
             "poem_title": "Test Poem",
             "source_language": "English",
-            "original_text": ""  # Empty content
+            "original_text": "",  # Empty content
         }
 
         response = test_client.post("/api/v1/poems/", json=invalid_data)
@@ -85,10 +88,7 @@ And never stops at all,""",
 
     def test_search_poems_by_title(self, test_client: TestClient):
         """Test POST /api/v1/poems/search by title."""
-        search_data = {
-            "query": "Test",
-            "search_type": "title"
-        }
+        search_data = {"query": "Test", "search_type": "title"}
 
         response = test_client.post("/api/v1/poems/search", json=search_data)
 
@@ -108,21 +108,25 @@ And never stops at all,""",
         # Test missing required fields
         invalid_request = {
             "target_lang": "Chinese",
-            "workflow_mode": "hybrid"
+            "workflow_mode": "hybrid",
             # Missing poem_id
         }
 
-        response = test_client.post("/api/v1/translations/trigger", json=invalid_request)
+        response = test_client.post(
+            "/api/v1/translations/trigger", json=invalid_request
+        )
         assert response.status_code == 422
 
         # Test invalid workflow mode
         invalid_request = {
             "poem_id": str(uuid.uuid4())[:26],
             "target_lang": "Chinese",
-            "workflow_mode": "invalid_mode"
+            "workflow_mode": "invalid_mode",
         }
 
-        response = test_client.post("/api/v1/translations/trigger", json=invalid_request)
+        response = test_client.post(
+            "/api/v1/translations/trigger", json=invalid_request
+        )
         assert response.status_code == 422
 
     def test_list_translations_empty(self, test_client: TestClient):

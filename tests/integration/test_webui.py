@@ -13,6 +13,7 @@ These tests validate the primary user experience at http://127.0.0.1:8000
 """
 
 import pytest
+import pytest_asyncio
 import time
 from fastapi.testclient import TestClient
 from unittest.mock import patch, AsyncMock
@@ -26,10 +27,12 @@ from src.vpsweb.repository.crud import RepositoryService
 # WebUI Test Fixtures
 # ==============================================================================
 
+
 @pytest.fixture
 def webui_test_client(test_client: TestClient):
     """Create a test client specifically configured for WebUI testing."""
     return test_client
+
 
 @pytest_asyncio.fixture
 async def sample_poems_for_ui(test_context):
@@ -46,7 +49,7 @@ async def sample_poems_for_ui(test_context):
 疑是地上霜。
 舉頭望明月，
 低頭思故鄉。""",
-            "metadata_json": '{"dynasty": "Tang", "theme": "homesickness"}'
+            "metadata_json": '{"dynasty": "Tang", "theme": "homesickness"}',
         },
         {
             "poet_name": "Emily Dickinson",
@@ -56,7 +59,7 @@ async def sample_poems_for_ui(test_context):
 That perches in the soul,
 And sings the tune without the words,
 And never stops at all,""",
-            "metadata_json": '{"era": "19th century", "style": "lyrical"}'
+            "metadata_json": '{"era": "19th century", "style": "lyrical"}',
         },
         {
             "poet_name": "Shakespeare",
@@ -66,8 +69,8 @@ And never stops at all,""",
 Thou art more lovely and more temperate:
 Rough winds do shake the darling buds of May,
 And summer's lease hath all too short a date:""",
-            "metadata_json": '{"era": "Renaissance", "form": "sonnet"}'
-        }
+            "metadata_json": '{"era": "Renaissance", "form": "sonnet"}',
+        },
     ]
 
     for data in poem_data:
@@ -80,6 +83,7 @@ And summer's lease hath all too short a date:""",
 # ==============================================================================
 # Main Page Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -144,6 +148,7 @@ class TestMainPages:
 # Static Assets Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.webui
 class TestStaticAssets:
@@ -152,11 +157,7 @@ class TestStaticAssets:
     def test_css_assets_load(self, webui_test_client: TestClient):
         """Test that CSS files are served."""
         # Test common CSS paths
-        css_paths = [
-            "/static/css/style.css",
-            "/static/css/main.css",
-            "/css/style.css"
-        ]
+        css_paths = ["/static/css/style.css", "/static/css/main.css", "/css/style.css"]
 
         for css_path in css_paths:
             response = webui_test_client.get(css_path)
@@ -166,11 +167,7 @@ class TestStaticAssets:
     def test_js_assets_load(self, webui_test_client: TestClient):
         """Test that JavaScript files are served."""
         # Test common JS paths
-        js_paths = [
-            "/static/js/app.js",
-            "/static/js/main.js",
-            "/js/app.js"
-        ]
+        js_paths = ["/static/js/app.js", "/static/js/main.js", "/js/app.js"]
 
         for js_path in js_paths:
             response = webui_test_client.get(js_path)
@@ -183,7 +180,7 @@ class TestStaticAssets:
         image_paths = [
             "/static/images/logo.png",
             "/static/images/favicon.ico",
-            "/images/logo.png"
+            "/images/logo.png",
         ]
 
         for image_path in image_paths:
@@ -204,6 +201,7 @@ class TestStaticAssets:
 # ==============================================================================
 # Error Page Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -237,6 +235,7 @@ class TestErrorPages:
 # Integration Tests with API
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.webui
 class TestWebUIAPIIntegration:
@@ -248,7 +247,7 @@ class TestWebUIAPIIntegration:
         api_endpoints = [
             "/api/v1/poems/",
             "/api/v1/statistics/dashboard",
-            "/api/v1/poems/filter-options"
+            "/api/v1/poems/filter-options",
         ]
 
         for endpoint in api_endpoints:
@@ -279,6 +278,7 @@ class TestWebUIAPIIntegration:
 # Real-time Features Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.webui
 class TestRealtimeFeatures:
@@ -304,6 +304,7 @@ class TestRealtimeFeatures:
 # Page Content and Structure Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.webui
 class TestPageContent:
@@ -318,10 +319,10 @@ class TestPageContent:
         content = response.text.lower()
 
         # Check for basic HTML structure elements
-        html_tags = ['<!doctype html', '<html', '<head', '<body', '</html>']
+        html_tags = ["<!doctype html", "<html", "<head", "<body", "</html>"]
 
         # Some pages may be dynamic or return JSON, so be flexible
-        if any(tag in content for tag in html_tags) or 'json' in content:
+        if any(tag in content for tag in html_tags) or "json" in content:
             # Has some structure or is API response
             assert True
         else:
@@ -335,8 +336,8 @@ class TestPageContent:
         if response.status_code == 200:
             content = response.text.lower()
             # Look for title tag or VPSWeb branding
-            has_title = '<title>' in content
-            has_branding = 'vpsweb' in content or 'poetry' in content
+            has_title = "<title>" in content
+            has_branding = "vpsweb" in content or "poetry" in content
 
             assert has_title or has_branding
 
@@ -348,11 +349,11 @@ class TestPageContent:
             content = response.text.lower()
 
             # Look for common navigation elements
-            nav_elements = ['nav', 'menu', 'navbar', 'navigation']
+            nav_elements = ["nav", "menu", "navbar", "navigation"]
             has_navigation = any(element in content for element in nav_elements)
 
             # If no traditional nav, look for VPSWeb-specific elements
-            has_app_elements = 'poem' in content or 'translation' in content
+            has_app_elements = "poem" in content or "translation" in content
 
             assert has_navigation or has_app_elements
 
@@ -360,6 +361,7 @@ class TestPageContent:
 # ==============================================================================
 # Performance Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -371,12 +373,7 @@ class TestWebUIPerformance:
         """Test that pages load within reasonable time."""
         import time
 
-        pages_to_test = [
-            "/",
-            "/poems",
-            "/statistics",
-            "/translations"
-        ]
+        pages_to_test = ["/", "/poems", "/statistics", "/translations"]
 
         for page in pages_to_test:
             start_time = time.time()
@@ -386,7 +383,9 @@ class TestWebUIPerformance:
             load_time = end_time - start_time
 
             # Should load quickly (adjust threshold as needed)
-            assert load_time < 5.0, f"Page {page} took too long to load: {load_time:.2f}s"
+            assert (
+                load_time < 5.0
+            ), f"Page {page} took too long to load: {load_time:.2f}s"
 
             # Should not be server error
             assert response.status_code not in [500, 502, 503, 504]
@@ -421,6 +420,7 @@ class TestWebUIPerformance:
 # Accessibility Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.webui
 class TestAccessibility:
@@ -434,17 +434,19 @@ class TestAccessibility:
             content = response.text.lower()
 
             # If there are img tags, check for alt attributes
-            if '<img' in content:
+            if "<img" in content:
                 # Look for img tags without alt attributes
                 import re
 
                 # Find all img tags
-                img_tags = re.findall(r'<img[^>]*>', content)
+                img_tags = re.findall(r"<img[^>]*>", content)
 
                 for img_tag in img_tags:
                     # Check if alt attribute is present
-                    has_alt = 'alt=' in img_tag or 'alt="' in img_tag
-                    assert has_alt, f"Image tag missing alt attribute: {img_tag[:50]}..."
+                    has_alt = "alt=" in img_tag or 'alt="' in img_tag
+                    assert (
+                        has_alt
+                    ), f"Image tag missing alt attribute: {img_tag[:50]}..."
 
     def test_form_labels_present(self, webui_test_client: TestClient):
         """Test that form inputs have associated labels."""
@@ -454,9 +456,9 @@ class TestAccessibility:
             content = response.text.lower()
 
             # If there are form inputs, check for labels
-            if '<input' in content or '<textarea' in content:
+            if "<input" in content or "<textarea" in content:
                 # Look for form controls
-                has_labels = '<label' in content or 'aria-label' in content
+                has_labels = "<label" in content or "aria-label" in content
                 # This is a basic check - real accessibility testing would be more thorough
                 assert has_labels or len(content) == 0  # Or no forms present
 
@@ -464,6 +466,7 @@ class TestAccessibility:
 # ==============================================================================
 # Security Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -476,9 +479,9 @@ class TestSecurityHeaders:
 
         # Check for common security headers
         security_headers = [
-            'x-content-type-options',
-            'x-frame-options',
-            'x-xss-protection'
+            "x-content-type-options",
+            "x-frame-options",
+            "x-xss-protection",
         ]
 
         # FastAPI may not set all headers by default
@@ -489,7 +492,7 @@ class TestSecurityHeaders:
                 present_headers.append(header)
 
         # At minimum, content-type should be set
-        assert 'content-type' in response.headers
+        assert "content-type" in response.headers
 
     def test_no_sensitive_data_leaked(self, webui_test_client: TestClient):
         """Test that sensitive data is not leaked in responses."""
@@ -500,11 +503,11 @@ class TestSecurityHeaders:
 
             # Look for potentially sensitive information
             sensitive_patterns = [
-                'password',
-                'secret',
-                'token',
-                'api_key',
-                'private_key'
+                "password",
+                "secret",
+                "token",
+                "api_key",
+                "private_key",
             ]
 
             # This is a basic check - real security testing would be more thorough
@@ -519,6 +522,7 @@ class TestSecurityHeaders:
 # ==============================================================================
 # Error Recovery Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -548,7 +552,7 @@ class TestErrorRecovery:
         response = webui_test_client.post(
             "/api/v1/poems/",
             data="invalid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
 
         # Should return validation error, not crash
@@ -558,6 +562,7 @@ class TestErrorRecovery:
 # ==============================================================================
 # WebUI Smoke Test Summary
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.webui
@@ -570,7 +575,7 @@ class TestWebUISmokeSummary:
             ("/", "Root page"),
             ("/api/v1/poems/", "Poems API"),
             ("/api/v1/statistics/dashboard", "Statistics API"),
-            ("/api/v1/poems/filter-options", "Filter options API")
+            ("/api/v1/poems/filter-options", "Filter options API"),
         ]
 
         results = []
@@ -581,22 +586,30 @@ class TestWebUISmokeSummary:
                 status = response.status_code
                 success = status in [200, 302]  # Success or redirect
 
-                results.append({
-                    "endpoint": endpoint,
-                    "description": description,
-                    "status": status,
-                    "success": success
-                })
+                results.append(
+                    {
+                        "endpoint": endpoint,
+                        "description": description,
+                        "status": status,
+                        "success": success,
+                    }
+                )
 
-                assert status in [200, 302, 404], f"{description} returned unexpected status: {status}"
+                assert status in [
+                    200,
+                    302,
+                    404,
+                ], f"{description} returned unexpected status: {status}"
 
             except Exception as e:
-                results.append({
-                    "endpoint": endpoint,
-                    "description": description,
-                    "error": str(e),
-                    "success": False
-                })
+                results.append(
+                    {
+                        "endpoint": endpoint,
+                        "description": description,
+                        "error": str(e),
+                        "success": False,
+                    }
+                )
                 raise
 
         # All core functionality should work

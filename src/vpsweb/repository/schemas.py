@@ -120,7 +120,7 @@ class PoemBase(BaseSchema):
 
         # Relaxed validation: allow any printable characters except control characters and angle brackets
         # This prevents potential HTML/JS injection while allowing all reasonable title characters
-        if re.match(r'[<>]', v):
+        if re.match(r"[<>]", v):
             raise ValueError("Poem title cannot contain angle brackets")
 
         return v

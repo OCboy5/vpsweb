@@ -29,6 +29,7 @@ from src.vpsweb.webui.schemas import WorkflowMode, TranslationRequest
 # Poem API Endpoint Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 class TestPoemEndpoints:
@@ -70,7 +71,7 @@ class TestPoemEndpoints:
             poem = await test_context.create_poem(
                 poet_name=f"Poet {i}",
                 poem_title=f"Poem {i}",
-                original_text=f"Content of poem {i}"
+                original_text=f"Content of poem {i}",
             )
             poems.append(poem)
 
@@ -92,7 +93,8 @@ class TestPoemEndpoints:
         assert data["pagination"]["has_next"] is True
         assert data["pagination"]["has_previous"] is True
 
-    def test_list_poems_filters(self, test_client: TestClient, test_context):
+    @pytest.mark.asyncio
+    async def test_list_poems_filters(self, test_client: TestClient, test_context):
         """Test poem list filtering functionality."""
         # Create poems with different attributes
         await test_context.create_poem(
@@ -133,7 +135,7 @@ class TestPoemEndpoints:
 That perches in the soul,
 And sings the tune without the words,
 And never stops at all,""",
-            "metadata": '{"theme": "hope", "style": "lyrical"}'
+            "metadata": '{"theme": "hope", "style": "lyrical"}',
         }
 
         response = test_client.post("/api/v1/poems/", json=poem_data)
@@ -164,7 +166,7 @@ And never stops at all,""",
             "poet_name": "Test Poet",
             "poem_title": "Test Poem",
             "source_language": "English",
-            "original_text": ""  # Empty content
+            "original_text": "",  # Empty content
         }
 
         response = test_client.post("/api/v1/poems/", json=invalid_data)
@@ -197,7 +199,7 @@ And never stops at all,""",
             "poem_title": "Updated Poem Title",
             "source_language": "English",
             "original_text": "Updated poem content",
-            "metadata": '{"updated": true}'
+            "metadata": '{"updated": true}',
         }
 
         response = test_client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
@@ -216,7 +218,7 @@ And never stops at all,""",
             "poet_name": "Test",
             "poem_title": "Test",
             "source_language": "English",
-            "original_text": "Test content"
+            "original_text": "Test content",
         }
 
         response = test_client.put(f"/api/v1/poems/{fake_id}", json=update_data)
@@ -226,7 +228,9 @@ And never stops at all,""",
         """Test PATCH /api/v1/poems/{poem_id}/selected."""
         # Test selecting poem
         selection_data = {"selected": True}
-        response = test_client.patch(f"/api/v1/poems/{sample_poem.id}/selected", json=selection_data)
+        response = test_client.patch(
+            f"/api/v1/poems/{sample_poem.id}/selected", json=selection_data
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -234,7 +238,9 @@ And never stops at all,""",
 
         # Test deselecting poem
         selection_data = {"selected": False}
-        response = test_client.patch(f"/api/v1/poems/{sample_poem.id}/selected", json=selection_data)
+        response = test_client.patch(
+            f"/api/v1/poems/{sample_poem.id}/selected", json=selection_data
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -268,7 +274,9 @@ And never stops at all,""",
         data = response.json()
         assert data == []
 
-    def test_get_poem_translations_with_data(self, test_client: TestClient, sample_poem, sample_translation):
+    def test_get_poem_translations_with_data(
+        self, test_client: TestClient, sample_poem, sample_translation
+    ):
         """Test GET /api/v1/poems/{poem_id}/translations with existing translations."""
         response = test_client.get(f"/api/v1/poems/{sample_poem.id}/translations")
 
@@ -282,18 +290,19 @@ And never stops at all,""",
         assert translation["target_language"] == sample_translation.target_language
         assert translation["translated_text"] == sample_translation.translated_text
 
-    def test_search_poems_by_title(self, test_client: TestClient, test_context):
+    @pytest.mark.asyncio
+    async def test_search_poems_by_title(self, test_client: TestClient, test_context):
         """Test POST /api/v1/poems/search by title."""
         # Create test poems
         await test_context.create_poem(
             poet_name="Poet 1",
             poem_title="The Rose Garden",
-            original_text="Content about roses"
+            original_text="Content about roses",
         )
         await test_context.create_poem(
             poet_name="Poet 2",
             poem_title="Spring Morning",
-            original_text="Content about spring"
+            original_text="Content about spring",
         )
 
         # Search for "Rose"
@@ -304,11 +313,14 @@ And never stops at all,""",
         assert len(data) == 1
         assert "Rose" in data[0]["poem_title"]
 
-    def test_get_filter_options(self, test_client: TestClient, test_context):
+    @pytest.mark.asyncio
+    async def test_get_filter_options(self, test_client: TestClient, test_context):
         """Test GET /api/v1/poems/filter-options."""
         # Create poems with different poets and languages
         await test_context.create_poem(poet_name="李白", source_language="Chinese")
-        await test_context.create_poem(poet_name="Shakespeare", source_language="English")
+        await test_context.create_poem(
+            poet_name="Shakespeare", source_language="English"
+        )
         await test_context.create_poem(poet_name="Du Fu", source_language="Chinese")
 
         response = test_client.get("/api/v1/poems/filter-options")
@@ -323,13 +335,14 @@ And never stops at all,""",
         assert "Chinese" in data["languages"]
         assert "English" in data["languages"]
 
-    def test_get_recent_activity(self, test_client: TestClient, test_context):
+    @pytest.mark.asyncio
+    async def test_get_recent_activity(self, test_client: TestClient, test_context):
         """Test GET /api/v1/poems/recent-activity."""
         # Create a recent poem
         await test_context.create_poem(
             poet_name="Recent Poet",
             poem_title="Recent Poem",
-            original_text="Recent content"
+            original_text="Recent content",
         )
 
         response = test_client.get("/api/v1/poems/recent-activity")
@@ -343,6 +356,7 @@ And never stops at all,""",
 # ==============================================================================
 # Translation API Endpoint Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -358,7 +372,9 @@ class TestTranslationEndpoints:
         assert data["translations"] == []
         assert data["pagination"]["total_items"] == 0
 
-    def test_list_translations_with_data(self, test_client: TestClient, sample_translation):
+    def test_list_translations_with_data(
+        self, test_client: TestClient, sample_translation
+    ):
         """Test GET /api/v1/translations/ with existing translations."""
         response = test_client.get("/api/v1/translations/")
 
@@ -370,21 +386,27 @@ class TestTranslationEndpoints:
         assert translation["id"] == sample_translation.id
         assert translation["target_language"] == sample_translation.target_language
 
-    def test_trigger_translation_hybrid_mode(self, test_client: TestClient, sample_poem):
+    def test_trigger_translation_hybrid_mode(
+        self, test_client: TestClient, sample_poem
+    ):
         """Test POST /api/v1/translations/trigger with hybrid workflow mode."""
         translation_request = {
             "poem_id": sample_poem.id,
             "target_lang": "Chinese",
-            "workflow_mode": "hybrid"
+            "workflow_mode": "hybrid",
         }
 
         # Mock the workflow service
-        with patch('src.vpsweb.webui.services.interfaces.IWorkflowServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IWorkflowServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.start_translation_workflow.return_value = "test-task-123"
             mock_service.return_value = mock_instance
 
-            response = test_client.post("/api/v1/translations/trigger", json=translation_request)
+            response = test_client.post(
+                "/api/v1/translations/trigger", json=translation_request
+            )
 
         assert response.status_code == 200
         data = response.json()
@@ -400,15 +422,21 @@ class TestTranslationEndpoints:
             translation_request = {
                 "poem_id": sample_poem.id,
                 "target_lang": "Chinese",
-                "workflow_mode": mode
+                "workflow_mode": mode,
             }
 
-            with patch('src.vpsweb.webui.services.interfaces.IWorkflowServiceV2') as mock_service:
+            with patch(
+                "src.vpsweb.webui.services.interfaces.IWorkflowServiceV2"
+            ) as mock_service:
                 mock_instance = AsyncMock()
-                mock_instance.start_translation_workflow.return_value = f"test-task-{mode}"
+                mock_instance.start_translation_workflow.return_value = (
+                    f"test-task-{mode}"
+                )
                 mock_service.return_value = mock_instance
 
-                response = test_client.post("/api/v1/translations/trigger", json=translation_request)
+                response = test_client.post(
+                    "/api/v1/translations/trigger", json=translation_request
+                )
 
             assert response.status_code == 200
             data = response.json()
@@ -418,38 +446,40 @@ class TestTranslationEndpoints:
     def test_trigger_translation_validation_errors(self, test_client: TestClient):
         """Test POST /api/v1/translations/trigger with invalid data."""
         # Test missing poem_id
-        invalid_request = {
-            "target_lang": "Chinese",
-            "workflow_mode": "hybrid"
-        }
+        invalid_request = {"target_lang": "Chinese", "workflow_mode": "hybrid"}
 
-        response = test_client.post("/api/v1/translations/trigger", json=invalid_request)
+        response = test_client.post(
+            "/api/v1/translations/trigger", json=invalid_request
+        )
         assert response.status_code == 422
 
         # Test invalid workflow mode
         invalid_request = {
             "poem_id": str(uuid.uuid4())[:26],
             "target_lang": "Chinese",
-            "workflow_mode": "invalid_mode"
+            "workflow_mode": "invalid_mode",
         }
 
-        response = test_client.post("/api/v1/translations/trigger", json=invalid_request)
+        response = test_client.post(
+            "/api/v1/translations/trigger", json=invalid_request
+        )
         assert response.status_code == 422
 
-    def test_list_translations_filters(self, test_client: TestClient, test_context):
+    @pytest.mark.asyncio
+    async def test_list_translations_filters(
+        self, test_client: TestClient, test_context
+    ):
         """Test translation list filtering functionality."""
         # Create a poem and multiple translations
-        poem = await test_context.create_poem(poet_name="Test Poet", poem_title="Test Poem")
+        poem = await test_context.create_poem(
+            poet_name="Test Poet", poem_title="Test Poem"
+        )
 
         await test_context.create_translation(
-            poem_id=poem.id,
-            target_language="Chinese",
-            translator_type="ai"
+            poem_id=poem.id, target_language="Chinese", translator_type="ai"
         )
         await test_context.create_translation(
-            poem_id=poem.id,
-            target_language="Japanese",
-            translator_type="human"
+            poem_id=poem.id, target_language="Japanese", translator_type="human"
         )
 
         # Test filter by poem_id
@@ -477,6 +507,7 @@ class TestTranslationEndpoints:
 # BBR (Background Briefing Report) API Endpoint Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 class TestBBREndpoints:
@@ -485,7 +516,9 @@ class TestBBREndpoints:
     def test_generate_bbr_success(self, test_client: TestClient, sample_poem):
         """Test POST /api/v1/poems/{poem_id}/bbr/generate."""
         # Mock BBR service
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.has_bbr.return_value = False
             mock_instance.generate_bbr.return_value = {"task_id": "bbr-task-123"}
@@ -502,12 +535,14 @@ class TestBBREndpoints:
     def test_generate_bbr_already_exists(self, test_client: TestClient, sample_poem):
         """Test POST /api/v1/poems/{poem_id}/bbr/generate when BBR already exists."""
         # Mock BBR service that returns existing BBR
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.has_bbr.return_value = True
             mock_instance.get_bbr.return_value = {
                 "id": "existing-bbr",
-                "content": "Existing BBR content"
+                "content": "Existing BBR content",
             }
             mock_service.return_value = mock_instance
 
@@ -530,13 +565,15 @@ class TestBBREndpoints:
     def test_get_bbr_success(self, test_client: TestClient, sample_poem):
         """Test GET /api/v1/poems/{poem_id}/bbr when BBR exists."""
         # Mock BBR service
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.get_bbr.return_value = {
                 "id": "test-bbr",
                 "poem_id": sample_poem.id,
                 "content": "Test BBR content",
-                "generated_at": "2025-01-15T10:00:00Z"
+                "generated_at": "2025-01-15T10:00:00Z",
             }
             mock_service.return_value = mock_instance
 
@@ -552,7 +589,9 @@ class TestBBREndpoints:
     def test_get_bbr_not_found(self, test_client: TestClient, sample_poem):
         """Test GET /api/v1/poems/{poem_id}/bbr when BBR doesn't exist."""
         # Mock BBR service
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.get_bbr.return_value = None
             mock_service.return_value = mock_instance
@@ -568,7 +607,9 @@ class TestBBREndpoints:
     def test_delete_bbr_success(self, test_client: TestClient, sample_poem):
         """Test DELETE /api/v1/poems/{poem_id}/bbr when BBR exists."""
         # Mock BBR service
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.has_bbr.return_value = True
             mock_instance.delete_bbr.return_value = True
@@ -585,7 +626,9 @@ class TestBBREndpoints:
     def test_delete_bbr_not_found(self, test_client: TestClient, sample_poem):
         """Test DELETE /api/v1/poems/{poem_id}/bbr when BBR doesn't exist."""
         # Mock BBR service
-        with patch('src.vpsweb.webui.services.interfaces.IBBRServiceV2') as mock_service:
+        with patch(
+            "src.vpsweb.webui.services.interfaces.IBBRServiceV2"
+        ) as mock_service:
             mock_instance = AsyncMock()
             mock_instance.has_bbr.return_value = False
             mock_service.return_value = mock_instance
@@ -602,6 +645,7 @@ class TestBBREndpoints:
 # ==============================================================================
 # Statistics API Endpoint Tests
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -626,6 +670,7 @@ class TestStatisticsEndpoints:
 # Error Handling Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 class TestErrorHandling:
@@ -647,7 +692,7 @@ class TestErrorHandling:
         response = test_client.post(
             "/api/v1/poems/",
             data="invalid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         assert response.status_code == 422
 
@@ -663,20 +708,24 @@ class TestErrorHandling:
 # Performance Tests
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.slow
 class TestAPIPerformance:
     """Test suite for API performance."""
 
-    def test_list_poems_performance(self, test_client: TestClient, test_context, performance_timer):
+    @pytest.mark.asyncio
+    async def test_list_poems_performance(
+        self, test_client: TestClient, test_context, performance_timer
+    ):
         """Test performance of poem list endpoint with multiple poems."""
         # Create many poems
         for i in range(50):
             await test_context.create_poem(
                 poet_name=f"Poet {i}",
                 poem_title=f"Poem {i}",
-                original_text=f"Content {i}" * 10  # Longer content
+                original_text=f"Content {i}" * 10,  # Longer content
             )
 
         performance_timer.start()
@@ -690,14 +739,17 @@ class TestAPIPerformance:
         # Should respond within reasonable time (adjust threshold as needed)
         assert performance_timer.duration < 2.0
 
-    def test_pagination_performance(self, test_client: TestClient, test_context, performance_timer):
+    @pytest.mark.asyncio
+    async def test_pagination_performance(
+        self, test_client: TestClient, test_context, performance_timer
+    ):
         """Test pagination performance with large dataset."""
         # Create many poems
         for i in range(100):
             await test_context.create_poem(
                 poet_name=f"Poet {i}",
                 poem_title=f"Poem {i}",
-                original_text=f"Content {i}"
+                original_text=f"Content {i}",
             )
 
         # Test accessing last page
@@ -713,18 +765,21 @@ class TestAPIPerformance:
 # Integration Tests with Multiple Entities
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 class TestMultiEntityIntegration:
     """Test suite for API operations involving multiple entities."""
 
-    async def test_poem_translation_workflow(self, test_client: TestClient, test_context):
+    async def test_poem_translation_workflow(
+        self, test_client: TestClient, test_context
+    ):
         """Test complete workflow: create poem -> generate translations -> verify results."""
         # Create a poem
         poem = await test_context.create_poem(
             poet_name="Integration Poet",
             poem_title="Integration Test Poem",
-            original_text="This poem tests the complete integration workflow."
+            original_text="This poem tests the complete integration workflow.",
         )
 
         # Create translations for the poem
@@ -732,14 +787,14 @@ class TestMultiEntityIntegration:
             poem_id=poem.id,
             target_language="Chinese",
             translated_text="这是集成测试诗歌的中文翻译。",
-            translator_type="ai"
+            translator_type="ai",
         )
 
         japanese_translation = await test_context.create_translation(
             poem_id=poem.id,
             target_language="Japanese",
             translated_text="これは統合テストの詩の日本語訳です。",
-            translator_type="human"
+            translator_type="human",
         )
 
         # Verify poem data
@@ -759,7 +814,9 @@ class TestMultiEntityIntegration:
         assert "Japanese" in target_languages
 
     @pytest.mark.asyncio
-    async def test_filter_and_search_integration(self, test_client: TestClient, test_context):
+    async def test_filter_and_search_integration(
+        self, test_client: TestClient, test_context
+    ):
         """Test integration between filtering and search functionality."""
         # Create diverse set of poems
         poems_data = [
@@ -767,20 +824,20 @@ class TestMultiEntityIntegration:
                 "poet_name": "李白",
                 "poem_title": "静夜思",
                 "source_language": "Chinese",
-                "original_text": "床前明月光"
+                "original_text": "床前明月光",
             },
             {
                 "poet_name": "杜甫",
                 "poem_title": "春望",
                 "source_language": "Chinese",
-                "original_text": "国破山河在"
+                "original_text": "国破山河在",
             },
             {
                 "poet_name": "Wordsworth",
                 "poem_title": "Daffodils",
                 "source_language": "English",
-                "original_text": "I wandered lonely as a cloud"
-            }
+                "original_text": "I wandered lonely as a cloud",
+            },
         ]
 
         created_poems = []

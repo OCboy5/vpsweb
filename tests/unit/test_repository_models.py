@@ -26,16 +26,20 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import StaticPool
 
 from src.vpsweb.repository.models import (
-    Base, Poem, Translation, BackgroundBriefingReport, AILog, HumanNote
+    Base,
+    Poem,
+    Translation,
+    BackgroundBriefingReport,
+    AILog,
+    HumanNote,
 )
-from src.vpsweb.repository.schemas import (
-    TranslatorType, WorkflowMode, WorkflowStepType
-)
+from src.vpsweb.repository.schemas import TranslatorType, WorkflowMode, WorkflowStepType
 
 
 # ==============================================================================
 # Model Test Fixtures
 # ==============================================================================
+
 
 @pytest.fixture
 def test_db_session():
@@ -45,7 +49,7 @@ def test_db_session():
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=False  # Set to True for SQL debugging
+        echo=False,  # Set to True for SQL debugging
     )
 
     # Create all tables
@@ -58,6 +62,7 @@ def test_db_session():
     yield session
 
     session.close()
+
 
 @pytest.fixture
 def sample_poem_data():
@@ -76,6 +81,7 @@ def sample_poem_data():
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
+
 
 @pytest.fixture
 def sample_translation_data():
@@ -104,6 +110,7 @@ Then lower it thinking of my hometown.""",
         "updated_at": datetime.now(),
     }
 
+
 @pytest.fixture
 def sample_bbr_data():
     """Sample valid Background Briefing Report data."""
@@ -131,6 +138,7 @@ Focus on emotional resonance over literal translation while preserving the poem'
         "updated_at": datetime.now(),
     }
 
+
 @pytest.fixture
 def sample_ai_log_data():
     """Sample valid AI Log data."""
@@ -148,6 +156,7 @@ def sample_ai_log_data():
         "created_at": datetime.now(),
     }
 
+
 @pytest.fixture
 def sample_human_note_data():
     """Sample valid Human Note data."""
@@ -163,6 +172,7 @@ def sample_human_note_data():
 # ==============================================================================
 # Poem Model Tests
 # ==============================================================================
+
 
 @pytest.mark.repository
 @pytest.mark.unit
@@ -234,7 +244,7 @@ class TestPoemModel:
             "death_year": 762,
             "themes": ["nature", "homesickness", "wine"],
             "poetic_forms": ["jueju", "lushi"],
-            "influence": "high"
+            "influence": "high",
         }
 
         poem_data = {
@@ -275,7 +285,9 @@ class TestPoemModel:
         assert isinstance(poem.created_at, datetime)
         assert isinstance(poem.updated_at, datetime)
 
-    def test_poem_unique_id_constraint(self, test_db_session: Session, sample_poem_data):
+    def test_poem_unique_id_constraint(
+        self, test_db_session: Session, sample_poem_data
+    ):
         """Test that poem IDs must be unique."""
         # Create first poem
         poem1 = Poem(**sample_poem_data)
@@ -292,7 +304,9 @@ class TestPoemModel:
         with pytest.raises(IntegrityError):
             test_db_session.commit()
 
-    def test_poem_relationship_to_translations(self, test_db_session: Session, sample_poem_data):
+    def test_poem_relationship_to_translations(
+        self, test_db_session: Session, sample_poem_data
+    ):
         """Test poem relationship to translations."""
         # Create poem
         poem = Poem(**sample_poem_data)
@@ -355,12 +369,15 @@ class TestPoemModel:
 # Translation Model Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.unit
 class TestTranslationModel:
     """Comprehensive tests for the Translation model."""
 
-    def test_create_valid_translation(self, test_db_session: Session, sample_translation_data):
+    def test_create_valid_translation(
+        self, test_db_session: Session, sample_translation_data
+    ):
         """Test creating a valid translation with all fields."""
         translation = Translation(**sample_translation_data)
         test_db_session.add(translation)
@@ -452,7 +469,9 @@ class TestTranslationModel:
         test_db_session.commit()
 
         # Verify all ratings were saved
-        translations = test_db_session.query(Translation).filter_by(poem_id=poem_id).all()
+        translations = (
+            test_db_session.query(Translation).filter_by(poem_id=poem_id).all()
+        )
         ratings = {t.quality_rating for t in translations}
         assert ratings == {1, 2, 3, 4, 5}
 
@@ -476,12 +495,16 @@ class TestTranslationModel:
         test_db_session.add(translation)
         test_db_session.commit()
 
-        retrieved_translation = test_db_session.query(Translation).filter_by(id=translation.id).first()
+        retrieved_translation = (
+            test_db_session.query(Translation).filter_by(id=translation.id).first()
+        )
         assert retrieved_translation.quality_rating is None
         assert retrieved_translation.metadata_json is None
         assert retrieved_translation.has_workflow_steps is False
 
-    def test_translation_relationship_to_ai_logs(self, test_db_session: Session, sample_translation_data):
+    def test_translation_relationship_to_ai_logs(
+        self, test_db_session: Session, sample_translation_data
+    ):
         """Test translation relationship to AI logs."""
         # Create translation
         translation = Translation(**sample_translation_data)
@@ -490,7 +513,10 @@ class TestTranslationModel:
 
         # Create AI logs for the translation
         ai_logs = []
-        for step in [WorkflowStepType.INITIAL_TRANSLATION, WorkflowStepType.EDITOR_REVIEW]:
+        for step in [
+            WorkflowStepType.INITIAL_TRANSLATION,
+            WorkflowStepType.EDITOR_REVIEW,
+        ]:
             log_data = {
                 "id": str(uuid.uuid4())[:26],
                 "translation_id": translation.id,
@@ -509,13 +535,17 @@ class TestTranslationModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_translation = test_db_session.query(Translation).filter_by(id=translation.id).first()
+        retrieved_translation = (
+            test_db_session.query(Translation).filter_by(id=translation.id).first()
+        )
         assert len(retrieved_translation.ai_logs) == 2
         steps = {log.workflow_step for log in retrieved_translation.ai_logs}
         assert WorkflowStepType.INITIAL_TRANSLATION in steps
         assert WorkflowStepType.EDITOR_REVIEW in steps
 
-    def test_translation_relationship_to_human_notes(self, test_db_session: Session, sample_translation_data):
+    def test_translation_relationship_to_human_notes(
+        self, test_db_session: Session, sample_translation_data
+    ):
         """Test translation relationship to human notes."""
         # Create translation
         translation = Translation(**sample_translation_data)
@@ -524,7 +554,9 @@ class TestTranslationModel:
 
         # Create human notes for the translation
         notes = []
-        for i, note_text in enumerate(["Excellent translation", "Good rhythm", "Well done"]):
+        for i, note_text in enumerate(
+            ["Excellent translation", "Good rhythm", "Well done"]
+        ):
             note_data = {
                 "id": str(uuid.uuid4())[:26],
                 "translation_id": translation.id,
@@ -538,7 +570,9 @@ class TestTranslationModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_translation = test_db_session.query(Translation).filter_by(id=translation.id).first()
+        retrieved_translation = (
+            test_db_session.query(Translation).filter_by(id=translation.id).first()
+        )
         assert len(retrieved_translation.human_notes) == 3
 
         note_texts = {note.note_text for note in retrieved_translation.human_notes}
@@ -550,6 +584,7 @@ class TestTranslationModel:
 # ==============================================================================
 # Background Briefing Report Model Tests
 # ==============================================================================
+
 
 @pytest.mark.repository
 @pytest.mark.unit
@@ -596,13 +631,17 @@ print("Translation example")
         test_db_session.add(bbr)
         test_db_session.commit()
 
-        retrieved_bbr = test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+        retrieved_bbr = (
+            test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+        )
         assert retrieved_bbr is not None
         assert markdown_content in retrieved_bbr.content
         assert "**bold**" in retrieved_bbr.content
         assert "*italic*" in retrieved_bbr.content
 
-    def test_bbr_unique_poem_constraint(self, test_db_session: Session, sample_bbr_data):
+    def test_bbr_unique_poem_constraint(
+        self, test_db_session: Session, sample_bbr_data
+    ):
         """Test that each poem can have only one BBR (if constraint exists)."""
         # Create first BBR
         bbr1 = BackgroundBriefingReport(**sample_bbr_data)
@@ -622,9 +661,11 @@ print("Translation example")
         try:
             test_db_session.commit()
             # If commit succeeds, multiple BBRs are allowed
-            bbrs = test_db_session.query(BackgroundBriefingReport).filter_by(
-                poem_id=sample_bbr_data["poem_id"]
-            ).all()
+            bbrs = (
+                test_db_session.query(BackgroundBriefingReport)
+                .filter_by(poem_id=sample_bbr_data["poem_id"])
+                .all()
+            )
             assert len(bbrs) == 2
         except IntegrityError:
             # If constraint exists, this is expected behavior
@@ -640,7 +681,7 @@ print("Translation example")
             "generation_cost": 0.036,
             "quality_score": 0.92,
             "review_status": "approved",
-            "reviewer": "expert_translator"
+            "reviewer": "expert_translator",
         }
 
         bbr_data = sample_bbr_data.copy()
@@ -650,7 +691,9 @@ print("Translation example")
         test_db_session.add(bbr)
         test_db_session.commit()
 
-        retrieved_bbr = test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+        retrieved_bbr = (
+            test_db_session.query(BackgroundBriefingReport).filter_by(id=bbr.id).first()
+        )
         assert retrieved_bbr is not None
         assert "generation_model" in retrieved_bbr.metadata_json
 
@@ -658,6 +701,7 @@ print("Translation example")
 # ==============================================================================
 # AI Log Model Tests
 # ==============================================================================
+
 
 @pytest.mark.repository
 @pytest.mark.unit
@@ -700,7 +744,9 @@ class TestAILogModel:
         test_db_session.commit()
 
         # Verify all steps were saved
-        logs = test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+        logs = (
+            test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+        )
         steps = {log.workflow_step for log in logs}
         assert len(steps) == len(WorkflowStepType)
         assert steps == set(WorkflowStepType)
@@ -728,7 +774,9 @@ class TestAILogModel:
         test_db_session.commit()
 
         # Verify all modes were saved
-        logs = test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+        logs = (
+            test_db_session.query(AILog).filter_by(translation_id=translation_id).all()
+        )
         modes = {log.workflow_mode for log in logs}
         assert len(modes) == len(WorkflowMode)
         assert modes == set(WorkflowMode)
@@ -785,15 +833,20 @@ class TestAILogModel:
         test_db_session.commit()
 
         # Retrieve logs ordered by creation time
-        retrieved_logs = test_db_session.query(AILog).filter_by(
-            translation_id=translation_id
-        ).order_by(AILog.created_at).all()
+        retrieved_logs = (
+            test_db_session.query(AILog)
+            .filter_by(translation_id=translation_id)
+            .order_by(AILog.created_at)
+            .all()
+        )
 
         assert len(retrieved_logs) == 3
         assert retrieved_logs[0].created_at < retrieved_logs[1].created_at
         assert retrieved_logs[1].created_at < retrieved_logs[2].created_at
 
-    def test_ai_log_relationship_to_translation(self, test_db_session: Session, sample_ai_log_data):
+    def test_ai_log_relationship_to_translation(
+        self, test_db_session: Session, sample_ai_log_data
+    ):
         """Test AI log relationship to translation."""
         # First create a translation
         translation_data = {
@@ -826,12 +879,15 @@ class TestAILogModel:
 # Human Note Model Tests
 # ==============================================================================
 
+
 @pytest.mark.repository
 @pytest.mark.unit
 class TestHumanNoteModel:
     """Comprehensive tests for the HumanNote model."""
 
-    def test_create_valid_human_note(self, test_db_session: Session, sample_human_note_data):
+    def test_create_valid_human_note(
+        self, test_db_session: Session, sample_human_note_data
+    ):
         """Test creating a valid human note."""
         human_note = HumanNote(**sample_human_note_data)
         test_db_session.add(human_note)
@@ -871,7 +927,11 @@ class TestHumanNoteModel:
         test_db_session.commit()
 
         # Verify all notes were saved correctly
-        retrieved_notes = test_db_session.query(HumanNote).filter_by(translation_id=translation_id).all()
+        retrieved_notes = (
+            test_db_session.query(HumanNote)
+            .filter_by(translation_id=translation_id)
+            .all()
+        )
         assert len(retrieved_notes) == len(test_contents)
 
         for original, retrieved in zip(test_contents, retrieved_notes):
@@ -904,16 +964,21 @@ class TestHumanNoteModel:
         test_db_session.commit()
 
         # Retrieve notes ordered by creation time
-        retrieved_notes = test_db_session.query(HumanNote).filter_by(
-            translation_id=translation_id
-        ).order_by(HumanNote.created_at).all()
+        retrieved_notes = (
+            test_db_session.query(HumanNote)
+            .filter_by(translation_id=translation_id)
+            .order_by(HumanNote.created_at)
+            .all()
+        )
 
         assert len(retrieved_notes) == 3
         assert retrieved_notes[0].note_text == "First review"
         assert retrieved_notes[1].note_text == "Second review"
         assert retrieved_notes[2].note_text == "Final review"
 
-    def test_human_note_relationship_to_translation(self, test_db_session: Session, sample_human_note_data):
+    def test_human_note_relationship_to_translation(
+        self, test_db_session: Session, sample_human_note_data
+    ):
         """Test human note relationship to translation."""
         # First create a translation
         translation_data = {
@@ -937,7 +1002,9 @@ class TestHumanNoteModel:
         test_db_session.commit()
 
         # Test relationship
-        retrieved_note = test_db_session.query(HumanNote).filter_by(id=human_note.id).first()
+        retrieved_note = (
+            test_db_session.query(HumanNote).filter_by(id=human_note.id).first()
+        )
         assert retrieved_note.translation.id == translation.id
         assert retrieved_note.translation.translated_text == "Human translation"
 
@@ -945,6 +1012,7 @@ class TestHumanNoteModel:
 # ==============================================================================
 # Cross-Model Relationship Tests
 # ==============================================================================
+
 
 @pytest.mark.repository
 @pytest.mark.unit
@@ -999,7 +1067,10 @@ class TestCrossModelRelationships:
         test_db_session.commit()
 
         # 4. Create AI logs for translation
-        for step in [WorkflowStepType.INITIAL_TRANSLATION, WorkflowStepType.EDITOR_REVIEW]:
+        for step in [
+            WorkflowStepType.INITIAL_TRANSLATION,
+            WorkflowStepType.EDITOR_REVIEW,
+        ]:
             log_data = {
                 "id": str(uuid.uuid4())[:26],
                 "translation_id": translation_id,
@@ -1015,7 +1086,9 @@ class TestCrossModelRelationships:
             test_db_session.add(ai_log)
 
         # 5. Create human notes for translation
-        for i, note_text in enumerate(["Good start", "Needs refinement", "Final approval"]):
+        for i, note_text in enumerate(
+            ["Good start", "Needs refinement", "Final approval"]
+        ):
             note_data = {
                 "id": str(uuid.uuid4())[:26],
                 "translation_id": translation_id,
@@ -1057,7 +1130,7 @@ class TestCrossModelRelationships:
             source_language="English",
             original_text="Test content for cascade deletion",
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         test_db_session.add(poem)
         test_db_session.commit()
@@ -1071,7 +1144,7 @@ class TestCrossModelRelationships:
             target_language="Chinese",
             translated_text="Test translation",
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         test_db_session.add(translation)
         test_db_session.commit()
@@ -1084,9 +1157,9 @@ class TestCrossModelRelationships:
             model_name="test",
             workflow_mode=WorkflowMode.HYBRID,
             runtime_seconds=1.0,
-            "token_usage_json": '{"total_tokens": 50}"',
-            "cost_info_json": '{"total_cost": 0.005}"',
-            created_at=datetime.now()
+            token_usage_json='{"total_tokens": 50}',
+            cost_info_json='{"total_cost": 0.005}',
+            created_at=datetime.now(),
         )
         test_db_session.add(ai_log)
 
@@ -1094,7 +1167,7 @@ class TestCrossModelRelationships:
             id=str(uuid.uuid4())[:26],
             translation_id=translation.id,
             note_text="Test note for cascade",
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
         test_db_session.add(human_note)
 
@@ -1103,17 +1176,34 @@ class TestCrossModelRelationships:
             poem_id=poem_id,
             content="Test BBR for cascade",
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         test_db_session.add(bbr)
         test_db_session.commit()
 
         # Verify all records exist
         assert test_db_session.query(Poem).filter_by(id=poem_id).count() == 1
-        assert test_db_session.query(Translation).filter_by(poem_id=poem_id).count() == 1
-        assert test_db_session.query(AILog).filter_by(translation_id=translation.id).count() == 1
-        assert test_db_session.query(HumanNote).filter_by(translation_id=translation.id).count() == 1
-        assert test_db_session.query(BackgroundBriefingReport).filter_by(poem_id=poem_id).count() == 1
+        assert (
+            test_db_session.query(Translation).filter_by(poem_id=poem_id).count() == 1
+        )
+        assert (
+            test_db_session.query(AILog)
+            .filter_by(translation_id=translation.id)
+            .count()
+            == 1
+        )
+        assert (
+            test_db_session.query(HumanNote)
+            .filter_by(translation_id=translation.id)
+            .count()
+            == 1
+        )
+        assert (
+            test_db_session.query(BackgroundBriefingReport)
+            .filter_by(poem_id=poem_id)
+            .count()
+            == 1
+        )
 
         # Delete poem (should cascade to related records depending on configuration)
         test_db_session.delete(poem)
@@ -1129,6 +1219,7 @@ class TestCrossModelRelationships:
 # ==============================================================================
 # Model Constraint and Validation Tests
 # ==============================================================================
+
 
 @pytest.mark.repository
 @pytest.mark.unit
