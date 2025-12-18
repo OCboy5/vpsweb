@@ -95,18 +95,14 @@ class TranslationNotesSynthesizer:
                 )
             except Exception as e:
                 # Fallback to manual formatting if render fails
-                logger.warning(
-                    f"Template rendering failed, using fallback: {e}"
-                )
+                logger.warning(f"Template rendering failed, using fallback: {e}")
                 prompt_template = self.prompt_service.get_template(prompt_file)
                 formatted_prompt = self._format_prompt_fallback(
                     prompt_template, notes_sources
                 )
 
             # Generate notes using LLM
-            response = await self._generate_with_llm(
-                formatted_prompt, workflow_mode
-            )
+            response = await self._generate_with_llm(formatted_prompt, workflow_mode)
 
             # Parse XML response
             translation_notes = self._parse_xml_response(response)
@@ -156,9 +152,7 @@ class TranslationNotesSynthesizer:
 
         if not sources["editor_suggestions"]:
             editor = translation_data.get("editor_review", {})
-            sources["editor_suggestions"] = editor.get(
-                "editor_suggestions", ""
-            )
+            sources["editor_suggestions"] = editor.get("editor_suggestions", "")
 
         if not sources["initial_translation_notes"]:
             initial = translation_data.get("initial_translation", {})
@@ -193,17 +187,15 @@ class TranslationNotesSynthesizer:
                 f"Missing required template variable: {e}"
             )
         except Exception as e:
-            raise TranslationNotesSynthesizerError(
-                f"Error formatting prompt: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"Error formatting prompt: {e}")
 
     async def _generate_with_llm(self, prompt: str, workflow_mode: str) -> str:
         """Generate translation notes using LLM."""
         try:
             # Get parameters from system config or use defaults
-            translation_notes_config = self.system_config.get(
-                "system", {}
-            ).get("translation_notes", {})
+            translation_notes_config = self.system_config.get("system", {}).get(
+                "translation_notes", {}
+            )
 
             if workflow_mode in ["reasoning", "hybrid"]:
                 config = translation_notes_config.get("reasoning", {})
@@ -228,9 +220,7 @@ class TranslationNotesSynthesizer:
             return response
 
         except Exception as e:
-            raise TranslationNotesSynthesizerError(
-                f"LLM generation failed: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"LLM generation failed: {e}")
 
     def _parse_xml_response(self, response: str) -> TranslationNotes:
         """
@@ -268,18 +258,14 @@ class TranslationNotesSynthesizer:
             # Extract digest
             digest_elem = root.find("digest")
             if digest_elem is None or digest_elem.text is None:
-                raise TranslationNotesSynthesizerError(
-                    "Missing digest in XML response"
-                )
+                raise TranslationNotesSynthesizerError("Missing digest in XML response")
 
             digest = digest_elem.text.strip()
 
             # Extract notes
             notes_elem = root.find("notes")
             if notes_elem is None:
-                raise TranslationNotesSynthesizerError(
-                    "Missing notes in XML response"
-                )
+                raise TranslationNotesSynthesizerError("Missing notes in XML response")
 
             # Parse bullet points
             notes_text = notes_elem.text or ""
@@ -298,9 +284,7 @@ class TranslationNotesSynthesizer:
                 )
 
             # Validate and create TranslationNotes
-            translation_notes = TranslationNotes(
-                digest=digest, notes=bullet_points
-            )
+            translation_notes = TranslationNotes(digest=digest, notes=bullet_points)
 
             logger.info(
                 f"Parsed {len(bullet_points)} translation notes from XML response"
@@ -310,9 +294,7 @@ class TranslationNotesSynthesizer:
         except ET.ParseError as e:
             raise TranslationNotesSynthesizerError(f"XML parsing failed: {e}")
         except Exception as e:
-            raise TranslationNotesSynthesizerError(
-                f"Error parsing XML response: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"Error parsing XML response: {e}")
 
     async def synthesize_with_fallback(
         self,
@@ -352,13 +334,9 @@ class TranslationNotesSynthesizer:
                     )
 
                     # Use fallback to generate notes
-                    notes_sources = self._extract_notes_sources(
-                        translation_data
-                    )
+                    notes_sources = self._extract_notes_sources(translation_data)
                     prompt_file = self._get_prompt_file(workflow_mode)
-                    prompt_template = self.prompt_service.get_template(
-                        prompt_file
-                    )
+                    prompt_template = self.prompt_service.get_template(prompt_file)
                     formatted_prompt = self._format_prompt_fallback(
                         prompt_template, notes_sources
                     )
@@ -378,15 +356,11 @@ class TranslationNotesSynthesizer:
 
                     # Parse response
                     translation_notes = self._parse_xml_response(response)
-                    logger.info(
-                        "Successfully synthesized notes with fallback provider"
-                    )
+                    logger.info("Successfully synthesized notes with fallback provider")
                     return translation_notes
 
                 except Exception as fallback_error:
-                    logger.error(
-                        f"Fallback provider also failed: {fallback_error}"
-                    )
+                    logger.error(f"Fallback provider also failed: {fallback_error}")
                     raise TranslationNotesSynthesizerError(
                         f"Both primary and fallback providers failed. "
                         f"Primary: {primary_error}. Fallback: {fallback_error}"

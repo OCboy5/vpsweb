@@ -12,28 +12,16 @@ import click
 
 from vpsweb.core.container import DIContainer
 
-from .interfaces import (
-    ICLICommandServiceV2,
-    ICLIConfigurationServiceV2,
-    ICLIErrorHandlerV2,
-    ICLIInputServiceV2,
-    ICLILoggerServiceV2,
-    ICLIOutputServiceV2,
-    ICLIStorageServiceV2,
-    ICLIWeChatServiceV2,
-    ICLIWorkflowServiceV2,
-)
-from .services import (
-    CLICommandServiceV2,
-    CLIConfigurationServiceV2,
-    CLIErrorHandlerV2,
-    CLIInputServiceV2,
-    CLILoggerServiceV2,
-    CLIOutputServiceV2,
-    CLIStorageServiceV2,
-    CLIWeChatServiceV2,
-    CLIWorkflowServiceV2,
-)
+from .interfaces import (ICLICommandServiceV2, ICLIConfigurationServiceV2,
+                         ICLIErrorHandlerV2, ICLIInputServiceV2,
+                         ICLILoggerServiceV2, ICLIOutputServiceV2,
+                         ICLIStorageServiceV2, ICLIWeChatServiceV2,
+                         ICLIWorkflowServiceV2)
+from .services import (CLICommandServiceV2, CLIConfigurationServiceV2,
+                       CLIErrorHandlerV2, CLIInputServiceV2,
+                       CLILoggerServiceV2, CLIOutputServiceV2,
+                       CLIStorageServiceV2, CLIWeChatServiceV2,
+                       CLIWorkflowServiceV2)
 
 
 class CLIApplicationV2:
@@ -116,13 +104,9 @@ class CLIApplicationV2:
             type=click.Path(exists=True),
             help="Custom config directory",
         )
-        @click.option(
-            "--output", "-o", type=click.Path(), help="Output directory"
-        )
+        @click.option("--output", "-o", type=click.Path(), help="Output directory")
         @click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
-        @click.option(
-            "--dry-run", is_flag=True, help="Validate without execution"
-        )
+        @click.option("--dry-run", is_flag=True, help="Validate without execution")
         def translate(
             input,
             source,
@@ -214,9 +198,7 @@ class CLIApplicationV2:
             type=str,
             help="Article author name (default: 知韵VoxPoetica)",
         )
-        @click.option(
-            "--digest", type=str, help="Custom digest (80-120 characters)"
-        )
+        @click.option("--digest", type=str, help="Custom digest (80-120 characters)")
         @click.option(
             "--model-type",
             "-m",
@@ -229,9 +211,7 @@ class CLIApplicationV2:
             is_flag=True,
             help="Generate article without external API calls",
         )
-        @click.option(
-            "--verbose", "-v", is_flag=True, help="Enable verbose logging"
-        )
+        @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
         def generate_article(
             input_json,
             output_dir,
@@ -293,17 +273,11 @@ class CLIApplicationV2:
                 click.echo(
                     f"📁 Output directory: {result.get('output_directory', 'N/A')}"
                 )
-                click.echo(
-                    f"📄 Article HTML: {result.get('html_path', 'N/A')}"
-                )
-                click.echo(
-                    f"📋 Metadata: {result.get('metadata_path', 'N/A')}"
-                )
+                click.echo(f"📄 Article HTML: {result.get('html_path', 'N/A')}")
+                click.echo(f"📋 Metadata: {result.get('metadata_path', 'N/A')}")
 
                 if dry_run:
-                    click.echo(
-                        "\n🔍 Dry run completed - no external API calls made"
-                    )
+                    click.echo("\n🔍 Dry run completed - no external API calls made")
 
                 return result
 
@@ -339,9 +313,7 @@ class CLIApplicationV2:
             is_flag=True,
             help="Preview API call without sending to WeChat",
         )
-        @click.option(
-            "--verbose", "-v", is_flag=True, help="Enable verbose logging"
-        )
+        @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
         def publish_article(directory, config, dry_run, verbose):
             """Publish article from directory containing article.html and metadata.json.
 
@@ -422,9 +394,7 @@ class CLIFactoryV2:
         container.register_singleton(
             ICLIConfigurationServiceV2, CLIConfigurationServiceV2
         )
-        container.register_singleton(
-            ICLIWorkflowServiceV2, CLIWorkflowServiceV2
-        )
+        container.register_singleton(ICLIWorkflowServiceV2, CLIWorkflowServiceV2)
         container.register_singleton(ICLIStorageServiceV2, CLIStorageServiceV2)
         container.register_singleton(ICLIOutputServiceV2, CLIOutputServiceV2)
         container.register_singleton(ICLIWeChatServiceV2, CLIWeChatServiceV2)

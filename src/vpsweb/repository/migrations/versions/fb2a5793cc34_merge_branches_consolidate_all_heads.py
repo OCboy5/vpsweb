@@ -62,9 +62,7 @@ def upgrade() -> None:
             ["poet_name", "created_at"],
         )
     if not _index_exists(conn, "idx_poems_poet_title"):
-        op.create_index(
-            "idx_poems_poet_title", "poems", ["poet_name", "poem_title"]
-        )
+        op.create_index("idx_poems_poet_title", "poems", ["poet_name", "poem_title"])
     if not _index_exists(conn, "idx_poems_language_created_at"):
         op.create_index(
             "idx_poems_language_created_at",
@@ -109,16 +107,12 @@ def upgrade() -> None:
     if not _column_exists(conn, "translations", "poet_subdirectory"):
         op.add_column(
             "translations",
-            sa.Column(
-                "poet_subdirectory", sa.String(length=100), nullable=True
-            ),
+            sa.Column("poet_subdirectory", sa.String(length=100), nullable=True),
         )
     if not _column_exists(conn, "translations", "relative_json_path"):
         op.add_column(
             "translations",
-            sa.Column(
-                "relative_json_path", sa.String(length=500), nullable=True
-            ),
+            sa.Column("relative_json_path", sa.String(length=500), nullable=True),
         )
     if not _column_exists(conn, "translations", "file_category"):
         # Create enum if not exists
@@ -166,15 +160,9 @@ def upgrade() -> None:
                 nullable=False,
                 index=True,
             ),
-            sa.Column(
-                "ai_log_id", sa.String(length=26), nullable=False, index=True
-            ),
-            sa.Column(
-                "workflow_id", sa.String(length=26), nullable=False, index=True
-            ),
-            sa.Column(
-                "step_type", sa.String(length=30), nullable=False, index=True
-            ),
+            sa.Column("ai_log_id", sa.String(length=26), nullable=False, index=True),
+            sa.Column("workflow_id", sa.String(length=26), nullable=False, index=True),
+            sa.Column("step_type", sa.String(length=30), nullable=False, index=True),
             sa.Column("step_order", sa.Integer(), nullable=False),
             sa.Column("content", sa.Text(), nullable=False),
             sa.Column("notes", sa.Text(), nullable=True),
@@ -182,17 +170,11 @@ def upgrade() -> None:
             sa.Column("tokens_used", sa.Integer(), nullable=True, index=True),
             sa.Column("prompt_tokens", sa.Integer(), nullable=True),
             sa.Column("completion_tokens", sa.Integer(), nullable=True),
-            sa.Column(
-                "duration_seconds", sa.Float(), nullable=True, index=True
-            ),
+            sa.Column("duration_seconds", sa.Float(), nullable=True, index=True),
             sa.Column("cost", sa.Float(), nullable=True, index=True),
             sa.Column("additional_metrics", sa.Text(), nullable=True),
-            sa.Column(
-                "translated_title", sa.String(length=500), nullable=True
-            ),
-            sa.Column(
-                "translated_poet_name", sa.String(length=200), nullable=True
-            ),
+            sa.Column("translated_title", sa.String(length=500), nullable=True),
+            sa.Column("translated_poet_name", sa.String(length=200), nullable=True),
             sa.Column(
                 "manual_mode",
                 sa.Boolean(),
@@ -202,9 +184,7 @@ def upgrade() -> None:
             sa.Column("user_model_name", sa.String(length=200), nullable=True),
             sa.Column("timestamp", sa.DateTime(), nullable=False),
             sa.Column("created_at", sa.DateTime(), nullable=False),
-            sa.ForeignKeyConstraint(
-                ["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"
-            ),
+            sa.ForeignKeyConstraint(["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"),
             sa.ForeignKeyConstraint(
                 ["translation_id"], ["translations.id"], ondelete="CASCADE"
             ),
@@ -276,22 +256,16 @@ def upgrade() -> None:
             sa.Column("time_spent", sa.Float(), nullable=True, index=True),
             sa.Column("created_at", sa.DateTime(), nullable=False, index=True),
             sa.Column("updated_at", sa.DateTime(), nullable=False),
-            sa.ForeignKeyConstraint(
-                ["poem_id"], ["poems.id"], ondelete="CASCADE"
-            ),
+            sa.ForeignKeyConstraint(["poem_id"], ["poems.id"], ondelete="CASCADE"),
             sa.PrimaryKeyConstraint("id"),
         )
 
         # Create indexes
-        op.create_index(
-            "idx_bbr_poem_id", "background_briefing_reports", ["poem_id"]
-        )
+        op.create_index("idx_bbr_poem_id", "background_briefing_reports", ["poem_id"])
         op.create_index(
             "idx_bbr_created_at", "background_briefing_reports", ["created_at"]
         )
-        op.create_index(
-            "idx_bbr_cost", "background_briefing_reports", ["cost"]
-        )
+        op.create_index("idx_bbr_cost", "background_briefing_reports", ["cost"])
         op.create_index(
             "idx_bbr_time_spent", "background_briefing_reports", ["time_spent"]
         )
@@ -300,13 +274,9 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # Drop indexes
-    op.drop_index(
-        "idx_bbr_time_spent", table_name="background_briefing_reports"
-    )
+    op.drop_index("idx_bbr_time_spent", table_name="background_briefing_reports")
     op.drop_index("idx_bbr_cost", table_name="background_briefing_reports")
-    op.drop_index(
-        "idx_bbr_created_at", table_name="background_briefing_reports"
-    )
+    op.drop_index("idx_bbr_created_at", table_name="background_briefing_reports")
     op.drop_index("idx_bbr_poem_id", table_name="background_briefing_reports")
 
     # Drop background_briefing_reports table
@@ -321,15 +291,11 @@ def downgrade() -> None:
         "idx_workflow_steps_step_metrics",
         table_name="translation_workflow_steps",
     )
-    op.drop_index(
-        "idx_workflow_steps_tokens", table_name="translation_workflow_steps"
-    )
+    op.drop_index("idx_workflow_steps_tokens", table_name="translation_workflow_steps")
     op.drop_index(
         "idx_workflow_steps_duration", table_name="translation_workflow_steps"
     )
-    op.drop_index(
-        "idx_workflow_steps_cost", table_name="translation_workflow_steps"
-    )
+    op.drop_index("idx_workflow_steps_cost", table_name="translation_workflow_steps")
     op.drop_index(
         "idx_workflow_steps_type_order",
         table_name="translation_workflow_steps",
@@ -363,12 +329,8 @@ def downgrade() -> None:
     sa.Enum(name="file_category_enum").drop(op.get_bind())
 
     # Drop composite indexes
-    op.drop_index(
-        "idx_translations_composite_created", table_name="translations"
-    )
-    op.drop_index(
-        "idx_translations_language_created_at", table_name="translations"
-    )
+    op.drop_index("idx_translations_composite_created", table_name="translations")
+    op.drop_index("idx_translations_language_created_at", table_name="translations")
     op.drop_index("idx_translations_poem_type", table_name="translations")
     op.drop_index("idx_translations_type_language", table_name="translations")
     op.drop_index("idx_translations_poem_language", table_name="translations")

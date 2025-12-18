@@ -10,8 +10,8 @@ from unittest.mock import AsyncMock
 import pytest
 
 from src.vpsweb.core.workflow import TranslationWorkflow
-from src.vpsweb.models.translation import TranslationInput, TranslationOutput
 from src.vpsweb.models.config import WorkflowMode
+from src.vpsweb.models.translation import TranslationInput, TranslationOutput
 from src.vpsweb.services.llm.factory import LLMFactory
 
 
@@ -28,16 +28,12 @@ class TestTranslationWorkflowIntegration:
     ):
         """Test complete workflow execution with mocked LLM calls."""
         # Create workflow with legacy parameters and system config
-        system_config = {
-            "preview_lengths": {
-                "input_preview": 100
-            }
-        }
+        system_config = {"preview_lengths": {"input_preview": 100}}
         workflow = TranslationWorkflow(
             integration_workflow_config,
             integration_providers_config,
             WorkflowMode.HYBRID,
-            system_config=system_config
+            system_config=system_config,
         )
 
         # Execute workflow
@@ -52,13 +48,9 @@ class TestTranslationWorkflowIntegration:
 
         # Verify each step produced expected output
         assert (
-            result.initial_translation.initial_translation
-            == "雾来了，踏着猫的细步。"
+            result.initial_translation.initial_translation == "雾来了，踏着猫的细步。"
         )
-        assert (
-            "gentle imagery"
-            in result.initial_translation.initial_translation_notes
-        )
+        assert "gentle imagery" in result.initial_translation.initial_translation_notes
 
         assert "poetic language" in result.editor_review.text
         assert "rhythm" in result.editor_review.text
@@ -78,7 +70,10 @@ class TestTranslationWorkflowIntegration:
 
     @pytest.mark.asyncio
     async def test_workflow_with_different_poem(
-        self, integration_workflow_config, integration_providers_config, mock_llm_factory_integration
+        self,
+        integration_workflow_config,
+        integration_providers_config,
+        mock_llm_factory_integration,
     ):
         """Test workflow with a different poem."""
         input_data = TranslationInput(
@@ -194,9 +189,7 @@ class TestTranslationWorkflowIntegration:
         assert "revised_translation_notes" in congregated
 
         # Verify content
-        assert (
-            congregated["original_poem"] == "The fog comes on little cat feet."
-        )
+        assert congregated["original_poem"] == "The fog comes on little cat feet."
         assert "雾来了" in congregated["initial_translation"]
         assert "猫" in congregated["revised_translation"]
 
@@ -230,14 +223,8 @@ class TestTranslationWorkflowIntegration:
         result = await workflow.execute(sample_translation_input)
 
         # Verify step ordering by checking timestamps
-        assert (
-            result.initial_translation.timestamp
-            <= result.editor_review.timestamp
-        )
-        assert (
-            result.editor_review.timestamp
-            <= result.revised_translation.timestamp
-        )
+        assert result.initial_translation.timestamp <= result.editor_review.timestamp
+        assert result.editor_review.timestamp <= result.revised_translation.timestamp
 
         # Verify that editor review references initial translation
         assert (
@@ -247,8 +234,7 @@ class TestTranslationWorkflowIntegration:
 
         # Verify that revised translation references editor suggestions
         assert (
-            "editor"
-            in result.revised_translation.revised_translation_notes.lower()
+            "editor" in result.revised_translation.revised_translation_notes.lower()
             or "suggestion"
             in result.revised_translation.revised_translation_notes.lower()
         )
@@ -382,14 +368,8 @@ class TestWorkflowFunctionalEquivalence:
         assert revised.revised_translation_notes is not None
 
         # Translations should contain Chinese characters
-        assert any(
-            "\u4e00" <= char <= "\u9fff"
-            for char in initial.initial_translation
-        )
-        assert any(
-            "\u4e00" <= char <= "\u9fff"
-            for char in revised.revised_translation
-        )
+        assert any("\u4e00" <= char <= "\u9fff" for char in initial.initial_translation)
+        assert any("\u4e00" <= char <= "\u9fff" for char in revised.revised_translation)
 
     @pytest.mark.asyncio
     async def test_editor_suggestions_format(
@@ -405,9 +385,7 @@ class TestWorkflowFunctionalEquivalence:
         editor_text = result.editor_review.text
 
         # Should contain numbered suggestions
-        assert (
-            "1." in editor_text or "2." in editor_text or "3." in editor_text
-        )
+        assert "1." in editor_text or "2." in editor_text or "3." in editor_text
 
         # Should contain improvement suggestions
         assert any(

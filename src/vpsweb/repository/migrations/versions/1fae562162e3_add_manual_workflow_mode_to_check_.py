@@ -42,7 +42,5 @@ def downgrade() -> None:
         # Recreate original check constraint without manual
         batch_op.create_check_constraint(
             "ck_workflow_mode",
-            sa.text(
-                "workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid')"
-            ),
+            sa.text("workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid')"),
         )

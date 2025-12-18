@@ -27,9 +27,7 @@ def db_session():
     Base.metadata.create_all(bind=engine)
 
     # Create session
-    TestingSessionLocal = sessionmaker(
-        autocommit=False, autoflush=False, bind=engine
-    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = TestingSessionLocal()
 
     yield session
@@ -115,9 +113,7 @@ class TestPoemModel:
         assert sample_poem.poem_title in repr_str
         assert sample_poem.poet_name in repr_str
 
-    def test_poem_translation_count(
-        self, db_session, sample_poem, sample_translation
-    ):
+    def test_poem_translation_count(self, db_session, sample_poem, sample_translation):
         """Test poem translation count property"""
         # Add poem and translation to database
         db_session.add(sample_poem)
@@ -167,9 +163,7 @@ class TestPoemModel:
 class TestTranslationModel:
     """Test cases for Translation model"""
 
-    def test_create_translation(
-        self, db_session, sample_poem, sample_translation
-    ):
+    def test_create_translation(self, db_session, sample_poem, sample_translation):
         """Test creating a translation"""
         # Add poem first
         db_session.add(sample_poem)

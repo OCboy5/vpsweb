@@ -13,14 +13,15 @@ Key Features:
 
 import uuid
 from unittest.mock import AsyncMock, patch
-import pytest
-from httpx import AsyncClient
-from fastapi.testclient import TestClient
 
+import pytest
+from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 # ==============================================================================
 # Poem API Endpoint Tests (9 tests - reduced from 18)
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -48,17 +49,13 @@ class TestPoemEndpoints:
         assert poem["translation_count"] == 0
 
     @pytest.mark.asyncio
-    async def test_poem_pagination_and_filtering(
-        self, test_client, test_context
-    ):
+    async def test_poem_pagination_and_filtering(self, test_client, test_context):
         """Test poem pagination and filtering in one comprehensive test."""
         # Create test data
         test_context.create_poem(
             poet_name="李白", poem_title="静夜思", source_language="zh-CN"
         )
-        test_context.create_poem(
-            poet_name="Shakespeare", source_language="en"
-        )
+        test_context.create_poem(poet_name="Shakespeare", source_language="en")
 
         # Test pagination
         response = await test_client.get("/api/v1/poems/?page=1&page_size=1")
@@ -102,7 +99,9 @@ And sings the tune without the words,""",
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
-    async def test_get_poem_success_and_not_found(self, test_client: AsyncClient, sample_poem):
+    async def test_get_poem_success_and_not_found(
+        self, test_client: AsyncClient, sample_poem
+    ):
         """Test GET /api/v1/poems/{poem_id} success and 404 cases."""
         # Test success
         response = await test_client.get(f"/api/v1/poems/{sample_poem.id}")
@@ -125,7 +124,9 @@ And sings the tune without the words,""",
             "source_language": sample_poem.source_language,
             "original_text": sample_poem.original_text,
         }
-        response = await test_client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
+        response = await test_client.put(
+            f"/api/v1/poems/{sample_poem.id}", json=update_data
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["poet_name"] == "Updated Poet"
@@ -136,15 +137,16 @@ And sings the tune without the words,""",
         assert response.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_poem_selection_and_deletion(self, test_client: AsyncClient, sample_poem):
+    async def test_poem_selection_and_deletion(
+        self, test_client: AsyncClient, sample_poem
+    ):
         """Test poem selection toggle and deletion."""
         # Store poem ID before any database operations
         poem_id = sample_poem.id
 
         # Test selection toggle
         response = await test_client.patch(
-            f"/api/v1/poems/{poem_id}/selected",
-            json={"selected": True}
+            f"/api/v1/poems/{poem_id}/selected", json={"selected": True}
         )
         assert response.status_code == 200
         data = response.json()
@@ -159,7 +161,9 @@ And sings the tune without the words,""",
         assert response.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_poem_translations_workflow(self, test_client: AsyncClient, sample_poem):
+    async def test_poem_translations_workflow(
+        self, test_client: AsyncClient, sample_poem
+    ):
         """Test GET /api/v1/poems/{poem_id}/translations workflow."""
         # Test empty translations
         response = await test_client.get(f"/api/v1/poems/{sample_poem.id}/translations")
@@ -168,7 +172,9 @@ And sings the tune without the words,""",
         assert len(data) == 0  # API returns List[dict] directly
 
     @pytest.mark.asyncio
-    async def test_get_filter_options_and_activity(self, test_client: AsyncClient, test_context):
+    async def test_get_filter_options_and_activity(
+        self, test_client: AsyncClient, test_context
+    ):
         """Test GET endpoints for filter options and recent activity."""
         # Create test data
         test_context.create_poem(poet_name="李白", source_language="zh-CN")
@@ -192,20 +198,23 @@ And sings the tune without the words,""",
 # Translation API Endpoint Tests (4 tests - reduced from 8)
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.api
 class TestTranslationEndpoints:
     """Essential translation API endpoint tests."""
 
     @pytest.mark.asyncio
-    async def test_list_translations_workflow(self, test_client: AsyncClient, test_context):
+    async def test_list_translations_workflow(
+        self, test_client: AsyncClient, test_context
+    ):
         """Test translation listing workflow."""
         # Create poem and translation
         poem = test_context.create_poem(
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="en",
-            original_text="Test content"
+            original_text="Test content",
         )
 
         # Test translations list endpoint works
@@ -223,38 +232,44 @@ class TestTranslationEndpoints:
             poem_id=poem.id,
             target_language="zh-CN",
             translated_text="测试翻译",
-            translator_type="ai"
+            translator_type="ai",
         )
         assert translation.id is not None
         assert translation.target_language == "zh-CN"
 
     @pytest.mark.asyncio
-    async def test_trigger_translation_workflow(self, test_client: AsyncClient, sample_poem):
+    async def test_trigger_translation_workflow(
+        self, test_client: AsyncClient, sample_poem
+    ):
         """Test translation triggering with different modes."""
         # Mock LLM providers to avoid external dependencies
         with patch("src.vpsweb.services.llm.factory.LLMFactory.get_provider"):
             # Test hybrid mode
-            response = await test_client.post("/api/v1/translations/trigger", json={
-                "poem_id": sample_poem.id,
-                "target_lang": "zh-CN",
-                "workflow_mode": "hybrid"
-            })
+            response = await test_client.post(
+                "/api/v1/translations/trigger",
+                json={
+                    "poem_id": sample_poem.id,
+                    "target_lang": "zh-CN",
+                    "workflow_mode": "hybrid",
+                },
+            )
             assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_trigger_validation_errors(self, test_client: AsyncClient):
         """Test translation trigger validation."""
         # Test missing poem_id
-        response = await test_client.post("/api/v1/translations/trigger", json={
-            "target_lang": "zh-CN",
-            "workflow_mode": "hybrid"
-        })
+        response = await test_client.post(
+            "/api/v1/translations/trigger",
+            json={"target_lang": "zh-CN", "workflow_mode": "hybrid"},
+        )
         assert response.status_code == 422
 
 
 # ==============================================================================
 # BBR API Endpoint Tests (3 tests - reduced from 8)
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -267,7 +282,9 @@ class TestBBREndpoints:
         # Note: BBR service is already mocked globally in conftest.py
 
         # Test generation
-        response = await test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
+        response = await test_client.post(
+            f"/api/v1/poems/{sample_poem.id}/bbr/generate"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -286,6 +303,7 @@ class TestBBREndpoints:
 # ==============================================================================
 # Statistics Endpoint Tests (1 test - same)
 # ==============================================================================
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -307,6 +325,7 @@ class TestStatisticsEndpoints:
 # Business Workflow Integration Tests (3 tests - consolidated)
 # ==============================================================================
 
+
 @pytest.mark.integration
 @pytest.mark.workflow
 class TestBusinessWorkflows:
@@ -321,7 +340,7 @@ class TestBusinessWorkflows:
         poem = test_context.create_poem(
             poet_name="Integration Poet",
             poem_title="Integration Test Poem",
-            original_text="This poem tests the complete integration workflow."
+            original_text="This poem tests the complete integration workflow.",
         )
 
         # Create translations
@@ -329,7 +348,7 @@ class TestBusinessWorkflows:
             poem_id=poem.id,
             target_language="zh-CN",
             translated_text="这是集成测试诗歌的中文翻译。",
-            translator_type="ai"
+            translator_type="ai",
         )
 
         # Verify workflow through API
@@ -357,23 +376,21 @@ class TestBusinessWorkflows:
         """Test integrated filtering and search functionality."""
         # Create diverse test data
         test_context.create_poem(
-            poet_name="Emily Dickinson",
-            poem_title="Hope",
-            source_language="en"
+            poet_name="Emily Dickinson", poem_title="Hope", source_language="en"
         )
         test_context.create_poem(
             poet_name="Emily Dickinson",
             poem_title="Because I could not stop for Death",
-            source_language="en"
+            source_language="en",
         )
         test_context.create_poem(
-            poet_name="李白",
-            poem_title="静夜思",
-            source_language="zh-CN"
+            poet_name="李白", poem_title="静夜思", source_language="zh-CN"
         )
 
         # Test combined filters
-        response = await test_client.get("/api/v1/poems/?poet_name=Emily Dickinson&language=en")
+        response = await test_client.get(
+            "/api/v1/poems/?poet_name=Emily Dickinson&language=en"
+        )
         assert response.status_code == 200
         data = response.json()
         # Due to test isolation, we focus on filter behavior rather than exact counts
@@ -395,7 +412,7 @@ class TestBusinessWorkflows:
         poem = test_context.create_poem(
             poet_name="Multilingual Poet",
             poem_title="Universal Poem",
-            source_language="en"
+            source_language="en",
         )
 
         # Add translations in multiple languages
@@ -403,14 +420,14 @@ class TestBusinessWorkflows:
             poem_id=poem.id,
             target_language="zh-CN",
             translated_text="通用诗歌",
-            translator_type="ai"
+            translator_type="ai",
         )
 
         test_context.create_translation(
             poem_id=poem.id,
             target_language="ja",
             translated_text="普遍的な詩",
-            translator_type="human"
+            translator_type="human",
         )
 
         # Verify multilingual support structure

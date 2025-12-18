@@ -29,12 +29,8 @@ from .models.config import LogLevel, WorkflowMode
 from .models.translation import TranslationInput
 from .services.config import get_config_facade, initialize_config_facade
 from .utils.article_generator import ArticleGenerator
-from .utils.config_loader import (
-    load_config,
-    load_wechat_complete_config,
-    validate_config_files,
-    validate_wechat_setup,
-)
+from .utils.config_loader import (load_config, load_wechat_complete_config,
+                                  validate_config_files, validate_wechat_setup)
 from .utils.logger import get_logger, setup_logging
 from .utils.storage import StorageHandler
 
@@ -149,12 +145,8 @@ def initialize_system(config_path: Optional[str], verbose: bool) -> tuple:
 
         # Display configuration summary using ConfigFacade
         workflow_info = config_facade.get_workflow_info()
-        click.echo(
-            f"   Workflow: {workflow_info['name']} v{workflow_info['version']}"
-        )
-        click.echo(
-            f"   Providers: {', '.join(config_facade.get_provider_names())}"
-        )
+        click.echo(f"   Workflow: {workflow_info['name']} v{workflow_info['version']}")
+        click.echo(f"   Providers: {', '.join(config_facade.get_provider_names())}")
 
         return complete_config, complete_config.main.workflow
 
@@ -187,9 +179,7 @@ async def execute_translation_workflow(
     """
     try:
         # Execute workflow
-        click.echo(
-            f"🚀 Starting translation workflow ({workflow_mode} mode)..."
-        )
+        click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
 
         # Display original poem
         click.echo(
@@ -205,9 +195,7 @@ async def execute_translation_workflow(
         click.echo("-" * 30)
         click.echo()  # Add spacing
 
-        translation_output = await workflow.execute(
-            input_data, show_progress=True
-        )
+        translation_output = await workflow.execute(input_data, show_progress=True)
 
         # Save results (both JSON and markdown)
         click.echo("💾 Saving translation results...")
@@ -256,25 +244,31 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
 
     # Step 1 details
     step1_tokens = translation_output.initial_translation.tokens_used
-    step1_duration = getattr(translation_output.initial_translation, 'duration', None)
-    step1_cost = getattr(translation_output.initial_translation, 'cost', None)
-    click.echo(f"  Step 1 (Initial): 🧮 {step1_tokens} tokens | "
-          f"⏱️  {format_duration(step1_duration)} | "
-          f"💰 {format_cost(step1_cost)}")
+    step1_duration = getattr(translation_output.initial_translation, "duration", None)
+    step1_cost = getattr(translation_output.initial_translation, "cost", None)
+    click.echo(
+        f"  Step 1 (Initial): 🧮 {step1_tokens} tokens | "
+        f"⏱️  {format_duration(step1_duration)} | "
+        f"💰 {format_cost(step1_cost)}"
+    )
     # Step 2 details
     step2_tokens = translation_output.editor_review.tokens_used
-    step2_duration = getattr(translation_output.editor_review, 'duration', None)
-    step2_cost = getattr(translation_output.editor_review, 'cost', None)
-    click.echo(f"  Step 2 (Editor): 🧮 {step2_tokens} tokens | "
-          f"⏱️  {format_duration(step2_duration)} | "
-          f"💰 {format_cost(step2_cost)}")
+    step2_duration = getattr(translation_output.editor_review, "duration", None)
+    step2_cost = getattr(translation_output.editor_review, "cost", None)
+    click.echo(
+        f"  Step 2 (Editor): 🧮 {step2_tokens} tokens | "
+        f"⏱️  {format_duration(step2_duration)} | "
+        f"💰 {format_cost(step2_cost)}"
+    )
     # Step 3 details
     step3_tokens = translation_output.revised_translation.tokens_used
-    step3_duration = getattr(translation_output.revised_translation, 'duration', None)
-    step3_cost = getattr(translation_output.revised_translation, 'cost', None)
-    click.echo(f"  Step 3 (Revision): 🧮 {step3_tokens} tokens | "
-          f"⏱️  {format_duration(step3_duration)} | "
-          f"💰 {format_cost(step3_cost)}")
+    step3_duration = getattr(translation_output.revised_translation, "duration", None)
+    step3_cost = getattr(translation_output.revised_translation, "cost", None)
+    click.echo(
+        f"  Step 3 (Revision): 🧮 {step3_tokens} tokens | "
+        f"⏱️  {format_duration(step3_duration)} | "
+        f"💰 {format_cost(step3_cost)}"
+    )
 
     # Total summary
     total_tokens = translation_output.total_tokens
@@ -327,20 +321,16 @@ def validate_input_only(
         click.echo(f"✅ Input validation passed")
         click.echo(f"   Source: {input_data.source_lang}")
         click.echo(f"   Target: {input_data.target_lang}")
-        click.echo(
-            f"   Poem length: {len(input_data.original_poem)} characters"
-        )
+        click.echo(f"   Poem length: {len(input_data.original_poem)} characters")
 
-        click.echo(
-            "\n✅ Dry run completed - configuration and input are valid!"
-        )
+        click.echo("\n✅ Dry run completed - configuration and input are valid!")
 
     except Exception as e:
         raise ConfigError(f"Validation failed: {e}")
 
 
 @click.group()
-@click.version_option(version="0.6.5", prog_name="vpsweb")
+@click.version_option(version="0.7.2", prog_name="vpsweb")
 def cli():
     """Vox Poetica Studio Web - Professional Poetry Translation
 
@@ -350,9 +340,7 @@ def cli():
 
 
 @cli.command()
-@click.option(
-    "--input", "-i", type=click.Path(exists=True), help="Input poem file"
-)
+@click.option("--input", "-i", type=click.Path(exists=True), help="Input poem file")
 @click.option(
     "--source",
     "-s",
@@ -383,9 +371,7 @@ def cli():
 @click.option("--output", "-o", type=click.Path(), help="Output directory")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
 @click.option("--dry-run", is_flag=True, help="Validate without execution")
-def translate(
-    input, source, target, workflow_mode, config, output, verbose, dry_run
-):
+def translate(input, source, target, workflow_mode, config, output, verbose, dry_run):
     """Translate a poem using the T-E-T workflow
 
     Examples:
@@ -410,9 +396,7 @@ def translate(
     vpsweb translate -i poem.txt -s English -t Chinese --dry-run
     """
     try:
-        click.echo(
-            "🎭 Vox Poetica Studio Web - Professional Poetry Translation"
-        )
+        click.echo("🎭 Vox Poetica Studio Web - Professional Poetry Translation")
         click.echo("=" * 60)
 
         # Read input poem
@@ -587,22 +571,16 @@ def generate_article(
             click.echo("⚠️  Using raw YAML config for article generation")
 
         if not article_gen_config:
-            raise ConfigError(
-                "Failed to load article generation configuration"
-            )
+            raise ConfigError("Failed to load article generation configuration")
 
         # Override model_type if specified via CLI
         if model_type:
             article_gen_config.model_type = model_type
             # Also update the prompt template to match the model type
             if model_type == "reasoning":
-                article_gen_config.prompt_template = (
-                    "wechat_article_notes_reasoning"
-                )
+                article_gen_config.prompt_template = "wechat_article_notes_reasoning"
             else:  # non_reasoning
-                article_gen_config.prompt_template = (
-                    "wechat_article_notes_nonreasoning"
-                )
+                article_gen_config.prompt_template = "wechat_article_notes_nonreasoning"
             click.echo(f"   🎯 Using Model Type: {model_type} (CLI override)")
         else:
             click.echo(
@@ -615,12 +593,8 @@ def generate_article(
 
         # Display important configuration items
         click.echo("\n📋 Article Generation Configuration:")
-        click.echo(
-            f"   📄 HTML Template: {article_gen_config.article_template}"
-        )
-        click.echo(
-            f"   🤖 LLM Prompt Template: {article_gen_config.prompt_template}"
-        )
+        click.echo(f"   📄 HTML Template: {article_gen_config.article_template}")
+        click.echo(f"   🤖 LLM Prompt Template: {article_gen_config.prompt_template}")
         click.echo(
             f"   📝 Include Translation Notes: {article_gen_config.include_translation_notes}"
         )
@@ -698,18 +672,10 @@ def generate_article(
                 return f"¥{cost:.6f}"
 
             click.echo("\n📊 LLM Translation Notes Metrics:")
-            click.echo(
-                f"   🧮 Tokens Used: {metrics.get('tokens_used', 'N/A')}"
-            )
-            click.echo(
-                f"      ⬇️ Prompt: {metrics.get('prompt_tokens', 'N/A')}"
-            )
-            click.echo(
-                f"      ⬆️ Completion: {metrics.get('completion_tokens', 'N/A')}"
-            )
-            click.echo(
-                f"   ⏱️  Time Spent: {format_duration(metrics.get('duration'))}"
-            )
+            click.echo(f"   🧮 Tokens Used: {metrics.get('tokens_used', 'N/A')}")
+            click.echo(f"      ⬇️ Prompt: {metrics.get('prompt_tokens', 'N/A')}")
+            click.echo(f"      ⬆️ Completion: {metrics.get('completion_tokens', 'N/A')}")
+            click.echo(f"   ⏱️  Time Spent: {format_duration(metrics.get('duration'))}")
             click.echo(f"   💰 Cost: {format_cost(metrics.get('cost'))}")
             click.echo(
                 f"   🤖 Model: {metrics.get('provider', 'N/A')}/{metrics.get('model', 'N/A')} ({metrics.get('model_type', 'N/A')})"
@@ -818,9 +784,7 @@ def publish_article(directory, config, dry_run, verbose):
                 html_content = f.read()
 
             if not html_content.strip():
-                raise InputError(
-                    "article.html is empty or contains only whitespace"
-                )
+                raise InputError("article.html is empty or contains only whitespace")
 
             click.echo("✅ Article HTML loaded successfully")
 
@@ -828,9 +792,7 @@ def publish_article(directory, config, dry_run, verbose):
             if verbose:
                 cover_images = validation_result["files"].get("cover_images")
                 if cover_images:
-                    preferred_cover = validation_result["files"][
-                        "preferred_cover"
-                    ]
+                    preferred_cover = validation_result["files"]["preferred_cover"]
                     click.echo(
                         f"📸 Found {len(cover_images)} cover image(s), would use: {preferred_cover.name}"
                     )
@@ -849,12 +811,8 @@ def publish_article(directory, config, dry_run, verbose):
                 poet_name=article_metadata.get("poet_name", ""),
                 source_lang=article_metadata.get("source_lang", ""),
                 target_lang=article_metadata.get("target_lang", ""),
-                translation_workflow_id=article_metadata.get(
-                    "workflow_id", ""
-                ),
-                translation_json_path=article_metadata.get(
-                    "source_json_path", ""
-                ),
+                translation_workflow_id=article_metadata.get("workflow_id", ""),
+                translation_json_path=article_metadata.get("source_json_path", ""),
             )
 
             click.echo("\n🔍 DRY RUN MODE - Previewing API call:")
@@ -966,9 +924,7 @@ def validate_article_directory(directory: Path) -> Dict[str, Any]:
         files["cover_images"] = cover_images
         # Prefer big images, fallback to small if no big images
         big_images = [img for img in cover_images if "big" in img.name.lower()]
-        files["preferred_cover"] = (
-            big_images[0] if big_images else cover_images[0]
-        )
+        files["preferred_cover"] = big_images[0] if big_images else cover_images[0]
 
     return {"valid": len(errors) == 0, "errors": errors, "files": files}
 
@@ -1074,9 +1030,7 @@ async def _publish_article_async(directory, config, verbose):
             html_content = f.read()
 
         if not html_content.strip():
-            raise InputError(
-                "article.html is empty or contains only whitespace"
-            )
+            raise InputError("article.html is empty or contains only whitespace")
 
         click.echo("✅ Article HTML loaded successfully")
 
@@ -1119,9 +1073,7 @@ async def _publish_article_async(directory, config, verbose):
                 wechat_article.show_cover_pic = True
                 click.echo(f"📸 Cover image found: {cover_image_name}")
             else:
-                click.echo(
-                    f"⚠️ Cover image specified but not found: {cover_image_path}"
-                )
+                click.echo(f"⚠️ Cover image specified but not found: {cover_image_path}")
 
         # Initialize WeChat client
         from .models.wechat import WeChatConfig
@@ -1191,9 +1143,7 @@ async def _publish_article_async(directory, config, verbose):
                     wechat_article.show_cover_pic = show_cover_pic
 
                 except Exception as e:
-                    click.echo(
-                        f"⚠️  Warning: Failed to upload cover image: {e}"
-                    )
+                    click.echo(f"⚠️  Warning: Failed to upload cover image: {e}")
         else:
             click.echo("📝 No cover image configured")
             click.echo("📝 Proceeding without cover image...")
@@ -1218,9 +1168,7 @@ async def _publish_article_async(directory, config, verbose):
                 "success": True,
                 "draft_id": draft_response.media_id,
                 "article_path": str(validation_result["files"]["html_path"]),
-                "metadata_path": str(
-                    validation_result["files"]["metadata_path"]
-                ),
+                "metadata_path": str(validation_result["files"]["metadata_path"]),
                 "directory": str(directory),
                 "published_at": (
                     draft_response.created_at.isoformat()

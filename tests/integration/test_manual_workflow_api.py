@@ -35,14 +35,10 @@ class TestManualWorkflowAPI:
     def mock_db_session(self):
         """Create a mock database session."""
         session = Mock()
-        session.query.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        session.query.return_value.filter.return_value.first.return_value = None
         return session
 
-    def test_start_manual_workflow_success(
-        self, client, sample_poem, mock_db_session
-    ):
+    def test_start_manual_workflow_success(self, client, sample_poem, mock_db_session):
         """Test successful manual workflow start."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -81,14 +77,9 @@ class TestManualWorkflowAPI:
                 assert data["success"] is True
                 assert "data" in data
                 assert data["data"]["session_id"] == "test-session-id"
-                assert (
-                    data["data"]["step_name"]
-                    == "initial_translation_nonreasoning"
-                )
+                assert data["data"]["step_name"] == "initial_translation_nonreasoning"
 
-    def test_start_manual_workflow_missing_target_lang(
-        self, client, mock_db_session
-    ):
+    def test_start_manual_workflow_missing_target_lang(self, client, mock_db_session):
         """Test manual workflow start with missing target language."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -101,9 +92,7 @@ class TestManualWorkflowAPI:
             # Verify response - should fail validation
             assert response.status_code == 422  # Validation error
 
-    def test_start_manual_workflow_poem_not_found(
-        self, client, mock_db_session
-    ):
+    def test_start_manual_workflow_poem_not_found(self, client, mock_db_session):
         """Test manual workflow start with non-existent poem."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -165,9 +154,7 @@ class TestManualWorkflowAPI:
                 data = response.json()
                 assert data["success"] is True
                 assert data["data"]["status"] == "continue"
-                assert (
-                    data["data"]["step_name"] == "editor_review_nonreasoning"
-                )
+                assert data["data"]["step_name"] == "editor_review_nonreasoning"
 
     def test_submit_manual_step_final_step(self, client, mock_db_session):
         """Test submission of final workflow step."""
@@ -203,9 +190,7 @@ class TestManualWorkflowAPI:
                 assert data["success"] is True
                 assert data["data"]["status"] == "completed"
 
-    def test_submit_manual_step_session_not_found(
-        self, client, mock_db_session
-    ):
+    def test_submit_manual_step_session_not_found(self, client, mock_db_session):
         """Test step submission with invalid session."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -272,9 +257,7 @@ class TestManualWorkflowAPI:
                 assert data["data"]["session_id"] == "test-session-id"
                 assert data["data"]["poem_id"] == "test-poem-id"
 
-    def test_get_manual_workflow_session_not_found(
-        self, client, mock_db_session
-    ):
+    def test_get_manual_workflow_session_not_found(self, client, mock_db_session):
         """Test getting non-existent session."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -295,9 +278,7 @@ class TestManualWorkflowAPI:
                 # Verify response
                 assert response.status_code == 404
 
-    def test_get_manual_workflow_session_wrong_poem(
-        self, client, mock_db_session
-    ):
+    def test_get_manual_workflow_session_wrong_poem(self, client, mock_db_session):
         """Test getting session that belongs to different poem."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session
@@ -349,9 +330,7 @@ class TestManualWorkflowAPI:
                 assert data["success"] is True
                 assert data["data"]["cleaned_count"] == 5
 
-    def test_manual_workflow_step_validation_errors(
-        self, client, mock_db_session
-    ):
+    def test_manual_workflow_step_validation_errors(self, client, mock_db_session):
         """Test validation errors for step submission."""
         with patch("vpsweb.webui.api.manual_workflow.get_db") as mock_get_db:
             mock_get_db.return_value = mock_db_session

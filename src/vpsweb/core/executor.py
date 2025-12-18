@@ -12,23 +12,13 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from ..models.config import StepConfig
-from ..models.translation import (
-    EditorReview,
-    InitialTranslation,
-    TranslationInput,
-)
+from ..models.translation import (EditorReview, InitialTranslation,
+                                  TranslationInput)
 from ..services.llm.factory import LLMFactory
-from ..services.parser import (
-    EmptyNotesFieldError,
-    OutputParser,
-    ValidationError,
-    XMLParsingError,
-)
-from ..services.prompts import (
-    PromptService,
-    TemplateLoadError,
-    TemplateVariableError,
-)
+from ..services.parser import (EmptyNotesFieldError, OutputParser,
+                               ValidationError, XMLParsingError)
+from ..services.prompts import (PromptService, TemplateLoadError,
+                                TemplateVariableError)
 
 logger = logging.getLogger(__name__)
 
@@ -72,9 +62,7 @@ class StepExecutor:
         self.llm_factory = llm_factory
         self.prompt_service = prompt_service
         self.system_config = system_config or {}
-        logger.info(
-            "Initialized StepExecutor with LLM factory and prompt service"
-        )
+        logger.info("Initialized StepExecutor with LLM factory and prompt service")
 
     def _get_strategy_value(self, key: str, default: str) -> str:
         """
@@ -165,9 +153,7 @@ class StepExecutor:
             raise
         except Exception as e:
             logger.exception(f"Unexpected error in step {step_name}: {e}")
-            raise StepExecutorError(
-                f"Unexpected error in step {step_name}: {e}"
-            )
+            raise StepExecutorError(f"Unexpected error in step {step_name}: {e}")
 
     def _validate_step_inputs(
         self, step_name: str, input_data: Dict[str, Any], config: StepConfig
@@ -190,9 +176,7 @@ class StepExecutor:
         """Get LLM provider instance from factory."""
         try:
             # Get provider configuration from factory's models.yaml
-            provider_config = self.llm_factory.get_provider_config(
-                config.provider
-            )
+            provider_config = self.llm_factory.get_provider_config(config.provider)
             if not provider_config:
                 raise LLMCallError(
                     f"Provider '{config.provider}' not found in configuration"
@@ -233,9 +217,7 @@ class StepExecutor:
 
         except (TemplateLoadError, TemplateVariableError) as e:
             logger.error(f"Prompt template rendering failed: {e}")
-            raise PromptRenderingError(
-                f"Failed to render prompt template: {e}"
-            )
+            raise PromptRenderingError(f"Failed to render prompt template: {e}")
 
     async def _execute_llm_with_retry(
         self,
@@ -251,9 +233,7 @@ class StepExecutor:
 
         for attempt in range(max_retries + 1):
             try:
-                logger.debug(
-                    f"LLM call attempt {attempt + 1}/{max_retries + 1}"
-                )
+                logger.debug(f"LLM call attempt {attempt + 1}/{max_retries + 1}")
 
                 # Format messages for OpenAI-compatible API
                 messages = [
@@ -279,9 +259,7 @@ class StepExecutor:
                 logger.info(f"Step: {step_name}")
                 logger.info(f"Provider: {config.provider}")
                 logger.info(f"Model: {config.model}")
-                logger.info(
-                    f"Response Length: {len(response.content)} characters"
-                )
+                logger.info(f"Response Length: {len(response.content)} characters")
                 logger.info(f"Full Response:\n{response.content}")
                 logger.info(f"=== END {step_name.upper()} RESPONSE DEBUG ===")
 
@@ -310,17 +288,13 @@ class StepExecutor:
             # Use specific parsers for workflow steps that need them
             if step_name == "initial_translation":
                 logger.info(f"Using specific parser for {step_name}")
-                parsed_data = OutputParser.parse_initial_translation_xml(
-                    llm_content
-                )
+                parsed_data = OutputParser.parse_initial_translation_xml(llm_content)
             elif step_name == "editor_review":
                 logger.info(f"Using specific parser for {step_name}")
                 parsed_data = OutputParser.parse_editor_review_xml(llm_content)
             elif step_name == "translator_revision":
                 logger.info(f"Using specific parser for {step_name}")
-                parsed_data = OutputParser.parse_revised_translation_xml(
-                    llm_content
-                )
+                parsed_data = OutputParser.parse_revised_translation_xml(llm_content)
             else:
                 # Use generic XML parser for other steps
                 logger.info(f"Using generic parser for {step_name}")
@@ -334,12 +308,8 @@ class StepExecutor:
 
             # Validate required fields if specified
             if config.required_fields:
-                logger.debug(
-                    f"Validating required fields: {config.required_fields}"
-                )
-                OutputParser.validate_output(
-                    parsed_data, config.required_fields
-                )
+                logger.debug(f"Validating required fields: {config.required_fields}")
+                OutputParser.validate_output(parsed_data, config.required_fields)
 
             # DEBUG: Log parsed output for troubleshooting
             logger.info(f"=== {step_name.upper()} PARSED OUTPUT DEBUG ===")
@@ -372,9 +342,7 @@ class StepExecutor:
             if isinstance(e, EmptyNotesFieldError):
                 raise OutputParsingError(f"Empty notes field detected: {e}")
             else:
-                raise OutputParsingError(
-                    f"Failed to parse or validate LLM output: {e}"
-                )
+                raise OutputParsingError(f"Failed to parse or validate LLM output: {e}")
 
     def _build_step_result(
         self,
@@ -400,9 +368,7 @@ class StepExecutor:
                 },
                 "usage": {
                     "tokens_used": llm_response.tokens_used,
-                    "prompt_tokens": getattr(
-                        llm_response, "prompt_tokens", None
-                    ),
+                    "prompt_tokens": getattr(llm_response, "prompt_tokens", None),
                     "completion_tokens": getattr(
                         llm_response, "completion_tokens", None
                     ),
@@ -459,9 +425,7 @@ class StepExecutor:
             "repetition_policy": self._get_strategy_value(
                 "repetition_policy", "strict"
             ),
-            "additions_policy": self._get_strategy_value(
-                "additions_policy", "forbid"
-            ),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
             "prosody_target": self._get_strategy_value(
                 "prosody_target", "free verse, cadence-aware"
             ),
@@ -478,9 +442,7 @@ class StepExecutor:
                 "No background briefing report available."
             )
 
-        return await self.execute_step(
-            "initial_translation", input_data, config
-        )
+        return await self.execute_step("initial_translation", input_data, config)
 
     async def execute_editor_review(
         self,
@@ -514,9 +476,7 @@ class StepExecutor:
         # Add line labels to original poem for reliable referencing
         from vpsweb.utils.text_processing import add_line_labels
 
-        labeled_original_poem = add_line_labels(
-            translation_input.original_poem
-        )
+        labeled_original_poem = add_line_labels(translation_input.original_poem)
 
         input_data = {
             "original_poem": labeled_original_poem,
@@ -535,9 +495,7 @@ class StepExecutor:
             "repetition_policy": self._get_strategy_value(
                 "repetition_policy", "strict"
             ),
-            "additions_policy": self._get_strategy_value(
-                "additions_policy", "forbid"
-            ),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
             "prosody_target": self._get_strategy_value(
                 "prosody_target", "free verse, cadence-aware"
             ),
@@ -594,17 +552,13 @@ class StepExecutor:
             "repetition_policy": self._get_strategy_value(
                 "repetition_policy", "strict"
             ),
-            "additions_policy": self._get_strategy_value(
-                "additions_policy", "forbid"
-            ),
+            "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
             "prosody_target": self._get_strategy_value(
                 "prosody_target", "free verse, cadence-aware"
             ),
         }
 
-        return await self.execute_step(
-            "translator_revision", input_data, config
-        )
+        return await self.execute_step("translator_revision", input_data, config)
 
     def __repr__(self) -> str:
         """String representation of the executor."""

@@ -11,16 +11,9 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
-from .base import (
-    AuthenticationError,
-    BaseLLMProvider,
-    ConfigurationError,
-    ContentFilterError,
-    LLMProviderError,
-    LLMResponse,
-    RateLimitError,
-    TimeoutError,
-)
+from .base import (AuthenticationError, BaseLLMProvider, ConfigurationError,
+                   ContentFilterError, LLMProviderError, LLMResponse,
+                   RateLimitError, TimeoutError)
 
 logger = logging.getLogger(__name__)
 
@@ -229,17 +222,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         for attempt in range(self.max_retries + 1):
             try:
                 # Use step-specific timeout if provided, otherwise use provider default
-                request_timeout = (
-                    timeout if timeout is not None else self.timeout
-                )
+                request_timeout = timeout if timeout is not None else self.timeout
                 logger.info(
                     f"Using timeout: {request_timeout}s (step_specific: {timeout}, provider_default: {self.timeout})"
                 )
                 async with httpx.AsyncClient(
                     timeout=httpx.Timeout(request_timeout),
-                    limits=httpx.Limits(
-                        max_connections=self.connection_pool_size
-                    ),
+                    limits=httpx.Limits(max_connections=self.connection_pool_size),
                     http2=True,
                 ) as client:
 
@@ -269,9 +258,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         f"=== {self.get_provider_name().upper()} API RESPONSE DEBUG ==="
                     )
                     logger.info(f"Status Code: {response.status_code}")
-                    logger.info(
-                        f"Response Length: {len(response.content)} bytes"
-                    )
+                    logger.info(f"Response Length: {len(response.content)} bytes")
                     logger.info(
                         f"Response Content (first 500 chars): {response.content[:500]}"
                     )
@@ -293,21 +280,15 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         )
                         return response_data
                     except asyncio.TimeoutError:
-                        logger.error(
-                            f"JSON parsing timed out after 10 seconds"
-                        )
+                        logger.error(f"JSON parsing timed out after 10 seconds")
                         logger.error(
                             f"Response content length: {len(response.content)} bytes"
                         )
                         # Try to see what we got
                         content_preview = (
-                            response.content[:500]
-                            if response.content
-                            else "No content"
+                            response.content[:500] if response.content else "No content"
                         )
-                        logger.error(
-                            f"Response content preview: {content_preview}"
-                        )
+                        logger.error(f"Response content preview: {content_preview}")
                         raise LLMProviderError(
                             f"JSON parsing timed out for {self.get_provider_name()}"
                         )
@@ -325,9 +306,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
             except (ConnectError, TimeoutException) as e:
                 if attempt < self.max_retries:
-                    wait_time = self.retry_delay * (
-                        2**attempt
-                    )  # Exponential backoff
+                    wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
                     logger.warning(
                         f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
                     )
@@ -378,13 +357,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
         try:
             error_data = json.loads(error_content.decode("utf-8"))
-            error_message = error_data.get("error", {}).get(
-                "message", str(error_data)
-            )
+            error_message = error_data.get("error", {}).get("message", str(error_data))
         except (json.JSONDecodeError, UnicodeDecodeError):
-            error_message = error_content.decode("utf-8", errors="ignore")[
-                :500
-            ]
+            error_message = error_content.decode("utf-8", errors="ignore")[:500]
 
         if status_code == 401:
             raise AuthenticationError(
@@ -417,9 +392,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                 status_code=status_code,
             )
 
-    def _parse_response(
-        self, response_data: Dict[str, Any], model: str
-    ) -> LLMResponse:
+    def _parse_response(self, response_data: Dict[str, Any], model: str) -> LLMResponse:
         """
         Parse the API response into standardized format.
 
@@ -459,9 +432,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             usage = response_data.get("usage", {})
             prompt_tokens = usage.get("prompt_tokens", 0)
             completion_tokens = usage.get("completion_tokens", 0)
-            total_tokens = usage.get(
-                "total_tokens", prompt_tokens + completion_tokens
-            )
+            total_tokens = usage.get("total_tokens", prompt_tokens + completion_tokens)
 
             # Extract additional metadata
             metadata = {

@@ -10,31 +10,19 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
-
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.services.config import ConfigFacade
-from vpsweb.utils.tools_phase3a import (
-    ErrorCollector,
-    PerformanceMonitor,
-    generate_unique_id,
-)
+from vpsweb.utils.tools_phase3a import (ErrorCollector, PerformanceMonitor,
+                                        generate_unique_id)
 
 from ...utils.language_mapper import LanguageMapper
-from .interfaces import (
-    IBBRServiceV2,
-    IConfigServiceV2,
-    IExceptionHandlerServiceV2,
-    IPerformanceServiceV2,
-    IPoemServiceV2,
-    IPoetServiceV2,
-    ISSEServiceV2,
-    IStatisticsServiceV2,
-    ITaskManagementServiceV2,
-    ITemplateServiceV2,
-    ITranslationServiceV2,
-    IWorkflowServiceV2,
-)
+from .interfaces import (IBBRServiceV2, IConfigServiceV2,
+                         IExceptionHandlerServiceV2, IPerformanceServiceV2,
+                         IPoemServiceV2, IPoetServiceV2, ISSEServiceV2,
+                         IStatisticsServiceV2, ITaskManagementServiceV2,
+                         ITemplateServiceV2, ITranslationServiceV2,
+                         IWorkflowServiceV2)
 
 
 class PoemServiceV2(IPoemServiceV2):
@@ -123,8 +111,8 @@ class PoemServiceV2(IPoemServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Get translations for this poem
-            translations = (
-                self.repository_service.repo.translations.get_by_poem(poem_id)
+            translations = self.repository_service.repo.translations.get_by_poem(
+                poem_id
             )
 
             result = {
@@ -132,10 +120,7 @@ class PoemServiceV2(IPoemServiceV2):
                 "translations": translations,
                 "translation_count": len(translations),
                 "last_updated": (
-                    max(
-                        [t.created_at for t in translations]
-                        + [poem.created_at]
-                    )
+                    max([t.created_at for t in translations] + [poem.created_at])
                     if translations
                     else poem.created_at
                 ),
@@ -212,14 +197,10 @@ class PoemServiceV2(IPoemServiceV2):
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
                     "created_at": (
-                        poem.created_at.isoformat()
-                        if poem.created_at
-                        else None
+                        poem.created_at.isoformat() if poem.created_at else None
                     ),
                     "updated_at": (
-                        poem.updated_at.isoformat()
-                        if poem.updated_at
-                        else None
+                        poem.updated_at.isoformat() if poem.updated_at else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
@@ -231,14 +212,10 @@ class PoemServiceV2(IPoemServiceV2):
                     {
                         "poem": poem_dict,
                         "last_activity": (
-                            last_activity.isoformat()
-                            if last_activity
-                            else None
+                            last_activity.isoformat() if last_activity else None
                         ),
                         "activity_type": activity_type,
-                        "activity_label": self._get_activity_label(
-                            activity_type
-                        ),
+                        "activity_label": self._get_activity_label(activity_type),
                     }
                 )
 
@@ -320,16 +297,12 @@ class PoemServiceV2(IPoemServiceV2):
         """Update an existing poem."""
         try:
             # Check if poem exists
-            existing_poem = self.repository_service.repo.poems.get_by_id(
-                poem_id
-            )
+            existing_poem = self.repository_service.repo.poems.get_by_id(poem_id)
             if not existing_poem:
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Update poem
-            updated_poem = self.repository_service.repo.poems.update(
-                poem_id, poem_data
-            )
+            updated_poem = self.repository_service.repo.poems.update(poem_id, poem_data)
 
             result = {
                 "success": True,
@@ -350,9 +323,7 @@ class PoemServiceV2(IPoemServiceV2):
         """Delete a poem and related data."""
         try:
             # Check if poem exists
-            existing_poem = self.repository_service.repo.poems.get_by_id(
-                poem_id
-            )
+            existing_poem = self.repository_service.repo.poems.get_by_id(poem_id)
             if not existing_poem:
                 return False
 
@@ -469,9 +440,7 @@ class TranslationServiceV2(ITranslationServiceV2):
             self.logger.error(f"Error getting translation list: {e}")
             raise
 
-    async def get_translation_detail(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
         try:
             translation = self.repository_service.repo.translations.get_by_id(
@@ -481,9 +450,7 @@ class TranslationServiceV2(ITranslationServiceV2):
                 raise ValueError(f"Translation not found: {translation_id}")
 
             # Get related poem
-            poem = self.repository_service.repo.poems.get_by_id(
-                translation.poem_id
-            )
+            poem = self.repository_service.repo.poems.get_by_id(translation.poem_id)
 
             result = {
                 "translation": translation,
@@ -498,15 +465,11 @@ class TranslationServiceV2(ITranslationServiceV2):
             return result
 
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_id": translation_id}
-            )
+            self.error_collector.add_error(e, {"translation_id": translation_id})
             self.logger.error(f"Error getting translation detail: {e}")
             raise
 
-    async def get_translation_comparison(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_translation_comparison(self, translation_id: str) -> Dict[str, Any]:
         """Get comparison data for a translation."""
         try:
             # This would implement comparison logic
@@ -518,10 +481,8 @@ class TranslationServiceV2(ITranslationServiceV2):
                 raise ValueError(f"Translation not found: {translation_id}")
 
             # Get other translations of the same poem for comparison
-            other_translations = (
-                self.repository_service.repo.translations.get_by_poem(
-                    translation.poem_id, exclude_id=translation_id
-                )
+            other_translations = self.repository_service.repo.translations.get_by_poem(
+                translation.poem_id, exclude_id=translation_id
             )
 
             result = {
@@ -533,9 +494,7 @@ class TranslationServiceV2(ITranslationServiceV2):
             return result
 
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_id": translation_id}
-            )
+            self.error_collector.add_error(e, {"translation_id": translation_id})
             self.logger.error(f"Error getting translation comparison: {e}")
             raise
 
@@ -555,14 +514,10 @@ class TranslationServiceV2(ITranslationServiceV2):
                 translation_data["poem_id"]
             )
             if not poem:
-                raise ValueError(
-                    f"Poem not found: {translation_data['poem_id']}"
-                )
+                raise ValueError(f"Poem not found: {translation_data['poem_id']}")
 
             # Create translation
-            translation = self.repository_service.translations.create(
-                translation_data
-            )
+            translation = self.repository_service.translations.create(translation_data)
 
             result = {
                 "success": True,
@@ -573,28 +528,20 @@ class TranslationServiceV2(ITranslationServiceV2):
             return result
 
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_data": translation_data}
-            )
+            self.error_collector.add_error(e, {"translation_data": translation_data})
             self.logger.error(f"Error creating translation: {e}")
             raise
 
     async def delete_translation(self, translation_id: str) -> bool:
         """Delete a translation."""
         try:
-            success = self.repository_service.repo.translations.delete(
-                translation_id
-            )
+            success = self.repository_service.repo.translations.delete(translation_id)
             return success
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_id": translation_id}
-            )
+            self.error_collector.add_error(e, {"translation_id": translation_id})
             return False
 
-    async def get_workflow_summary(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_workflow_summary(self, translation_id: str) -> Dict[str, Any]:
         """Get workflow execution summary for a translation."""
         try:
             # This would integrate with the workflow orchestrator
@@ -614,15 +561,11 @@ class TranslationServiceV2(ITranslationServiceV2):
             return result
 
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_id": translation_id}
-            )
+            self.error_collector.add_error(e, {"translation_id": translation_id})
             self.logger.error(f"Error getting workflow summary: {e}")
             raise
 
-    async def get_workflow_steps(
-        self, translation_id: str
-    ) -> List[Dict[str, Any]]:
+    async def get_workflow_steps(self, translation_id: str) -> List[Dict[str, Any]]:
         """Get detailed workflow steps for a translation."""
         try:
             # Get workflow steps from repository service
@@ -680,9 +623,7 @@ class TranslationServiceV2(ITranslationServiceV2):
                         step.timestamp.isoformat() if step.timestamp else None
                     ),
                     "created_at": (
-                        step.created_at.isoformat()
-                        if step.created_at
-                        else None
+                        step.created_at.isoformat() if step.created_at else None
                     ),
                 }
                 steps_data.append(step_data)
@@ -690,9 +631,7 @@ class TranslationServiceV2(ITranslationServiceV2):
             return steps_data
 
         except Exception as e:
-            self.error_collector.add_error(
-                e, {"translation_id": translation_id}
-            )
+            self.error_collector.add_error(e, {"translation_id": translation_id})
             self.logger.error(f"Error getting workflow steps: {e}")
             return []
 
@@ -726,9 +665,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
         if self._config is None:
             try:
-                self.logger.info(
-                    "Getting VPSWeb configuration from ConfigFacade..."
-                )
+                self.logger.info("Getting VPSWeb configuration from ConfigFacade...")
                 config_facade = get_config_facade()
                 self._config = (
                     config_facade.get_complete_config()
@@ -821,9 +758,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         self.logger.info(
             f"🎬 [WORKFLOW] _execute_workflow STARTED for task_id={task_id}"
         )
-        self.logger.info(
-            f"📝 [WORKFLOW] poem_id={poem_id}, target_lang={target_lang}"
-        )
+        self.logger.info(f"📝 [WORKFLOW] poem_id={poem_id}, target_lang={target_lang}")
         self.logger.info(f"⚙️ [WORKFLOW] workflow_mode={workflow_mode}")
 
         task = await self.task_service.get_task(task_id)
@@ -945,9 +880,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                         )
                         workflow_steps.append(workflow_step)
                     except Exception as e:
-                        self.logger.error(
-                            f"Failed to resolve step '{step_name}': {e}"
-                        )
+                        self.logger.error(f"Failed to resolve step '{step_name}': {e}")
                         # Skip this step or use default configuration
                         continue
 
@@ -958,10 +891,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 )
 
                 # Check if we have a local ConfigFacade instance
-                if (
-                    hasattr(self, "_config_facade")
-                    and self._config_facade is not None
-                ):
+                if hasattr(self, "_config_facade") and self._config_facade is not None:
                     self.logger.info("Using local ConfigFacade instance")
                     for step_name in step_names:
                         try:
@@ -976,9 +906,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                                 name=step_name,
                                 provider=resolved_step["provider"],
                                 model=resolved_step["model"],
-                                prompt_template=resolved_step[
-                                    "prompt_template"
-                                ],
+                                prompt_template=resolved_step["prompt_template"],
                                 temperature=resolved_step["temperature"],
                                 max_tokens=resolved_step["max_tokens"],
                                 timeout=resolved_step["timeout"],
@@ -1039,10 +967,8 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             )
 
             # Prepare input data for workflow
-            from vpsweb.models.translation import (
-                LANGUAGE_CODE_MAP,
-                TranslationInput,
-            )
+            from vpsweb.models.translation import (LANGUAGE_CODE_MAP,
+                                                   TranslationInput)
 
             # Validate that source and target languages are different
             if source_lang == target_lang:
@@ -1073,9 +999,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     workflow_mode=workflow_mode_enum,
                     task_service=getattr(self, "task_service", None),
                     task_id=task_id,
-                    repository_service=getattr(
-                        self, "repository_service", None
-                    ),
+                    repository_service=getattr(self, "repository_service", None),
                 )
             else:
                 # Legacy pattern - pass config and providers
@@ -1085,22 +1009,16 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                     workflow_mode=workflow_mode_enum,
                     task_service=getattr(self, "task_service", None),
                     task_id=task_id,
-                    repository_service=getattr(
-                        self, "repository_service", None
-                    ),
+                    repository_service=getattr(self, "repository_service", None),
                 )
-            await self.task_service.update_task(
-                task_id, {"workflow": workflow}
-            )
+            await self.task_service.update_task(task_id, {"workflow": workflow})
             workflow.progress_callback = progress_callback
 
             # Execute real workflow using orchestrator
             self.logger.info(
                 f"🚀 [WORKFLOW] Starting real workflow execution for task {task_id}"
             )
-            result = await workflow.execute(
-                input_data=input_data, show_progress=True
-            )
+            result = await workflow.execute(input_data=input_data, show_progress=True)
 
             self.logger.info(
                 f"✅ [WORKFLOW] Real workflow completed for task {task_id}"
@@ -1115,9 +1033,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             )
 
             # Get workflow results from the result object
-            final_result = (
-                result.revised_translation or result.initial_translation
-            )
+            final_result = result.revised_translation or result.initial_translation
 
             translated_text = ""
             if hasattr(final_result, "revised_translation"):
@@ -1161,18 +1077,14 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             await self.task_service.update_task_status(
                 task_id, "completed", result=result.__dict__
             )
-            self.logger.info(
-                f"Real workflow completed successfully for task {task_id}"
-            )
+            self.logger.info(f"Real workflow completed successfully for task {task_id}")
 
         except Exception as e:
             self.logger.error(
                 f"Real workflow execution failed for task {task_id}: {e}",
                 exc_info=True,
             )
-            await self.task_service.update_task_status(
-                task_id, "failed", error=str(e)
-            )
+            await self.task_service.update_task_status(task_id, "failed", error=str(e))
 
     async def _persist_workflow_result(
         self,
@@ -1182,26 +1094,17 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         input_data: Dict[str, Any],
     ):
         # Save to DB
-        await self._save_translation_to_db(
-            result, poem_id, workflow_mode, input_data
-        )
+        await self._save_translation_to_db(result, poem_id, workflow_mode, input_data)
         # Save to JSON
-        await self._save_translation_to_json(
-            result, poem_id, workflow_mode, input_data
-        )
+        await self._save_translation_to_json(result, poem_id, workflow_mode, input_data)
 
-    async def _save_translation_to_db(
-        self, result, poem_id, workflow_mode, input_data
-    ):
+    async def _save_translation_to_db(self, result, poem_id, workflow_mode, input_data):
         import json
 
-        from vpsweb.repository.schemas import (
-            AILogCreate,
-            TranslationCreate,
-            TranslationWorkflowStepCreate,
-            TranslatorType,
-            WorkflowStepType,
-        )
+        from vpsweb.repository.schemas import (AILogCreate, TranslationCreate,
+                                               TranslationWorkflowStepCreate,
+                                               TranslatorType,
+                                               WorkflowStepType)
 
         # Convert language names to proper codes for database storage
         language_mapper = LanguageMapper()
@@ -1292,9 +1195,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         # Create AI Log with the translation_id
         ai_log_create = AILogCreate(
             translation_id=translation.id,
-            model_name=result.initial_translation.model_info.get(
-                "model", "unknown"
-            ),
+            model_name=result.initial_translation.model_info.get("model", "unknown"),
             workflow_mode=workflow_mode,
             token_usage_json=json.dumps(
                 {
@@ -1370,18 +1271,12 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
                 if hasattr(step_data, "cost"):
                     step_cost = getattr(step_data, "cost", None)
-                    self.logger.info(
-                        f"🔍 [DEBUG] Got cost from attr: {step_cost}"
-                    )
+                    self.logger.info(f"🔍 [DEBUG] Got cost from attr: {step_cost}")
                 else:
                     step_cost = (
-                        step_data.get("cost")
-                        if isinstance(step_data, dict)
-                        else None
+                        step_data.get("cost") if isinstance(step_data, dict) else None
                     )
-                    self.logger.info(
-                        f"🔍 [DEBUG] Got cost from dict: {step_cost}"
-                    )
+                    self.logger.info(f"🔍 [DEBUG] Got cost from dict: {step_cost}")
             else:
                 # Other steps use object attributes
                 step_duration = getattr(step_data, "duration", None)
@@ -1422,13 +1317,9 @@ class WorkflowServiceV2(IWorkflowServiceV2):
                 cost=step_cost,
                 translated_title=step_translated_title,
                 translated_poet_name=step_translated_poet_name,
-                timestamp=datetime.now(
-                    timezone(timedelta(hours=8))
-                ),  # UTC+8 timezone
+                timestamp=datetime.now(timezone(timedelta(hours=8))),  # UTC+8 timezone
             )
-            self.repository_service.repo.workflow_steps.create(
-                workflow_step_create
-            )
+            self.repository_service.repo.workflow_steps.create(workflow_step_create)
 
     async def _save_translation_to_json(
         self, result, poem_id, workflow_mode, input_data
@@ -1441,9 +1332,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
         # We can use it directly with the storage handler.
 
         # Log debug info about JSON save
-        self.logger.info(
-            f"💾 [JSON] Saving translation to JSON for task {poem_id}"
-        )
+        self.logger.info(f"💾 [JSON] Saving translation to JSON for task {poem_id}")
 
         self.storage_handler.save_translation_with_poet_dir(
             output=result,
@@ -1467,9 +1356,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             self.logger.error(f"Error getting task status: {e}")
             return {"task_id": task_id, "status": "error", "error": str(e)}
 
-    async def cancel_task(
-        self, task_id: str, user_id: Optional[str] = None
-    ) -> bool:
+    async def cancel_task(self, task_id: str, user_id: Optional[str] = None) -> bool:
         """Cancel a workflow task."""
         try:
             if self.task_service:
@@ -1548,9 +1435,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
 
             # Validate language difference
             if source_lang == target_lang:
-                raise ValueError(
-                    "Source and target languages must be different"
-                )
+                raise ValueError("Source and target languages must be different")
 
             # Validate workflow mode
             available_modes = [
@@ -1727,32 +1612,22 @@ class PoetServiceV2(IPoetServiceV2):
         """Get comprehensive statistics for a specific poet."""
         try:
             # Get poem count
-            poem_count = self.repository_service.repo.poems.count_by_poet(
-                poet_name
-            )
+            poem_count = self.repository_service.repo.poems.count_by_poet(poet_name)
 
             # Get translation count
-            translation_count = (
-                self.repository_service.repo.translations.count_by_poet(
-                    poet_name
-                )
+            translation_count = self.repository_service.repo.translations.count_by_poet(
+                poet_name
             )
 
             # Get last activity
-            last_poem = self.repository_service.repo.poems.get_latest_by_poet(
-                poet_name
-            )
+            last_poem = self.repository_service.repo.poems.get_latest_by_poet(poet_name)
             last_translation = (
-                self.repository_service.repo.translations.get_latest_by_poet(
-                    poet_name
-                )
+                self.repository_service.repo.translations.get_latest_by_poet(poet_name)
             )
 
             last_activity = None
             if last_poem and last_translation:
-                last_activity = max(
-                    last_poem.created_at, last_translation.updated_at
-                )
+                last_activity = max(last_poem.created_at, last_translation.updated_at)
             elif last_poem:
                 last_activity = last_poem.created_at
             elif last_translation:
@@ -1783,9 +1658,7 @@ class PoetServiceV2(IPoetServiceV2):
         """Get statistics for all poets."""
         try:
             # Get all poets
-            poets = self.repository_service.repo.poems.get_distinct_poets(
-                limit=1000
-            )
+            poets = self.repository_service.repo.poems.get_distinct_poets(limit=1000)
 
             # Get statistics for each poet
             all_stats = []
@@ -1844,31 +1717,23 @@ class StatisticsServiceV2(IStatisticsServiceV2):
         try:
             # Basic counts
             total_poems = self.repository_service.repo.poems.count()
-            total_translations = (
-                self.repository_service.repo.translations.count()
-            )
+            total_translations = self.repository_service.repo.translations.count()
 
             # Recent activity (last 30 days)
             thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
             recent_poems = self.repository_service.repo.poems.count_since(
                 thirty_days_ago
             )
-            recent_translations = (
-                self.repository_service.repo.translations.count_since(
-                    thirty_days_ago
-                )
+            recent_translations = self.repository_service.repo.translations.count_since(
+                thirty_days_ago
             )
 
             # Language distribution
-            languages = (
-                self.repository_service.repo.poems.get_language_distribution()
-            )
+            languages = self.repository_service.repo.poems.get_language_distribution()
 
             # Poet statistics
             total_poets = len(
-                self.repository_service.repo.poems.get_distinct_poets(
-                    limit=10000
-                )
+                self.repository_service.repo.poems.get_distinct_poets(limit=10000)
             )
 
             result = {
@@ -1877,9 +1742,7 @@ class StatisticsServiceV2(IStatisticsServiceV2):
                     "total_translations": total_translations,
                     "total_poets": total_poets,
                     "total_translation_ratio": (
-                        total_translations / total_poems
-                        if total_poems > 0
-                        else 0
+                        total_translations / total_poems if total_poems > 0 else 0
                     ),
                 },
                 "recent_activity": {
@@ -1919,9 +1782,7 @@ class StatisticsServiceV2(IStatisticsServiceV2):
                     "days": days,
                 },
                 "translations_created": translations_in_period,
-                "daily_average": (
-                    translations_in_period / days if days > 0 else 0
-                ),
+                "daily_average": (translations_in_period / days if days > 0 else 0),
             }
 
         except Exception as e:
@@ -2010,14 +1871,10 @@ class PerformanceServiceV2(IPerformanceServiceV2):
         except Exception as e:
             self.logger.error(f"Error logging performance: {e}")
 
-    async def get_performance_summary(
-        self, minutes: int = 60
-    ) -> Dict[str, Any]:
+    async def get_performance_summary(self, minutes: int = 60) -> Dict[str, Any]:
         """Get performance summary for specified time period."""
         try:
-            metrics = await self.performance_monitor.get_performance_metrics(
-                minutes
-            )
+            metrics = await self.performance_monitor.get_performance_metrics(minutes)
             return metrics
 
         except Exception as e:
@@ -2038,9 +1895,7 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
         logger: Optional[logging.Logger] = None,
     ):
         self.logger = logger or logging.getLogger(__name__)
-        self.tasks: Dict[str, Any] = (
-            tasks_store if tasks_store is not None else {}
-        )
+        self.tasks: Dict[str, Any] = tasks_store if tasks_store is not None else {}
         self.max_age_hours = 24
 
     async def create_task(
@@ -2183,9 +2038,7 @@ class TaskManagementServiceV2(ITaskManagementServiceV2):
 
     async def cleanup_expired_tasks(self, max_age_hours: int = 24) -> int:
         """Clean up expired tasks."""
-        cutoff_time = datetime.now(timezone.utc) - timedelta(
-            hours=max_age_hours
-        )
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
 
         expired_tasks = [
             task_id
@@ -2258,9 +2111,7 @@ class TemplateServiceV2(ITemplateServiceV2):
             # Fallback to simple debug output
             return f"<h1>Template Error: {template_name}</h1><p>Error: {str(e)}</p><p>Context keys: {list(context.keys())}</p>"
 
-    async def get_template_list(
-        self, category: Optional[str] = None
-    ) -> List[str]:
+    async def get_template_list(self, category: Optional[str] = None) -> List[str]:
         """Get list of available templates."""
         # Return default templates
         templates = [
@@ -2374,9 +2225,7 @@ class ExceptionHandlerServiceV2(IExceptionHandlerServiceV2):
             },
         )
 
-        self.logger.error(
-            f"General Error [{error_id}]: {error}", exc_info=True
-        )
+        self.logger.error(f"General Error [{error_id}]: {error}", exc_info=True)
 
         if is_web_request:
             from fastapi.responses import JSONResponse
@@ -2418,9 +2267,7 @@ class SSEServiceV2(ISSEServiceV2):
                 "last_heartbeat": time.time(),
             }
 
-            self.logger.info(
-                f"Created SSE stream {stream_id} for task {task_id}"
-            )
+            self.logger.info(f"Created SSE stream {stream_id} for task {task_id}")
 
             # Return mock stream object
             return {"stream_id": stream_id, "task_id": task_id}
@@ -2570,12 +2417,8 @@ class BBRServiceV2(IBBRServiceV2):
                 "tokens_used": bbr.tokens_used,
                 "cost": bbr.cost,
                 "time_spent": bbr.time_spent,
-                "created_at": (
-                    bbr.created_at.isoformat() if bbr.created_at else None
-                ),
-                "updated_at": (
-                    bbr.updated_at.isoformat() if bbr.updated_at else None
-                ),
+                "created_at": (bbr.created_at.isoformat() if bbr.created_at else None),
+                "updated_at": (bbr.updated_at.isoformat() if bbr.updated_at else None),
             }
 
             return result
@@ -2642,8 +2485,10 @@ class BBRServiceV2(IBBRServiceV2):
                 "time_spent": bbr_result.time_spent,
             }
 
-            created_bbr = self.repository_service.repo.background_briefing_reports.create(
-                bbr_create_data
+            created_bbr = (
+                self.repository_service.repo.background_briefing_reports.create(
+                    bbr_create_data
+                )
             )
 
             result = {
@@ -2687,21 +2532,23 @@ class BBRServiceV2(IBBRServiceV2):
                 raise ValueError(f"Poem not found: {poem_id}")
 
             # Check if BBR exists
-            existing_bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(
-                poem_id
+            existing_bbr = (
+                self.repository_service.repo.background_briefing_reports.get_by_poem(
+                    poem_id
+                )
             )
             if not existing_bbr:
                 return False
 
             # Delete BBR
-            success = self.repository_service.repo.background_briefing_reports.delete_by_poem(
-                poem_id
+            success = (
+                self.repository_service.repo.background_briefing_reports.delete_by_poem(
+                    poem_id
+                )
             )
 
             if success:
-                self.logger.info(
-                    f"Successfully deleted BBR for poem {poem_id}"
-                )
+                self.logger.info(f"Successfully deleted BBR for poem {poem_id}")
             else:
                 self.logger.warning(f"Failed to delete BBR for poem {poem_id}")
 

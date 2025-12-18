@@ -8,10 +8,12 @@ Since BBR is a simple service with just 2 main methods (get_bbr, generate_bbr),
 we only need minimal coverage for the core functionality.
 """
 
-import pytest
 from unittest.mock import AsyncMock
 
+import pytest
+
 # Note: These tests focus on interface validation only since BBR is simple
+
 
 @pytest.mark.integration
 class TestBBRMinimal:
@@ -21,12 +23,12 @@ class TestBBRMinimal:
         """Test that BBR service interface exists and has expected methods."""
         # Import here to avoid import issues if service doesn't exist
         try:
-            from src.vpsweb.webui.services.interfaces import IBBRServiceV2
             from src.vpsweb.services.bbr_generator import BBRGenerator
+            from src.vpsweb.webui.services.interfaces import IBBRServiceV2
 
             # Verify interface exists
-            assert hasattr(IBBRServiceV2, 'get_bbr')
-            assert hasattr(IBBRServiceV2, 'generate_bbr')
+            assert hasattr(IBBRServiceV2, "get_bbr")
+            assert hasattr(IBBRServiceV2, "generate_bbr")
 
             # Verify implementation exists
             assert callable(BBRGenerator)
@@ -44,8 +46,8 @@ class TestBBRMinimal:
             mock_service = AsyncMock(spec=IBBRServiceV2)
 
             # Verify mock has expected methods
-            assert hasattr(mock_service, 'get_bbr')
-            assert hasattr(mock_service, 'generate_bbr')
+            assert hasattr(mock_service, "get_bbr")
+            assert hasattr(mock_service, "generate_bbr")
 
             # Test mock behavior
             mock_service.get_bbr.return_value = {"content": "test"}
@@ -65,14 +67,10 @@ class TestBBRMinimal:
             "id": str,
             "poem_id": str,
             "content": str,
-            "metadata": dict
+            "metadata": dict,
         }
 
-        expected_generation_response = {
-            "task_id": str,
-            "status": str,
-            "poem_id": str
-        }
+        expected_generation_response = {"task_id": str, "status": str, "poem_id": str}
 
         # Verify structure expectations are reasonable
         assert "id" in expected_bbr_structure

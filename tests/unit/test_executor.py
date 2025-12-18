@@ -10,12 +10,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.vpsweb.core.executor import (
-    LLMCallError,
-    OutputParsingError,
-    PromptRenderingError,
-    StepExecutor,
-)
+from src.vpsweb.core.executor import (LLMCallError, OutputParsingError,
+                                      PromptRenderingError, StepExecutor)
 from src.vpsweb.models.config import StepConfig
 from src.vpsweb.models.translation import TranslationInput
 from src.vpsweb.services.prompts import PromptService
@@ -127,9 +123,7 @@ class TestStepExecutor:
         assert result["status"] == "success"
         assert "output" in result
         assert "metadata" in result
-        assert (
-            result["output"]["initial_translation"] == "雾来了\n踏着猫的小脚。"
-        )
+        assert result["output"]["initial_translation"] == "雾来了\n踏着猫的小脚。"
         assert (
             result["output"]["initial_translation_notes"]
             == "This translation captures the gentle imagery."
@@ -317,10 +311,7 @@ class TestStepExecutor:
         # Verify correct input data was passed
         call_args = mock_prompt_service.render_prompt.call_args[0]
         assert call_args[0] == "initial_translation.yaml"
-        assert (
-            call_args[1]["original_poem"]
-            == "The fog comes on little cat feet."
-        )
+        assert call_args[1]["original_poem"] == "The fog comes on little cat feet."
         assert call_args[1]["source_lang"] == "English"
         assert call_args[1]["target_lang"] == "Chinese"
 
@@ -353,10 +344,12 @@ class TestStepExecutor:
         # Create initial translation
         from src.vpsweb.models.translation import InitialTranslation
 
-        notes = ("Translation notes with sufficient length to meet the word count "
-                "requirement for validation. This needs to be longer to "
-                "pass the 200-300 word validation check that is built into "
-                "the model.")
+        notes = (
+            "Translation notes with sufficient length to meet the word count "
+            "requirement for validation. This needs to be longer to "
+            "pass the 200-300 word validation check that is built into "
+            "the model."
+        )
 
         initial_translation = InitialTranslation(
             initial_translation="雾来了\n踏着猫的小脚。",
@@ -374,7 +367,9 @@ class TestStepExecutor:
             temperature=sample_step_config.temperature,
             max_tokens=sample_step_config.max_tokens,
             prompt_template="editor_review.yaml",
-            required_fields=["editor_suggestions"],  # Correct required fields for editor review
+            required_fields=[
+                "editor_suggestions"
+            ],  # Correct required fields for editor review
         )
 
         # Execute editor review
@@ -418,7 +413,8 @@ class TestStepExecutor:
         )
 
         # Create editor review and initial translation
-        from src.vpsweb.models.translation import EditorReview, InitialTranslation
+        from src.vpsweb.models.translation import (EditorReview,
+                                                   InitialTranslation)
 
         initial_translation = InitialTranslation(
             initial_translation="雾来了\n踏着猫的小脚。",
@@ -442,7 +438,10 @@ class TestStepExecutor:
             temperature=sample_step_config.temperature,
             max_tokens=sample_step_config.max_tokens,
             prompt_template="translator_revision.yaml",
-            required_fields=["revised_translation", "revised_translation_notes"],  # Correct required fields
+            required_fields=[
+                "revised_translation",
+                "revised_translation_notes",
+            ],  # Correct required fields
         )
 
         # Execute translator revision
@@ -461,8 +460,7 @@ class TestStepExecutor:
         call_args = mock_prompt_service.render_prompt.call_args[0]
         assert call_args[0] == "translator_revision.yaml"
         assert (
-            call_args[1]["editor_suggestions"]
-            == "Consider using more poetic language"
+            call_args[1]["editor_suggestions"] == "Consider using more poetic language"
         )
 
     def test_validate_step_inputs(self, step_executor):
@@ -470,28 +468,16 @@ class TestStepExecutor:
         config = Mock(spec=StepConfig)
 
         # Empty step name should raise ValueError
-        with pytest.raises(
-            ValueError, match="Step name cannot be empty"
-        ):
-            step_executor._validate_step_inputs(
-                "", {"key": "value"}, config
-            )
+        with pytest.raises(ValueError, match="Step name cannot be empty"):
+            step_executor._validate_step_inputs("", {"key": "value"}, config)
 
         # Invalid input data type should raise ValueError
-        with pytest.raises(
-            ValueError, match="Input data must be a dictionary"
-        ):
-            step_executor._validate_step_inputs(
-                "test_step", "not_a_dict", config
-            )
+        with pytest.raises(ValueError, match="Input data must be a dictionary"):
+            step_executor._validate_step_inputs("test_step", "not_a_dict", config)
 
         # None config should raise ValueError
-        with pytest.raises(
-            ValueError, match="Step configuration is required"
-        ):
-            step_executor._validate_step_inputs(
-                "test_step", {"key": "value"}, None
-            )
+        with pytest.raises(ValueError, match="Step configuration is required"):
+            step_executor._validate_step_inputs("test_step", {"key": "value"}, None)
 
         # Valid inputs should not raise any errors
         step_executor._validate_step_inputs(
@@ -499,22 +485,16 @@ class TestStepExecutor:
         )  # Should not raise
 
     @pytest.mark.asyncio
-    async def test_get_llm_provider_error(
-        self, step_executor, mock_llm_factory
-    ):
+    async def test_get_llm_provider_error(self, step_executor, mock_llm_factory):
         """Test LLM provider initialization error handling."""
         # Setup mock to raise exception
-        mock_llm_factory.get_provider_config.side_effect = Exception(
-            "Provider error"
-        )
+        mock_llm_factory.get_provider_config.side_effect = Exception("Provider error")
 
         config = Mock(spec=StepConfig)
         config.provider = "openai"
 
         # Should raise LLMCallError
-        with pytest.raises(
-            LLMCallError, match="Failed to initialize LLM provider"
-        ):
+        with pytest.raises(LLMCallError, match="Failed to initialize LLM provider"):
             await step_executor._get_llm_provider(config)
 
     def test_build_step_result(
@@ -639,10 +619,7 @@ class TestStepExecutor:
         )
 
         assert result["status"] == "success"
-        assert (
-            result["output"]["content"]
-            == "This is plain text without XML tags"
-        )
+        assert result["output"]["content"] == "This is plain text without XML tags"
 
 
 if __name__ == "__main__":

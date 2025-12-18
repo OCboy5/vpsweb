@@ -183,16 +183,12 @@ def set_log_level(level: str) -> None:
         ValueError: If the level is invalid
     """
     if not _logging_initialized:
-        raise LoggerSetupError(
-            "Logging not initialized. Call setup_logging() first."
-        )
+        raise LoggerSetupError("Logging not initialized. Call setup_logging() first.")
 
     # Validate level
     valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     if level not in valid_levels:
-        raise ValueError(
-            f"Invalid log level: {level}. Must be one of {valid_levels}"
-        )
+        raise ValueError(f"Invalid log level: {level}. Must be one of {valid_levels}")
 
     # Convert string level to logging constant
     level_constant = getattr(logging, level)
@@ -339,9 +335,7 @@ def log_error_with_context(
 
     context_str = " - ".join(message_parts)
 
-    logger.error(
-        f"Error occurred{f' - {context_str}' if context_str else ''}: {error}"
-    )
+    logger.error(f"Error occurred{f' - {context_str}' if context_str else ''}: {error}")
 
 
 def is_logging_initialized() -> bool:

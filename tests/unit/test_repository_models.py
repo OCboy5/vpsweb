@@ -9,13 +9,8 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from src.vpsweb.repository.models import (
-    AiLog,
-    BackgroundBriefingReport,
-    HumanNote,
-    Poem,
-    Translation,
-)
+from src.vpsweb.repository.models import (BackgroundBriefingReport, HumanNote,
+                                          Poem, Translation)
 from src.vpsweb.repository.schemas import TranslatorType
 
 
@@ -77,7 +72,7 @@ class TestEssentialModelConstraints:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         db_session.add(poem)
         db_session.commit()
@@ -96,49 +91,6 @@ class TestEssentialModelConstraints:
         assert retrieved_bbr.poem_id == poem.id
         assert retrieved_bbr.poem.poet_name == "Test Poet"
 
-    def test_ai_log_relationship(self, db_session: Session):
-        """Test AI log relationship with translation."""
-        # Create poem and translation
-        poem = Poem(
-            id=str(uuid.uuid4())[:26],
-            poet_name="Test Poet",
-            poem_title="Test Poem",
-            source_language="English",
-            original_text="Test content"
-        )
-        db_session.add(poem)
-        db_session.commit()
-
-        translation = Translation(
-            id=str(uuid.uuid4())[:26],
-            poem_id=poem.id,
-            target_language="Chinese",
-            translated_text="测试翻译",
-            translator_type=TranslatorType.AI,
-        )
-        db_session.add(translation)
-        db_session.commit()
-
-        # Create AI log
-        ai_log = AiLog(
-            id=str(uuid.uuid4())[:26],
-            translation_id=translation.id,
-            step_name="initial_translation",
-            model_provider="openai",
-            model_name="gpt-3.5-turbo",
-            system_prompt="Test system prompt",
-            user_prompt="Test user prompt",
-            raw_response="Test response",
-            tokens_used=100,
-        )
-        db_session.add(ai_log)
-        db_session.commit()
-
-        # Verify relationship
-        retrieved_log = db_session.get(AiLog, ai_log.id)
-        assert retrieved_log.translation_id == translation.id
-        assert retrieved_log.translation.translated_text == "测试翻译"
-
     def test_human_note_relationship(self, db_session: Session):
         """Test human note relationship with translation."""
         # Create poem and translation
@@ -147,7 +99,7 @@ class TestEssentialModelConstraints:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         db_session.add(poem)
         db_session.commit()

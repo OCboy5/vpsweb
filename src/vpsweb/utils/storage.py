@@ -12,10 +12,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from ..models.translation import TranslationOutput
-from .filename_utils import (
-    extract_poet_and_title,
-    generate_translation_filename,
-)
+from .filename_utils import (extract_poet_and_title,
+                             generate_translation_filename)
 from .markdown_export import MarkdownExporter
 
 logger = logging.getLogger(__name__)
@@ -62,17 +60,13 @@ class StorageHandler:
             logger.info(
                 f"Storage handler initialized with output directory: {self.output_dir.absolute()}"
             )
-            logger.info(
-                f"JSON files will be stored in: {self.json_dir.absolute()}"
-            )
+            logger.info(f"JSON files will be stored in: {self.json_dir.absolute()}")
 
             # Initialize markdown exporter
             self.markdown_exporter = MarkdownExporter(output_dir)
 
         except Exception as e:
-            logger.error(
-                f"Failed to create output directory '{self.output_dir}': {e}"
-            )
+            logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
             raise StorageError(
                 f"Could not create output directory '{self.output_dir}': {e}"
             )
@@ -132,9 +126,7 @@ class StorageHandler:
             logger.debug(
                 f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}"
             )
-            logger.info(
-                f"Generated filename with poet '{poet}' and title '{title}'"
-            )
+            logger.info(f"Generated filename with poet '{poet}' and title '{title}'")
 
             return file_path
 
@@ -187,9 +179,7 @@ class StorageHandler:
             logger.error(f"JSON parsing failed for file {file_path}: {e}")
             raise LoadError(f"Invalid JSON format in translation file: {e}")
         except KeyError as e:
-            logger.error(
-                f"Missing required field in translation file {file_path}: {e}"
-            )
+            logger.error(f"Missing required field in translation file {file_path}: {e}")
             raise LoadError(f"Translation file missing required field: {e}")
         except ValueError as e:
             logger.error(f"Data validation failed for file {file_path}: {e}")
@@ -217,9 +207,7 @@ class StorageHandler:
             translation_files = list(self.json_dir.glob("*.json"))
 
             # Sort by modification time (newest first)
-            translation_files.sort(
-                key=lambda x: x.stat().st_mtime, reverse=True
-            )
+            translation_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
             logger.debug(
                 f"Found {len(translation_files)} translation files in {self.json_dir}"
@@ -228,14 +216,10 @@ class StorageHandler:
             return translation_files
 
         except Exception as e:
-            logger.error(
-                f"Failed to list translation files in {self.json_dir}: {e}"
-            )
+            logger.error(f"Failed to list translation files in {self.json_dir}: {e}")
             raise StorageError(f"Failed to list translation files: {e}")
 
-    def get_translation_by_id(
-        self, workflow_id: str
-    ) -> Optional[TranslationOutput]:
+    def get_translation_by_id(self, workflow_id: str) -> Optional[TranslationOutput]:
         """
         Find and load a translation by workflow ID.
 
@@ -263,15 +247,11 @@ class StorageHandler:
                     # Skip files that can't be loaded
                     continue
 
-            logger.debug(
-                f"No translation found with workflow ID: {workflow_id}"
-            )
+            logger.debug(f"No translation found with workflow ID: {workflow_id}")
             return None
 
         except Exception as e:
-            logger.error(
-                f"Failed to search for translation with ID {workflow_id}: {e}"
-            )
+            logger.error(f"Failed to search for translation with ID {workflow_id}: {e}")
             raise StorageError(f"Failed to search for translation: {e}")
 
     def delete_translation(self, file_path: Path) -> bool:
@@ -300,9 +280,7 @@ class StorageHandler:
                 logger.info(f"Translation file deleted: {file_path}")
                 return True
             else:
-                logger.warning(
-                    f"Translation file not found for deletion: {file_path}"
-                )
+                logger.warning(f"Translation file not found for deletion: {file_path}")
                 return False
 
         except Exception as e:
@@ -336,9 +314,7 @@ class StorageHandler:
         """
         try:
             # Save JSON file (existing functionality)
-            json_path = self.save_translation(
-                output, workflow_mode, include_mode_tag
-            )
+            json_path = self.save_translation(output, workflow_mode, include_mode_tag)
 
             # Save markdown files (new functionality)
             markdown_paths = self.markdown_exporter.export_both(output)
@@ -382,16 +358,12 @@ class StorageHandler:
                 "total_size_bytes": total_size,
                 "total_size_mb": round(total_size / (1024 * 1024), 2),
                 "oldest_file": (
-                    min(
-                        translation_files, key=lambda x: x.stat().st_mtime
-                    ).name
+                    min(translation_files, key=lambda x: x.stat().st_mtime).name
                     if translation_files
                     else None
                 ),
                 "newest_file": (
-                    max(
-                        translation_files, key=lambda x: x.stat().st_mtime
-                    ).name
+                    max(translation_files, key=lambda x: x.stat().st_mtime).name
                     if translation_files
                     else None
                 ),
@@ -466,19 +438,13 @@ class StorageHandler:
             with open(poet_file_path, "w", encoding="utf-8") as f:
                 json.dump(output_dict, f, ensure_ascii=False, indent=2)
 
-            logger.info(
-                f"Translation saved to poet directory: {poet_file_path}"
-            )
+            logger.info(f"Translation saved to poet directory: {poet_file_path}")
 
             return poet_file_path
 
         except Exception as e:
-            logger.error(
-                f"Failed to save translation with poet directory: {e}"
-            )
-            raise SaveError(
-                f"Failed to save translation with poet directory: {e}"
-            )
+            logger.error(f"Failed to save translation with poet directory: {e}")
+            raise SaveError(f"Failed to save translation with poet directory: {e}")
 
     def get_poet_directories(self) -> List[str]:
         """
@@ -538,9 +504,7 @@ class StorageHandler:
 
         except Exception as e:
             logger.error(f"Failed to get poet files for '{poet_name}': {e}")
-            raise StorageError(
-                f"Failed to get poet files for '{poet_name}': {e}"
-            )
+            raise StorageError(f"Failed to get poet files for '{poet_name}': {e}")
 
     def __repr__(self) -> str:
         """String representation of the storage handler."""

@@ -87,17 +87,13 @@ class LLMFactory:
 
         # Log initialization with proper provider count
         if self._using_new_structure:
-            provider_count = len(
-                self._config_facade.model_registry.list_providers()
-            )
+            provider_count = len(self._config_facade.model_registry.list_providers())
             logger.info(
                 f"Initialized LLMFactory with {provider_count} providers from model registry"
             )
         else:
             provider_count = (
-                len(self.providers_config.providers)
-                if self.providers_config
-                else 0
+                len(self.providers_config.providers) if self.providers_config else 0
             )
             logger.info(
                 f"Initialized LLMFactory with {provider_count} providers from legacy config"
@@ -148,10 +144,8 @@ class LLMFactory:
         if self._using_new_structure and self._config_facade:
             try:
                 # Get provider info from model registry
-                provider_info = (
-                    self._config_facade.model_registry.get_provider_info(
-                        provider_name
-                    )
+                provider_info = self._config_facade.model_registry.get_provider_info(
+                    provider_name
                 )
                 # Create ModelProviderConfig from registry data
                 return ModelProviderConfig(
@@ -160,9 +154,7 @@ class LLMFactory:
                     type=provider_info.type,
                     models=provider_info.models,  # This will be a list of model names
                     default_model=(
-                        provider_info.models[0]
-                        if provider_info.models
-                        else None
+                        provider_info.models[0] if provider_info.models else None
                     ),
                 )
             except ValueError as e:
@@ -208,9 +200,7 @@ class LLMFactory:
             ConfigurationError: If provider type is not supported
             AuthenticationError: If API key is not available
         """
-        logger.debug(
-            f"Creating provider: {provider_name} with type: {config.type}"
-        )
+        logger.debug(f"Creating provider: {provider_name} with type: {config.type}")
 
         # Get API key from environment variable
         api_key = os.getenv(config.api_key_env)
@@ -270,9 +260,7 @@ class LLMFactory:
             "max_retries": global_settings.get("max_retries", 3),
             "retry_delay": global_settings.get("retry_delay", 1.0),
             "request_timeout": global_settings.get("request_timeout", 30.0),
-            "connection_pool_size": global_settings.get(
-                "connection_pool_size", 10
-            ),
+            "connection_pool_size": global_settings.get("connection_pool_size", 10),
         }
 
         return OpenAICompatibleProvider(
@@ -338,9 +326,7 @@ class LLMFactory:
         providers = {}
         # Get list of providers based on structure
         if self._using_new_structure:
-            provider_names = (
-                self._config_facade.model_registry.list_providers()
-            )
+            provider_names = self._config_facade.model_registry.list_providers()
         else:
             provider_names = (
                 list(self.providers_config.providers.keys())
@@ -352,9 +338,7 @@ class LLMFactory:
             try:
                 providers[provider_name] = self.get_provider(provider_name)
             except Exception as e:
-                logger.warning(
-                    f"Failed to create provider '{provider_name}': {e}"
-                )
+                logger.warning(f"Failed to create provider '{provider_name}': {e}")
         return providers
 
     def clear_cache(self) -> None:
@@ -403,9 +387,7 @@ class LLMFactory:
     def __repr__(self) -> str:
         """String representation of the factory."""
         if self._using_new_structure:
-            provider_names = (
-                self._config_facade.model_registry.list_providers()
-            )
+            provider_names = self._config_facade.model_registry.list_providers()
         else:
             provider_names = (
                 list(self.providers_config.providers.keys())

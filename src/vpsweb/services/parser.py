@@ -80,9 +80,7 @@ class OutputParser:
             matches = re.findall(pattern, xml_string, re.DOTALL)
 
             if not matches:
-                logger.warning(
-                    f"No XML tags found in string: {xml_string[:100]}..."
-                )
+                logger.warning(f"No XML tags found in string: {xml_string[:100]}...")
                 return {}
 
             result = {}
@@ -179,8 +177,7 @@ class OutputParser:
             if field not in parsed_data:
                 missing_fields.append(field)
             elif (
-                isinstance(parsed_data[field], str)
-                and not parsed_data[field].strip()
+                isinstance(parsed_data[field], str) and not parsed_data[field].strip()
             ) or (parsed_data[field] is None):
                 empty_fields.append(field)
             # Additional check for empty JSON objects
@@ -294,9 +291,7 @@ class OutputParser:
                 f"Missing expected tag in initial translation XML: {e}"
             )
         except Exception as e:
-            raise XMLParsingError(
-                f"Error parsing initial translation XML: {e}"
-            )
+            raise XMLParsingError(f"Error parsing initial translation XML: {e}")
 
     @staticmethod
     def parse_revised_translation_xml(xml_string: str) -> Dict[str, str]:
@@ -385,9 +380,7 @@ class OutputParser:
                 f"Missing expected tag in revised translation XML: {e}"
             )
         except Exception as e:
-            raise XMLParsingError(
-                f"Error parsing revised translation XML: {e}"
-            )
+            raise XMLParsingError(f"Error parsing revised translation XML: {e}")
 
     @staticmethod
     def _extract_content_robustly(
@@ -438,9 +431,7 @@ class OutputParser:
                 # If start tag is not found, try to parse as a whole
                 parsed_data = OutputParser.parse_xml(xml_string)
                 if "editor_suggestions" in parsed_data:
-                    return {
-                        "editor_suggestions": parsed_data["editor_suggestions"]
-                    }
+                    return {"editor_suggestions": parsed_data["editor_suggestions"]}
                 else:
                     # As a last resort, return the whole string if no tags are found
                     logger.warning(

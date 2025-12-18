@@ -14,10 +14,7 @@ from typing import Any, Dict, Optional
 from fastapi import BackgroundTasks
 
 from vpsweb.core.interfaces import IConfigurationService, IWorkflowOrchestrator
-from vpsweb.core.workflow_orchestrator import (
-    WorkflowConfig,
-    WorkflowStep,
-)
+from vpsweb.core.workflow_orchestrator import WorkflowConfig, WorkflowStep
 from vpsweb.models.translation import TranslationInput
 from vpsweb.repository.service import RepositoryWebService
 
@@ -128,9 +125,7 @@ class VPSWebWorkflowAdapterV2:
             },
         )
 
-    def _create_workflow_config_from_mode(
-        self, workflow_mode: str
-    ) -> WorkflowConfig:
+    def _create_workflow_config_from_mode(self, workflow_mode: str) -> WorkflowConfig:
         """
         Create workflow configuration from mode string.
 
@@ -265,7 +260,6 @@ class VPSWebWorkflowAdapterV2:
 
         # Get FastAPI app instance for app.state access
         from vpsweb.webui.main import app
-
         # Initialize task in app.state for SSE compatibility
         from vpsweb.webui.task_models import TaskStatus as InMemoryTaskStatus
 
@@ -301,9 +295,7 @@ class VPSWebWorkflowAdapterV2:
             )
         )
 
-        self.logger.info(
-            f"Asynchronous workflow task {task_id} has been scheduled."
-        )
+        self.logger.info(f"Asynchronous workflow task {task_id} has been scheduled.")
 
         return {
             "task_id": task_id,
@@ -348,9 +340,7 @@ class VPSWebWorkflowAdapterV2:
             )
 
             # Create workflow configuration
-            workflow_config = self._create_workflow_config_from_mode(
-                workflow_mode_str
-            )
+            workflow_config = self._create_workflow_config_from_mode(workflow_mode_str)
 
             # Create progress callback for SSE compatibility
             async def progress_callback(
@@ -383,9 +373,7 @@ class VPSWebWorkflowAdapterV2:
                             },
                             step_state="completed",
                         )
-                        current_task_status.progress = progress_map.get(
-                            step_name, 0
-                        )
+                        current_task_status.progress = progress_map.get(step_name, 0)
                     elif step_state == "failed":
                         current_task_status.update_step(
                             step_name=step_name,
@@ -430,15 +418,11 @@ class VPSWebWorkflowAdapterV2:
             # Process result and save to database
             if result.status.value == "completed":
                 # Debug: Log the workflow result structure
-                self.logger.info(
-                    f"🔍 [DEBUG] Workflow result type: {type(result)}"
-                )
+                self.logger.info(f"🔍 [DEBUG] Workflow result type: {type(result)}")
                 self.logger.info(
                     f"🔍 [DEBUG] Workflow result dir: {[attr for attr in dir(result) if not attr.startswith('_')]}"
                 )
-                self.logger.info(
-                    f"🔍 [DEBUG] Results type: {type(result.results)}"
-                )
+                self.logger.info(f"🔍 [DEBUG] Results type: {type(result.results)}")
                 self.logger.info(
                     f"🔍 [DEBUG] Results keys: {list(result.results.keys()) if hasattr(result.results, 'keys') else 'N/A'}"
                 )
@@ -508,9 +492,7 @@ class VPSWebWorkflowAdapterV2:
             else:
                 # Workflow failed
                 error_msg = (
-                    "; ".join(result.errors)
-                    if result.errors
-                    else "Unknown error"
+                    "; ".join(result.errors) if result.errors else "Unknown error"
                 )
                 with app.state.task_locks[task_id]:
                     task_status.set_failed(
@@ -583,9 +565,7 @@ class VPSWebWorkflowAdapterV2:
             # self.logger.info(f"Translation saved with ID: {saved_translation.id}")
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to save workflow result: {e}", exc_info=True
-            )
+            self.logger.error(f"Failed to save workflow result: {e}", exc_info=True)
             # Don't fail the workflow, just log the error
 
     def get_workflow_status(self, workflow_id: str) -> Optional[str]:

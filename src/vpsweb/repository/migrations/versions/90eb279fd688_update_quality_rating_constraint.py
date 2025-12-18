@@ -52,16 +52,12 @@ def upgrade() -> None:
     op.drop_table("workflow_tasks")
     with op.batch_alter_table("human_notes", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("idx_human_notes_created_at"))
-        batch_op.drop_index(
-            batch_op.f("idx_human_notes_translation_created_at")
-        )
+        batch_op.drop_index(batch_op.f("idx_human_notes_translation_created_at"))
         batch_op.drop_index(batch_op.f("ix_human_notes_id"))
         batch_op.drop_index(batch_op.f("ix_human_notes_translation_id"))
 
     op.drop_table("human_notes")
-    with op.batch_alter_table(
-        "translation_workflow_steps", schema=None
-    ) as batch_op:
+    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("idx_workflow_steps_ai_log_id"))
         batch_op.drop_index(batch_op.f("idx_workflow_steps_cost"))
         batch_op.drop_index(batch_op.f("idx_workflow_steps_duration"))
@@ -70,25 +66,15 @@ def upgrade() -> None:
         batch_op.drop_index(batch_op.f("idx_workflow_steps_translation_id"))
         batch_op.drop_index(batch_op.f("idx_workflow_steps_type_order"))
         batch_op.drop_index(batch_op.f("idx_workflow_steps_workflow_id"))
-        batch_op.drop_index(
-            batch_op.f("ix_translation_workflow_steps_ai_log_id")
-        )
+        batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_ai_log_id"))
         batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_cost"))
         batch_op.drop_index(
             batch_op.f("ix_translation_workflow_steps_duration_seconds")
         )
-        batch_op.drop_index(
-            batch_op.f("ix_translation_workflow_steps_step_type")
-        )
-        batch_op.drop_index(
-            batch_op.f("ix_translation_workflow_steps_tokens_used")
-        )
-        batch_op.drop_index(
-            batch_op.f("ix_translation_workflow_steps_translation_id")
-        )
-        batch_op.drop_index(
-            batch_op.f("ix_translation_workflow_steps_workflow_id")
-        )
+        batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_step_type"))
+        batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_tokens_used"))
+        batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_translation_id"))
+        batch_op.drop_index(batch_op.f("ix_translation_workflow_steps_workflow_id"))
 
     op.drop_table("translation_workflow_steps")
     with op.batch_alter_table("ai_logs", schema=None) as batch_op:
@@ -193,9 +179,7 @@ def downgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_ai_logs_model_name"), ["model_name"], unique=False
         )
-        batch_op.create_index(
-            batch_op.f("ix_ai_logs_id"), ["id"], unique=False
-        )
+        batch_op.create_index(batch_op.f("ix_ai_logs_id"), ["id"], unique=False)
         batch_op.create_index(
             batch_op.f("idx_ai_logs_translation_model"),
             ["translation_id", "model_name"],
@@ -233,22 +217,16 @@ def downgrade() -> None:
         sa.Column("cost", sa.FLOAT(), nullable=True),
         sa.Column("additional_metrics", sa.TEXT(), nullable=True),
         sa.Column("translated_title", sa.VARCHAR(length=500), nullable=True),
-        sa.Column(
-            "translated_poet_name", sa.VARCHAR(length=200), nullable=True
-        ),
+        sa.Column("translated_poet_name", sa.VARCHAR(length=200), nullable=True),
         sa.Column("timestamp", sa.DATETIME(), nullable=False),
         sa.Column("created_at", sa.DATETIME(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
             ["translation_id"], ["translations.id"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    with op.batch_alter_table(
-        "translation_workflow_steps", schema=None
-    ) as batch_op:
+    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
         batch_op.create_index(
             batch_op.f("ix_translation_workflow_steps_workflow_id"),
             ["workflow_id"],
@@ -340,9 +318,7 @@ def downgrade() -> None:
             ["translation_id"],
             unique=False,
         )
-        batch_op.create_index(
-            batch_op.f("ix_human_notes_id"), ["id"], unique=False
-        )
+        batch_op.create_index(batch_op.f("ix_human_notes_id"), ["id"], unique=False)
         batch_op.create_index(
             batch_op.f("idx_human_notes_translation_created_at"),
             ["translation_id", "created_at"],
@@ -373,9 +349,7 @@ def downgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     with op.batch_alter_table("workflow_tasks", schema=None) as batch_op:
-        batch_op.create_index(
-            batch_op.f("ix_workflow_tasks_id"), ["id"], unique=False
-        )
+        batch_op.create_index(batch_op.f("ix_workflow_tasks_id"), ["id"], unique=False)
         batch_op.create_index(
             batch_op.f("idx_workflow_tasks_status_created_at"),
             ["status", "created_at"],
@@ -441,9 +415,7 @@ def downgrade() -> None:
         batch_op.create_index(
             batch_op.f("ix_translations_poem_id"), ["poem_id"], unique=False
         )
-        batch_op.create_index(
-            batch_op.f("ix_translations_id"), ["id"], unique=False
-        )
+        batch_op.create_index(batch_op.f("ix_translations_id"), ["id"], unique=False)
         batch_op.create_index(
             batch_op.f("idx_translations_type_language"),
             ["translator_type", "target_language"],

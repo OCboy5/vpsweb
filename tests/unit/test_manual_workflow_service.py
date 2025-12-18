@@ -136,9 +136,7 @@ class TestManualWorkflowService:
             )
 
     @pytest.mark.asyncio
-    async def test_submit_step_success(
-        self, manual_workflow_service, sample_poem
-    ):
+    async def test_submit_step_success(self, manual_workflow_service, sample_poem):
         """Test successful step submission."""
         # Setup session
         manual_workflow_service.sessions["test-session"] = {
@@ -190,9 +188,7 @@ class TestManualWorkflowService:
         assert step["llm_response"] == "<response>Test translation</response>"
 
     @pytest.mark.asyncio
-    async def test_submit_step_last_step(
-        self, manual_workflow_service, sample_poem
-    ):
+    async def test_submit_step_last_step(self, manual_workflow_service, sample_poem):
         """Test successful submission of final step."""
         # Setup session with last step
         manual_workflow_service.sessions["test-session"] = {
@@ -243,14 +239,10 @@ class TestManualWorkflowService:
         manual_workflow_service.workflow_service._persist_workflow_result.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_submit_step_session_not_found(
-        self, manual_workflow_service
-    ):
+    async def test_submit_step_session_not_found(self, manual_workflow_service):
         """Test step submission with non-existent session."""
         # Execute and verify
-        with pytest.raises(
-            ValueError, match="Session not found: test-session"
-        ):
+        with pytest.raises(ValueError, match="Session not found: test-session"):
             await manual_workflow_service.submit_step(
                 session_id="test-session",
                 step_name="initial_translation_nonreasoning",
@@ -293,8 +285,8 @@ class TestManualWorkflowService:
         }
 
         # Setup mock to raise error
-        manual_workflow_service.output_parser.parse_xml.side_effect = (
-            Exception("Invalid XML")
+        manual_workflow_service.output_parser.parse_xml.side_effect = Exception(
+            "Invalid XML"
         )
 
         # Execute and verify
@@ -393,9 +385,7 @@ class TestManualWorkflowService:
         # Verify
         assert prompt is not None
         manual_workflow_service.prompt_service.render_prompt.assert_called_once()
-        call_args = (
-            manual_workflow_service.prompt_service.render_prompt.call_args
-        )
+        call_args = manual_workflow_service.prompt_service.render_prompt.call_args
         assert call_args[0][0] == "translator_revision_nonreasoning"
         template_vars = call_args[0][1]
         assert "initial_translation" in template_vars

@@ -359,9 +359,7 @@ class IWorkflowOrchestrator(ABC):
         """
 
     @abstractmethod
-    def get_workflow_status(
-        self, workflow_id: str
-    ) -> Optional[WorkflowStatus]:
+    def get_workflow_status(self, workflow_id: str) -> Optional[WorkflowStatus]:
         """Get the status of a running workflow."""
 
     @abstractmethod
@@ -597,7 +595,5 @@ class IEventBus(ABC):
         """Unsubscribe from an event."""
 
     @abstractmethod
-    async def get_events(
-        self, filter_func: Optional[callable] = None
-    ) -> List[Event]:
+    async def get_events(self, filter_func: Optional[callable] = None) -> List[Event]:
         """Get events with optional filter."""

@@ -17,9 +17,7 @@ class ICLIInputServiceV2(ABC):
     """Interface for CLI input handling operations."""
 
     @abstractmethod
-    async def read_poem_from_input(
-        self, input_path: Optional[str] = None
-    ) -> str:
+    async def read_poem_from_input(self, input_path: Optional[str] = None) -> str:
         """Read poem text from file or stdin."""
 
     @abstractmethod
@@ -93,9 +91,7 @@ class ICLIStorageServiceV2(ABC):
     """Interface for CLI storage operations."""
 
     @abstractmethod
-    async def setup_storage_handler(
-        self, output_dir: Optional[str] = None
-    ) -> Any:
+    async def setup_storage_handler(self, output_dir: Optional[str] = None) -> Any:
         """Setup storage handler for results."""
 
     @abstractmethod

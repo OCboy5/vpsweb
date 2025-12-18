@@ -9,16 +9,11 @@ Repository WebUI Utils
 - wechat_article_runner: 独立的微信文章生成运行器
 """
 
-from .translation_runner import (
-    TranslationRunner,
-    quick_translate,
-    quick_translate_file,
-)
-from .wechat_article_runner import (
-    WeChatArticleRunner,
-    quick_generate_article,
-    validate_translation_file,
-)
+from .translation_runner import (TranslationRunner, quick_translate,
+                                 quick_translate_file)
+from .wechat_article_runner import (WeChatArticleRunner,
+                                    quick_generate_article,
+                                    validate_translation_file)
 
 __all__ = [
     # Translation utilities

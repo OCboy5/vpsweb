@@ -8,10 +8,7 @@ configuration without directly manipulating the underlying YAML structure.
 import logging
 from typing import Any, Dict, List, Optional
 
-from ...models.config import (
-    ModelProviderConfig,
-    ProvidersConfig,
-)
+from ...models.config import ModelProviderConfig, ProvidersConfig
 
 logger = logging.getLogger(__name__)
 
@@ -69,17 +66,13 @@ class ModelService:
             "available_models": config.models,
             "capabilities": {
                 "reasoning": (
-                    config.capabilities.reasoning
-                    if config.capabilities
-                    else False
+                    config.capabilities.reasoning if config.capabilities else False
                 )
             },
         }
 
     # Model access and classification
-    def get_available_models(
-        self, provider_name: Optional[str] = None
-    ) -> List[str]:
+    def get_available_models(self, provider_name: Optional[str] = None) -> List[str]:
         """
         Get list of available models.
 
@@ -222,9 +215,7 @@ class ModelService:
                     else:
                         # Provider-level pricing - apply to all models in provider
                         if provider_name in self._config.providers:
-                            for model in self._config.providers[
-                                provider_name
-                            ].models:
+                            for model in self._config.providers[provider_name].models:
                                 all_pricing[model] = pricing_info
 
         return all_pricing
@@ -281,9 +272,7 @@ class ModelService:
                 errors.append(f"Provider {provider_name} missing base_url")
 
             if not provider_config.models:
-                errors.append(
-                    f"Provider {provider_name} has no models configured"
-                )
+                errors.append(f"Provider {provider_name} has no models configured")
                 continue
 
             # Validate default model

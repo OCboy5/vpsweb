@@ -11,23 +11,13 @@ from pathlib import Path
 
 import pytest
 
-from src.vpsweb.models.config import (
-    CompleteConfig,
-    LoggingConfig,
-    MainConfig,
-    ModelProviderConfig,
-    ProvidersConfig,
-    StepConfig,
-    StorageConfig,
-    WorkflowConfig,
-)
-from src.vpsweb.models.translation import (
-    EditorReview,
-    InitialTranslation,
-    RevisedTranslation,
-    TranslationInput,
-    TranslationOutput,
-)
+from src.vpsweb.models.config import (CompleteConfig, LoggingConfig,
+                                      MainConfig, ModelProviderConfig,
+                                      ProvidersConfig, StepConfig,
+                                      StorageConfig, WorkflowConfig)
+from src.vpsweb.models.translation import (EditorReview, InitialTranslation,
+                                           RevisedTranslation,
+                                           TranslationInput, TranslationOutput)
 
 
 @pytest.fixture
@@ -405,7 +395,8 @@ def cli_runner():
 @pytest.fixture
 def integration_providers_config():
     """Providers configuration for integration tests."""
-    from src.vpsweb.models.config import ProvidersConfig, ModelProviderConfig, ProviderType
+    from src.vpsweb.models.config import (ModelProviderConfig, ProvidersConfig,
+                                          ProviderType)
 
     return ProvidersConfig(
         providers={
@@ -413,14 +404,14 @@ def integration_providers_config():
                 api_key_env="TEST_TONGYI_API_KEY",
                 base_url="https://test-tongyi.com",
                 type=ProviderType.OPENAI_COMPATIBLE,
-                models=["qwen-max", "qwen-plus"]
+                models=["qwen-max", "qwen-plus"],
             ),
             "deepseek": ModelProviderConfig(
                 api_key_env="TEST_DEEPSEEK_API_KEY",
                 base_url="https://test-deepseek.com",
                 type=ProviderType.OPENAI_COMPATIBLE,
-                models=["deepseek-chat", "deepseek-coder"]
-            )
+                models=["deepseek-chat", "deepseek-coder"],
+            ),
         }
     )
 
@@ -456,7 +447,7 @@ def integration_workflow_config():
                 max_tokens=1000,
                 prompt_template="test_template.yaml",
             ),
-        }
+        },
     )
 
 
@@ -470,12 +461,9 @@ from typing import AsyncGenerator, Generator
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import pool
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
 
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -613,8 +601,8 @@ async def test_client(db_session):
     """
     from httpx import AsyncClient
 
-    from src.vpsweb.webui.main import create_app
     from src.vpsweb.repository.database import get_db
+    from src.vpsweb.webui.main import create_app
 
     # Create the FastAPI app
     app = create_app()
@@ -626,14 +614,19 @@ async def test_client(db_session):
     app.dependency_overrides[get_db] = override_get_db
 
     # Use aggressive mocking with unittest.mock to override container resolution
-    from unittest.mock import patch, MagicMock, AsyncMock
+    from unittest.mock import AsyncMock, MagicMock, patch
+
     from vpsweb.webui.container import container
 
     # Create comprehensive mock BBR service
     mock_bbr_service = MagicMock()
     mock_bbr_service.has_bbr.return_value = False
-    mock_bbr_service.generate_bbr = AsyncMock(return_value={"task_id": "mock-task", "status": "started"})
-    mock_bbr_service.get_bbr = AsyncMock(return_value={"id": "mock-bbr", "content": "Mock BBR content"})
+    mock_bbr_service.generate_bbr = AsyncMock(
+        return_value={"task_id": "mock-task", "status": "started"}
+    )
+    mock_bbr_service.get_bbr = AsyncMock(
+        return_value={"id": "mock-bbr", "content": "Mock BBR content"}
+    )
     mock_bbr_service.delete_bbr = AsyncMock(return_value={"success": True})
 
     # Create mock Poem service
@@ -642,15 +635,22 @@ async def test_client(db_session):
 
     # Create mock Workflow service
     mock_workflow_service = MagicMock()
-    mock_workflow_service.start_workflow = AsyncMock(return_value={"task_id": "mock-workflow", "status": "started"})
-    mock_workflow_service.start_translation_workflow = AsyncMock(return_value="mock-task-id")
+    mock_workflow_service.start_workflow = AsyncMock(
+        return_value={"task_id": "mock-workflow", "status": "started"}
+    )
+    mock_workflow_service.start_translation_workflow = AsyncMock(
+        return_value="mock-task-id"
+    )
 
     # Create test Repository service that uses test database session
     from src.vpsweb.repository.crud import RepositoryService
+
     test_repository_service = RepositoryService(db_session)
 
     # Patch the container's resolve method for multiple services
-    from vpsweb.webui.services.interfaces import IBBRServiceV2, IPoemServiceV2, IWorkflowServiceV2
+    from vpsweb.webui.services.interfaces import (IBBRServiceV2,
+                                                  IPoemServiceV2,
+                                                  IWorkflowServiceV2)
 
     # Store original resolve method before patching
     original_container_resolve = container.resolve
@@ -667,14 +667,14 @@ async def test_client(db_session):
         try:
             original_service = original_container_resolve(dependency_type)
             # Override repository service with test database
-            if hasattr(original_service, 'repository_service'):
+            if hasattr(original_service, "repository_service"):
                 original_service.repository_service = test_repository_service
             # Override any direct repository access
-            if hasattr(original_service, 'repo'):
+            if hasattr(original_service, "repo"):
                 original_service.repo = test_repository_service.repo
-            if hasattr(original_service, 'poems'):
+            if hasattr(original_service, "poems"):
                 original_service.poems = test_repository_service.poems
-            if hasattr(original_service, 'translations'):
+            if hasattr(original_service, "translations"):
                 original_service.translations = test_repository_service.translations
             return original_service
         except:
@@ -687,7 +687,6 @@ async def test_client(db_session):
     # Apply the patch to the container
     container.resolve = mock_resolve.__get__(container, type(container))
 
-    
     # Create test client
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
@@ -783,7 +782,7 @@ def sample_translation_data():
 再向前走去。""",
         "translator_type": "ai",
         "translator_info": "VPSWeb AI Translator",
-            }
+    }
 
 
 @pytest.fixture
@@ -949,8 +948,9 @@ class AsyncTestContext:
 
         default_data = TestDataFactory.create_poem()
         # Use time + random for better uniqueness across test runs
-        import time
         import random
+        import time
+
         unique_id = f"test_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"[:26]
         default_data["id"] = unique_id
         default_data.update(kwargs)
@@ -969,8 +969,9 @@ class AsyncTestContext:
 
         default_data = TestDataFactory.create_translation(poem_id)
         # Use time + random for better uniqueness across test runs
-        import time
         import random
+        import time
+
         unique_id = f"tr_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"[:26]
         default_data["id"] = unique_id
         default_data.update(kwargs)

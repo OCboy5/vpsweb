@@ -56,9 +56,7 @@ class ModelRegistryService:
         self._provider_settings = models_config.get("provider_settings", {})
         self._reasoning_settings = models_config.get("reasoning_settings", {})
 
-        logger.info(
-            f"ModelRegistryService initialized with {len(self._models)} models"
-        )
+        logger.info(f"ModelRegistryService initialized with {len(self._models)} models")
 
     def get_model_info(self, model_ref: str) -> ModelInfo:
         """
@@ -110,9 +108,7 @@ class ModelRegistryService:
             ValueError: If provider is not found
         """
         if provider_name not in self._providers:
-            raise ValueError(
-                f"Provider '{provider_name}' not found in model registry"
-            )
+            raise ValueError(f"Provider '{provider_name}' not found in model registry")
 
         provider_data = self._providers[provider_name]
 
@@ -145,9 +141,7 @@ class ModelRegistryService:
             ValueError: If model_ref is not found or has no pricing
         """
         if model_ref not in self._pricing:
-            raise ValueError(
-                f"No pricing information found for model '{model_ref}'"
-            )
+            raise ValueError(f"No pricing information found for model '{model_ref}'")
 
         return self._pricing[model_ref].copy()
 

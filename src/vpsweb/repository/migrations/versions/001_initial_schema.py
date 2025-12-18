@@ -33,21 +33,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_poems_id"), "poems", ["id"], unique=False)
-    op.create_index(
-        op.f("ix_poems_poet_name"), "poems", ["poet_name"], unique=False
-    )
-    op.create_index(
-        op.f("ix_poems_poem_title"), "poems", ["poem_title"], unique=False
-    )
+    op.create_index(op.f("ix_poems_poet_name"), "poems", ["poet_name"], unique=False)
+    op.create_index(op.f("ix_poems_poem_title"), "poems", ["poem_title"], unique=False)
     op.create_index(
         op.f("ix_poems_source_language"),
         "poems",
         ["source_language"],
         unique=False,
     )
-    op.create_index(
-        "idx_poems_created_at", "poems", ["created_at"], unique=False
-    )
+    op.create_index("idx_poems_created_at", "poems", ["created_at"], unique=False)
 
     # Create translations table
     op.create_table(
@@ -64,9 +58,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["poem_id"], ["poems.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_translations_id"), "translations", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_translations_id"), "translations", ["id"], unique=False)
     op.create_index(
         op.f("ix_translations_poem_id"),
         "translations",
@@ -125,9 +117,7 @@ def upgrade() -> None:
         ["workflow_mode"],
         unique=False,
     )
-    op.create_index(
-        "idx_ai_logs_created_at", "ai_logs", ["created_at"], unique=False
-    )
+    op.create_index("idx_ai_logs_created_at", "ai_logs", ["created_at"], unique=False)
 
     # Create human_notes table
     op.create_table(
@@ -141,9 +131,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_human_notes_id"), "human_notes", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_human_notes_id"), "human_notes", ["id"], unique=False)
     op.create_index(
         op.f("ix_human_notes_translation_id"),
         "human_notes",
@@ -206,9 +194,7 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_workflow_tasks_id"), table_name="workflow_tasks")
     op.drop_table("workflow_tasks")
     op.drop_index("idx_human_notes_created_at", table_name="human_notes")
-    op.drop_index(
-        op.f("ix_human_notes_translation_id"), table_name="human_notes"
-    )
+    op.drop_index(op.f("ix_human_notes_translation_id"), table_name="human_notes")
     op.drop_index(op.f("ix_human_notes_id"), table_name="human_notes")
     op.drop_table("human_notes")
     op.drop_index("idx_ai_logs_created_at", table_name="ai_logs")
@@ -218,12 +204,8 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_ai_logs_id"), table_name="ai_logs")
     op.drop_table("ai_logs")
     op.drop_index("idx_translations_created_at", table_name="translations")
-    op.drop_index(
-        op.f("ix_translations_target_language"), table_name="translations"
-    )
-    op.drop_index(
-        op.f("ix_translations_translator_type"), table_name="translations"
-    )
+    op.drop_index(op.f("ix_translations_target_language"), table_name="translations")
+    op.drop_index(op.f("ix_translations_translator_type"), table_name="translations")
     op.drop_index(op.f("ix_translations_poem_id"), table_name="translations")
     op.drop_index(op.f("ix_translations_id"), table_name="translations")
     op.drop_table("translations")

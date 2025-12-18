@@ -111,14 +111,10 @@ def create_tables():
             )
         )
         conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)"
-            )
+            text("CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)")
         )
         conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)"
-            )
+            text("CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)")
         )
         conn.execute(
             text(

@@ -33,9 +33,7 @@ def test_api_endpoints():
             return False
     except Exception as e:
         print(f"❌ Health check failed: {e}")
-        print(
-            "   Make sure the server is running: python -m src.vpsweb.webui.main"
-        )
+        print("   Make sure the server is running: python -m src.vpsweb.webui.main")
         return False
 
     # Test poems endpoint
@@ -59,9 +57,7 @@ def test_api_endpoints():
             "original_text": "This is a test poem created via API.",
         }
 
-        response = requests.post(
-            f"{base_url}/api/v1/poems/", json=poem_data, timeout=5
-        )
+        response = requests.post(f"{base_url}/api/v1/poems/", json=poem_data, timeout=5)
         if response.status_code == 200:
             print("✅ Create poem endpoint works")
             poem = response.json()
@@ -69,9 +65,7 @@ def test_api_endpoints():
             print(f"   Created poem ID: {poem_id}")
 
             # Test getting the poem
-            response = requests.get(
-                f"{base_url}/api/v1/poems/{poem_id}", timeout=5
-            )
+            response = requests.get(f"{base_url}/api/v1/poems/{poem_id}", timeout=5)
             if response.status_code == 200:
                 print("✅ Get poem by ID works")
             else:
@@ -86,16 +80,12 @@ def test_api_endpoints():
 
     # Test statistics endpoint
     try:
-        response = requests.get(
-            f"{base_url}/api/v1/statistics/overview", timeout=5
-        )
+        response = requests.get(f"{base_url}/api/v1/statistics/overview", timeout=5)
         if response.status_code == 200:
             print("✅ Statistics overview works")
             stats = response.json()
             print(f"   Total poems: {stats.get('total_poems', 0)}")
-            print(
-                f"   Total translations: {stats.get('total_translations', 0)}"
-            )
+            print(f"   Total translations: {stats.get('total_translations', 0)}")
         else:
             print(f"❌ Statistics endpoint failed: {response.status_code}")
     except Exception as e:

@@ -25,9 +25,7 @@ def upgrade() -> None:
     op.create_index(
         "idx_poems_poet_name_created_at", "poems", ["poet_name", "created_at"]
     )
-    op.create_index(
-        "idx_poems_poet_title", "poems", ["poet_name", "poem_title"]
-    )
+    op.create_index("idx_poems_poet_title", "poems", ["poet_name", "poem_title"])
     op.create_index(
         "idx_poems_language_created_at",
         "poems",

@@ -106,8 +106,7 @@ class TranslationTaskManager:
             if (
                 task["status"] == "completed"
                 and task.get("completed_at")
-                and current_time - task["completed_at"]
-                > self.task_retention_time
+                and current_time - task["completed_at"] > self.task_retention_time
             ):
                 expired_tasks.append(task_id)
 

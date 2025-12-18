@@ -16,7 +16,6 @@ import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
 
-
 # ==============================================================================
 # WebUI Test Fixtures
 # ==============================================================================
@@ -242,9 +241,7 @@ class TestErrorPages:
 class TestWebUIAPIIntegration:
     """Test WebUI integration with API endpoints."""
 
-    def test_api_accessible_from_webui_context(
-        self, webui_test_client: TestClient
-    ):
+    def test_api_accessible_from_webui_context(self, webui_test_client: TestClient):
         """Test that API endpoints are accessible from WebUI context."""
         # Test that API endpoints work when accessed from browser-like context
         api_endpoints = [
@@ -318,9 +315,7 @@ class TestRealtimeFeatures:
 class TestPageContent:
     """Test page content and structure."""
 
-    def test_page_has_proper_html_structure(
-        self, webui_test_client: TestClient
-    ):
+    def test_page_has_proper_html_structure(self, webui_test_client: TestClient):
         """Test that pages have proper HTML structure."""
         response = webui_test_client.get("/")
 
@@ -360,9 +355,7 @@ class TestPageContent:
 
             # Look for common navigation elements
             nav_elements = ["nav", "menu", "navbar", "navigation"]
-            has_navigation = any(
-                element in content for element in nav_elements
-            )
+            has_navigation = any(element in content for element in nav_elements)
 
             # If no traditional nav, look for VPSWeb-specific elements
             has_app_elements = "poem" in content or "translation" in content

@@ -5,6 +5,27 @@ All notable changes to Vox Poetica Studio Web (vpsweb) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2025-12-19
+
+### 🚀 Overview
+VPSWeb v0.7.2 - **CI/CD Compliance & Infrastructure Release**. This release focuses on code quality improvements, test suite fixes, and documentation enhancements to ensure robust continuous integration and deployment pipelines.
+
+### 🔧 Improvements
+- 🛠️ Improvement: **Code Quality Compliance** - Applied Black formatting and isort import sorting across all files
+- 🛠️ Improvement: **Test Suite Fixes** - Resolved import errors in repository model tests
+- 🛠️ Improvement: **Release Process Documentation** - Revamped CLAUDE_RELEASE_PROCESS.md with streamlined professional procedures
+- 🛠️ Improvement: **Database Safety** - Enhanced database backup and protection procedures
+
+### 🐛 Bug Fixes
+- 🐛 Fix: **Import Errors** - Fixed `AiLog` import issues in test suite by removing obsolete imports
+- 🐛 Fix: **Test Infrastructure** - Resolved test configuration and dependency issues
+- 🐛 Fix: **Code Formatting** - Standardized code formatting across 92 files for CI/CD compliance
+
+### 🔧 Technical Changes
+- 🔨 Technical: **Code Quality Tools** - Integrated Black, isort, flake8, and mypy into development workflow
+- 🔨 Technical: **Test Architecture** - Improved test isolation and dependency injection
+- 🔨 Technical: **Release Automation** - Streamlined release process documentation and tooling alignment
+
 ## [0.7.0] - 2025-12-16
 
 ### 🚀 Overview

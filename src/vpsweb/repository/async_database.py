@@ -5,11 +5,8 @@ Async database setup with SQLAlchemy for FastAPI background tasks.
 Provides async database session management to prevent SQLite conflicts.
 """
 
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.pool import StaticPool
 
 from .settings import settings

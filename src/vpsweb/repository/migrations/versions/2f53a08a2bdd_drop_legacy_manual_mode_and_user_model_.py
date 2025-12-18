@@ -20,9 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    with op.batch_alter_table(
-        "translation_workflow_steps", schema=None
-    ) as batch_op:
+    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("idx_workflow_steps_manual_mode"))
         batch_op.drop_column("manual_mode")
         batch_op.drop_column("user_model_name")
@@ -30,9 +28,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    with op.batch_alter_table(
-        "translation_workflow_steps", schema=None
-    ) as batch_op:
+    with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column("user_model_name", sa.VARCHAR(length=200), nullable=True)
         )

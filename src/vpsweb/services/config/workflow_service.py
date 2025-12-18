@@ -8,12 +8,8 @@ configuration without directly manipulating the underlying YAML structure.
 import logging
 from typing import Any, Dict, List, Union
 
-from ...models.config import (
-    StepConfig,
-    TaskTemplateStepConfig,
-    WorkflowConfig,
-    WorkflowMode,
-)
+from ...models.config import (StepConfig, TaskTemplateStepConfig,
+                              WorkflowConfig, WorkflowMode)
 
 logger = logging.getLogger(__name__)
 
@@ -74,10 +70,7 @@ class WorkflowService:
         """
         if mode == WorkflowMode.REASONING and self._config.reasoning_workflow:
             return self._config.reasoning_workflow
-        elif (
-            mode == WorkflowMode.NON_REASONING
-            and self._config.non_reasoning_workflow
-        ):
+        elif mode == WorkflowMode.NON_REASONING and self._config.non_reasoning_workflow:
             return self._config.non_reasoning_workflow
         elif mode == WorkflowMode.HYBRID and self._config.hybrid_workflow:
             return self._config.hybrid_workflow
@@ -100,9 +93,7 @@ class WorkflowService:
         if self._config.reasoning_workflow:
             workflow_data["reasoning"] = self._config.reasoning_workflow
         if self._config.non_reasoning_workflow:
-            workflow_data["non_reasoning"] = (
-                self._config.non_reasoning_workflow
-            )
+            workflow_data["non_reasoning"] = self._config.non_reasoning_workflow
         if self._config.hybrid_workflow:
             workflow_data["hybrid"] = self._config.hybrid_workflow
 
@@ -150,9 +141,7 @@ class WorkflowService:
         return self.get_step_config(mode, "translator_revision")
 
     # Model and provider resolution for steps
-    def get_step_model_info(
-        self, mode: WorkflowMode, step_name: str
-    ) -> Dict[str, Any]:
+    def get_step_model_info(self, mode: WorkflowMode, step_name: str) -> Dict[str, Any]:
         """
         Get model information for a specific step.
 
@@ -170,9 +159,7 @@ class WorkflowService:
             "stop_sequences": step_config.stop,
         }
 
-    def get_all_step_configs(
-        self, mode: WorkflowMode
-    ) -> Dict[str, Dict[str, Any]]:
+    def get_all_step_configs(self, mode: WorkflowMode) -> Dict[str, Dict[str, Any]]:
         """Get all step configurations with their model info."""
         steps = self.get_workflow_steps(mode)
         result = {}
@@ -196,9 +183,7 @@ class WorkflowService:
             try:
                 steps = self.get_workflow_steps(mode)
                 if not steps:
-                    errors.append(
-                        f"Workflow mode {mode_str} has no configured steps"
-                    )
+                    errors.append(f"Workflow mode {mode_str} has no configured steps")
 
                 # Validate required steps exist
                 required_steps = [
@@ -213,9 +198,7 @@ class WorkflowService:
                         )
 
             except Exception as e:
-                errors.append(
-                    f"Error validating workflow mode {mode_str}: {e}"
-                )
+                errors.append(f"Error validating workflow mode {mode_str}: {e}")
 
         return errors
 

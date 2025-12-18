@@ -18,9 +18,7 @@ from vpsweb.webui.services.manual_workflow_service import ManualWorkflowService
 class ManualWorkflowStartRequest(BaseModel):
     """Request model for starting a manual workflow."""
 
-    target_lang: str = Field(
-        ..., description="Target language for translation"
-    )
+    target_lang: str = Field(..., description="Target language for translation")
 
 
 class ManualWorkflowStepRequest(BaseModel):
@@ -84,10 +82,8 @@ def get_manual_workflow_service(
         from vpsweb.services.prompts import PromptService
         from vpsweb.utils.storage import StorageHandler
         from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
-        from vpsweb.webui.services.services import (
-            TaskManagementServiceV2,
-            WorkflowServiceV2,
-        )
+        from vpsweb.webui.services.services import (TaskManagementServiceV2,
+                                                    WorkflowServiceV2)
 
         # Create container
         container = DIContainer()
@@ -96,9 +92,7 @@ def get_manual_workflow_service(
         container.register_instance(
             ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None)
         )
-        container.register_singleton(
-            type(WorkflowServiceV2), WorkflowServiceV2
-        )
+        container.register_singleton(type(WorkflowServiceV2), WorkflowServiceV2)
 
         # Create services
         repository_service = RepositoryWebService(db)
@@ -123,9 +117,7 @@ def get_manual_workflow_service(
     return _manual_workflow_service_instance
 
 
-@router.post(
-    "/poems/{poem_id}/translate/manual/start", response_model=WebAPIResponse
-)
+@router.post("/poems/{poem_id}/translate/manual/start", response_model=WebAPIResponse)
 async def start_manual_workflow(
     poem_id: str,
     request: ManualWorkflowStartRequest,
@@ -253,9 +245,7 @@ async def cleanup_expired_sessions(
     This is a maintenance endpoint that removes old sessions.
     """
     try:
-        cleaned_count = manual_workflow_service.cleanup_expired_sessions(
-            max_age_hours
-        )
+        cleaned_count = manual_workflow_service.cleanup_expired_sessions(max_age_hours)
 
         return WebAPIResponse(
             success=True,

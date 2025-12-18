@@ -24,50 +24,27 @@ from vpsweb.repository.service import RepositoryWebService
 from vpsweb.services.config import initialize_config_facade
 from vpsweb.services.llm.factory import LLMFactory
 from vpsweb.services.prompts import PromptService
-from vpsweb.utils.config_loader import (
-    load_config,
-    load_model_registry_config,
-    load_task_templates_config,
-)
+from vpsweb.utils.config_loader import (load_config,
+                                        load_model_registry_config,
+                                        load_task_templates_config)
 from vpsweb.utils.logger import setup_logging
 from vpsweb.utils.storage import StorageHandler
-from vpsweb.webui.api import (
-    manual_workflow,
-    poems,
-    poets,
-    statistics,
-    translations,
-    wechat,
-    workflow,
-)
+from vpsweb.webui.api import (manual_workflow, poems, poets, statistics,
+                              translations, wechat, workflow)
 from vpsweb.webui.container import container
 
-from .services.interfaces import (
-    IBBRServiceV2,
-    IConfigServiceV2,
-    IExceptionHandlerServiceV2,
-    IPerformanceServiceV2,
-    IPoemServiceV2,
-    ISSEServiceV2,
-    IStatisticsServiceV2,
-    ITaskManagementServiceV2,
-    ITemplateServiceV2,
-    ITranslationServiceV2,
-    IWorkflowServiceV2,
-)
-from .services.services import (
-    BBRServiceV2,
-    ConfigServiceV2,
-    ExceptionHandlerServiceV2,
-    PerformanceServiceV2,
-    PoemServiceV2,
-    SSEServiceV2,
-    StatisticsServiceV2,
-    TaskManagementServiceV2,
-    TemplateServiceV2,
-    TranslationServiceV2,
-    WorkflowServiceV2,
-)
+from .services.interfaces import (IBBRServiceV2, IConfigServiceV2,
+                                  IExceptionHandlerServiceV2,
+                                  IPerformanceServiceV2, IPoemServiceV2,
+                                  ISSEServiceV2, IStatisticsServiceV2,
+                                  ITaskManagementServiceV2, ITemplateServiceV2,
+                                  ITranslationServiceV2, IWorkflowServiceV2)
+from .services.services import (BBRServiceV2, ConfigServiceV2,
+                                ExceptionHandlerServiceV2,
+                                PerformanceServiceV2, PoemServiceV2,
+                                SSEServiceV2, StatisticsServiceV2,
+                                TaskManagementServiceV2, TemplateServiceV2,
+                                TranslationServiceV2, WorkflowServiceV2)
 
 # Initialize application logging for the web server
 try:
@@ -83,9 +60,7 @@ except Exception as e:
     )
 
 
-async def create_translation_events_from_app_state(
-    request: Request, task_id: str
-):
+async def create_translation_events_from_app_state(request: Request, task_id: str):
     """
     Create translation progress events from app.state.tasks (like original working design).
     This function reads TaskStatus objects directly from app.state.tasks and streams updates.
@@ -105,15 +80,11 @@ async def create_translation_events_from_app_state(
         print(
             f"[SSE APP_STATE] Looking for task {task_id} in app.state.tasks. Total tasks: {len(app.state.tasks)}"
         )
-        print(
-            f"[SSE APP_STATE] Available task IDs: {list(app.state.tasks.keys())}"
-        )
+        print(f"[SSE APP_STATE] Available task IDs: {list(app.state.tasks.keys())}")
 
         # Check if task exists in app.state.tasks
         if task_id not in app.state.tasks:
-            print(
-                f"[SSE APP_STATE] Task {task_id} not found in app.state.tasks"
-            )
+            print(f"[SSE APP_STATE] Task {task_id} not found in app.state.tasks")
             yield {
                 "event": "error",
                 "data": json.dumps(
@@ -183,9 +154,7 @@ async def create_translation_events_from_app_state(
         while True:
             # Check if client disconnected
             if await request.is_disconnected():
-                print(
-                    f"[SSE APP_STATE] Client disconnected from task {task_id}"
-                )
+                print(f"[SSE APP_STATE] Client disconnected from task {task_id}")
                 break
 
             # Get current task status from app.state.tasks
@@ -223,18 +192,14 @@ async def create_translation_events_from_app_state(
                             "progress": current_task.get("progress", 0),
                             "current_step": current_task.get("current_step"),
                             "step_states": current_task.get("step_states", {}),
-                            "step_progress": current_task.get(
-                                "step_progress", {}
-                            ),
+                            "step_progress": current_task.get("step_progress", {}),
                             "timestamp": asyncio.get_event_loop().time(),
                         }
                     ),
                 }
 
                 # Send step-specific events
-                if step_changed and last_step != current_task.get(
-                    "current_step"
-                ):
+                if step_changed and last_step != current_task.get("current_step"):
                     # Send step_change event (frontend expects this)
                     yield {
                         "event": "step_change",
@@ -243,18 +208,10 @@ async def create_translation_events_from_app_state(
                                 "task_id": task_id,
                                 "status": current_task.get("status"),
                                 "progress": current_task.get("progress", 0),
-                                "current_step": current_task.get(
-                                    "current_step"
-                                ),
-                                "step_states": current_task.get(
-                                    "step_states", {}
-                                ),
-                                "step_progress": current_task.get(
-                                    "step_progress", {}
-                                ),
-                                "step_details": current_task.get(
-                                    "step_details", {}
-                                ),
+                                "current_step": current_task.get("current_step"),
+                                "step_states": current_task.get("step_states", {}),
+                                "step_progress": current_task.get("step_progress", {}),
+                                "step_details": current_task.get("step_details", {}),
                                 "timestamp": asyncio.get_event_loop().time(),
                             }
                         ),
@@ -338,9 +295,7 @@ async def create_translation_events_from_app_state(
             await asyncio.sleep(0.5)
 
     except Exception as e:
-        print(
-            f"[SSE APP_STATE] Error generating events for task {task_id}: {e}"
-        )
+        print(f"[SSE APP_STATE] Error generating events for task {task_id}: {e}")
         yield {
             "event": "error",
             "data": json.dumps(
@@ -416,9 +371,7 @@ class ApplicationRouterV2:
 
         # Add middleware
         self.app.middleware("http")(self._performance_middleware)
-        self.app.add_exception_handler(
-            Exception, self._general_exception_handler
-        )
+        self.app.add_exception_handler(Exception, self._general_exception_handler)
 
         # Add routes
         self._add_routes(self.app)
@@ -457,9 +410,7 @@ class ApplicationRouterV2:
         response = await call_next(request)
 
         # Calculate processing time
-        process_time = (
-            time.time() - start_time
-        ) * 1000  # Convert to milliseconds
+        process_time = (time.time() - start_time) * 1000  # Convert to milliseconds
 
         # Log performance metrics
         await self.performance_service.log_request_performance(
@@ -478,9 +429,7 @@ class ApplicationRouterV2:
 
         return response
 
-    async def _general_exception_handler(
-        self, request: Request, exc: Exception
-    ):
+    async def _general_exception_handler(self, request: Request, exc: Exception):
         """General exception handler using the error service."""
         error_id = self.error_handler.generate_error_id()
 
@@ -503,9 +452,7 @@ class ApplicationRouterV2:
             """Dashboard - List all poems in the repository."""
             try:
                 # Get poems using service layer
-                poems_result = await self.poem_service.get_poem_list(
-                    skip=0, limit=50
-                )
+                poems_result = await self.poem_service.get_poem_list(skip=0, limit=50)
 
                 # Render template
                 template_context = {
@@ -563,16 +510,14 @@ class ApplicationRouterV2:
                 sort_order = request.query_params.get("sort_order", "asc")
 
                 # Get poets data with filters
-                poets_data = (
-                    self.poem_service.repository_service.get_all_poets(
-                        skip=0,
-                        limit=50,
-                        search=search if search else None,
-                        sort_by=sort_by,
-                        sort_order=sort_order,
-                        min_poems=None,
-                        min_translations=None,
-                    )
+                poets_data = self.poem_service.repository_service.get_all_poets(
+                    skip=0,
+                    limit=50,
+                    search=search if search else None,
+                    sort_by=sort_by,
+                    sort_order=sort_order,
+                    min_poems=None,
+                    min_translations=None,
                 )
 
                 # Keep datetime objects for template rendering (template will handle formatting)
@@ -611,8 +556,10 @@ class ApplicationRouterV2:
                 sort_order = request.query_params.get("sort_order", "desc")
 
                 # Get translations data
-                translations_data = self.poem_service.repository_service.repo.translations.get_multi(
-                    skip=0, limit=50
+                translations_data = (
+                    self.poem_service.repository_service.repo.translations.get_multi(
+                        skip=0, limit=50
+                    )
                 )
 
                 template_context = {
@@ -689,14 +636,10 @@ class ApplicationRouterV2:
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
                     "created_at": (
-                        poem.created_at.isoformat()
-                        if poem.created_at
-                        else None
+                        poem.created_at.isoformat() if poem.created_at else None
                     ),
                     "updated_at": (
-                        poem.updated_at.isoformat()
-                        if poem.updated_at
-                        else None
+                        poem.updated_at.isoformat() if poem.updated_at else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
@@ -742,10 +685,7 @@ class ApplicationRouterV2:
                 import json  # Local import to avoid scoping issues
 
                 # Check if task exists in app.state
-                if (
-                    not hasattr(app.state, "tasks")
-                    or task_id not in app.state.tasks
-                ):
+                if not hasattr(app.state, "tasks") or task_id not in app.state.tasks:
                     yield {
                         "event": "error",
                         "data": json.dumps({"message": "Task not found"}),
@@ -761,7 +701,9 @@ class ApplicationRouterV2:
                 )
 
                 # Stream for updates with real-time app.state access (original working design)
-                max_iterations = 3000  # 10 minutes with 0.2-second intervals (600 / 0.2 = 3000)
+                max_iterations = (
+                    3000  # 10 minutes with 0.2-second intervals (600 / 0.2 = 3000)
+                )
                 last_status = None
                 consecutive_errors = 0
                 max_consecutive_errors = 5
@@ -770,9 +712,7 @@ class ApplicationRouterV2:
                 for i in range(max_iterations):
                     # Check if client disconnected
                     if await request.is_disconnected():
-                        print(
-                            f"🔌 Client disconnected from task {task_id} SSE stream"
-                        )
+                        print(f"🔌 Client disconnected from task {task_id} SSE stream")
                         break
 
                     await asyncio.sleep(
@@ -792,8 +732,7 @@ class ApplicationRouterV2:
                             # Enhanced change detection - focus on step changes, not progress percentage
                             has_progress_change = (
                                 last_status is None
-                                or current_dict["status"]
-                                != last_status["status"]
+                                or current_dict["status"] != last_status["status"]
                                 or current_dict["current_step"]
                                 != last_status["current_step"]
                             )
@@ -804,9 +743,7 @@ class ApplicationRouterV2:
                                 current_step_details = current_dict.get(
                                     "step_details", {}
                                 )
-                                last_step_details = last_status.get(
-                                    "step_details", {}
-                                )
+                                last_step_details = last_status.get("step_details", {})
 
                                 # Check if current step status changed (running -> completed)
                                 if current_step_details.get(
@@ -821,14 +758,10 @@ class ApplicationRouterV2:
                                 current_step_states = current_dict.get(
                                     "step_states", {}
                                 )
-                                last_step_states = last_status.get(
-                                    "step_states", {}
-                                )
+                                last_step_states = last_status.get("step_states", {})
                                 if current_step_states != last_step_states:
                                     has_step_change = True
-                                    print(
-                                        f"🔍 [SSE] Step states changed detected"
-                                    )
+                                    print(f"🔍 [SSE] Step states changed detected")
 
                             # Additional check for task timestamp changes (more sensitive detection)
                             has_time_change = (
@@ -857,18 +790,12 @@ class ApplicationRouterV2:
                                     "event": event_type,
                                     "data": json.dumps(current_dict),
                                 }
-                                step_states = current_dict.get(
-                                    "step_states", {}
-                                )
+                                step_states = current_dict.get("step_states", {})
                                 current_step_state = step_states.get(
                                     current_dict["current_step"], "unknown"
                                 )
-                                step_details = current_dict.get(
-                                    "step_details", {}
-                                )
-                                step_status = step_details.get(
-                                    "step_status", "unknown"
-                                )
+                                step_details = current_dict.get("step_details", {})
+                                step_status = step_details.get("step_status", "unknown")
 
                                 print(
                                     f"📡 [SSE] {event_type.upper()} sent for task {task_id}: {current_dict['status']} - {current_dict['current_step']} ({step_status})"
@@ -898,9 +825,7 @@ class ApplicationRouterV2:
                                 last_update_time = current_time
                                 yield {
                                     "event": "heartbeat",
-                                    "data": json.dumps(
-                                        {"timestamp": current_time}
-                                    ),
+                                    "data": json.dumps({"timestamp": current_time}),
                                 }
 
                         else:
@@ -943,9 +868,7 @@ class ApplicationRouterV2:
                         ),
                     }
 
-                print(
-                    f"🏁 SSE stream ended for task {task_id} after {i+1} iterations"
-                )
+                print(f"🏁 SSE stream ended for task {task_id} after {i+1} iterations")
 
             return EventSourceResponse(
                 event_generator(),
@@ -965,10 +888,8 @@ class ApplicationRouterV2:
             """Display comparison view for translations of a specific poem."""
             try:
                 # Get poem data directly from repository
-                poem = (
-                    self.poem_service.repository_service.repo.poems.get_by_id(
-                        poem_id
-                    )
+                poem = self.poem_service.repository_service.repo.poems.get_by_id(
+                    poem_id
                 )
                 if not poem:
                     raise Exception(f"Poem with ID {poem_id} not found")
@@ -982,14 +903,10 @@ class ApplicationRouterV2:
                     "original_text": poem.original_text,
                     "metadata_json": poem.metadata_json,
                     "created_at": (
-                        poem.created_at.isoformat()
-                        if poem.created_at
-                        else None
+                        poem.created_at.isoformat() if poem.created_at else None
                     ),
                     "updated_at": (
-                        poem.updated_at.isoformat()
-                        if poem.updated_at
-                        else None
+                        poem.updated_at.isoformat() if poem.updated_at else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
@@ -997,8 +914,10 @@ class ApplicationRouterV2:
                 }
 
                 # Get translations for this poem using the repository service through poem_service
-                translations = self.poem_service.repository_service.repo.translations.get_multi(
-                    poem_id=poem_id, limit=100
+                translations = (
+                    self.poem_service.repository_service.repo.translations.get_multi(
+                        poem_id=poem_id, limit=100
+                    )
                 )
 
                 template_context = {
@@ -1028,10 +947,8 @@ class ApplicationRouterV2:
             """Display translation creation page for a specific poem."""
             try:
                 # Get poem data directly from repository
-                poem = (
-                    self.poem_service.repository_service.repo.poems.get_by_id(
-                        poem_id
-                    )
+                poem = self.poem_service.repository_service.repo.poems.get_by_id(
+                    poem_id
                 )
                 if not poem:
                     raise Exception(f"Poem with ID {poem_id} not found")
@@ -1045,14 +962,10 @@ class ApplicationRouterV2:
                     "content": poem.original_text,
                     "metadata_json": poem.metadata_json,
                     "created_at": (
-                        poem.created_at.isoformat()
-                        if poem.created_at
-                        else None
+                        poem.created_at.isoformat() if poem.created_at else None
                     ),
                     "updated_at": (
-                        poem.updated_at.isoformat()
-                        if poem.updated_at
-                        else None
+                        poem.updated_at.isoformat() if poem.updated_at else None
                     ),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
@@ -1081,9 +994,7 @@ class ApplicationRouterV2:
                     is_web_request=True,
                 )
 
-        @app.get(
-            "/translations/{translation_id}/notes", response_class=HTMLResponse
-        )
+        @app.get("/translations/{translation_id}/notes", response_class=HTMLResponse)
         async def translation_notes(request: Request, translation_id: str):
             """Display translation notes and AI workflow details for a specific translation."""
             try:
@@ -1094,9 +1005,7 @@ class ApplicationRouterV2:
                     )
                 )
                 if not translation_data:
-                    raise Exception(
-                        f"Translation with ID {translation_id} not found"
-                    )
+                    raise Exception(f"Translation with ID {translation_id} not found")
 
                 # Get workflow steps for AI translations
                 workflow_steps = []
@@ -1106,25 +1015,21 @@ class ApplicationRouterV2:
                     and translation.translator_type.lower() == "ai"
                     and translation.has_workflow_steps
                 ):
-                    workflow_steps = (
-                        await self.translation_service.get_workflow_steps(
-                            translation_id
-                        )
+                    workflow_steps = await self.translation_service.get_workflow_steps(
+                        translation_id
                     )
 
                 # Calculate workflow data for Performance Summary
                 workflow_data = None
                 if workflow_steps:
                     total_tokens = sum(
-                        step.get("tokens_used", 0) or 0
-                        for step in workflow_steps
+                        step.get("tokens_used", 0) or 0 for step in workflow_steps
                     )
                     total_cost = sum(
                         step.get("cost", 0) or 0 for step in workflow_steps
                     )
                     total_duration = sum(
-                        step.get("duration_seconds", 0) or 0
-                        for step in workflow_steps
+                        step.get("duration_seconds", 0) or 0 for step in workflow_steps
                     )
 
                     workflow_data = {
@@ -1170,13 +1075,9 @@ class ApplicationRouterV2:
             try:
                 # Get translation data
                 repository_service = RepositoryService(db)
-                translation = repository_service.translations.get_by_id(
-                    translation_id
-                )
+                translation = repository_service.translations.get_by_id(translation_id)
                 if not translation:
-                    raise HTTPException(
-                        status_code=404, detail="Translation not found"
-                    )
+                    raise HTTPException(status_code=404, detail="Translation not found")
 
                 # Verify it's a human translation
                 if translation.translator_type != "human":
@@ -1229,13 +1130,9 @@ class ApplicationRouterV2:
             try:
                 # Get translation data
                 repository_service = RepositoryService(db)
-                translation = repository_service.translations.get_by_id(
-                    translation_id
-                )
+                translation = repository_service.translations.get_by_id(translation_id)
                 if not translation:
-                    raise HTTPException(
-                        status_code=404, detail="Translation not found"
-                    )
+                    raise HTTPException(status_code=404, detail="Translation not found")
 
                 # Verify it's a human translation
                 if translation.translator_type != "human":
@@ -1280,32 +1177,30 @@ class ApplicationRouterV2:
             """Display poet page with their poems and statistics."""
             try:
                 # Get poet statistics using repository service
-                stats = (
-                    self.poem_service.repository_service.get_poet_statistics(
-                        poet_name
-                    )
+                stats = self.poem_service.repository_service.get_poet_statistics(
+                    poet_name
                 )
 
                 # Get poet's poems with filters
-                poems_data = (
-                    self.poem_service.repository_service.get_poems_by_poet(
-                        poet_name=poet_name,
-                        skip=0,
-                        limit=20,
-                        language=None,
-                        has_translations=None,
-                        sort_by="title",
-                        sort_order="asc",
-                    )
+                poems_data = self.poem_service.repository_service.get_poems_by_poet(
+                    poet_name=poet_name,
+                    skip=0,
+                    limit=20,
+                    language=None,
+                    has_translations=None,
+                    sort_by="title",
+                    sort_order="asc",
                 )
 
                 # Get poet's recent translations
-                translations_data = self.poem_service.repository_service.get_translations_by_poet(
-                    poet_name=poet_name,
-                    skip=0,
-                    limit=5,
-                    sort_by="created_at",
-                    sort_order="desc",
+                translations_data = (
+                    self.poem_service.repository_service.get_translations_by_poet(
+                        poet_name=poet_name,
+                        skip=0,
+                        limit=5,
+                        sort_by="created_at",
+                        sort_order="desc",
+                    )
                 )
 
                 template_context = {
@@ -1338,12 +1233,8 @@ class ApplicationRouterV2:
             """Health check endpoint for monitoring."""
             try:
                 # Get basic health status from services
-                app_name = await self.config_service.get_setting(
-                    "app_name", "VPSWeb"
-                )
-                app_version = await self.config_service.get_setting(
-                    "version", "0.4.2"
-                )
+                app_name = await self.config_service.get_setting("app_name", "VPSWeb")
+                app_version = await self.config_service.get_setting("version", "0.4.2")
 
                 return {
                     "status": "healthy",
@@ -1373,26 +1264,18 @@ class ApplicationRouterV2:
             """Get statistics for the dashboard."""
             try:
                 # Get comprehensive statistics
-                stats = (
-                    await self.statistics_service.get_repository_statistics()
-                )
+                stats = await self.statistics_service.get_repository_statistics()
 
                 # Add dashboard-specific metrics
                 dashboard_stats = {
                     **stats,
                     "recent_activity": {
                         "last_24h": await self._get_recent_activity_count(24),
-                        "last_7d": await self._get_recent_activity_count(
-                            7 * 24
-                        ),
+                        "last_7d": await self._get_recent_activity_count(7 * 24),
                     },
                     "system_info": {
-                        "version": await self.config_service.get_setting(
-                            "version"
-                        ),
-                        "debug": await self.config_service.get_setting(
-                            "debug", False
-                        ),
+                        "version": await self.config_service.get_setting("version"),
+                        "debug": await self.config_service.get_setting("debug", False),
                     },
                 }
 
@@ -1420,9 +1303,7 @@ class ApplicationRouterV2:
 
     def _include_api_routers(self, app: FastAPI):
         """Include API routers."""
-        app.include_router(
-            poems.router, prefix="/api/v1/poems", tags=["poems"]
-        )
+        app.include_router(poems.router, prefix="/api/v1/poems", tags=["poems"])
         app.include_router(
             translations.router,
             prefix="/api/v1/translations",
@@ -1431,18 +1312,12 @@ class ApplicationRouterV2:
         app.include_router(
             statistics.router, prefix="/api/v1/statistics", tags=["statistics"]
         )
-        app.include_router(
-            poets.router, prefix="/api/v1/poets", tags=["poets"]
-        )
-        app.include_router(
-            wechat.router, prefix="/api/v1/wechat", tags=["wechat"]
-        )
+        app.include_router(poets.router, prefix="/api/v1/poets", tags=["poets"])
+        app.include_router(wechat.router, prefix="/api/v1/wechat", tags=["wechat"])
         app.include_router(
             workflow.router, prefix="/api/v1/workflow", tags=["workflow"]
         )
-        app.include_router(
-            manual_workflow.router, prefix="/api/v1", tags=["manual"]
-        )
+        app.include_router(manual_workflow.router, prefix="/api/v1", tags=["manual"])
 
     def _mount_static_files(self, app: FastAPI):
         """Mount static file directories."""
@@ -1543,9 +1418,7 @@ class ApplicationFactoryV2:
         container.register_instance(ITaskManagementServiceV2, task_service)
 
         # Register core services as singletons
-        container.register_singleton(
-            IPerformanceServiceV2, PerformanceServiceV2
-        )
+        container.register_singleton(IPerformanceServiceV2, PerformanceServiceV2)
         container.register_singleton(
             IExceptionHandlerServiceV2, ExceptionHandlerServiceV2
         )
@@ -1616,12 +1489,8 @@ class ApplicationFactoryV2:
         main_config_data = load_yaml_file("config/default.yaml")
 
         # Create proper CompleteConfig for compatibility
-        from vpsweb.models.config import (
-            CompleteConfig,
-            MainConfig,
-            ProvidersConfig,
-            WorkflowConfig,
-        )
+        from vpsweb.models.config import (CompleteConfig, MainConfig,
+                                          ProvidersConfig, WorkflowConfig)
 
         # Create WorkflowConfig from actual data
         workflow_config = WorkflowConfig(**main_config_data["workflow"])
@@ -1631,9 +1500,7 @@ class ApplicationFactoryV2:
             workflow=workflow_config,
         )
         providers_config = ProvidersConfig()
-        complete_config = CompleteConfig(
-            main=main_config, providers=providers_config
-        )
+        complete_config = CompleteConfig(main=main_config, providers=providers_config)
 
         config_facade = initialize_config_facade(
             complete_config, models_config, task_templates_config

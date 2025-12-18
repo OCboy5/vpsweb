@@ -23,9 +23,7 @@ def upgrade() -> None:
     # Add selected column to poems table
     op.add_column(
         "poems",
-        sa.Column(
-            "selected", sa.Boolean(), nullable=False, server_default="false"
-        ),
+        sa.Column("selected", sa.Boolean(), nullable=False, server_default="false"),
     )
 
     # Create index for selected field

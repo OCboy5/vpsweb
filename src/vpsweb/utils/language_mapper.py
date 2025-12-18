@@ -483,9 +483,9 @@ class LanguageMapper:
             BCP-47 language code or None if not found
         """
         normalized_name = name.strip().lower()
-        return self._name_to_code.get(
+        return self._name_to_code.get(normalized_name) or self._native_name_to_code.get(
             normalized_name
-        ) or self._native_name_to_code.get(normalized_name)
+        )
 
     def normalize_code(self, code: str) -> str:
         """
@@ -542,11 +542,7 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for poetry languages
         """
-        return [
-            info
-            for info in self._code_to_info.values()
-            if info.poetic_tradition
-        ]
+        return [info for info in self._code_to_info.values() if info.poetic_tradition]
 
     def get_common_translation_languages(self) -> List[LanguageInfo]:
         """
@@ -556,9 +552,7 @@ class LanguageMapper:
             List of LanguageInfo objects for common translation languages
         """
         return [
-            info
-            for info in self._code_to_info.values()
-            if info.common_in_translation
+            info for info in self._code_to_info.values() if info.common_in_translation
         ]
 
     def get_rtl_languages(self) -> List[LanguageInfo]:
@@ -574,9 +568,7 @@ class LanguageMapper:
             if info.direction == LanguageDirection.RTL
         ]
 
-    def get_languages_by_script(
-        self, script: ScriptType
-    ) -> List[LanguageInfo]:
+    def get_languages_by_script(self, script: ScriptType) -> List[LanguageInfo]:
         """
         Get languages by writing script.
 
@@ -586,11 +578,7 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for the specified script
         """
-        return [
-            info
-            for info in self._code_to_info.values()
-            if info.script == script
-        ]
+        return [info for info in self._code_to_info.values() if info.script == script]
 
     def search_languages(self, query: str) -> List[LanguageInfo]:
         """
@@ -669,9 +657,7 @@ def validate_language_code(code: str) -> Tuple[bool, Optional[str]]:
     code = code.strip()
 
     # Basic BCP-47 format validation
-    if not re.match(
-        r"^[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?(-[A-Z0-9]{5,8})?$", code
-    ):
+    if not re.match(r"^[a-z]{2}(-[A-Z][a-z]{3})?(-[A-Z]{2})?(-[A-Z0-9]{5,8})?$", code):
         return False, f"Invalid BCP-47 language code format: {code}"
 
     mapper = get_language_mapper()

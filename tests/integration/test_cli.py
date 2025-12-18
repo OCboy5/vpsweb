@@ -9,7 +9,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 from src.vpsweb.__main__ import cli
 
 
@@ -56,9 +55,7 @@ class TestCLIIntegration:
                 initial_translation="雾来了，踏着猫的细步。",
                 initial_translation_notes="Test notes",
             ),
-            editor_review=MagicMock(
-                text="1. Test suggestion\n2. Another suggestion"
-            ),
+            editor_review=MagicMock(text="1. Test suggestion\n2. Another suggestion"),
             revised_translation=MagicMock(
                 revised_translation="雾来了，踏着猫儿轻盈的脚步。",
                 revised_translation_notes="Revised notes",
@@ -288,9 +285,7 @@ class TestCLIIntegration:
         assert result.exit_code == 0
         assert "Validating configuration and input" in result.output
         assert "Dry run completed" in result.output
-        assert (
-            "TRANSLATION COMPLETE" not in result.output
-        )  # No actual translation
+        assert "TRANSLATION COMPLETE" not in result.output  # No actual translation
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")
@@ -351,9 +346,7 @@ class TestCLIIntegration:
         result = cli_runner.invoke(cli, ["translate", "--source", "English"])
         assert result.exit_code != 0
 
-    def test_cli_translate_invalid_language(
-        self, cli_runner, sample_poem_file
-    ):
+    def test_cli_translate_invalid_language(self, cli_runner, sample_poem_file):
         """Test translate command with invalid language."""
         # Invalid source language
         result = cli_runner.invoke(
@@ -400,9 +393,7 @@ class TestCLIIntegration:
             ],
         )
         assert result.exit_code != 0
-        assert (
-            "Input file not found" in result.output or "Error" in result.output
-        )
+        assert "Input file not found" in result.output or "Error" in result.output
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")
@@ -421,9 +412,7 @@ class TestCLIIntegration:
         """Test CLI error handling when workflow fails."""
         # Mock workflow to raise an exception
         mock_workflow = MagicMock()
-        mock_workflow.execute.side_effect = Exception(
-            "Workflow execution failed"
-        )
+        mock_workflow.execute.side_effect = Exception("Workflow execution failed")
         mock_workflow_class.return_value = mock_workflow
 
         # Mock configuration loading
@@ -511,10 +500,7 @@ class TestCLIIntegration:
             input="",  # Empty input
         )
         assert result.exit_code != 0
-        assert (
-            "No poem text provided" in result.output
-            or "Error" in result.output
-        )
+        assert "No poem text provided" in result.output or "Error" in result.output
 
     @patch("vpsweb.utils.config_loader.load_task_templates_config")
     @patch("vpsweb.utils.config_loader.load_model_registry_config")

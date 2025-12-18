@@ -60,13 +60,9 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Drop indexes
-    op.drop_index(
-        "idx_bbr_time_spent", table_name="background_briefing_reports"
-    )
+    op.drop_index("idx_bbr_time_spent", table_name="background_briefing_reports")
     op.drop_index("idx_bbr_cost", table_name="background_briefing_reports")
-    op.drop_index(
-        "idx_bbr_created_at", table_name="background_briefing_reports"
-    )
+    op.drop_index("idx_bbr_created_at", table_name="background_briefing_reports")
     op.drop_index("idx_bbr_poem_id", table_name="background_briefing_reports")
 
     # Drop table

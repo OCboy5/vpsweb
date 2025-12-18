@@ -10,9 +10,7 @@ from sqlalchemy.orm import Session
 
 from vpsweb.repository.database import get_db
 from vpsweb.webui.schemas import TranslationRequest, WebAPIResponse
-from vpsweb.webui.services.interfaces import (
-    IWorkflowServiceV2,
-)
+from vpsweb.webui.services.interfaces import IWorkflowServiceV2
 
 router = APIRouter()
 
@@ -30,10 +28,8 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
         # Create a minimal container with just the workflow service
         from vpsweb.core.container import DIContainer
         from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
-        from vpsweb.webui.services.services import (
-            TaskManagementServiceV2,
-            WorkflowServiceV2,
-        )
+        from vpsweb.webui.services.services import (TaskManagementServiceV2,
+                                                    WorkflowServiceV2)
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service
@@ -56,9 +52,7 @@ async def start_translation_workflow(
     """
     try:
         # Fetch the poem to get the source language
-        poem = workflow_service.repository_service.repo.poems.get_by_id(
-            request.poem_id
-        )
+        poem = workflow_service.repository_service.repo.poems.get_by_id(request.poem_id)
         if not poem:
             raise HTTPException(
                 status_code=404,

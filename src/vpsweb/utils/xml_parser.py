@@ -222,18 +222,12 @@ class WeChatXMLParser:
                 result["errors"].append("Missing notes element")
             else:
                 notes_text = notes_elem.text or ""
-                bullet_points = WeChatXMLParser._parse_bullet_points(
-                    notes_text
-                )
+                bullet_points = WeChatXMLParser._parse_bullet_points(notes_text)
 
                 if len(bullet_points) < 3:
-                    result["warnings"].append(
-                        "Too few bullet points (expected 3-6)"
-                    )
+                    result["warnings"].append("Too few bullet points (expected 3-6)")
                 elif len(bullet_points) > 6:
-                    result["warnings"].append(
-                        "Too many bullet points (expected 3-6)"
-                    )
+                    result["warnings"].append("Too many bullet points (expected 3-6)")
 
                 # Check bullet point lengths
                 for i, bullet in enumerate(bullet_points):
@@ -270,9 +264,7 @@ class WeChatXMLParser:
             Extracted XML content or None if not found
         """
         # Look for XML tags
-        xml_pattern = (
-            r"<wechat_translation_notes>.*?</wechat_translation_notes>"
-        )
+        xml_pattern = r"<wechat_translation_notes>.*?</wechat_translation_notes>"
         match = re.search(xml_pattern, text, re.DOTALL | re.IGNORECASE)
 
         if match:

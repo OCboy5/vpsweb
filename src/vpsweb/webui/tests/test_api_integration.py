@@ -28,9 +28,7 @@ def db_session():
         "sqlite:///:memory:", connect_args={"check_same_thread": False}
     )
     Base.metadata.create_all(bind=engine)
-    TestingSessionLocal = sessionmaker(
-        autocommit=False, autoflush=False, bind=engine
-    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     session = TestingSessionLocal()
     try:
@@ -113,9 +111,7 @@ class TestPoemAPI:
             "metadata": "Updated metadata",
         }
 
-        response = client.put(
-            f"/api/v1/poems/{sample_poem.id}", json=update_data
-        )
+        response = client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
         assert response.status_code == 200
 
         data = response.json()
@@ -141,17 +137,13 @@ class TestPoemAPI:
 
     def test_filter_poems_by_poet(self, db_session: Session, sample_poem):
         """Test filtering poems by poet name"""
-        response = client.get(
-            "/api/v1/poems/", params={"poet_name": "Test Poet"}
-        )
+        response = client.get("/api/v1/poems/", params={"poet_name": "Test Poet"})
         assert response.status_code == 200
         data = response.json()
         assert len(data) >= 1
         assert data[0]["poet_name"] == "Test Poet"
 
-    def test_poem_translations_endpoint(
-        self, db_session: Session, sample_poem
-    ):
+    def test_poem_translations_endpoint(self, db_session: Session, sample_poem):
         """Test getting translations for a poem"""
         response = client.get(f"/api/v1/poems/{sample_poem.id}/translations")
         assert response.status_code == 200
@@ -212,9 +204,7 @@ class TestTranslationAPI:
         data = response.json()
         assert len(data) >= 1
 
-    def test_trigger_translation_workflow(
-        self, db_session: Session, sample_poem
-    ):
+    def test_trigger_translation_workflow(self, db_session: Session, sample_poem):
         """Test triggering translation workflow"""
         workflow_data = {
             "poem_id": sample_poem.id,
@@ -222,9 +212,7 @@ class TestTranslationAPI:
             "workflow_mode": "hybrid",
         }
 
-        response = client.post(
-            "/api/v1/translations/trigger", json=workflow_data
-        )
+        response = client.post("/api/v1/translations/trigger", json=workflow_data)
         assert response.status_code == 200
 
         data = response.json()
@@ -294,9 +282,7 @@ class TestStatisticsAPI:
         assert "source_languages" in filters
         assert "target_languages" in filters
 
-    def test_get_translator_productivity(
-        self, db_session: Session, sample_poem
-    ):
+    def test_get_translator_productivity(self, db_session: Session, sample_poem):
         """Test getting translator productivity metrics"""
         response = client.get("/api/v1/statistics/translators/productivity")
         assert response.status_code == 200
@@ -358,9 +344,7 @@ class TestAPIErrorHandling:
 
     def test_pagination_parameters(self, db_session: Session, sample_poem):
         """Test pagination parameters work correctly"""
-        response = client.get(
-            "/api/v1/poems/", params={"skip": 0, "limit": 10}
-        )
+        response = client.get("/api/v1/poems/", params={"skip": 0, "limit": 10})
         assert response.status_code == 200
         # Should return results or empty list
 

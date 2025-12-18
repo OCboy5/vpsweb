@@ -11,14 +11,8 @@ repo_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(repo_root))
 
 from pydantic import ValidationError
-from schemas import (
-    AILogCreate,
-    HumanNoteCreate,
-    PoemCreate,
-    TranslationCreate,
-    TranslatorType,
-    WorkflowMode,
-)
+from schemas import (AILogCreate, HumanNoteCreate, PoemCreate,
+                     TranslationCreate, TranslatorType, WorkflowMode)
 
 
 def test_poem_validation():
@@ -59,9 +53,7 @@ def test_poem_validation():
         )
         print("✗ Should have failed with invalid language code")
     except ValidationError as e:
-        print(
-            f"✓ Correctly caught invalid language code: {e.errors()[0]['msg']}"
-        )
+        print(f"✓ Correctly caught invalid language code: {e.errors()[0]['msg']}")
 
     # Invalid original text (too short)
     try:
@@ -73,9 +65,7 @@ def test_poem_validation():
         )
         print("✗ Should have failed with short original text")
     except ValidationError as e:
-        print(
-            f"✓ Correctly caught short original text: {e.errors()[0]['msg']}"
-        )
+        print(f"✓ Correctly caught short original text: {e.errors()[0]['msg']}")
 
 
 def test_translation_validation():
@@ -109,9 +99,7 @@ def test_translation_validation():
         )
         print("✗ Should have failed with invalid quality rating")
     except ValidationError as e:
-        print(
-            f"✓ Correctly caught invalid quality rating: {e.errors()[0]['msg']}"
-        )
+        print(f"✓ Correctly caught invalid quality rating: {e.errors()[0]['msg']}")
 
 
 def test_ai_log_validation():
@@ -128,9 +116,7 @@ def test_ai_log_validation():
             token_usage_json='{"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}',
             notes="Translation completed successfully",
         )
-        print(
-            f"✓ Valid AI log created: {ai_log.model_name} - {ai_log.workflow_mode}"
-        )
+        print(f"✓ Valid AI log created: {ai_log.model_name} - {ai_log.workflow_mode}")
     except ValidationError as e:
         print(f"✗ Unexpected validation error: {e}")
 

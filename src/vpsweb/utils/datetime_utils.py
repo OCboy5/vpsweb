@@ -93,9 +93,7 @@ class TimezoneManager:
         except pytz.UnknownTimeZoneError:
             raise TimezoneError(f"Unknown timezone: {tz_name}")
 
-    def convert_timezone(
-        self, dt: datetime, from_tz: str, to_tz: str
-    ) -> datetime:
+    def convert_timezone(self, dt: datetime, from_tz: str, to_tz: str) -> datetime:
         """
         Convert datetime from one timezone to another.
 
@@ -181,9 +179,7 @@ class DateTimeFormatter:
 
     # Poetry-specific formats
     POETRY_DATE_FORMAT = "%B %d, %Y"  # "October 18, 2025"
-    POETRY_DATETIME_FORMAT = (
-        "%B %d, %Y at %I:%M %p"  # "October 18, 2025 at 2:30 PM"
-    )
+    POETRY_DATETIME_FORMAT = "%B %d, %Y at %I:%M %p"  # "October 18, 2025 at 2:30 PM"
     CLASSICAL_FORMAT = "%d %B %Y"  # "18 October 2025"
 
     # Relative formats
@@ -234,9 +230,7 @@ class DateTimeFormatter:
         try:
             return parser.isoparse(iso_string)
         except Exception as e:
-            raise ParsingError(
-                f"Failed to parse ISO string '{iso_string}': {str(e)}"
-            )
+            raise ParsingError(f"Failed to parse ISO string '{iso_string}': {str(e)}")
 
     @staticmethod
     def to_poetry_date(dt: datetime) -> str:
@@ -301,9 +295,7 @@ class DateTimeFormatter:
         try:
             return parser.parse(duration_str)
         except Exception as e:
-            raise ParsingError(
-                f"Failed to parse duration '{duration_str}': {str(e)}"
-            )
+            raise ParsingError(f"Failed to parse duration '{duration_str}': {str(e)}")
 
 
 class TimeCalculator:
@@ -381,10 +373,7 @@ class TimeCalculator:
         Returns:
             True if within business hours
         """
-        return (
-            start_hour <= dt.hour < end_hour
-            and not TimeCalculator.is_weekend(dt)
-        )
+        return start_hour <= dt.hour < end_hour and not TimeCalculator.is_weekend(dt)
 
     @staticmethod
     def add_business_days(dt: datetime, days: int) -> datetime:
@@ -426,9 +415,7 @@ class TimeCalculator:
             reference = datetime.now(timezone.utc)
 
         # Convert date to datetime if needed
-        if isinstance(birth_date, date) and not isinstance(
-            birth_date, datetime
-        ):
+        if isinstance(birth_date, date) and not isinstance(birth_date, datetime):
             birth_date = datetime.combine(birth_date, datetime.min.time())
             if reference.tzinfo:
                 birth_date = birth_date.replace(tzinfo=reference.tzinfo)
@@ -548,9 +535,7 @@ class PoetryDateTimeUtils:
             return DateTimeFormatter.to_poetry_date(dt)
 
     @staticmethod
-    def format_translation_date(
-        dt: datetime, include_time: bool = True
-    ) -> str:
+    def format_translation_date(dt: datetime, include_time: bool = True) -> str:
         """
         Format translation date for display.
 
@@ -741,6 +726,4 @@ def parse_flexible_datetime(date_string: str) -> datetime:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt
     except Exception as e:
-        raise ParsingError(
-            f"Failed to parse datetime '{date_string}': {str(e)}"
-        )
+        raise ParsingError(f"Failed to parse datetime '{date_string}': {str(e)}")

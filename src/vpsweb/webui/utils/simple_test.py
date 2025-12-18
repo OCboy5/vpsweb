@@ -58,9 +58,8 @@ def test_wechat_runner():
     print("\nTesting WeChat article runner...")
 
     try:
-        from vpsweb.webui.utils.wechat_article_runner import (
-            WeChatArticleRunner,
-        )
+        from vpsweb.webui.utils.wechat_article_runner import \
+            WeChatArticleRunner
 
         # Test with dummy config path
         try:
@@ -111,9 +110,7 @@ def test_mock_data_validation():
         }
 
         print("✅ Mock data validation structure created successfully")
-        print(
-            f"   - Poem title: {validation_result['metadata']['poem_title']}"
-        )
+        print(f"   - Poem title: {validation_result['metadata']['poem_title']}")
         print(f"   - Poet name: {validation_result['metadata']['poet_name']}")
         print(f"   - Valid: {validation_result['valid']}")
 
@@ -157,9 +154,7 @@ def main():
     print(f"Success rate: {passed/total*100:.1f}%")
 
     if passed == total:
-        print(
-            "\n🎉 All tests passed! The utility scripts are working correctly."
-        )
+        print("\n🎉 All tests passed! The utility scripts are working correctly.")
         print("   - Imports are working")
         print("   - Classes can be instantiated")
         print("   - Basic structure is sound")

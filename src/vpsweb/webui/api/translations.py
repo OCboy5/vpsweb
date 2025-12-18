@@ -6,29 +6,16 @@ API endpoints for translation management and workflow operations.
 
 from typing import Any, Dict, Optional
 
-from fastapi import (
-    APIRouter,
-    BackgroundTasks,
-    Depends,
-    HTTPException,
-    Query,
-)
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ...repository.database import get_db
-from ...repository.schemas import (
-    HumanNoteCreate,
-    TranslationCreate,
-    TranslationResponse,
-    TranslationUpdate,
-)
+from ...repository.schemas import (HumanNoteCreate, TranslationCreate,
+                                   TranslationResponse, TranslationUpdate)
 from ...repository.service import RepositoryWebService
 from ..container import container
-from ..schemas import (
-    TranslationRequest,
-    WebAPIResponse,
-)
+from ..schemas import TranslationRequest, WebAPIResponse
 from ..services.interfaces import IWorkflowServiceV2
 
 router = APIRouter(tags=["translations"])
@@ -103,9 +90,7 @@ async def list_translations(
     )
 
     # Convert SQLAlchemy models to Pydantic response schemas
-    translations = [
-        TranslationResponse.model_validate(t) for t in raw_translations
-    ]
+    translations = [TranslationResponse.model_validate(t) for t in raw_translations]
 
     return {
         "translations": translations,
@@ -212,9 +197,7 @@ async def update_quality_rating(
         from sqlalchemy import text
 
         result = service.db.execute(
-            text(
-                "UPDATE translations SET quality_rating = :rating WHERE id = :id"
-            ),
+            text("UPDATE translations SET quality_rating = :rating WHERE id = :id"),
             {"rating": rating_data.quality_rating, "id": translation_id},
         )
         service.db.commit()
@@ -261,9 +244,7 @@ async def delete_translation(
 
     try:
         service.repo.translations.delete(translation_id)
-        return WebAPIResponse(
-            success=True, message="Translation deleted successfully"
-        )
+        return WebAPIResponse(success=True, message="Translation deleted successfully")
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Failed to delete translation: {str(e)}"
@@ -274,12 +255,8 @@ async def delete_translation(
 class HumanNoteCreateRequest(BaseModel):
     """Schema for creating a human note"""
 
-    translation_id: str = Field(
-        ..., description="Translation ID to attach the note to"
-    )
-    note_text: str = Field(
-        ..., min_length=1, description="The note text content"
-    )
+    translation_id: str = Field(..., description="Translation ID to attach the note to")
+    note_text: str = Field(..., min_length=1, description="The note text content")
 
 
 class HumanNoteResponse(BaseModel):
@@ -370,15 +347,11 @@ async def list_human_notes(
 
     try:
         # Get human notes for this translation
-        human_notes = service.repo.human_notes.get_by_translation(
-            translation_id
-        )
+        human_notes = service.repo.human_notes.get_by_translation(translation_id)
 
         return {
             "success": True,
-            "data": [
-                HumanNoteResponse.model_validate(note) for note in human_notes
-            ],
+            "data": [HumanNoteResponse.model_validate(note) for note in human_notes],
             "count": len(human_notes),
         }
     except Exception as e:
@@ -407,9 +380,7 @@ async def delete_human_note(
         # Delete the note
         service.repo.human_notes.delete(note_id)
 
-        return WebAPIResponse(
-            success=True, message="Human note deleted successfully"
-        )
+        return WebAPIResponse(success=True, message="Human note deleted successfully")
     except HTTPException:
         raise
     except Exception as e:

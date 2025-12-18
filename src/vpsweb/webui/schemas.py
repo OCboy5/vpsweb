@@ -10,13 +10,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.vpsweb.repository.schemas import (
-    ComparisonView,
-    PoemResponse,
-    RepositoryStats,
-    TranslationResponse,
-    WorkflowMode,
-)
+from src.vpsweb.repository.schemas import (ComparisonView, PoemResponse,
+                                           RepositoryStats,
+                                           TranslationResponse, WorkflowMode)
 
 
 class TranslatorType(str, Enum):
@@ -49,9 +45,7 @@ class PoemFormCreate(WebUIBase):
     source_language: str = Field(
         ..., min_length=2, max_length=10, description="Source language code"
     )
-    original_text: str = Field(
-        ..., min_length=1, description="Original poem text"
-    )
+    original_text: str = Field(..., min_length=1, description="Original poem text")
     metadata: Optional[str] = Field(
         None, max_length=1000, description="Optional metadata"
     )
@@ -81,9 +75,7 @@ class TranslationFormCreate(WebUIBase):
     translator_name: Optional[str] = Field(
         None, max_length=200, description="Human translator name"
     )
-    translated_text: str = Field(
-        ..., min_length=1, description="Translated text"
-    )
+    translated_text: str = Field(..., min_length=1, description="Translated text")
     quality_rating: Optional[int] = Field(
         None, ge=1, le=5, description="Quality rating"
     )
@@ -113,13 +105,9 @@ class TranslationRequest(WebUIBase):
 class DashboardPage(WebUIBase):
     """Schema for dashboard page data"""
 
-    poems: List[PoemResponse] = Field(
-        default_factory=list, description="Recent poems"
-    )
+    poems: List[PoemResponse] = Field(default_factory=list, description="Recent poems")
     total_poems: int = Field(0, description="Total number of poems")
-    total_translations: int = Field(
-        0, description="Total number of translations"
-    )
+    total_translations: int = Field(0, description="Total number of translations")
     stats: RepositoryStats = Field(..., description="Repository statistics")
 
 
@@ -139,9 +127,7 @@ class ComparisonPage(WebUIBase):
     """Schema for comparison page data"""
 
     poem: PoemResponse = Field(..., description="Poem information")
-    comparison_data: ComparisonView = Field(
-        ..., description="Comparison view data"
-    )
+    comparison_data: ComparisonView = Field(..., description="Comparison view data")
 
 
 # Search and filter schemas
@@ -170,17 +156,13 @@ class WebAPIResponse(WebUIBase):
         "Operation completed successfully", description="Response message"
     )
     data: Optional[dict] = Field(None, description="Response data")
-    redirect_url: Optional[str] = Field(
-        None, description="Optional redirect URL"
-    )
+    redirect_url: Optional[str] = Field(None, description="Optional redirect URL")
 
 
 class TranslationFormResponse(WebAPIResponse):
     """Schema for translation form submission response"""
 
-    translation_id: Optional[str] = Field(
-        None, description="Created translation ID"
-    )
+    translation_id: Optional[str] = Field(None, description="Created translation ID")
     model_name: Optional[str] = Field(None, description="AI model name")
 
 
@@ -206,15 +188,11 @@ class PoemTranslationWithWorkflow(WebUIBase):
     translation_id: str = Field(..., description="Translation ID")
     translator_info: str = Field(..., description="Translator information")
     target_language: str = Field(..., description="Target language")
-    translation_type: str = Field(
-        ..., description="Translation type (ai/human)"
-    )
+    translation_type: str = Field(..., description="Translation type (ai/human)")
     has_workflow_steps: bool = Field(
         ..., description="Whether translation has workflow steps"
     )
-    workflow_step_count: int = Field(
-        ..., description="Number of workflow steps"
-    )
+    workflow_step_count: int = Field(..., description="Number of workflow steps")
     created_at: datetime = Field(..., description="Creation timestamp")
     quality_rating: Optional[int] = Field(None, description="Quality rating")
     performance_summary: Optional[dict] = Field(
@@ -231,15 +209,9 @@ class PoemCard(WebUIBase):
     source_language: str = Field(..., description="Source language")
     created_at: datetime = Field(..., description="Creation timestamp")
     translation_count: int = Field(0, description="Number of translations")
-    ai_translation_count: int = Field(
-        0, description="Number of AI translations"
-    )
-    human_translation_count: int = Field(
-        0, description="Number of human translations"
-    )
-    can_translate: bool = Field(
-        True, description="Whether translation is possible"
-    )
+    ai_translation_count: int = Field(0, description="Number of AI translations")
+    human_translation_count: int = Field(0, description="Number of human translations")
+    can_translate: bool = Field(True, description="Whether translation is possible")
 
 
 # Navigation schemas
@@ -274,27 +246,21 @@ class PaginationInfo(WebUIBase):
     has_next: bool = Field(False, description="Has next page")
     has_previous: bool = Field(False, description="Has previous page")
     next_page_url: Optional[str] = Field(None, description="Next page URL")
-    previous_page_url: Optional[str] = Field(
-        None, description="Previous page URL"
-    )
+    previous_page_url: Optional[str] = Field(None, description="Previous page URL")
 
 
 class PaginatedPoemResponse(WebUIBase):
     """Schema for paginated poem list response"""
 
     poems: List[PoemResponse] = Field(..., description="List of poems")
-    pagination: PaginationInfo = Field(
-        ..., description="Pagination information"
-    )
+    pagination: PaginationInfo = Field(..., description="Pagination information")
 
 
 class PoemFilterOptions(WebUIBase):
     """Schema for poem filter options"""
 
     poets: List[str] = Field(..., description="List of available poet names")
-    languages: List[str] = Field(
-        ..., description="List of available language codes"
-    )
+    languages: List[str] = Field(..., description="List of available language codes")
 
 
 # Flash message schemas

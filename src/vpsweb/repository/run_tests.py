@@ -85,11 +85,7 @@ def test_pydantic_schemas():
     """Test Pydantic schema validation"""
     try:
         from pydantic import ValidationError
-        from schemas import (
-            PoemCreate,
-            TranslationCreate,
-            TranslatorType,
-        )
+        from schemas import PoemCreate, TranslationCreate, TranslatorType
 
         # Test valid poem
         poem = PoemCreate(

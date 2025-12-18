@@ -62,15 +62,11 @@ class ITranslationServiceV2(ABC):
         """Get paginated list of translations with filtering."""
 
     @abstractmethod
-    async def get_translation_detail(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_translation_detail(self, translation_id: str) -> Dict[str, Any]:
         """Get detailed translation information."""
 
     @abstractmethod
-    async def get_translation_comparison(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_translation_comparison(self, translation_id: str) -> Dict[str, Any]:
         """Get comparison data for a translation."""
 
     @abstractmethod
@@ -84,15 +80,11 @@ class ITranslationServiceV2(ABC):
         """Delete a translation."""
 
     @abstractmethod
-    async def get_workflow_summary(
-        self, translation_id: str
-    ) -> Dict[str, Any]:
+    async def get_workflow_summary(self, translation_id: str) -> Dict[str, Any]:
         """Get workflow execution summary for a translation."""
 
     @abstractmethod
-    async def get_workflow_steps(
-        self, translation_id: str
-    ) -> List[Dict[str, Any]]:
+    async def get_workflow_steps(self, translation_id: str) -> List[Dict[str, Any]]:
         """Get detailed workflow steps for a translation."""
 
 
@@ -153,9 +145,7 @@ class IWorkflowServiceV2(ABC):
         """Get the status of a workflow task."""
 
     @abstractmethod
-    async def cancel_task(
-        self, task_id: str, user_id: Optional[str] = None
-    ) -> bool:
+    async def cancel_task(self, task_id: str, user_id: Optional[str] = None) -> bool:
         """Cancel a workflow task."""
 
     @abstractmethod
@@ -215,9 +205,7 @@ class ITemplateServiceV2(ABC):
         """Render a template with context."""
 
     @abstractmethod
-    async def get_template_list(
-        self, category: Optional[str] = None
-    ) -> List[str]:
+    async def get_template_list(self, category: Optional[str] = None) -> List[str]:
         """Get list of available templates."""
 
     @abstractmethod
@@ -266,9 +254,7 @@ class IPerformanceServiceV2(ABC):
         """Log request performance metrics."""
 
     @abstractmethod
-    async def get_performance_summary(
-        self, minutes: int = 60
-    ) -> Dict[str, Any]:
+    async def get_performance_summary(self, minutes: int = 60) -> Dict[str, Any]:
         """Get performance summary for specified time period."""
 
     @abstractmethod

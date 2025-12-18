@@ -59,9 +59,7 @@ class TranslationInput(BaseModel):
     def validate_target_language(cls, v, info):
         """Ensure target language is only English or Chinese (from vpts.yml)."""
         if v not in [Language.ENGLISH, Language.CHINESE]:
-            raise ValueError(
-                "Target language must be either English or Chinese"
-            )
+            raise ValueError("Target language must be either English or Chinese")
         return v
 
     @field_validator("target_lang")
@@ -87,9 +85,7 @@ class TranslationInput(BaseModel):
 class BackgroundBriefingReport(BaseModel):
     """Background Briefing Report with contextual analysis for translation."""
 
-    content: str = Field(
-        ..., description="BBR content with contextual analysis"
-    )
+    content: str = Field(..., description="BBR content with contextual analysis")
     timestamp: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp when BBR was created or retrieved",
@@ -138,9 +134,7 @@ class BackgroundBriefingReport(BaseModel):
 class InitialTranslation(BaseModel):
     """Output from initial translation step with XML structure from vpts.yml."""
 
-    initial_translation: str = Field(
-        ..., description="The translated poem text"
-    )
+    initial_translation: str = Field(..., description="The translated poem text")
     initial_translation_notes: str = Field(
         ...,
         description="Translator's explanation of translation choices (200-300 words)",
@@ -237,9 +231,7 @@ class EditorReview(BaseModel):
 
         text_to_search = self.editor_suggestions
         # Look for numbered suggestions like "1. [suggestion text]"
-        suggestions = re.findall(
-            r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE
-        )
+        suggestions = re.findall(r"^\s*(\d+)\.\s*(.+)$", text_to_search, re.MULTILINE)
         return [suggestion[1].strip() for suggestion in suggestions]
 
     def get_overall_assessment(self) -> str:
@@ -274,9 +266,7 @@ class EditorReview(BaseModel):
 class RevisedTranslation(BaseModel):
     """Output from translator revision step with XML structure from vpts.yml."""
 
-    revised_translation: str = Field(
-        ..., description="The final revised translation"
-    )
+    revised_translation: str = Field(..., description="The final revised translation")
     revised_translation_notes: str = Field(
         ...,
         description="Explanation of key changes and decisions (200-300 words)",
@@ -344,9 +334,7 @@ class TranslationOutput(BaseModel):
     workflow_id: str = Field(
         ..., description="Unique identifier for this translation workflow"
     )
-    input: TranslationInput = Field(
-        ..., description="Original input to the workflow"
-    )
+    input: TranslationInput = Field(..., description="Original input to the workflow")
     initial_translation: InitialTranslation = Field(
         ..., description="Initial translation with notes"
     )
@@ -405,13 +393,8 @@ class TranslationOutput(BaseModel):
         """Create from dictionary with proper deserialization."""
         # Handle optional BBR
         bbr = None
-        if (
-            "background_briefing_report" in data
-            and data["background_briefing_report"]
-        ):
-            bbr = BackgroundBriefingReport.from_dict(
-                data["background_briefing_report"]
-            )
+        if "background_briefing_report" in data and data["background_briefing_report"]:
+            bbr = BackgroundBriefingReport.from_dict(data["background_briefing_report"])
 
         return cls(
             workflow_id=data["workflow_id"],
@@ -438,9 +421,7 @@ class TranslationOutput(BaseModel):
             raise ValueError(f"Unsupported format: {format}")
 
     @classmethod
-    def load_from_file(
-        cls, filepath: str, format: str = "json"
-    ) -> "TranslationOutput":
+    def load_from_file(cls, filepath: str, format: str = "json") -> "TranslationOutput":
         """Load translation output from a file."""
         if format.lower() == "json":
             with open(filepath, "r", encoding="utf-8") as f:

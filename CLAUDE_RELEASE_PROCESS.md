@@ -1,283 +1,115 @@
-# Claude Release Process - Standard Operating Procedure
+# VPSWeb Release Process
 
-This document defines the **standardized release process** that Claude Code follows when requested to create releases for the VPSWeb project.
+This document outlines the standard procedure for creating a new release of the `vpsweb` application.
 
-## User Instructions (How to trigger a release)
+## Quick Reference
 
-**Simple command**: Just tell me `"Create release v0.7.1"` (or any version number)
+### Essential Commands
 
-**Alternative commands**:
-- `"Release v0.8.0"`
-- `"I want to release v1.0.0"`
-- `"Help me create release v0.7.1.1"`
+| Command                     | Description                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `git checkout main`         | Switch to the main branch.                                                   |
+| `git pull origin main`      | Update the local branch with the latest changes from the remote.             |
+| `cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db` | Create a timestamped backup of the database. |
+| `poetry run pytest`         | Run the full test suite.                                                     |
+| `poetry run black --check src/ tests/` | Check code formatting without making changes.                                    |
+| `poetry run isort --check-only src/ tests/` | Check import order without making changes.                                   |
+| `poetry run flake8 src/ tests/` | Lint the codebase for style and errors.                                      |
+| `poetry run mypy src/`      | Run static type checking.                                                    |
+| `./scripts/start.sh`        | Start the web application for manual verification.                           |
+| `git commit -am "chore(release): vX.Y.Z"` | Commit all version and changelog updates.                                    |
+| `./push-version.sh X.Y.Z "Release vX.Y.Z"` | Create and push a Git tag to trigger the GitHub Actions release workflow.      |
+| `./save-version.sh X.Y.Z`   | Create a local backup tag for emergency rollbacks.                           |
 
-## Claude's Release Process (Step-by-Step)
+### Files to Update
 
-### Phase 1: Repository Preparation
-1. **Check current repository state**
-   - Verify clean working directory (no uncommitted changes)
-   - Confirm we're on main branch
-   - Ensure local is synced with remote
+-   `pyproject.toml` (line 3): `version = "X.Y.Z"`
+-   `src/vpsweb/__init__.py` (line 34): `__version__ = "X.Y.Z"`
+-   `src/vpsweb/__main__.py` (line 343): `version="X.Y.Z"`
+-   `CHANGELOG.md` (Add a new entry for the release)
+-   `README.md` (Update any version references)
 
-2. **🛡️ Database Protection Check** ⭐ **CRITICAL**
-   - Verify `repository_root/repo.db` exists and is accessible
-   - Confirm database is NOT in git staging area (`git status | grep repository_root`)
-   - Verify `.gitignore` contains `repository_root/` entry
-   - **NEVER proceed if database is at risk**
+## Release Process
 
-3. **Create Database Backup** ⭐ **SAFETY**
-   - Create timestamped backup: `cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db`
-   - Verify backup was created successfully
-   - Confirm backup file exists and is readable
+### Step 1: Preparation
 
-4. **Version validation**
-   - Check current version in all files
-   - Verify requested version doesn't already exist
-   - Validate semantic version format (X.Y.Z)
+1.  **Sync Repository**: Ensure your local `main` branch is synchronized with the remote repository.
+    ```bash
+    git checkout main
+    git pull origin main
+    ```
 
-### Phase 2: Quality Assurance
-5. **Run essential tests**
-   - Test core CLI functionality
-   - Verify model imports work
-   - Test basic import functionality
-   - **Test WebUI startup**: Ensure `./scripts/start.sh` launches successfully
-   - **Test WebUI accessibility**: Verify http://127.0.0.1:8000 is accessible
-   - **Test BBR functionality**: Verify BBR generation works through WebUI
-   - **Test SSE streaming**: Verify real-time updates work during translation
+2.  **Backup Database**: Create a secure backup of the production database before making any changes.
+    ```bash
+    cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db
+    ```
+    Verify that the backup file was created successfully.
 
-6. **Code quality checks** ⭐ **UPDATED - Full CI/CD Compliance**
-   - Run Black formatting check: `poetry run black --check src/ tests/`
-   - Check import sorting: `poetry run isort --check-only src/ tests/`
-   - Lint with flake8: `poetry run flake8 src/ tests/`
-   - Type checking with mypy: `poetry run mypy src/`
-   - **FIX ALL ISSUES**: All checks must pass for release (GitHub Actions CI will fail without compliance)
-   - **CI/CD Requirements**: These checks match exactly what `.github/workflows/ci.yml` enforces
+3.  **Validate Version**: Check the current project version and confirm that the new version number follows semantic versioning (X.Y.Z).
 
-7. **File verification**
-   - Confirm all required files exist:
-     - `pyproject.toml`
-     - `src/vpsweb/__init__.py`
-     - `src/vpsweb/__main__.py`
-     - `src/vpsweb/webui/main.py` (WebUI main application)
-     - `CHANGELOG.md`
-     - `README.md`
-     - `scripts/setup.sh` (Setup script)
-     - `scripts/start.sh` (Server start script)
-     - `scripts/stop.sh` (Server stop script)
+### Step 2: Quality Assurance
 
-### Phase 3: Version Management
-8. **Update version files**
-   - Update `pyproject.toml`: `version = "X.Y.Z"`
-   - Update `src/vpsweb/__init__.py`: `__version__ = "X.Y.Z"`
-   - Update `src/vpsweb/__main__.py`: `version="X.Y.Z"`
-   - Verify all versions match
+1.  **Run Automated Checks**: Execute all automated quality gates. These checks mirror the CI/CD pipeline defined in `.github/workflows/ci.yml` and must pass before proceeding.
+    ```bash
+    poetry run pytest
+    poetry run black --check src/ tests/
+    poetry run isort --check-only src/ tests/
+    poetry run flake8 src/ tests/
+    poetry run mypy src/
+    ```
 
-9. **Update CHANGELOG.md**
-   - Create new release section with proper format
-   - Include release date
-   - Add structured template for release notes
+2.  **WebUI Verification**: Start the web application and perform a quick manual check to ensure core functionality is working as expected.
+    ```bash
+    ./scripts/start.sh
+    ```
+    -   Access the Web UI at `http://127.0.0.1:8000`.
+    -   Verify that the main page loads and basic operations can be performed.
+    -   Test BBR functionality if time permits.
 
-10. **Update README.md** ⭐ **NEW**
-    - Update version mentions in README.md
-    - Update installation instructions if needed
-    - Update any version-specific examples or documentation
-    - Add new release to release history section if it exists
+### Step 3: Release
 
-### Phase 4: Pre-Release Commit
-11. **🛡️ Final Database Safety Check** ⭐ **CRITICAL**
-    - Verify `repository_root/repo.db` still exists and is untouched
-    - Confirm NO database files are staged for commit
-    - Verify database backup from Phase 1 still exists
-    - **ABORT RELEASE** if any database risk detected
+1.  **Update Version Files**: Modify the version number in the files listed in the "Files to Update" section.
 
-12. **Commit all changes**
-    - Stage all version and documentation changes (EXCLUDING database files)
-    - Create standardized commit message
-    - Push to remote repository
+2.  **Update Changelog**: Add a new entry to `CHANGELOG.md` detailing the changes in this release.
 
-### Phase 5: Release Creation
-13. **Execute release script**
-    - Use `./push-version.sh X.Y.Z "Release notes"`
-    - Script handles:
-      - Tag creation
-      - GitHub release creation
-      - Proper error handling
+3.  **Create Local Backup**: Create a local backup tag before making the release.
+    ```bash
+    ./save-version.sh X.Y.Z
+    ```
 
-14. **Verification**
-    - Confirm release appears in GitHub releases
-    - Verify tag exists
-    - Check release URL works
-    - Confirm version consistency across all files
-    - **Verify database still exists** and is accessible
+4.  **Commit Changes**: Commit all the modifications with a standardized release message.
+    ```bash
+    git commit -am "chore(release): vX.Y.Z"
+    ```
 
-### Phase 6: Local Backup Creation ⭐ **NEW**
-15. **Create local backup after release**
-   - Run `./save-version.sh X.Y.Z` to create backup tag
-   - Verify backup tag was created successfully
-   - This provides rollback capability if anything goes wrong
+5.  **Create Release**: Execute the release script to create the tag and GitHub release.
+    ```bash
+    ./push-version.sh X.Y.Z "Release vX.Y.Z"
+    ```
 
-## Release Notes Template
+## Database Safety
 
-When updating CHANGELOG.md, use this structure:
+-   **Location**: Database is located at `repository_root/repo.db`
+-   **Never Commit the Database**: The `repository_root/repo.db` file is listed in `.gitignore` and must never be committed to the repository.
+-   **Always Backup Before Release**: Create a timestamped backup before starting the release process using: `cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db`
+-   **Verify Backups**: Before proceeding with a release, confirm that the backup file was created successfully.
+-   **Use Caution with `rm`**: Avoid using `rm` commands near the repository root directory.
 
-```markdown
-## [X.Y.Z] - YYYY-MM-DD
+## Emergency Rollback
 
-### 🚀 Overview
-VPSWeb vX.Y.Z - [Brief description of release]
+If a critical issue is discovered after a release, use the local backup tag to revert the changes.
 
-### ✨ New Features
-- ✨ Feature: [Description of new features]
+1.  **List Available Backup Tags**:
+    ```bash
+    git tag -l "*local*"
+    ```
 
-### 🔧 Improvements
-- 🛠️ Improvement: [Description of improvements]
+2.  **Checkout the Backup Tag**:
+    ```bash
+    git checkout vX.Y.Z-local-YYYY-MM-DD
+    ```
 
-### 🐛 Bug Fixes
-- 🐛 Fix: [Description of bug fixes]
-
-### 📚 Documentation Updates
-- 📚 Docs: [Description of documentation changes]
-
-### 🔧 Technical Changes
-- 🔨 Technical: [Description of technical changes]
-```
-
-## README.md Updates Required
-
-For each release, check and update these 5 sections in README.md:
-
-1. **Version badge** (if present)
-2. **Installation instructions** - ensure they reference latest stable version
-3. **Changelog section** - add link to new release
-4. **Examples** - update any version-specific examples
-5. **Compatibility notes** - update if relevant
-
-## Error Handling
-
-If any step fails:
-1. **Stop immediately** and report the specific failure
-2. **Use backup tag** for rollback if needed: `git checkout vX.Y.Z-local-YYYY-MM-DD`
-3. **Provide clear error message** with what went wrong
-4. **Suggest next steps** (fix issue vs. manual intervention)
-5. **Never proceed** with broken state
-
-## Important Reminders for Claude
-
-- **ALWAYS update README.md** with version information
-- **ALWAYS use the manual `./push-version.sh` script** - it's proven reliable
-- **NEVER rely on the GitHub Actions workflow** - it has permissions/protection issues
-- **ALWAYS verify the release was created** before reporting success
-- **NEVER skip quality checks** - they ensure reliable releases
-- **COMMIT all changes** before running the release script
-- **ALWAYS check version consistency** across all files
-- **ALWAYS create a local backup first** using `./save-version.sh`
-
-## 🛡️ DATABASE SAFETY - CRITICAL PROTECTION RULES
-
-**ABSOLUTELY NEVER DELETE OR MODIFY THE DATABASE:**
-- **NEVER** run `rm -rf repository_root` or any similar command
-- **NEVER** use wildcards with `rm` near the database directory
-- **NEVER** stage database files for git commits
-- **NEVER** assume database is backed up - verify explicitly
-
-**MANDATORY DATABASE CHECKS:**
-1. **BEFORE any file operations**: Verify `repository_root/repo.db` exists
-2. **BEFORE git operations**: Confirm NO database files are staged (`git status`)
-3. **AFTER all operations**: Verify database still exists and is accessible
-4. **BACKUP verification**: Confirm backup files exist and are readable
-
-**EMERGENCY RECOVERY:**
-- If database is accidentally deleted: STOP immediately and inform user
-- Use most recent backup: `repository_root/repo_backup_TIMESTAMP.db`
-- Always ask user before attempting any database operations
-
-**CRIMINAL OFFENSES (NEVER DO THESE):**
-```bash
-# 🚨 NEVER DO THIS - DATABASE KILLER COMMANDS
-rm -rf repository_root/
-rm repository_root/*
-rm -rf * repository_root/
-find . -name "repository*" -exec rm -rf {} \;
-```
-
-**SAFE ALTERNATIVES:**
-- Move files instead of delete: `mv file /tmp/`
-- Use specific file names: `rm specific_file.txt` (after verification)
-- Ask user before ANY operation affecting `repository_root`
-
-## Version Files That Must Be Updated
-
-1. `pyproject.toml` - line 3: `version = "X.Y.Z"`
-2. `src/vpsweb/__init__.py` - `__version__ = "X.Y.Z"`
-3. `src/vpsweb/__main__.py` - line with `version="X.Y.Z"`
-4. `README.md` - version mentions and documentation
-5. `CHANGELOG.md` - release notes and history
-
-## Quality Assurance Commands
-
-```bash
-# 🛡️ DATABASE PROTECTION (STEP 2-3) - CRITICAL SAFETY CHECKS
-echo "🔍 Database protection check..." && \
-if [ -f "repository_root/repo.db" ]; then \
-    echo "✅ Database exists - PROTECTED"; \
-else \
-    echo "❌ DATABASE MISSING - ABORTING RELEASE"; \
-    exit 1; \
-fi && \
-if git status | grep -q "repository_root"; then \
-    echo "❌ DATABASE FILES STAGED - ABORTING RELEASE"; \
-    exit 1; \
-else \
-    echo "✅ Database not staged - SAFE"; \
-fi && \
-cp repository_root/repo.db repository_root/repo_backup_$(date +%Y%m%d_%H%M%S).db && \
-echo "✅ Database backed up safely"
-
-# Test CLI functionality
-export PYTHONPATH="$(pwd)/src:$PYTHONPATH" && poetry run vpsweb --version
-
-# Test imports
-python -c "from vpsweb.models.translation import InitialTranslation, RevisedTranslation; print('✅ Core models import successfully')"
-
-# Test CLI entry point
-python -c "from vpsweb.__main__ import cli; print('✅ CLI entry point available')"
-
-# 🚀 FULL CODE QUALITY CHECKS (STEP 6) - CI/CD COMPLIANCE
-echo "🔍 Running full code quality checks..." && \
-poetry run black --check src/ tests/ && \
-echo "✅ Black formatting check passed" && \
-poetry run isort --check-only src/ tests/ && \
-echo "✅ Import sorting check passed" && \
-poetry run flake8 src/ tests/ && \
-echo "✅ Flake8 linting check passed" && \
-poetry run mypy src/ && \
-echo "✅ MyPy type checking check passed"
-
-# 🛡️ FINAL DATABASE CHECK (STEP 11) - PRE-COMMIT SAFETY
-echo "🔍 Final database safety check..." && \
-if [ -f "repository_root/repo.db" ]; then \
-    echo "✅ Database still exists - SAFE TO PROCEED"; \
-else \
-    echo "❌ DATABASE DELETED - EMERGENCY STOP"; \
-    exit 1; \
-fi
-
-# Create release (STEP 13)
-./push-version.sh X.Y.Z "Release notes with proper description"
-
-# 🛡️ POST-RELEASE DATABASE VERIFICATION (STEP 14)
-echo "🔍 Post-release database verification..." && \
-if [ -f "repository_root/repo.db" ]; then \
-    echo "✅ Database intact after release - SUCCESS"; \
-else \
-    echo "❌ DATABASE LOST - EMERGENCY RECOVERY NEEDED"; \
-fi
-```
-
-
----
-
-**Last Updated**: 2025-11-13
-**Process Version**: 1.1
-**Status**: Production Ready
-**Key Updates**: Added local backup creation and README.md updates
+3.  **Force Push to Main**: This is a destructive action and should only be performed in an emergency after coordinating with the team.
+    ```bash
+    git push origin -f main
+    ```

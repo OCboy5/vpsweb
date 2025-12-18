@@ -13,13 +13,9 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from ..core.executor import StepExecutor
 from ..models.config import ProvidersConfig, WorkflowConfig, WorkflowMode
-from ..models.translation import (
-    EditorReview,
-    InitialTranslation,
-    RevisedTranslation,
-    TranslationInput,
-    TranslationOutput,
-)
+from ..models.translation import (EditorReview, InitialTranslation,
+                                  RevisedTranslation, TranslationInput,
+                                  TranslationOutput)
 from ..services.config import ConfigFacade
 from ..services.llm.factory import LLMFactory
 from ..services.parser import OutputParser
@@ -90,9 +86,7 @@ class TranslationWorkflow:
 
                 self._config_facade = get_config_facade()
                 self._using_facade = True
-                logger.info(
-                    "TranslationWorkflow auto-detected global ConfigFacade"
-                )
+                logger.info("TranslationWorkflow auto-detected global ConfigFacade")
             except RuntimeError:
                 # No global ConfigFacade available, use legacy pattern
                 if (
@@ -104,16 +98,12 @@ class TranslationWorkflow:
                         "Legacy initialization requires config, providers_config, and workflow_mode"
                     )
                 self.config = config_or_facade  # Legacy WorkflowConfig
-                self.providers_config = (
-                    providers_config  # Legacy ProvidersConfig
-                )
+                self.providers_config = providers_config  # Legacy ProvidersConfig
                 self.workflow_mode = workflow_mode
                 self.system_config = system_config or {}
                 self._using_facade = False
                 self._config_facade = None
-                logger.info(
-                    "TranslationWorkflow using legacy configuration pattern"
-                )
+                logger.info("TranslationWorkflow using legacy configuration pattern")
 
         self.task_service = task_service
         self.task_id = task_id
@@ -143,17 +133,13 @@ class TranslationWorkflow:
         """Initialize common components based on initialization pattern."""
         if self._using_facade:
             # ConfigFacade-based initialization
-            self.workflow_steps = (
-                self._config_facade.workflow.get_workflow_steps(
-                    self._get_workflow_mode()
-                )
+            self.workflow_steps = self._config_facade.workflow.get_workflow_steps(
+                self._get_workflow_mode()
             )
             providers_config = self._config_facade.providers
         else:
             # Legacy initialization
-            self.workflow_steps = self.config.get_workflow_steps(
-                self.workflow_mode
-            )
+            self.workflow_steps = self.config.get_workflow_steps(self.workflow_mode)
             providers_config = self.providers_config
 
         # Initialize services
@@ -191,9 +177,7 @@ class TranslationWorkflow:
             # Extract from ConfigFacade main config
             from ..models.config import WorkflowMode
 
-            return WorkflowMode(
-                self._config_facade.get_workflow_info()["mode"]
-            )
+            return WorkflowMode(self._config_facade.get_workflow_info()["mode"])
         else:
             return self.workflow_mode
 
@@ -226,23 +210,16 @@ class TranslationWorkflow:
         start_time = time.time()
         log_entries = []
 
-        logger.debug(
-            f"Executing TranslationWorkflow with workflow_id: {workflow_id}"
-        )
+        logger.debug(f"Executing TranslationWorkflow with workflow_id: {workflow_id}")
         logger.info(f"Starting translation workflow {workflow_id}")
-        logger.info(
-            f"Translation: {input_data.source_lang} → {input_data.target_lang}"
-        )
+        logger.info(f"Translation: {input_data.source_lang} → {input_data.target_lang}")
         logger.info(f"Poem length: {len(input_data.original_poem)} characters")
 
         # Initialize progress tracker
         progress_tracker = None
         if show_progress:
             # Create progress tracker if it doesn't exist
-            if (
-                not hasattr(self, "progress_tracker")
-                or self.progress_tracker is None
-            ):
+            if not hasattr(self, "progress_tracker") or self.progress_tracker is None:
                 from ..utils.progress import create_progress_tracker
 
                 workflow_steps = (
@@ -251,9 +228,7 @@ class TranslationWorkflow:
                     else []
                 )
                 self.progress_tracker = create_progress_tracker(workflow_steps)
-                logger.info(
-                    f"Created progress tracker with steps: {workflow_steps}"
-                )
+                logger.info(f"Created progress tracker with steps: {workflow_steps}")
             progress_tracker = self.progress_tracker
 
         if self._cancelled:
@@ -294,9 +269,7 @@ class TranslationWorkflow:
                         )
                         # Note: BBR generation could be added here if needed for CLI usage
                 else:
-                    logger.debug(
-                        "No repository service available for BBR retrieval"
-                    )
+                    logger.debug("No repository service available for BBR retrieval")
 
             except Exception as e:
                 logger.error(f"BBR retrieval failed for poem {poem_id}: {e}")
@@ -311,16 +284,24 @@ class TranslationWorkflow:
             )
             # Get input preview length from config
             if self._using_facade and self._config_facade:
-                input_preview_length = getattr(
-                    self._config_facade.main.system.preview_lengths,
-                    "input_preview",
-                    100,
-                ) if (hasattr(self._config_facade.main, "system")
-                    and hasattr(self._config_facade.main.system, "preview_lengths")) else 100
+                input_preview_length = (
+                    getattr(
+                        self._config_facade.main.system.preview_lengths,
+                        "input_preview",
+                        100,
+                    )
+                    if (
+                        hasattr(self._config_facade.main, "system")
+                        and hasattr(self._config_facade.main.system, "preview_lengths")
+                    )
+                    else 100
+                )
             else:
                 # Legacy mode - use system_config or default
                 input_preview_length = (
-                    self.system_config.get("preview_lengths", {}).get("input_preview", 100)
+                    self.system_config.get("preview_lengths", {}).get(
+                        "input_preview", 100
+                    )
                     if self.system_config
                     else 100
                 )
@@ -358,9 +339,7 @@ class TranslationWorkflow:
                 input_data, bbr_content
             )
             step_duration = time.time() - step_start_time
-            logger.debug(
-                f"_initial_translation completed in {step_duration:.2f}s"
-            )
+            logger.debug(f"_initial_translation completed in {step_duration:.2f}s")
             initial_translation.duration = step_duration
 
             # Calculate cost for this step
@@ -368,12 +347,8 @@ class TranslationWorkflow:
                 self._get_workflow_mode().value, "initial_translation"
             )
             # Use actual token counts from API response
-            input_tokens = (
-                getattr(initial_translation, "prompt_tokens", 0) or 0
-            )
-            output_tokens = (
-                getattr(initial_translation, "completion_tokens", 0) or 0
-            )
+            input_tokens = getattr(initial_translation, "prompt_tokens", 0) or 0
+            output_tokens = getattr(initial_translation, "completion_tokens", 0) or 0
             initial_translation.cost = self._calculate_step_cost(
                 step_config["provider"],
                 step_config["model"],
@@ -412,9 +387,7 @@ class TranslationWorkflow:
                         "completion_tokens": getattr(
                             initial_translation, "completion_tokens", None
                         ),
-                        "duration": getattr(
-                            initial_translation, "duration", None
-                        ),
+                        "duration": getattr(initial_translation, "duration", None),
                         "cost": getattr(initial_translation, "cost", None),
                         "workflow_mode": self._get_workflow_mode().value,
                         "model_info": initial_translation.model_info,
@@ -428,13 +401,9 @@ class TranslationWorkflow:
                     {
                         "status": "completed",
                         "tokens_used": initial_translation.tokens_used,
-                        "duration": getattr(
-                            initial_translation, "duration", None
-                        ),
+                        "duration": getattr(initial_translation, "duration", None),
                         "cost": getattr(initial_translation, "cost", None),
-                        "model_info": getattr(
-                            initial_translation, "model_info", None
-                        ),
+                        "model_info": getattr(initial_translation, "model_info", None),
                     },
                 )
 
@@ -477,9 +446,7 @@ class TranslationWorkflow:
 
             logger.debug("Calling _editor_review")
             step_start_time = time.time()
-            editor_review = await self._editor_review(
-                input_data, initial_translation
-            )
+            editor_review = await self._editor_review(input_data, initial_translation)
             step_duration = time.time() - step_start_time
             logger.debug(f"_editor_review completed in {step_duration:.2f}s")
             editor_review.duration = step_duration
@@ -503,9 +470,7 @@ class TranslationWorkflow:
             logger.debug(
                 f"Editor Review - Input Tokens: {input_tokens}, Output Tokens: {output_tokens}"
             )
-            logger.debug(
-                f"Editor Review - Calculated Cost: {editor_review.cost}"
-            )
+            logger.debug(f"Editor Review - Calculated Cost: {editor_review.cost}")
             logger.info(f"Editor review step completed successfully")
             log_entries.append(
                 f"Editor review completed: {editor_review.tokens_used} tokens"
@@ -534,9 +499,7 @@ class TranslationWorkflow:
                     {
                         "editor_suggestions": editor_review.editor_suggestions,
                         "tokens_used": editor_review.tokens_used,
-                        "prompt_tokens": getattr(
-                            editor_review, "prompt_tokens", None
-                        ),
+                        "prompt_tokens": getattr(editor_review, "prompt_tokens", None),
                         "completion_tokens": getattr(
                             editor_review, "completion_tokens", None
                         ),
@@ -556,9 +519,7 @@ class TranslationWorkflow:
                         "tokens_used": editor_review.tokens_used,
                         "duration": getattr(editor_review, "duration", None),
                         "cost": getattr(editor_review, "cost", None),
-                        "model_info": getattr(
-                            editor_review, "model_info", None
-                        ),
+                        "model_info": getattr(editor_review, "model_info", None),
                     },
                 )
 
@@ -604,9 +565,7 @@ class TranslationWorkflow:
             if self._cancelled:
                 return
             step_duration = time.time() - step_start_time
-            logger.debug(
-                f"_translator_revision completed in {step_duration:.2f}s"
-            )
+            logger.debug(f"_translator_revision completed in {step_duration:.2f}s")
             revised_translation.duration = step_duration
 
             # Calculate cost for this step
@@ -614,12 +573,8 @@ class TranslationWorkflow:
                 self._get_workflow_mode().value, "translator_revision"
             )
             # Use actual token counts from API response
-            input_tokens = (
-                getattr(revised_translation, "prompt_tokens", 0) or 0
-            )
-            output_tokens = (
-                getattr(revised_translation, "completion_tokens", 0) or 0
-            )
+            input_tokens = getattr(revised_translation, "prompt_tokens", 0) or 0
+            output_tokens = getattr(revised_translation, "completion_tokens", 0) or 0
             revised_translation.cost = self._calculate_step_cost(
                 step_config["provider"],
                 step_config["model"],
@@ -646,9 +601,7 @@ class TranslationWorkflow:
                         "completion_tokens": getattr(
                             revised_translation, "completion_tokens", None
                         ),
-                        "duration": getattr(
-                            revised_translation, "duration", None
-                        ),
+                        "duration": getattr(revised_translation, "duration", None),
                         "cost": getattr(revised_translation, "cost", None),
                         "workflow_mode": self._get_workflow_mode().value,
                         "model_info": revised_translation.model_info,
@@ -662,13 +615,9 @@ class TranslationWorkflow:
                     {
                         "status": "completed",
                         "tokens_used": revised_translation.tokens_used,
-                        "duration": getattr(
-                            revised_translation, "duration", None
-                        ),
+                        "duration": getattr(revised_translation, "duration", None),
                         "cost": getattr(revised_translation, "cost", None),
-                        "model_info": getattr(
-                            revised_translation, "model_info", None
-                        ),
+                        "model_info": getattr(revised_translation, "model_info", None),
                     },
                 )
 
@@ -787,12 +736,8 @@ class TranslationWorkflow:
                 output_data = result["output"]
                 translation = output_data.get("initial_translation", "")
                 notes = output_data.get("initial_translation_notes", "")
-                translated_poem_title = output_data.get(
-                    "translated_poem_title", ""
-                )
-                translated_poet_name = output_data.get(
-                    "translated_poet_name", ""
-                )
+                translated_poem_title = output_data.get("translated_poem_title", "")
+                translated_poet_name = output_data.get("translated_poet_name", "")
             else:
                 # Fallback: try to extract from raw response
                 raw_content = (
@@ -800,17 +745,11 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = OutputParser.parse_initial_translation_xml(
-                    raw_content
-                )
+                extracted = OutputParser.parse_initial_translation_xml(raw_content)
                 translation = extracted.get("initial_translation", "")
                 notes = extracted.get("initial_translation_notes", "")
-                translated_poem_title = extracted.get(
-                    "translated_poem_title", ""
-                )
-                translated_poet_name = extracted.get(
-                    "translated_poet_name", ""
-                )
+                translated_poem_title = extracted.get("translated_poem_title", "")
+                translated_poet_name = extracted.get("translated_poet_name", "")
 
             # Create InitialTranslation model
             usage = result.get("metadata", {}).get("usage", {})
@@ -987,9 +926,7 @@ class TranslationWorkflow:
                     .get("raw_response", {})
                     .get("content_preview", "")
                 )
-                extracted = OutputParser.parse_revised_translation_xml(
-                    raw_content
-                )
+                extracted = OutputParser.parse_revised_translation_xml(raw_content)
                 translation = extracted.get("revised_translation", "")
                 notes = extracted.get("revised_translation_notes", "")
                 refined_translated_poem_title = extracted.get(
@@ -1072,14 +1009,10 @@ class TranslationWorkflow:
             model_info_dict = None
             if background_briefing_report.model_info:
                 try:
-                    parsed_info = json.loads(
-                        background_briefing_report.model_info
-                    )
+                    parsed_info = json.loads(background_briefing_report.model_info)
                     # Convert all values to strings to match Dict[str, str] type
                     if isinstance(parsed_info, dict):
-                        model_info_dict = {
-                            k: str(v) for k, v in parsed_info.items()
-                        }
+                        model_info_dict = {k: str(v) for k, v in parsed_info.items()}
                     else:
                         logger.warning(
                             f"BBR model_info is not a dictionary: {parsed_info}"
@@ -1146,32 +1079,23 @@ class TranslationWorkflow:
         """Calculate cost for a single step."""
         try:
             # Try to use ConfigFacade model registry if available
-            if self._using_facade and hasattr(
-                self._config_facade, "model_registry"
-            ):
+            if self._using_facade and hasattr(self._config_facade, "model_registry"):
                 # Use the same logic as BBR generator
-                model_ref = (
-                    self._config_facade.model_registry.find_model_ref_by_name(
-                        model
-                    )
+                model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                    model
                 )
                 if model_ref:
                     return self._config_facade.model_registry.calculate_cost(
                         model_ref, input_tokens, output_tokens
                     )
                 else:
-                    logger.warning(
-                        f"Model reference not found for model name: {model}"
-                    )
+                    logger.warning(f"Model reference not found for model name: {model}")
                     return 0.0
             else:
                 # Legacy pattern - get pricing from providers_config
                 providers_config = self.llm_factory.providers_config
 
-                if (
-                    hasattr(providers_config, "pricing")
-                    and providers_config.pricing
-                ):
+                if hasattr(providers_config, "pricing") and providers_config.pricing:
                     pricing = providers_config.pricing
 
                 # Try to find model reference that corresponds to this model name
@@ -1193,12 +1117,8 @@ class TranslationWorkflow:
                     return 0.0
 
                 # Pricing is RMB per 1K tokens
-                input_cost = (input_tokens / 1000) * model_pricing.get(
-                    "input", 0
-                )
-                output_cost = (output_tokens / 1000) * model_pricing.get(
-                    "output", 0
-                )
+                input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
+                output_cost = (output_tokens / 1000) * model_pricing.get("output", 0)
                 logger.debug(
                     f"Cost calculation for {model}: input={input_cost:.4f}, output={output_cost:.4f}"
                 )
@@ -1206,14 +1126,10 @@ class TranslationWorkflow:
 
                 return 0.0
         except Exception as e:
-            logger.warning(
-                f"Failed to calculate cost for {provider}/{model}: {e}"
-            )
+            logger.warning(f"Failed to calculate cost for {provider}/{model}: {e}")
             return 0.0
 
-    def _find_model_reference_dynamically(
-        self, model_name: str
-    ) -> Optional[str]:
+    def _find_model_reference_dynamically(self, model_name: str) -> Optional[str]:
         """
         Find model reference dynamically using exact matching from model registry.
 
@@ -1227,13 +1143,9 @@ class TranslationWorkflow:
             Model reference if found, None otherwise
         """
         # Try to use ConfigFacade model registry if available (preferred approach)
-        if self._using_facade and hasattr(
-            self._config_facade, "model_registry"
-        ):
-            model_ref = (
-                self._config_facade.model_registry.find_model_ref_by_name(
-                    model_name
-                )
+        if self._using_facade and hasattr(self._config_facade, "model_registry"):
+            model_ref = self._config_facade.model_registry.find_model_ref_by_name(
+                model_name
             )
             if model_ref:
                 logger.debug(
@@ -1256,9 +1168,7 @@ class TranslationWorkflow:
                     return ref
 
         except Exception as e:
-            logger.warning(
-                f"Failed to load model registry for reference lookup: {e}"
-            )
+            logger.warning(f"Failed to load model registry for reference lookup: {e}")
 
         # Final fallback: Return None if no exact match found
         logger.warning(f"No exact match found for model name: {model_name}")

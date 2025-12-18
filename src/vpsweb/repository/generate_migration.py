@@ -33,14 +33,7 @@ sys.path.insert(0, os.path.join(repo_root, "src", "vpsweb", "repository"))
 from datetime import datetime
 
 # Import models with their columns defined inline
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-)
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.sql import func
 
 

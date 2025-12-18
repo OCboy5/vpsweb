@@ -10,13 +10,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    field_validator,
-    model_validator,
-)
+from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+                      model_validator)
 
 
 class TranslatorType(str, Enum):
@@ -176,9 +171,7 @@ class PoemBase(BaseSchema):
 
         # Validate BCP-47 format (case-insensitive)
         # Accept formats like: en, zh-CN, zh-Hans, en-US
-        if not re.match(
-            r"^[a-z]{2,3}(-[A-Z]{2})?(-[a-z]{3,4})?$", v, re.IGNORECASE
-        ):
+        if not re.match(r"^[a-z]{2,3}(-[A-Z]{2})?(-[a-z]{3,4})?$", v, re.IGNORECASE):
             raise ValueError(
                 'Language code must be in valid format (e.g., "en", "zh-CN") or recognized language name (e.g., "English", "Chinese")'
             )
@@ -203,19 +196,10 @@ class PoemBase(BaseSchema):
         v = v.strip()
 
         if len(v) < 10:
-            raise ValueError(
-                "Original text must be at least 10 characters long"
-            )
+            raise ValueError("Original text must be at least 10 characters long")
 
         # Check for reasonable content (not just whitespace or punctuation)
-        if (
-            len(
-                re.sub(
-                    r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v
-                )
-            )
-            < 5
-        ):
+        if len(re.sub(r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v)) < 5:
             raise ValueError("Original text must contain meaningful content")
 
         return v
@@ -258,9 +242,7 @@ class PoemUpdate(BaseSchema):
 class PoemSelectionUpdate(BaseSchema):
     """Schema for updating poem selection status"""
 
-    selected: bool = Field(
-        ..., description="Whether the poem is marked as selected"
-    )
+    selected: bool = Field(..., description="Whether the poem is marked as selected")
 
 
 class PoemResponse(PoemBase):
@@ -269,9 +251,7 @@ class PoemResponse(PoemBase):
     id: str = Field(..., description="Poem ID (ULID)")
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
-    translation_count: Optional[int] = Field(
-        0, description="Number of translations"
-    )
+    translation_count: Optional[int] = Field(0, description="Number of translations")
     ai_translation_count: Optional[int] = Field(
         0, description="Number of AI translations"
     )
@@ -289,14 +269,10 @@ class PoemResponse(PoemBase):
 class PoemList(BaseSchema):
     """Schema for poem list response"""
 
-    poems: List[PoemResponse] = Field(
-        default_factory=list, description="List of poems"
-    )
+    poems: List[PoemResponse] = Field(default_factory=list, description="List of poems")
     total: int = Field(..., description="Total number of poems")
     page: int = Field(1, ge=1, description="Current page number")
-    page_size: int = Field(
-        10, ge=1, le=100, description="Number of items per page"
-    )
+    page_size: int = Field(10, ge=1, le=100, description="Number of items per page")
 
 
 # Translation schemas
@@ -378,9 +354,7 @@ class TranslationBase(BaseSchema):
     def validate_target_language(cls, v: str) -> str:
         """Enhanced target language code validation"""
         if not v or len(v.strip()) < 2:
-            raise ValueError(
-                "Target language code must be at least 2 characters"
-            )
+            raise ValueError("Target language code must be at least 2 characters")
 
         v = v.strip()
 
@@ -409,19 +383,10 @@ class TranslationBase(BaseSchema):
         v = v.strip()
 
         if len(v) < 10:
-            raise ValueError(
-                "Translated text must be at least 10 characters long"
-            )
+            raise ValueError("Translated text must be at least 10 characters long")
 
         # Check for reasonable content
-        if (
-            len(
-                re.sub(
-                    r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v
-                )
-            )
-            < 5
-        ):
+        if len(re.sub(r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v)) < 5:
             raise ValueError("Translated text must contain meaningful content")
 
         return v
@@ -480,15 +445,9 @@ class TranslationCreate(TranslationBase):
                 pass
 
         # If translator_type is HUMAN, translator_info should be a person's name
-        if (
-            self.translator_type == TranslatorType.HUMAN
-            and self.translator_info
-        ):
+        if self.translator_type == TranslatorType.HUMAN and self.translator_info:
             # Basic check for human name format
-            if (
-                len(self.translator_info) < 2
-                or len(self.translator_info) > 100
-            ):
+            if len(self.translator_info) < 2 or len(self.translator_info) > 100:
                 raise ValueError(
                     "Human translator name must be between 2 and 100 characters"
                 )
@@ -597,19 +556,13 @@ class TranslationResponse(TranslationBase):
             if not data_dict.get("model_name"):
                 translator_type = data_dict.get("translator_type")
                 if (
-                    hasattr(translator_type, "value")
-                    and translator_type.value == "ai"
-                ) or (
-                    isinstance(translator_type, str)
-                    and translator_type == "ai"
-                ):
+                    hasattr(translator_type, "value") and translator_type.value == "ai"
+                ) or (isinstance(translator_type, str) and translator_type == "ai"):
                     data_dict["model_name"] = data_dict.get(
                         "translator_info", "AI Model"
                     )
                 else:
-                    data_dict["model_name"] = data_dict.get(
-                        "translator_info", None
-                    )
+                    data_dict["model_name"] = data_dict.get("translator_info", None)
 
             # Set workflow step fields for SQLAlchemy model objects
             if hasattr(data, "has_workflow_steps"):
@@ -628,24 +581,13 @@ class TranslationResponse(TranslationBase):
                 data["translation_id"] = data["id"]
 
             # Normalize language codes
-            if "target_language" in data and isinstance(
-                data["target_language"], str
-            ):
-                data["target_language"] = data["target_language"].replace(
-                    "_", "-"
-                )
-            if "source_language" in data and isinstance(
-                data["source_language"], str
-            ):
-                data["source_language"] = data["source_language"].replace(
-                    "_", "-"
-                )
+            if "target_language" in data and isinstance(data["target_language"], str):
+                data["target_language"] = data["target_language"].replace("_", "-")
+            if "source_language" in data and isinstance(data["source_language"], str):
+                data["source_language"] = data["source_language"].replace("_", "-")
 
             # Set model_name based on translator_type and translator_info
-            if (
-                not data.get("model_name")
-                and data.get("translator_type") == "ai"
-            ):
+            if not data.get("model_name") and data.get("translator_type") == "ai":
                 data["model_name"] = data.get("translator_info", "AI Model")
 
         return data
@@ -814,13 +756,8 @@ class AILogCreate(AILogBase):
     def validate_ai_log_consistency(self) -> "AILogCreate":
         """Validate AI log data consistency"""
         # If workflow_mode is reasoning, runtime should typically be longer
-        if (
-            self.workflow_mode == WorkflowMode.REASONING
-            and self.runtime_seconds
-        ):
-            if (
-                self.runtime_seconds < 5
-            ):  # Reasoning usually takes at least 5 seconds
+        if self.workflow_mode == WorkflowMode.REASONING and self.runtime_seconds:
+            if self.runtime_seconds < 5:  # Reasoning usually takes at least 5 seconds
                 pass  # Just a note, not an error
 
         # If token_usage is provided, it should be reasonable
@@ -852,9 +789,7 @@ class AILogResponse(AILogBase):
     """Schema for AI log response"""
 
     id: str = Field(..., description="AI log ID (ULID)")
-    translation_id: str = Field(
-        ..., description="ID of the parent translation"
-    )
+    translation_id: str = Field(..., description="ID of the parent translation")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 
@@ -886,14 +821,7 @@ class HumanNoteBase(BaseSchema):
             raise ValueError("Note text must be at least 5 characters long")
 
         # Check for meaningful content
-        if (
-            len(
-                re.sub(
-                    r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v
-                )
-            )
-            < 3
-        ):
+        if len(re.sub(r'[\s\-\.\,\!\?\:\;\'\"()（）。，！？：；""' "]+", "", v)) < 3:
             raise ValueError("Note text must contain meaningful content")
 
         return v
@@ -902,18 +830,14 @@ class HumanNoteBase(BaseSchema):
 class HumanNoteCreate(HumanNoteBase):
     """Schema for creating a new human note"""
 
-    translation_id: str = Field(
-        ..., description="ID of the parent translation"
-    )
+    translation_id: str = Field(..., description="ID of the parent translation")
 
 
 class HumanNoteResponse(HumanNoteBase):
     """Schema for human note response"""
 
     id: str = Field(..., description="Human note ID (ULID)")
-    translation_id: str = Field(
-        ..., description="ID of the parent translation"
-    )
+    translation_id: str = Field(..., description="ID of the parent translation")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 
@@ -953,16 +877,12 @@ class ComparisonView(BaseSchema):
 class RepositoryStats(BaseSchema):
     """Schema for repository statistics"""
 
-    total_poets: int = Field(
-        ..., ge=0, description="Total number of unique poets"
-    )
+    total_poets: int = Field(..., ge=0, description="Total number of unique poets")
     total_poems: int = Field(..., ge=0, description="Total number of poems")
     total_translations: int = Field(
         ..., ge=0, description="Total number of translations"
     )
-    ai_translations: int = Field(
-        ..., ge=0, description="Number of AI translations"
-    )
+    ai_translations: int = Field(..., ge=0, description="Number of AI translations")
     human_translations: int = Field(
         ..., ge=0, description="Number of human translations"
     )
@@ -999,14 +919,10 @@ class WorkflowStepType(str, Enum):
 class WorkflowTaskResult(BaseSchema):
     """Schema for task completion result"""
 
-    translation_id: str = Field(
-        ..., description="ID of the created translation"
-    )
+    translation_id: str = Field(..., description="ID of the created translation")
     workflow_id: str = Field(..., description="VPSWeb workflow execution ID")
     total_tokens: int = Field(..., description="Total tokens used")
-    duration_seconds: int = Field(
-        ..., description="Translation duration in seconds"
-    )
+    duration_seconds: int = Field(..., description="Translation duration in seconds")
     total_cost: float = Field(..., description="Total cost of translation")
 
 
@@ -1017,9 +933,7 @@ class TranslationWorkflowStepBase(BaseSchema):
     workflow_id: str = Field(
         ..., min_length=1, max_length=50, description="Workflow execution ID"
     )
-    step_type: WorkflowStepType = Field(
-        ..., description="Type of workflow step"
-    )
+    step_type: WorkflowStepType = Field(..., description="Type of workflow step")
     step_order: int = Field(
         ..., ge=1, le=10, description="Step order in workflow (1-10)"
     )
@@ -1046,9 +960,7 @@ class TranslationWorkflowStepBase(BaseSchema):
     duration_seconds: Optional[float] = Field(
         None, ge=0, le=3600, description="Step duration in seconds"
     )
-    cost: Optional[float] = Field(
-        None, ge=0, le=100, description="Step cost in USD"
-    )
+    cost: Optional[float] = Field(None, ge=0, le=100, description="Step cost in USD")
 
     # Flexible JSON for additional metrics
     additional_metrics: Optional[str] = Field(
@@ -1168,9 +1080,7 @@ class TranslationWorkflowStepResponse(TranslationWorkflowStepBase):
     """Schema for translation workflow step response"""
 
     id: str = Field(..., description="Workflow step ID (ULID)")
-    translation_id: str = Field(
-        ..., description="ID of the parent translation"
-    )
+    translation_id: str = Field(..., description="ID of the parent translation")
     ai_log_id: str = Field(..., description="ID of the parent AI log")
     created_at: datetime = Field(..., description="Creation timestamp")
 

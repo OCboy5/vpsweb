@@ -13,19 +13,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.models import (
-    Poem,
-    Translation,
-    BackgroundBriefingReport,
-    AILog,
-    HumanNote,
-)
-from src.vpsweb.repository.schemas import (
-    PoemCreate,
-    TranslationCreate,
-    TranslatorType,
-    WorkflowStepType,
-)
+from src.vpsweb.repository.models import (AILog, BackgroundBriefingReport,
+                                          HumanNote, Poem, Translation)
+from src.vpsweb.repository.schemas import (PoemCreate, TranslationCreate,
+                                           TranslatorType, WorkflowStepType)
 
 
 class TestEssentialCRUD:
@@ -40,7 +31,7 @@ class TestEssentialCRUD:
             poem_title="靜夜思",
             source_language="Chinese",
             original_text="床前明月光，疑是地上霜。",
-            metadata_json={"dynasty": "Tang"}
+            metadata_json={"dynasty": "Tang"},
         )
 
         poem = await repo.create_poem(poem_data)
@@ -57,7 +48,7 @@ class TestEssentialCRUD:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -68,7 +59,7 @@ class TestEssentialCRUD:
             translator_info="Test Model",
             target_language="Chinese",
             translated_text="测试翻译",
-            quality_rating=4
+            quality_rating=4,
         )
 
         translation = await repo.create_translation(translation_data)
@@ -85,7 +76,7 @@ class TestEssentialCRUD:
             poet_name="Carl Sandburg",
             poem_title="Fog",
             source_language="English",
-            original_text="The fog comes on little cat feet."
+            original_text="The fog comes on little cat feet.",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -95,14 +86,17 @@ class TestEssentialCRUD:
             translator_type=TranslatorType.AI,
             translator_info="Test Model",
             target_language="Chinese",
-            translated_text="雾来了，踏着猫的小脚。"
+            translated_text="雾来了，踏着猫的小脚。",
         )
         await repo.create_translation(translation_data)
 
         # Verify relationship
         poem_with_translations = await repo.get_poem_with_translations(poem.id)
         assert len(poem_with_translations.translations) == 1
-        assert poem_with_translations.translations[0].translated_text == "雾来了，踏着猫的小脚。"
+        assert (
+            poem_with_translations.translations[0].translated_text
+            == "雾来了，踏着猫的小脚。"
+        )
 
     async def test_bbr_creation_and_retrieval(self, db_session_async):
         """Test Background Briefing Report creation and retrieval."""
@@ -113,7 +107,7 @@ class TestEssentialCRUD:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -122,7 +116,7 @@ class TestEssentialCRUD:
             "id": str(uuid.uuid4())[:26],
             "poem_id": poem.id,
             "content": "This poem explores themes of nature and observation.",
-            "metadata_json": {"analysis_depth": "medium"}
+            "metadata_json": {"analysis_depth": "medium"},
         }
         bbr = BackgroundBriefingReport(**bbr_data)
         db_session.add(bbr)
@@ -142,7 +136,7 @@ class TestEssentialCRUD:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -157,7 +151,7 @@ class TestEssentialCRUD:
             "response_time_ms": 2000,
             "request_data": {"prompt": "translate this"},
             "response_data": {"translation": "测试"},
-            "status": "success"
+            "status": "success",
         }
         ai_log = AILog(**ai_log_data)
         db_session.add(ai_log)
@@ -178,7 +172,7 @@ class TestEssentialCRUD:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -187,7 +181,7 @@ class TestEssentialCRUD:
             translator_type=TranslatorType.HUMAN,
             translator_info="Test Translator",
             target_language="Chinese",
-            translated_text="测试翻译"
+            translated_text="测试翻译",
         )
         translation = await repo.create_translation(translation_data)
 
@@ -198,7 +192,7 @@ class TestEssentialCRUD:
             "note_type": "suggestion",
             "content": "Consider using more poetic language",
             "author": "Editor",
-            "metadata_json": {"priority": "medium"}
+            "metadata_json": {"priority": "medium"},
         }
         note = HumanNote(**note_data)
         db_session.add(note)
@@ -221,7 +215,7 @@ class TestEssentialCRUD:
             poet_name="Poet 1",
             poem_title="Poem 1",
             source_language="English",
-            original_text="Content 1"
+            original_text="Content 1",
         )
         await repo.create_poem(poem_data1)
 
@@ -231,7 +225,7 @@ class TestEssentialCRUD:
             poet_name="Poet 2",
             poem_title="Poem 2",
             source_language="English",
-            original_text="Content 2"
+            original_text="Content 2",
         )
 
         with pytest.raises(IntegrityError):
@@ -246,7 +240,7 @@ class TestEssentialCRUD:
             poet_name="Test Poet",
             poem_title="Test Poem",
             source_language="English",
-            original_text="Test content"
+            original_text="Test content",
         )
         poem = await repo.create_poem(poem_data)
 
@@ -255,7 +249,7 @@ class TestEssentialCRUD:
             translator_type=TranslatorType.AI,
             translator_info="Test Model",
             target_language="Chinese",
-            translated_text="测试翻译"
+            translated_text="测试翻译",
         )
         await repo.create_translation(translation_data)
 
