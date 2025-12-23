@@ -683,7 +683,7 @@ async function savePoemChanges(event) {
         // Update page content
         document.getElementById('poet-name').textContent = updatedPoem.poet_name;
         document.getElementById('poem-title').textContent = updatedPoem.poem_title;
-        document.getElementById('poem-full-title').textContent = `${updatedPoem.poem_title} by ${updatedPoem.poet_name}`;
+        document.getElementById('poem-full-title').textContent = updatedPoem.poem_title;
         document.getElementById('poem-text').textContent = updatedPoem.original_text;
 
         // Update breadcrumb

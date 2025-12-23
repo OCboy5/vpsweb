@@ -512,7 +512,7 @@ class ApplicationRouterV2:
                 # Get poets data with filters
                 poets_data = self.poem_service.repository_service.get_all_poets(
                     skip=0,
-                    limit=50,
+                    limit=1000,
                     search=search if search else None,
                     sort_by=sort_by,
                     sort_order=sort_order,
@@ -1203,6 +1203,22 @@ class ApplicationRouterV2:
                     )
                 )
 
+                # Get last added poem's source language for default value in "Add Poem"
+                last_source_language = None
+                if poems_data["total_count"] > 0:
+                    # Get the last added poem (sorted by created_at desc)
+                    last_poems_data = self.poem_service.repository_service.get_poems_by_poet(
+                        poet_name=poet_name,
+                        skip=0,
+                        limit=1,
+                        language=None,
+                        has_translations=None,
+                        sort_by="created_at",
+                        sort_order="desc",
+                    )
+                    if last_poems_data["poems"]:
+                        last_source_language = last_poems_data["poems"][0]["source_language"]
+
                 template_context = {
                     "request": request,
                     "poet_name": poet_name,
@@ -1211,6 +1227,7 @@ class ApplicationRouterV2:
                     "poems": poems_data["poems"],
                     "total_poems": poems_data["total_count"],
                     "recent_translations": translations_data["translations"],
+                    "last_source_language": last_source_language,
                     "title": await self.config_service.get_setting(
                         "app_name", "VPSWeb Repository"
                     ),

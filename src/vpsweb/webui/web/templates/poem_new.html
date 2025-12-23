@@ -156,6 +156,7 @@ fixTextareaCursor();
 
 document.addEventListener('DOMContentLoaded', function() {
     setupPoetParameter();
+    setupSourceLanguageParameter();
     setupLanguageHandling();
     setupFormValidation();
 });
@@ -169,6 +170,19 @@ function setupPoetParameter() {
         const poetNameInput = document.getElementById('poet-name');
         if (poetNameInput) {
             poetNameInput.value = decodeURIComponent(poetName);
+        }
+    }
+}
+
+function setupSourceLanguageParameter() {
+    // Read source_language parameter from URL and populate the source language field
+    const urlParams = new URLSearchParams(window.location.search);
+    const sourceLanguage = urlParams.get('source_language');
+
+    if (sourceLanguage) {
+        const sourceLanguageSelect = document.getElementById('source-language');
+        if (sourceLanguageSelect) {
+            sourceLanguageSelect.value = decodeURIComponent(sourceLanguage);
         }
     }
 }

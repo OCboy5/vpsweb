@@ -86,7 +86,8 @@ class OutputParser:
             result = {}
             for tag, content in matches:
                 # Recursively parse nested tags if present (exact logic from vpts.yml)
-                if re.search(r"<\w+>", content):
+                # Only recurse if content has well-formed opening/closing tag pairs
+                if re.search(r"<\w+>", content) and re.search(r"</\w+>", content):
                     result[tag] = OutputParser.parse_xml(
                         content
                     )  # Recursive call for nested tags

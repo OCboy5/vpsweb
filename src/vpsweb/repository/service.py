@@ -336,6 +336,14 @@ class RepositoryWebService:
         min_translations: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Get all poets with statistics and activity metrics"""
+        # Ensure fresh transaction snapshot for SQLite WAL mode
+        # This fixes the issue where poets added in other sessions are not visible
+        self.db.rollback()
+
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug(f"Getting poets: skip={skip}, limit={limit}, search={search}")
+
         from sqlalchemy import case, desc, func
 
         # Base query with poet statistics (separated by AI and Human)
@@ -608,6 +616,9 @@ class RepositoryWebService:
 
     def get_poet_statistics(self, poet_name: str) -> Dict[str, Any]:
         """Get comprehensive statistics for a specific poet"""
+        # Ensure fresh transaction snapshot
+        self.db.rollback()
+        
         from sqlalchemy import func
 
         # Check if poet exists
