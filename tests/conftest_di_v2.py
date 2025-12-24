@@ -16,8 +16,11 @@ import pytest
 # Phase 3 DI framework imports (will be created)
 try:
     from src.vpsweb.core.container import DIContainer
-    from src.vpsweb.core.interfaces import (IOutputParser, IPromptService,
-                                            IWorkflowOrchestrator)
+    from src.vpsweb.core.interfaces import (
+        IOutputParser,
+        IPromptService,
+        IWorkflowOrchestrator,
+    )
 except ImportError:
     # Fallback for before DI framework is implemented
     DIContainer = None
@@ -27,9 +30,12 @@ except ImportError:
     IWorkflowOrchestrator = None
 
 from src.vpsweb.models.config import StepConfig, WorkflowConfig
-from src.vpsweb.models.translation import (EditorReview, InitialTranslation,
-                                           RevisedTranslation,
-                                           TranslationInput)
+from src.vpsweb.models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
+)
 
 
 @pytest.fixture(scope="session")
@@ -165,8 +171,7 @@ def async_test_db():
         db_path = Path(temp_dir) / "test.db"
 
         # Import here to avoid circular imports
-        from src.vpsweb.repository.database import (create_database_engine,
-                                                    create_tables)
+        from src.vpsweb.repository.database import create_database_engine, create_tables
 
         engine = create_database_engine(db_path)
         await create_tables(engine)

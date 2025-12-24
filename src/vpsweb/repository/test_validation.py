@@ -11,8 +11,14 @@ repo_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(repo_root))
 
 from pydantic import ValidationError
-from schemas import (AILogCreate, HumanNoteCreate, PoemCreate,
-                     TranslationCreate, TranslatorType, WorkflowMode)
+from schemas import (
+    AILogCreate,
+    HumanNoteCreate,
+    PoemCreate,
+    TranslationCreate,
+    TranslatorType,
+    WorkflowMode,
+)
 
 
 def test_poem_validation():

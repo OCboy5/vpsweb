@@ -14,9 +14,13 @@ from typing import Any, Dict, Optional, Tuple
 
 from jinja2 import Environment, FileSystemLoader
 
-from ..models.wechat import (ArticleGenerationConfig, ArticleGenerationResult,
-                             WeChatArticle, WeChatArticleMetadata,
-                             WeChatArticleStatus)
+from ..models.wechat import (
+    ArticleGenerationConfig,
+    ArticleGenerationResult,
+    WeChatArticle,
+    WeChatArticleMetadata,
+    WeChatArticleStatus,
+)
 from ..services.config import ConfigFacade, get_config_facade
 from ..services.llm.factory import LLMFactory
 from ..services.prompts import PromptService

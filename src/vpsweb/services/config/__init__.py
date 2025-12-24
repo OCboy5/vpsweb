@@ -12,12 +12,10 @@ Phase 1 Implementation:
 """
 
 from .facade import ConfigFacade, get_config_facade, initialize_config_facade
-from .model_registry_service import (ModelInfo, ModelRegistryService,
-                                     ProviderInfo)
+from .model_registry_service import ModelInfo, ModelRegistryService, ProviderInfo
 from .model_service import ModelService
 from .system_service import SystemService
-from .task_template_service import (ResolvedTaskConfig, TaskTemplate,
-                                    TaskTemplateService)
+from .task_template_service import ResolvedTaskConfig, TaskTemplate, TaskTemplateService
 from .workflow_service import WorkflowService
 
 __all__ = [

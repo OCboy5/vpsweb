@@ -12,8 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from ..models.translation import TranslationOutput
-from .filename_utils import (extract_poet_and_title,
-                             generate_translation_filename)
+from .filename_utils import extract_poet_and_title, generate_translation_filename
 from .markdown_export import MarkdownExporter
 
 logger = logging.getLogger(__name__)

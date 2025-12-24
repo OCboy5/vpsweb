@@ -24,27 +24,50 @@ from vpsweb.repository.service import RepositoryWebService
 from vpsweb.services.config import initialize_config_facade
 from vpsweb.services.llm.factory import LLMFactory
 from vpsweb.services.prompts import PromptService
-from vpsweb.utils.config_loader import (load_config,
-                                        load_model_registry_config,
-                                        load_task_templates_config)
+from vpsweb.utils.config_loader import (
+    load_config,
+    load_model_registry_config,
+    load_task_templates_config,
+)
 from vpsweb.utils.logger import setup_logging
 from vpsweb.utils.storage import StorageHandler
-from vpsweb.webui.api import (manual_workflow, poems, poets, statistics,
-                              translations, wechat, workflow)
+from vpsweb.webui.api import (
+    manual_workflow,
+    poems,
+    poets,
+    statistics,
+    translations,
+    wechat,
+    workflow,
+)
 from vpsweb.webui.container import container
 
-from .services.interfaces import (IBBRServiceV2, IConfigServiceV2,
-                                  IExceptionHandlerServiceV2,
-                                  IPerformanceServiceV2, IPoemServiceV2,
-                                  ISSEServiceV2, IStatisticsServiceV2,
-                                  ITaskManagementServiceV2, ITemplateServiceV2,
-                                  ITranslationServiceV2, IWorkflowServiceV2)
-from .services.services import (BBRServiceV2, ConfigServiceV2,
-                                ExceptionHandlerServiceV2,
-                                PerformanceServiceV2, PoemServiceV2,
-                                SSEServiceV2, StatisticsServiceV2,
-                                TaskManagementServiceV2, TemplateServiceV2,
-                                TranslationServiceV2, WorkflowServiceV2)
+from .services.interfaces import (
+    IBBRServiceV2,
+    IConfigServiceV2,
+    IExceptionHandlerServiceV2,
+    IPerformanceServiceV2,
+    IPoemServiceV2,
+    ISSEServiceV2,
+    IStatisticsServiceV2,
+    ITaskManagementServiceV2,
+    ITemplateServiceV2,
+    ITranslationServiceV2,
+    IWorkflowServiceV2,
+)
+from .services.services import (
+    BBRServiceV2,
+    ConfigServiceV2,
+    ExceptionHandlerServiceV2,
+    PerformanceServiceV2,
+    PoemServiceV2,
+    SSEServiceV2,
+    StatisticsServiceV2,
+    TaskManagementServiceV2,
+    TemplateServiceV2,
+    TranslationServiceV2,
+    WorkflowServiceV2,
+)
 
 # Initialize application logging for the web server
 try:
@@ -1207,17 +1230,21 @@ class ApplicationRouterV2:
                 last_source_language = None
                 if poems_data["total_count"] > 0:
                     # Get the last added poem (sorted by created_at desc)
-                    last_poems_data = self.poem_service.repository_service.get_poems_by_poet(
-                        poet_name=poet_name,
-                        skip=0,
-                        limit=1,
-                        language=None,
-                        has_translations=None,
-                        sort_by="created_at",
-                        sort_order="desc",
+                    last_poems_data = (
+                        self.poem_service.repository_service.get_poems_by_poet(
+                            poet_name=poet_name,
+                            skip=0,
+                            limit=1,
+                            language=None,
+                            has_translations=None,
+                            sort_by="created_at",
+                            sort_order="desc",
+                        )
                     )
                     if last_poems_data["poems"]:
-                        last_source_language = last_poems_data["poems"][0]["source_language"]
+                        last_source_language = last_poems_data["poems"][0][
+                            "source_language"
+                        ]
 
                 template_context = {
                     "request": request,
@@ -1506,8 +1533,12 @@ class ApplicationFactoryV2:
         main_config_data = load_yaml_file("config/default.yaml")
 
         # Create proper CompleteConfig for compatibility
-        from vpsweb.models.config import (CompleteConfig, MainConfig,
-                                          ProvidersConfig, WorkflowConfig)
+        from vpsweb.models.config import (
+            CompleteConfig,
+            MainConfig,
+            ProvidersConfig,
+            WorkflowConfig,
+        )
 
         # Create WorkflowConfig from actual data
         workflow_config = WorkflowConfig(**main_config_data["workflow"])

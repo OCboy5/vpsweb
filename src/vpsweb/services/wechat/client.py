@@ -10,8 +10,12 @@ from typing import Any, Dict, Optional
 
 import httpx
 
-from ...models.wechat import (WeChatApiResponse, WeChatArticle, WeChatConfig,
-                              WeChatDraftResponse)
+from ...models.wechat import (
+    WeChatApiResponse,
+    WeChatArticle,
+    WeChatConfig,
+    WeChatDraftResponse,
+)
 from ...utils.logger import get_logger
 from .token_manager import TokenManager
 

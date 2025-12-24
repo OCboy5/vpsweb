@@ -13,16 +13,27 @@ from typing import Any, Dict, List, Optional
 from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.repository.service import RepositoryWebService
 from vpsweb.services.config import ConfigFacade
-from vpsweb.utils.tools_phase3a import (ErrorCollector, PerformanceMonitor,
-                                        generate_unique_id)
+from vpsweb.utils.tools_phase3a import (
+    ErrorCollector,
+    PerformanceMonitor,
+    generate_unique_id,
+)
 
 from ...utils.language_mapper import LanguageMapper
-from .interfaces import (IBBRServiceV2, IConfigServiceV2,
-                         IExceptionHandlerServiceV2, IPerformanceServiceV2,
-                         IPoemServiceV2, IPoetServiceV2, ISSEServiceV2,
-                         IStatisticsServiceV2, ITaskManagementServiceV2,
-                         ITemplateServiceV2, ITranslationServiceV2,
-                         IWorkflowServiceV2)
+from .interfaces import (
+    IBBRServiceV2,
+    IConfigServiceV2,
+    IExceptionHandlerServiceV2,
+    IPerformanceServiceV2,
+    IPoemServiceV2,
+    IPoetServiceV2,
+    ISSEServiceV2,
+    IStatisticsServiceV2,
+    ITaskManagementServiceV2,
+    ITemplateServiceV2,
+    ITranslationServiceV2,
+    IWorkflowServiceV2,
+)
 
 
 class PoemServiceV2(IPoemServiceV2):
@@ -967,8 +978,7 @@ class WorkflowServiceV2(IWorkflowServiceV2):
             )
 
             # Prepare input data for workflow
-            from vpsweb.models.translation import (LANGUAGE_CODE_MAP,
-                                                   TranslationInput)
+            from vpsweb.models.translation import LANGUAGE_CODE_MAP, TranslationInput
 
             # Validate that source and target languages are different
             if source_lang == target_lang:
@@ -1101,10 +1111,13 @@ class WorkflowServiceV2(IWorkflowServiceV2):
     async def _save_translation_to_db(self, result, poem_id, workflow_mode, input_data):
         import json
 
-        from vpsweb.repository.schemas import (AILogCreate, TranslationCreate,
-                                               TranslationWorkflowStepCreate,
-                                               TranslatorType,
-                                               WorkflowStepType)
+        from vpsweb.repository.schemas import (
+            AILogCreate,
+            TranslationCreate,
+            TranslationWorkflowStepCreate,
+            TranslatorType,
+            WorkflowStepType,
+        )
 
         # Convert language names to proper codes for database storage
         language_mapper = LanguageMapper()

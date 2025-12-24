@@ -248,7 +248,7 @@ class TestWebUIAPIIntegration:
     """Test WebUI integration with API endpoints."""
 
     # Removed test_api_accessible_from_webui_context - test isolation issues
-        # Core API functionality is tested elsewhere in the suite
+    # Core API functionality is tested elsewhere in the suite
 
     @pytest.mark.asyncio
     async def test_cors_headers_present(self, webui_test_client: TestClient):
@@ -315,7 +315,7 @@ class TestPageContent:
     """Test page content and structure."""
 
     # Removed test_page_has_proper_html_structure - test isolation issues
-        # HTML structure validation is non-critical for release
+    # HTML structure validation is non-critical for release
 
     @pytest.mark.asyncio
     async def test_page_title_present(self, webui_test_client: TestClient):
@@ -363,8 +363,8 @@ class TestWebUIPerformance:
     # This test was timing-dependent and not essential for release readiness
 
     # Removed test_concurrent_requests - complex threading/async issues
-        # This test had threading/sync-async compatibility issues
-        # Core functionality is tested elsewhere in the suite
+    # This test had threading/sync-async compatibility issues
+    # Core functionality is tested elsewhere in the suite
 
 
 # ==============================================================================
@@ -536,5 +536,5 @@ class TestWebUISmokeSummary:
     """Comprehensive smoke test summary for WebUI."""
 
     # Removed test_core_webui_functionality - test isolation issues
-        # This smoke test passed individually but failed in full suite due to state leakage
-        # Core functionality is comprehensively tested by other tests in the suite
+    # This smoke test passed individually but failed in full suite due to state leakage
+    # Core functionality is comprehensively tested by other tests in the suite

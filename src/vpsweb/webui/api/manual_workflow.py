@@ -82,8 +82,10 @@ def get_manual_workflow_service(
         from vpsweb.services.prompts import PromptService
         from vpsweb.utils.storage import StorageHandler
         from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
-        from vpsweb.webui.services.services import (TaskManagementServiceV2,
-                                                    WorkflowServiceV2)
+        from vpsweb.webui.services.services import (
+            TaskManagementServiceV2,
+            WorkflowServiceV2,
+        )
 
         # Create container
         container = DIContainer()

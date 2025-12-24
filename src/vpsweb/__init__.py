@@ -31,29 +31,40 @@ Example Usage:
     result = await workflow.execute(input_data)
 """
 
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 __author__ = "Vox Poetica Studio"
 __description__ = "Professional AI-powered poetry translation system"
 
 # CLI entry point
 from .__main__ import cli
 from .core.executor import StepExecutor
+
 # Core components
 from .core.workflow import TranslationWorkflow
-from .models.config import (LoggingConfig, ModelProviderConfig, StepConfig,
-                            TaskTemplateStepConfig, WorkflowConfig)
+from .models.config import (
+    LoggingConfig,
+    ModelProviderConfig,
+    StepConfig,
+    TaskTemplateStepConfig,
+    WorkflowConfig,
+)
+
 # Data models
-from .models.translation import (EditorReview, InitialTranslation,
-                                 RevisedTranslation, TranslationInput,
-                                 TranslationOutput)
-from .services.config import (ConfigFacade, get_config_facade,
-                              initialize_config_facade)
+from .models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
+    TranslationOutput,
+)
+from .services.config import ConfigFacade, get_config_facade, initialize_config_facade
+
 # Services
 from .services.llm.factory import LLMFactory
 from .services.parser import OutputParser
 from .services.prompts import PromptService
-from .utils.config_loader import (load_model_registry_config,
-                                  load_task_templates_config)
+from .utils.config_loader import load_model_registry_config, load_task_templates_config
+
 # Utilities
 from .utils.logger import get_logger, setup_logging
 from .utils.storage import StorageHandler

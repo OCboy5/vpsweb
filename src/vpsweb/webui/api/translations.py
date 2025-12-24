@@ -11,8 +11,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ...repository.database import get_db
-from ...repository.schemas import (HumanNoteCreate, TranslationCreate,
-                                   TranslationResponse, TranslationUpdate)
+from ...repository.schemas import (
+    HumanNoteCreate,
+    TranslationCreate,
+    TranslationResponse,
+    TranslationUpdate,
+)
 from ...repository.service import RepositoryWebService
 from ..container import container
 from ..schemas import TranslationRequest, WebAPIResponse

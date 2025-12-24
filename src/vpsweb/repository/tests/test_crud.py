@@ -11,9 +11,16 @@ from sqlalchemy.pool import StaticPool
 
 from ..crud import RepositoryService
 from ..models import Base
-from ..schemas import (AILogCreate, HumanNoteCreate, PoemCreate, PoemUpdate,
-                       TranslationCreate, TranslationUpdate, TranslatorType,
-                       WorkflowMode)
+from ..schemas import (
+    AILogCreate,
+    HumanNoteCreate,
+    PoemCreate,
+    PoemUpdate,
+    TranslationCreate,
+    TranslationUpdate,
+    TranslatorType,
+    WorkflowMode,
+)
 
 
 # Test database setup

@@ -8,8 +8,12 @@ configuration without directly manipulating the underlying YAML structure.
 import logging
 from typing import Any, Dict, List, Union
 
-from ...models.config import (StepConfig, TaskTemplateStepConfig,
-                              WorkflowConfig, WorkflowMode)
+from ...models.config import (
+    StepConfig,
+    TaskTemplateStepConfig,
+    WorkflowConfig,
+    WorkflowMode,
+)
 
 logger = logging.getLogger(__name__)
 

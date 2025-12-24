@@ -17,19 +17,27 @@ from vpsweb.core.workflow import TranslationWorkflow
 from vpsweb.models.config import LogLevel, WorkflowMode
 from vpsweb.models.translation import TranslationInput, TranslationOutput
 from vpsweb.services.config import initialize_config_facade
-from vpsweb.utils.config_loader import (load_model_registry_config,
-                                        load_task_templates_config,
-                                        load_yaml_file,
-                                        substitute_env_vars_in_data)
+from vpsweb.utils.config_loader import (
+    load_model_registry_config,
+    load_task_templates_config,
+    load_yaml_file,
+    substitute_env_vars_in_data,
+)
 from vpsweb.utils.logger import setup_logging
 from vpsweb.utils.storage import StorageHandler
 from vpsweb.utils.tools_phase3a import ErrorCollector, PerformanceMonitor
 
-from .interfaces import (ICLICommandServiceV2, ICLIConfigurationServiceV2,
-                         ICLIErrorHandlerV2, ICLIInputServiceV2,
-                         ICLILoggerServiceV2, ICLIOutputServiceV2,
-                         ICLIStorageServiceV2, ICLIWeChatServiceV2,
-                         ICLIWorkflowServiceV2)
+from .interfaces import (
+    ICLICommandServiceV2,
+    ICLIConfigurationServiceV2,
+    ICLIErrorHandlerV2,
+    ICLIInputServiceV2,
+    ICLILoggerServiceV2,
+    ICLIOutputServiceV2,
+    ICLIStorageServiceV2,
+    ICLIWeChatServiceV2,
+    ICLIWorkflowServiceV2,
+)
 
 
 class CLIInputServiceV2(ICLIInputServiceV2):
@@ -207,8 +215,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             task_templates_config = load_task_templates_config()
 
             # Create CompleteConfig from new configuration files
-            from vpsweb.models.config import (CompleteConfig, MainConfig,
-                                              ProvidersConfig)
+            from vpsweb.models.config import CompleteConfig, MainConfig, ProvidersConfig
 
             # Load main configuration (default.yaml or custom path)
             if config_path is None:

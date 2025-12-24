@@ -10,9 +10,13 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.vpsweb.repository.schemas import (ComparisonView, PoemResponse,
-                                           RepositoryStats,
-                                           TranslationResponse, WorkflowMode)
+from src.vpsweb.repository.schemas import (
+    ComparisonView,
+    PoemResponse,
+    RepositoryStats,
+    TranslationResponse,
+    WorkflowMode,
+)
 
 
 class TranslatorType(str, Enum):

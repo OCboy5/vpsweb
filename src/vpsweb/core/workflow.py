@@ -13,9 +13,13 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from ..core.executor import StepExecutor
 from ..models.config import ProvidersConfig, WorkflowConfig, WorkflowMode
-from ..models.translation import (EditorReview, InitialTranslation,
-                                  RevisedTranslation, TranslationInput,
-                                  TranslationOutput)
+from ..models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
+    TranslationOutput,
+)
 from ..services.config import ConfigFacade
 from ..services.llm.factory import LLMFactory
 from ..services.parser import OutputParser

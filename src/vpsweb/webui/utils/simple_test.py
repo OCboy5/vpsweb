@@ -58,8 +58,7 @@ def test_wechat_runner():
     print("\nTesting WeChat article runner...")
 
     try:
-        from vpsweb.webui.utils.wechat_article_runner import \
-            WeChatArticleRunner
+        from vpsweb.webui.utils.wechat_article_runner import WeChatArticleRunner
 
         # Test with dummy config path
         try:

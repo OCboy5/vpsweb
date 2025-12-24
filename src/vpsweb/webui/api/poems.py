@@ -13,13 +13,22 @@ from sqlalchemy.orm import Session
 from src.vpsweb.repository.crud import RepositoryService
 from src.vpsweb.repository.database import get_db
 from src.vpsweb.repository.models import Poem, Translation
-from src.vpsweb.repository.schemas import (PoemCreate, PoemResponse,
-                                           PoemSelectionUpdate, PoemUpdate)
+from src.vpsweb.repository.schemas import (
+    PoemCreate,
+    PoemResponse,
+    PoemSelectionUpdate,
+    PoemUpdate,
+)
 from vpsweb.utils.logger import get_logger
 
-from ..schemas import (PaginatedPoemResponse, PaginationInfo,
-                       PoemFilterOptions, PoemFormCreate,
-                       PoemTranslationWithWorkflow, WebAPIResponse)
+from ..schemas import (
+    PaginatedPoemResponse,
+    PaginationInfo,
+    PoemFilterOptions,
+    PoemFormCreate,
+    PoemTranslationWithWorkflow,
+    WebAPIResponse,
+)
 from ..services.interfaces import IBBRServiceV2
 
 router = APIRouter()

@@ -9,8 +9,12 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from src.vpsweb.repository.models import (BackgroundBriefingReport, HumanNote,
-                                          Poem, Translation)
+from src.vpsweb.repository.models import (
+    BackgroundBriefingReport,
+    HumanNote,
+    Poem,
+    Translation,
+)
 from src.vpsweb.repository.schemas import TranslatorType
 
 

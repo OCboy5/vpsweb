@@ -28,8 +28,10 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
         # Create a minimal container with just the workflow service
         from vpsweb.core.container import DIContainer
         from vpsweb.webui.services.interfaces import ITaskManagementServiceV2
-        from vpsweb.webui.services.services import (TaskManagementServiceV2,
-                                                    WorkflowServiceV2)
+        from vpsweb.webui.services.services import (
+            TaskManagementServiceV2,
+            WorkflowServiceV2,
+        )
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service

@@ -11,8 +11,18 @@ from typing import List, Optional
 # Define UTC+8 timezone
 UTC_PLUS_8 = timezone(timedelta(hours=8))
 
-from sqlalchemy import (Boolean, CheckConstraint, DateTime, Enum, Float,
-                        ForeignKey, Index, Integer, String, Text)
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 

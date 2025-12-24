@@ -327,11 +327,14 @@ class ManualWorkflowService:
 
             # Create a mock result object that matches the expected structure
             # This simulates the output from an automated workflow
-            from ...models.translation import (EditorReview,
-                                               InitialTranslation, Language,
-                                               RevisedTranslation,
-                                               TranslationInput,
-                                               TranslationOutput)
+            from ...models.translation import (
+                EditorReview,
+                InitialTranslation,
+                Language,
+                RevisedTranslation,
+                TranslationInput,
+                TranslationOutput,
+            )
 
             # Extract data from completed steps
             initial_data = completed_steps["initial_translation_nonreasoning"][

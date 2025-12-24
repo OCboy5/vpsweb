@@ -260,6 +260,7 @@ class VPSWebWorkflowAdapterV2:
 
         # Get FastAPI app instance for app.state access
         from vpsweb.webui.main import app
+
         # Initialize task in app.state for SSE compatibility
         from vpsweb.webui.task_models import TaskStatus as InMemoryTaskStatus
 

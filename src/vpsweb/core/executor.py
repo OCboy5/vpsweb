@@ -12,13 +12,15 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from ..models.config import StepConfig
-from ..models.translation import (EditorReview, InitialTranslation,
-                                  TranslationInput)
+from ..models.translation import EditorReview, InitialTranslation, TranslationInput
 from ..services.llm.factory import LLMFactory
-from ..services.parser import (EmptyNotesFieldError, OutputParser,
-                               ValidationError, XMLParsingError)
-from ..services.prompts import (PromptService, TemplateLoadError,
-                                TemplateVariableError)
+from ..services.parser import (
+    EmptyNotesFieldError,
+    OutputParser,
+    ValidationError,
+    XMLParsingError,
+)
+from ..services.prompts import PromptService, TemplateLoadError, TemplateVariableError
 
 logger = logging.getLogger(__name__)
 

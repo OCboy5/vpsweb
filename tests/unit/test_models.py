@@ -8,9 +8,13 @@ used throughout the VPSWeb translation system.
 import pytest
 from pydantic import ValidationError
 
-from src.vpsweb.models.translation import (EditorReview, InitialTranslation,
-                                           Language, RevisedTranslation,
-                                           TranslationInput)
+from src.vpsweb.models.translation import (
+    EditorReview,
+    InitialTranslation,
+    Language,
+    RevisedTranslation,
+    TranslationInput,
+)
 
 
 class TestTranslationInput:

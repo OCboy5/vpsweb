@@ -10,8 +10,12 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.vpsweb.core.executor import (LLMCallError, OutputParsingError,
-                                      PromptRenderingError, StepExecutor)
+from src.vpsweb.core.executor import (
+    LLMCallError,
+    OutputParsingError,
+    PromptRenderingError,
+    StepExecutor,
+)
 from src.vpsweb.models.config import StepConfig
 from src.vpsweb.models.translation import TranslationInput
 from src.vpsweb.services.prompts import PromptService
@@ -413,8 +417,7 @@ class TestStepExecutor:
         )
 
         # Create editor review and initial translation
-        from src.vpsweb.models.translation import (EditorReview,
-                                                   InitialTranslation)
+        from src.vpsweb.models.translation import EditorReview, InitialTranslation
 
         initial_translation = InitialTranslation(
             initial_translation="雾来了\n踏着猫的小脚。",

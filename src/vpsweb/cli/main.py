@@ -12,16 +12,28 @@ import click
 
 from vpsweb.core.container import DIContainer
 
-from .interfaces import (ICLICommandServiceV2, ICLIConfigurationServiceV2,
-                         ICLIErrorHandlerV2, ICLIInputServiceV2,
-                         ICLILoggerServiceV2, ICLIOutputServiceV2,
-                         ICLIStorageServiceV2, ICLIWeChatServiceV2,
-                         ICLIWorkflowServiceV2)
-from .services import (CLICommandServiceV2, CLIConfigurationServiceV2,
-                       CLIErrorHandlerV2, CLIInputServiceV2,
-                       CLILoggerServiceV2, CLIOutputServiceV2,
-                       CLIStorageServiceV2, CLIWeChatServiceV2,
-                       CLIWorkflowServiceV2)
+from .interfaces import (
+    ICLICommandServiceV2,
+    ICLIConfigurationServiceV2,
+    ICLIErrorHandlerV2,
+    ICLIInputServiceV2,
+    ICLILoggerServiceV2,
+    ICLIOutputServiceV2,
+    ICLIStorageServiceV2,
+    ICLIWeChatServiceV2,
+    ICLIWorkflowServiceV2,
+)
+from .services import (
+    CLICommandServiceV2,
+    CLIConfigurationServiceV2,
+    CLIErrorHandlerV2,
+    CLIInputServiceV2,
+    CLILoggerServiceV2,
+    CLIOutputServiceV2,
+    CLIStorageServiceV2,
+    CLIWeChatServiceV2,
+    CLIWorkflowServiceV2,
+)
 
 
 class CLIApplicationV2:

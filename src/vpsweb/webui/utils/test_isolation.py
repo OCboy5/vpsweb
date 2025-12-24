@@ -18,8 +18,12 @@ from pathlib import Path
 # 添加根路径
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
-from vpsweb.webui.utils import (TranslationRunner, WeChatArticleRunner,
-                                quick_generate_article, quick_translate)
+from vpsweb.webui.utils import (
+    TranslationRunner,
+    WeChatArticleRunner,
+    quick_generate_article,
+    quick_translate,
+)
 
 
 class IsolationTester:

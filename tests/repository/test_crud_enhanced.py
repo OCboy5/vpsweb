@@ -13,10 +13,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.vpsweb.repository.crud import RepositoryService
-from src.vpsweb.repository.models import (BackgroundBriefingReport,
-                                          HumanNote, Poem, Translation)
-from src.vpsweb.repository.schemas import (PoemCreate, TranslationCreate,
-                                           TranslatorType, WorkflowStepType)
+from src.vpsweb.repository.models import (
+    BackgroundBriefingReport,
+    HumanNote,
+    Poem,
+    Translation,
+)
+from src.vpsweb.repository.schemas import (
+    PoemCreate,
+    TranslationCreate,
+    TranslatorType,
+    WorkflowStepType,
+)
 
 
 class TestEssentialCRUD:
@@ -124,7 +132,6 @@ class TestEssentialCRUD:
         assert retrieved_bbr is not None
         assert "nature and observation" in retrieved_bbr.content
 
-    
     def test_human_note_creation(self, db_session):
         """Test human note creation and validation."""
         repo = RepositoryService(db_session)

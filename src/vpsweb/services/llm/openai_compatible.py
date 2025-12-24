@@ -11,9 +11,16 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
-from .base import (AuthenticationError, BaseLLMProvider, ConfigurationError,
-                   ContentFilterError, LLMProviderError, LLMResponse,
-                   RateLimitError, TimeoutError)
+from .base import (
+    AuthenticationError,
+    BaseLLMProvider,
+    ConfigurationError,
+    ContentFilterError,
+    LLMProviderError,
+    LLMResponse,
+    RateLimitError,
+    TimeoutError,
+)
 
 logger = logging.getLogger(__name__)
 

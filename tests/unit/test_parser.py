@@ -43,5 +43,6 @@ class TestOutputParser:
         """Test parser behavior with empty input."""
         # Current parser implementation raises XMLParsingError for empty input
         from src.vpsweb.services.parser import XMLParsingError
+
         with pytest.raises(XMLParsingError):
             OutputParser.parse_xml("")

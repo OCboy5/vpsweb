@@ -11,13 +11,23 @@ from pathlib import Path
 
 import pytest
 
-from src.vpsweb.models.config import (CompleteConfig, LoggingConfig,
-                                      MainConfig, ModelProviderConfig,
-                                      ProvidersConfig, StepConfig,
-                                      StorageConfig, WorkflowConfig)
-from src.vpsweb.models.translation import (EditorReview, InitialTranslation,
-                                           RevisedTranslation,
-                                           TranslationInput, TranslationOutput)
+from src.vpsweb.models.config import (
+    CompleteConfig,
+    LoggingConfig,
+    MainConfig,
+    ModelProviderConfig,
+    ProvidersConfig,
+    StepConfig,
+    StorageConfig,
+    WorkflowConfig,
+)
+from src.vpsweb.models.translation import (
+    EditorReview,
+    InitialTranslation,
+    RevisedTranslation,
+    TranslationInput,
+    TranslationOutput,
+)
 
 
 @pytest.fixture
@@ -395,8 +405,11 @@ def cli_runner():
 @pytest.fixture
 def integration_providers_config():
     """Providers configuration for integration tests."""
-    from src.vpsweb.models.config import (ModelProviderConfig, ProvidersConfig,
-                                          ProviderType)
+    from src.vpsweb.models.config import (
+        ModelProviderConfig,
+        ProvidersConfig,
+        ProviderType,
+    )
 
     return ProvidersConfig(
         providers={
@@ -461,8 +474,7 @@ from typing import AsyncGenerator, Generator
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 # Add src to Python path for imports
@@ -649,9 +661,11 @@ async def test_client(db_session):
     test_repository_service = RepositoryWebService(db_session)
 
     # Patch the container's resolve method for multiple services
-    from vpsweb.webui.services.interfaces import (IBBRServiceV2,
-                                                  IPoemServiceV2,
-                                                  IWorkflowServiceV2)
+    from vpsweb.webui.services.interfaces import (
+        IBBRServiceV2,
+        IPoemServiceV2,
+        IWorkflowServiceV2,
+    )
 
     # Store original resolve method before patching
     original_container_resolve = container.resolve

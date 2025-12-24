@@ -22,8 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from vpsweb.models.wechat import ArticleGenerationResult, WeChatArticleStatus
 from vpsweb.services.config import ConfigFacade, get_config_facade
-from vpsweb.utils.article_generator import (ArticleGenerator,
-                                            ArticleGeneratorError)
+from vpsweb.utils.article_generator import ArticleGenerator, ArticleGeneratorError
 from vpsweb.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -63,9 +62,12 @@ class WeChatArticleRunner:
                 print("✅ Using global ConfigFacade for WeChat article runner")
             except RuntimeError:
                 # Fall back: create a temporary CompleteConfig for compatibility
-                from vpsweb.models.config import (CompleteConfig, MainConfig,
-                                                  ProvidersConfig,
-                                                  WorkflowConfig)
+                from vpsweb.models.config import (
+                    CompleteConfig,
+                    MainConfig,
+                    ProvidersConfig,
+                    WorkflowConfig,
+                )
 
                 # Create a minimal compatibility config
                 main_config = MainConfig(

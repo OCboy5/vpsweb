@@ -29,8 +29,12 @@ from .models.config import LogLevel, WorkflowMode
 from .models.translation import TranslationInput
 from .services.config import get_config_facade, initialize_config_facade
 from .utils.article_generator import ArticleGenerator
-from .utils.config_loader import (load_config, load_wechat_complete_config,
-                                  validate_config_files, validate_wechat_setup)
+from .utils.config_loader import (
+    load_config,
+    load_wechat_complete_config,
+    validate_config_files,
+    validate_wechat_setup,
+)
 from .utils.logger import get_logger, setup_logging
 from .utils.storage import StorageHandler
 

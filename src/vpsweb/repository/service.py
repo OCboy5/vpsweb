@@ -11,10 +11,19 @@ from sqlalchemy.orm import Session
 
 from .crud import RepositoryService
 from .models import AILog, HumanNote, Poem, Translation
-from .schemas import (AILogCreate, AILogResponse, HumanNoteCreate,
-                      HumanNoteResponse, PoemCreate, PoemResponse, PoemUpdate,
-                      RepositoryStats, TranslationCreate, TranslationResponse,
-                      TranslationUpdate)
+from .schemas import (
+    AILogCreate,
+    AILogResponse,
+    HumanNoteCreate,
+    HumanNoteResponse,
+    PoemCreate,
+    PoemResponse,
+    PoemUpdate,
+    RepositoryStats,
+    TranslationCreate,
+    TranslationResponse,
+    TranslationUpdate,
+)
 
 
 class RepositoryWebService:
@@ -341,6 +350,7 @@ class RepositoryWebService:
         self.db.rollback()
 
         import logging
+
         logger = logging.getLogger(__name__)
         logger.debug(f"Getting poets: skip={skip}, limit={limit}, search={search}")
 
@@ -618,7 +628,7 @@ class RepositoryWebService:
         """Get comprehensive statistics for a specific poet"""
         # Ensure fresh transaction snapshot
         self.db.rollback()
-        
+
         from sqlalchemy import func
 
         # Check if poet exists
