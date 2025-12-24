@@ -81,9 +81,7 @@ class BBRGenerator:
             except RuntimeError:
                 # Fall back to legacy pattern
                 if providers_config is None:
-                    raise ValueError(
-                        "Either providers_config or config_facade must be provided"
-                    )
+                    raise ValueError("Either providers_config or config_facade must be provided")
                 self.providers_config = providers_config
                 self._using_facade = False
                 self._config_facade = None
@@ -206,12 +204,8 @@ class BBRGenerator:
 
             # Render prompt template
             template_name = self.bbr_config["prompt_template"]
-            system_prompt, user_prompt = self.prompt_service.render_prompt(
-                template_name, variables
-            )
-            logger.debug(
-                f"Rendered prompts: system({len(system_prompt)} chars), user({len(user_prompt)} chars)"
-            )
+            system_prompt, user_prompt = self.prompt_service.render_prompt(template_name, variables)
+            logger.debug(f"Rendered prompts: system({len(system_prompt)} chars), user({len(user_prompt)} chars)")
 
             # Generate BBR content
             messages = [
@@ -239,9 +233,7 @@ class BBRGenerator:
             validated_content = self._validate_bbr_content(bbr_content)
 
             # Calculate cost
-            cost = self.calculate_cost(
-                input_tokens, output_tokens, provider_name, model_name
-            )
+            cost = self.calculate_cost(input_tokens, output_tokens, provider_name, model_name)
 
             # Create BackgroundBriefingReport object
             bbr = BackgroundBriefingReport(
@@ -264,10 +256,7 @@ class BBRGenerator:
                 updated_at=datetime.now(UTC_PLUS_8),
             )
 
-            logger.info(
-                f"Successfully generated BBR in {time_spent:.2f}s, "
-                f"tokens: {tokens_used}, cost: {cost:.4f}"
-            )
+            logger.info(f"Successfully generated BBR in {time_spent:.2f}s, " f"tokens: {tokens_used}, cost: {cost:.4f}")
             return bbr
 
         except Exception as e:
@@ -343,25 +332,16 @@ class BBRGenerator:
             # Try to find model reference from model name for pricing lookup
             if self._using_facade and hasattr(self._config_facade, "model_registry"):
                 # New pattern: find model reference from actual model name
-                model_ref = self._config_facade.model_registry.find_model_ref_by_name(
-                    model_name
-                )
+                model_ref = self._config_facade.model_registry.find_model_ref_by_name(model_name)
                 if model_ref:
                     # Use the model registry calculate_cost method
-                    return self._config_facade.model_registry.calculate_cost(
-                        model_ref, input_tokens, output_tokens
-                    )
+                    return self._config_facade.model_registry.calculate_cost(model_ref, input_tokens, output_tokens)
                 else:
-                    logger.warning(
-                        f"Model reference not found for model name: {model_name}"
-                    )
+                    logger.warning(f"Model reference not found for model name: {model_name}")
                     return 0.0
             else:
                 # Legacy pattern - try to convert model name to model reference
-                if (
-                    hasattr(self.providers_config, "pricing")
-                    and self.providers_config.pricing
-                ):
+                if hasattr(self.providers_config, "pricing") and self.providers_config.pricing:
                     pricing = self.providers_config.pricing
                 else:
                     pricing = {}
@@ -372,16 +352,12 @@ class BBRGenerator:
                 # First try model reference, then fall back to model name
                 if model_ref and model_ref in pricing:
                     model_pricing = pricing[model_ref]
-                    logger.debug(
-                        f"Found pricing for model {model_name} using reference {model_ref}"
-                    )
+                    logger.debug(f"Found pricing for model {model_name} using reference {model_ref}")
                 elif model_name in pricing:
                     model_pricing = pricing[model_name]
                     logger.debug(f"Found pricing for model {model_name} directly")
                 else:
-                    logger.warning(
-                        f"No pricing information found for model {model_name} (tried ref: {model_ref})"
-                    )
+                    logger.warning(f"No pricing information found for model {model_name} (tried ref: {model_ref})")
                     return 0.0
 
                 # Pricing is RMB per 1K tokens
@@ -394,9 +370,7 @@ class BBRGenerator:
                 return total_cost
 
         except Exception as e:
-            logger.warning(
-                f"Failed to calculate cost for {provider_name}/{model_name}: {e}"
-            )
+            logger.warning(f"Failed to calculate cost for {provider_name}/{model_name}: {e}")
             return 0.0
 
     def _find_model_reference_dynamically(self, model_name: str) -> Optional[str]:
@@ -414,13 +388,9 @@ class BBRGenerator:
         """
         # Try to use ConfigFacade model registry if available (preferred approach)
         if self._using_facade and hasattr(self._config_facade, "model_registry"):
-            model_ref = self._config_facade.model_registry.find_model_ref_by_name(
-                model_name
-            )
+            model_ref = self._config_facade.model_registry.find_model_ref_by_name(model_name)
             if model_ref:
-                logger.debug(
-                    f"Found model reference {model_ref} for {model_name} via ConfigFacade"
-                )
+                logger.debug(f"Found model reference {model_ref} for {model_name} via ConfigFacade")
                 return model_ref
 
         # Fallback: Try to load model registry directly
@@ -432,9 +402,7 @@ class BBRGenerator:
             # Build temporary mapping from the loaded models config
             for ref, info in models_config.get("models", {}).items():
                 if info.get("name") == model_name:
-                    logger.debug(
-                        f"Found model reference {ref} for {model_name} via direct config load"
-                    )
+                    logger.debug(f"Found model reference {ref} for {model_name} via direct config load")
                     return ref
 
         except Exception as e:
@@ -474,9 +442,7 @@ class BBRGenerator:
                 return parsed_content
 
             # If no valid JSON found, wrap in basic structure
-            logger.warning(
-                "No valid JSON found in BBR content, wrapping in basic structure"
-            )
+            logger.warning("No valid JSON found in BBR content, wrapping in basic structure")
             return {
                 "raw_content": content,
                 "generation_timestamp": datetime.now(UTC_PLUS_8).isoformat(),
@@ -556,7 +522,4 @@ class BBRGenerator:
 
     def __repr__(self) -> str:
         """String representation of the BBR generator."""
-        return (
-            f"BBRGenerator(provider='{self.bbr_config['provider']}', "
-            f"model='{self.bbr_config['model']}')"
-        )
+        return f"BBRGenerator(provider='{self.bbr_config['provider']}', " f"model='{self.bbr_config['model']}')"

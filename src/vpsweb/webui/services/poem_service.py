@@ -55,12 +55,8 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": (
-                    poem.created_at.isoformat() if poem.created_at else None
-                ),
-                "updated_at": (
-                    poem.updated_at.isoformat() if poem.updated_at else None
-                ),
+                "created_at": (poem.created_at.isoformat() if poem.created_at else None),
+                "updated_at": (poem.updated_at.isoformat() if poem.updated_at else None),
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
                 "human_translation_count": poem.human_translation_count,
@@ -100,9 +96,7 @@ class PoemService:
                 query = query.filter(Poem.source_language == source_language)
 
             # Order by creation date (newest first) and paginate
-            poems = (
-                query.order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
-            )
+            poems = query.order_by(desc(Poem.created_at)).offset(skip).limit(limit).all()
 
             return [
                 {
@@ -111,16 +105,10 @@ class PoemService:
                     "poem_title": poem.poem_title,
                     "source_language": poem.source_language,
                     "content_preview": (
-                        poem.original_text[:200] + "..."
-                        if len(poem.original_text) > 200
-                        else poem.original_text
+                        poem.original_text[:200] + "..." if len(poem.original_text) > 200 else poem.original_text
                     ),
-                    "created_at": (
-                        poem.created_at.isoformat() if poem.created_at else None
-                    ),
-                    "updated_at": (
-                        poem.updated_at.isoformat() if poem.updated_at else None
-                    ),
+                    "created_at": (poem.created_at.isoformat() if poem.created_at else None),
+                    "updated_at": (poem.updated_at.isoformat() if poem.updated_at else None),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,
@@ -202,12 +190,8 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": (
-                    poem.created_at.isoformat() if poem.created_at else None
-                ),
-                "updated_at": (
-                    poem.updated_at.isoformat() if poem.updated_at else None
-                ),
+                "created_at": (poem.created_at.isoformat() if poem.created_at else None),
+                "updated_at": (poem.updated_at.isoformat() if poem.updated_at else None),
                 "translation_count": 0,
                 "ai_translation_count": 0,
                 "human_translation_count": 0,
@@ -292,12 +276,8 @@ class PoemService:
                 "source_language": poem.source_language,
                 "content": poem.original_text,
                 "metadata_json": poem.metadata_json,
-                "created_at": (
-                    poem.created_at.isoformat() if poem.created_at else None
-                ),
-                "updated_at": (
-                    poem.updated_at.isoformat() if poem.updated_at else None
-                ),
+                "created_at": (poem.created_at.isoformat() if poem.created_at else None),
+                "updated_at": (poem.updated_at.isoformat() if poem.updated_at else None),
                 "translation_count": poem.translation_count,
                 "ai_translation_count": poem.ai_translation_count,
                 "human_translation_count": poem.human_translation_count,
@@ -359,9 +339,7 @@ class PoemService:
 
             # Count by poet (top 10)
             poets = (
-                self.db.query(
-                    Poem.poet_name, self.db.func.count(Poem.id).label("count")
-                )
+                self.db.query(Poem.poet_name, self.db.func.count(Poem.id).label("count"))
                 .group_by(Poem.poet_name)
                 .order_by(desc(self.db.func.count(Poem.id)))
                 .limit(10)
@@ -370,23 +348,15 @@ class PoemService:
 
             return {
                 "total_poems": total_poems,
-                "languages": [
-                    {"language": lang.source_language, "count": lang.count}
-                    for lang in languages
-                ],
-                "top_poets": [
-                    {"poet_name": poet.poet_name, "poem_count": poet.count}
-                    for poet in poets
-                ],
+                "languages": [{"language": lang.source_language, "count": lang.count} for lang in languages],
+                "top_poets": [{"poet_name": poet.poet_name, "poem_count": poet.count} for poet in poets],
             }
 
         except Exception as e:
             logger.error(f"Failed to get poem statistics: {e}")
             raise
 
-    async def search_poems(
-        self, query: str, skip: int = 0, limit: int = 50
-    ) -> List[Dict[str, Any]]:
+    async def search_poems(self, query: str, skip: int = 0, limit: int = 50) -> List[Dict[str, Any]]:
         """
         Search poems by title, poet name, or content.
 
@@ -424,13 +394,9 @@ class PoemService:
                     "poem_title": poem.poem_title,
                     "source_language": poem.source_language,
                     "content_preview": (
-                        poem.original_text[:200] + "..."
-                        if len(poem.original_text) > 200
-                        else poem.original_text
+                        poem.original_text[:200] + "..." if len(poem.original_text) > 200 else poem.original_text
                     ),
-                    "created_at": (
-                        poem.created_at.isoformat() if poem.created_at else None
-                    ),
+                    "created_at": (poem.created_at.isoformat() if poem.created_at else None),
                     "translation_count": poem.translation_count,
                     "ai_translation_count": poem.ai_translation_count,
                     "human_translation_count": poem.human_translation_count,

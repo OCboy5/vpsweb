@@ -45,9 +45,7 @@ class TranslationRunner:
         initialize_config_facade()
         self.config_facade = get_config_facade()
         self.workflow = TranslationWorkflow()
-        self.storage_handler = StorageHandler(
-            self.config_facade.main.system.storage.output_dir
-        )
+        self.storage_handler = StorageHandler(self.config_facade.main.system.storage.output_dir)
         logger.info("Repository WebUI Translation runner initialized")
 
     async def run_translation(
@@ -79,9 +77,7 @@ class TranslationRunner:
         """
         try:
             logger.info(f"开始翻译工作流")
-            logger.info(
-                f"源语言: {source_lang}, 目标语言: {target_lang}, 模式: {workflow_mode}"
-            )
+            logger.info(f"源语言: {source_lang}, 目标语言: {target_lang}, 模式: {workflow_mode}")
 
             if not original_poem or not original_poem.strip():
                 raise ValueError("诗歌内容为空")
@@ -91,9 +87,7 @@ class TranslationRunner:
             # 执行翻译工作流
             if dry_run:
                 logger.info("🔍 DRY RUN MODE - 不会实际调用LLM服务")
-                result = await self._dry_run_workflow(
-                    original_poem, source_lang, target_lang, workflow_mode
-                )
+                result = await self._dry_run_workflow(original_poem, source_lang, target_lang, workflow_mode)
             else:
                 result = await self.workflow.execute_translation(
                     original_poem=original_poem,
@@ -275,9 +269,7 @@ This is a simulated result for testing purposes."""
 
         return mock_result
 
-    async def _save_result(
-        self, result: Dict[str, Any], output_dir: Optional[str] = None
-    ) -> Path:
+    async def _save_result(self, result: Dict[str, Any], output_dir: Optional[str] = None) -> Path:
         """
         保存翻译结果到文件
 
@@ -346,9 +338,7 @@ This is a simulated result for testing purposes."""
         congregated = result.get("congregated_output", {})
         final_translation = congregated.get("revised_translation", "")
         if final_translation:
-            preview = final_translation[:200] + (
-                "..." if len(final_translation) > 200 else ""
-            )
+            preview = final_translation[:200] + ("..." if len(final_translation) > 200 else "")
             summary["translation_preview"] = preview
 
         return summary

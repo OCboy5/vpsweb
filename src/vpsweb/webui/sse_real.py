@@ -21,9 +21,7 @@ class TranslationTaskManager:
         self.subscribers: Dict[str, asyncio.Queue] = {}
         self.task_retention_time = 300  # Keep completed tasks for 5 minutes
 
-    def create_task(
-        self, task_id: str, poem_id: str, target_lang: str, workflow_mode: str
-    ) -> Dict[str, Any]:
+    def create_task(self, task_id: str, poem_id: str, target_lang: str, workflow_mode: str) -> Dict[str, Any]:
         """Create a new translation task."""
         task = {
             "task_id": task_id,
@@ -47,9 +45,7 @@ class TranslationTaskManager:
         self.tasks[task_id] = task
         return task
 
-    def update_task_status(
-        self, task_id: str, status: str, message: str = None, step: int = None
-    ):
+    def update_task_status(self, task_id: str, status: str, message: str = None, step: int = None):
         """Update task status and notify subscribers."""
         if task_id not in self.tasks:
             return
@@ -116,18 +112,14 @@ class TranslationTaskManager:
                 del self.subscribers[task_id]
 
 
-async def create_real_translation_events(
-    request: Request, task_id: str, task_manager: TranslationTaskManager
-):
+async def create_real_translation_events(request: Request, task_id: str, task_manager: TranslationTaskManager):
     """Create real translation progress events from actual task status."""
     try:
         # TODO: Temporarily disable cleanup to debug task retention issue
         # task_manager.cleanup_expired_tasks()
 
         # Debug: Print task manager info
-        print(
-            f"[SSE DEBUG] TaskManager ID: {id(task_manager)}, Tasks in manager: {list(task_manager.tasks.keys())}"
-        )
+        print(f"[SSE DEBUG] TaskManager ID: {id(task_manager)}, Tasks in manager: {list(task_manager.tasks.keys())}")
         print(f"[SSE DEBUG] Looking for task: {task_id}")
 
         # Check if task exists
@@ -207,12 +199,8 @@ async def create_real_translation_events(
                 # Send update event based on task status
                 if updated_task["status"] == "running":
                     # Send step start event for new step
-                    if updated_task["current_step"] > 0 and updated_task[
-                        "current_step"
-                    ] <= len(updated_task["steps"]):
-                        step_name = updated_task["steps"][
-                            updated_task["current_step"] - 1
-                        ]
+                    if updated_task["current_step"] > 0 and updated_task["current_step"] <= len(updated_task["steps"]):
+                        step_name = updated_task["steps"][updated_task["current_step"] - 1]
                         yield {
                             "event": "step_start",
                             "data": json.dumps(
@@ -229,9 +217,7 @@ async def create_real_translation_events(
                 elif updated_task["status"] == "completed":
                     # Send step complete event before completion
                     if updated_task["current_step"] > 0:
-                        step_name = updated_task["steps"][
-                            updated_task["current_step"] - 1
-                        ]
+                        step_name = updated_task["steps"][updated_task["current_step"] - 1]
                         yield {
                             "event": "step_complete",
                             "data": json.dumps(

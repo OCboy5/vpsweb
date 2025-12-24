@@ -166,17 +166,13 @@ class ConfigFacade:
             ValueError: If task template is not found
         """
         if not self._using_new_structure:
-            raise RuntimeError(
-                "Task template resolution requires new model registry structure"
-            )
+            raise RuntimeError("Task template resolution requires new model registry structure")
 
         if not self.task_templates or not self.model_registry:
             raise RuntimeError("Model registry services not available")
 
         # Resolve the task template using the model registry
-        resolved_config = self.task_templates.resolve_task_config(
-            task_name, self.model_registry
-        )
+        resolved_config = self.task_templates.resolve_task_config(task_name, self.model_registry)
 
         return {
             "provider": resolved_config.provider,
@@ -206,9 +202,7 @@ class ConfigFacade:
             ValueError: If workflow mode or step is not found
         """
         if not self._using_new_structure:
-            raise RuntimeError(
-                "Workflow step resolution requires new model registry structure"
-            )
+            raise RuntimeError("Workflow step resolution requires new model registry structure")
 
         # Get workflow configuration for the mode
         workflow_data = self.workflow.get_workflow_data()
@@ -226,14 +220,10 @@ class ConfigFacade:
             task_template_name = step_config.task_template
         else:
             # Legacy StepConfig - this shouldn't happen with new structure but kept for compatibility
-            raise ValueError(
-                f"Step '{step_name}' in mode '{mode}' uses legacy configuration, expected task_template"
-            )
+            raise ValueError(f"Step '{step_name}' in mode '{mode}' uses legacy configuration, expected task_template")
 
         if not task_template_name:
-            raise ValueError(
-                f"No task_template found for step '{step_name}' in mode '{mode}'"
-            )
+            raise ValueError(f"No task_template found for step '{step_name}' in mode '{mode}'")
 
         return self.resolve_task_template(task_template_name)
 
@@ -252,9 +242,7 @@ class ConfigFacade:
             ValueError: If model_type is invalid
         """
         if not self._using_new_structure:
-            raise RuntimeError(
-                "WeChat task resolution requires new model registry structure"
-            )
+            raise RuntimeError("WeChat task resolution requires new model registry structure")
 
         task_template_name = self.task_templates.get_wechat_task_template(model_type)
         return self.resolve_task_template(task_template_name)
@@ -271,9 +259,7 @@ class ConfigFacade:
             ValueError: If BBR task template is not found
         """
         if not self._using_new_structure:
-            raise RuntimeError(
-                "BBR config resolution requires new model registry structure"
-            )
+            raise RuntimeError("BBR config resolution requires new model registry structure")
 
         return self.resolve_task_template("bbr_generation")
 
@@ -327,9 +313,7 @@ def initialize_config_facade(
     global _config_facade
     _config_facade = ConfigFacade(complete_config, models_config, task_templates_config)
 
-    structure_type = (
-        "new model registry" if models_config and task_templates_config else "legacy"
-    )
+    structure_type = "new model registry" if models_config and task_templates_config else "legacy"
     logger.info(f"Global ConfigFacade initialized with {structure_type} structure")
     return _config_facade
 
@@ -346,9 +330,7 @@ def get_config_facade() -> ConfigFacade:
     """
     global _config_facade
     if _config_facade is None:
-        raise RuntimeError(
-            "ConfigFacade not initialized. Call initialize_config_facade() first."
-        )
+        raise RuntimeError("ConfigFacade not initialized. Call initialize_config_facade() first.")
     return _config_facade
 
 

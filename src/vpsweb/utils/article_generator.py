@@ -68,14 +68,10 @@ class ArticleGenerator:
             # Get WeChat configurations from ConfigFacade (new task template structure)
             try:
                 # Try to get reasoning model config for WeChat notes
-                self.wechat_llm_config = config_facade.get_wechat_task_config(
-                    "reasoning"
-                )
+                self.wechat_llm_config = config_facade.get_wechat_task_config("reasoning")
             except (ValueError, RuntimeError):
                 # Fallback to legacy method
-                self.wechat_llm_config = (
-                    config_facade.models.get_wechat_translation_notes_config()
-                )
+                self.wechat_llm_config = config_facade.models.get_wechat_translation_notes_config()
             # Use providers from legacy config for compatibility
             actual_providers_config = providers_config
         else:
@@ -85,18 +81,12 @@ class ArticleGenerator:
                 self._using_facade = True
                 try:
                     # Try to get reasoning model config for WeChat notes
-                    self.wechat_llm_config = self._config_facade.get_wechat_task_config(
-                        "reasoning"
-                    )
+                    self.wechat_llm_config = self._config_facade.get_wechat_task_config("reasoning")
                 except (ValueError, RuntimeError):
                     # Fallback to legacy method
-                    self.wechat_llm_config = (
-                        self._config_facade.models.get_wechat_translation_notes_config()
-                    )
+                    self.wechat_llm_config = self._config_facade.models.get_wechat_translation_notes_config()
                 actual_providers_config = providers_config
-                logger.info(
-                    "ArticleGenerator using global ConfigFacade with task templates"
-                )
+                logger.info("ArticleGenerator using global ConfigFacade with task templates")
             except RuntimeError:
                 # Fallback to legacy pattern
                 self._using_facade = False
@@ -115,18 +105,14 @@ class ArticleGenerator:
             self.llm_factory = LLMFactory(actual_providers_config)
             self.prompt_service = PromptService()
             self.llm_metrics = None  # Store metrics from last LLM call
-            self._cached_translation_notes = (
-                None  # Cache translation notes to avoid duplicate calls
-            )
+            self._cached_translation_notes = None  # Cache translation notes to avoid duplicate calls
             logger.info("Article generator initialized with LLM synthesis capabilities")
         else:
             self.llm_factory = None
             self.prompt_service = None
             self.llm_metrics = None
             self._cached_translation_notes = None
-            logger.info(
-                "Article generator initialized without LLM synthesis capabilities"
-            )
+            logger.info("Article generator initialized without LLM synthesis capabilities")
 
     def _init_template_system(self) -> None:
         """Initialize the Jinja2 template system for HTML rendering."""
@@ -136,22 +122,16 @@ class ArticleGenerator:
             template_dir = current_dir / "config" / "html_templates" / "wechat_articles"
 
             if not template_dir.exists():
-                raise ArticleGeneratorError(
-                    f"Template directory not found: {template_dir}"
-                )
+                raise ArticleGeneratorError(f"Template directory not found: {template_dir}")
 
             # Initialize Jinja2 environment
-            self.template_env = Environment(
-                loader=FileSystemLoader(str(template_dir)), autoescape=True
-            )
+            self.template_env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
 
             # Test loading the default template
             default_template = self.config.article_template or "default"
             self.template_env.get_template(f"{default_template}.html")
 
-            logger.info(
-                f"HTML template system initialized with template directory: {template_dir}"
-            )
+            logger.info(f"HTML template system initialized with template directory: {template_dir}")
 
             # Validate default cover image availability
             self._validate_default_cover_image(current_dir)
@@ -173,9 +153,7 @@ class ArticleGenerator:
             default_cover_path = project_root / self.config.default_cover_image_path
 
             if not default_cover_path.exists():
-                logger.warning(
-                    f"⚠️ Default cover image not found at: {default_cover_path}"
-                )
+                logger.warning(f"⚠️ Default cover image not found at: {default_cover_path}")
                 logger.warning(
                     "💡 To fix: Place a cover image at the configured path or update the path in config/wechat.yaml"
                 )
@@ -183,9 +161,7 @@ class ArticleGenerator:
 
             # Check if it's a valid image file (basic validation)
             if not default_cover_path.is_file():
-                logger.warning(
-                    f"⚠️ Default cover path exists but is not a file: {default_cover_path}"
-                )
+                logger.warning(f"⚠️ Default cover path exists but is not a file: {default_cover_path}")
                 return
 
             # Check file size (should be reasonable for an image)
@@ -194,9 +170,7 @@ class ArticleGenerator:
                 logger.warning(f"⚠️ Default cover image is empty: {default_cover_path}")
                 return
 
-            logger.info(
-                f"✅ Default cover image validated: {default_cover_path} ({file_size} bytes)"
-            )
+            logger.info(f"✅ Default cover image validated: {default_cover_path} ({file_size} bytes)")
 
         except Exception as e:
             logger.warning(f"⚠️ Error validating default cover image: {e}")
@@ -253,23 +227,15 @@ class ArticleGenerator:
             llm_digest = None
             if self.config.include_translation_notes and not dry_run:
                 # This will trigger the LLM call and populate self.llm_metrics with digest
-                translation_notes_section = self._generate_translation_notes_section(
-                    translation_data, metadata
-                )
+                translation_notes_section = self._generate_translation_notes_section(translation_data, metadata)
 
                 if self.llm_metrics and "digest" in self.llm_metrics:
                     llm_digest = self.llm_metrics["digest"]
-                    logger.info(
-                        f"✅ LLM-generated digest extracted: {llm_digest[:50]}..."
-                    )
+                    logger.info(f"✅ LLM-generated digest extracted: {llm_digest[:50]}...")
                 else:
-                    logger.warning(
-                        f"⚠️ LLM metrics available but no digest found: {type(self.llm_metrics)}"
-                    )
+                    logger.warning(f"⚠️ LLM metrics available but no digest found: {type(self.llm_metrics)}")
                     if self.llm_metrics:
-                        logger.warning(
-                            f"⚠️ Available keys in llm_metrics: {list(self.llm_metrics.keys())}"
-                        )
+                        logger.warning(f"⚠️ Available keys in llm_metrics: {list(self.llm_metrics.keys())}")
             elif self.config.include_translation_notes and dry_run:
                 # Create mock LLM metrics for dry-run testing
                 self.llm_metrics = {
@@ -312,9 +278,7 @@ class ArticleGenerator:
             )
 
             # Determine final digest (prioritize LLM-generated)
-            final_digest = (
-                llm_digest or digest or self._generate_digest(translation_data)
-            )
+            final_digest = llm_digest or digest or self._generate_digest(translation_data)
 
             # Create WeChat article with LLM digest if available
             article = WeChatArticle(
@@ -395,9 +359,7 @@ class ArticleGenerator:
         except json.JSONDecodeError as e:
             raise ArticleGeneratorError(f"Invalid JSON in file {json_path}: {e}")
         except Exception as e:
-            raise ArticleGeneratorError(
-                f"Error loading translation JSON {json_path}: {e}"
-            )
+            raise ArticleGeneratorError(f"Error loading translation JSON {json_path}: {e}")
 
     def _handle_cover_image_fallback(self, output_dir: Path) -> Optional[str]:
         """
@@ -434,18 +396,14 @@ class ArticleGenerator:
                 return str(default_cover_path)
             else:
                 # No cover image available
-                logger.warning(
-                    f"⚠️ No cover image available (neither local nor default found at {default_cover_path})"
-                )
+                logger.warning(f"⚠️ No cover image available (neither local nor default found at {default_cover_path})")
                 return None
 
         except Exception as e:
             logger.error(f"❌ Error handling cover image fallback: {e}")
             return None
 
-    def _extract_metadata(
-        self, translation_data: Dict[str, Any], json_path: str
-    ) -> WeChatArticleMetadata:
+    def _extract_metadata(self, translation_data: Dict[str, Any], json_path: str) -> WeChatArticleMetadata:
         """Extract metadata from translation data."""
         try:
             # Get basic workflow information
@@ -526,9 +484,7 @@ class ArticleGenerator:
             if not poem_title:
                 poem_title = line.strip()
                 # Remove common prefixes
-                poem_title = re.sub(
-                    r"^[第其其其][一二三四五六七八九十]+\s*", "", poem_title
-                )
+                poem_title = re.sub(r"^[第其其其][一二三四五六七八九十]+\s*", "", poem_title)
                 poem_title = poem_title.strip()
                 continue
 
@@ -545,9 +501,7 @@ class ArticleGenerator:
 
         return poem_title, poet_name, series_index
 
-    def _generate_slug(
-        self, poet_name: str, poem_title: str, source_lang: str = ""
-    ) -> str:
+    def _generate_slug(self, poet_name: str, poem_title: str, source_lang: str = "") -> str:
         """Generate URL-friendly slug in format: poetname-poemtitle-YYYYMMDD."""
         # Generate date
         date_str = datetime.now().strftime("%Y%m%d")
@@ -631,17 +585,15 @@ class ArticleGenerator:
                 metadata.series_index,
             )
             poem_text = self._extract_poem_text(original_poem)
-            target_lang_title, target_lang_poet, translation_text = (
-                self._extract_translation_text(final_translation)
-            )
+            target_lang_title, target_lang_poet, translation_text = self._extract_translation_text(final_translation)
 
             # If no target poet was found in translation text, try to get it from translation data metadata
             if not target_lang_poet:
                 # Try to get translated poet name from translation data metadata
                 translation_metadata = translation_data.get("metadata", {})
-                target_lang_poet = translation_metadata.get(
-                    "refined_translated_poet_name"
-                ) or translation_metadata.get("translated_poet_name")
+                target_lang_poet = translation_metadata.get("refined_translated_poet_name") or translation_metadata.get(
+                    "translated_poet_name"
+                )
 
             # Create bilingual title and poet name variables
             source_lang = metadata.source_lang.lower()
@@ -689,9 +641,7 @@ class ArticleGenerator:
                 # For other target languages, use the extracted title and translated poet name if available
                 target_title = target_lang_title if target_lang_title else poem_title
                 target_poet = target_lang_poet if target_lang_poet else poet_name
-                target_author_prefix = (
-                    "作者："  # Default to Chinese prefix for other languages
-                )
+                target_author_prefix = "作者："  # Default to Chinese prefix for other languages
 
             # Prepare template variables
             # Use cached translation notes if available to avoid duplicate LLM calls
@@ -700,9 +650,7 @@ class ArticleGenerator:
             elif self._cached_translation_notes is not None:
                 translation_notes_section = self._cached_translation_notes
             else:
-                translation_notes_section = self._generate_translation_notes_section(
-                    translation_data, metadata
-                )
+                translation_notes_section = self._generate_translation_notes_section(translation_data, metadata)
 
             template_vars = {
                 "poem_title": poem_title,
@@ -778,9 +726,7 @@ class ArticleGenerator:
                 continue
 
             # Skip translation lines that happen to start with "By " but are not poet attribution
-            if (
-                line.startswith("By ") and len(line.split()) > 3
-            ):  # Likely "By error I fell..." type of line
+            if line.startswith("By ") and len(line.split()) > 3:  # Likely "By error I fell..." type of line
                 # This is a translation line, not poet attribution, so treat it as translation content
                 translation_lines.append(line)
                 continue
@@ -803,9 +749,7 @@ class ArticleGenerator:
 
             # Extract first few lines of translation
             lines = final_translation.strip().split("\n")[:4]
-            digest_lines = [
-                line.strip() for line in lines if line.strip() and "By " not in line
-            ]
+            digest_lines = [line.strip() for line in lines if line.strip() and "By " not in line]
 
             digest_text = " ".join(digest_lines)
 
@@ -854,18 +798,14 @@ class ArticleGenerator:
             if self._cached_translation_notes is not None:
                 # If we have cached notes but no metrics, extract metrics from cache
                 if self.llm_metrics is None:
-                    logger.debug(
-                        "Found cached notes but no metrics - need to regenerate"
-                    )
+                    logger.debug("Found cached notes but no metrics - need to regenerate")
                     # Clear cache to force regeneration and get metrics
                     self._cached_translation_notes = None
                 else:
                     return self._cached_translation_notes
 
             # Run async synthesis in sync context using asyncio.run
-            result = asyncio.run(
-                self._synthesize_translation_notes_async(translation_data, metadata)
-            )
+            result = asyncio.run(self._synthesize_translation_notes_async(translation_data, metadata))
 
             # Cache the result
             self._cached_translation_notes = result
@@ -906,9 +846,7 @@ class ArticleGenerator:
 
             # Get model configuration based on model_type
             model_type = getattr(self.config, "model_type", "reasoning")
-            logger.info(
-                f"Using model type: {model_type} for translation notes synthesis"
-            )
+            logger.info(f"Using model type: {model_type} for translation notes synthesis")
 
             # Use WeChat LLM configuration if available, otherwise fallback to hardcoded values
             if (
@@ -917,20 +855,14 @@ class ArticleGenerator:
                 and model_type in self.wechat_llm_config["models"]
             ):
                 model_config = self.wechat_llm_config["models"][model_type]
-                prompt_template = model_config.get(
-                    "prompt_template", f"wechat_article_notes_{model_type}"
-                )
+                prompt_template = model_config.get("prompt_template", f"wechat_article_notes_{model_type}")
                 default_provider = model_config.get(
                     "provider",
                     "tongyi" if model_type == "non_reasoning" else "deepseek",
                 )
                 default_model = model_config.get(
                     "model",
-                    (
-                        "qwen-plus-latest"
-                        if model_type == "non_reasoning"
-                        else "deepseek-reasoner"
-                    ),
+                    ("qwen-plus-latest" if model_type == "non_reasoning" else "deepseek-reasoner"),
                 )
                 default_temp = model_config.get(
                     "temperature",
@@ -956,9 +888,7 @@ class ArticleGenerator:
             prompt_template = getattr(self.config, "prompt_template", prompt_template)
 
             # Render prompt template using PromptService
-            system_prompt, user_prompt = self.prompt_service.render_prompt(
-                prompt_template, synthesis_input
-            )
+            system_prompt, user_prompt = self.prompt_service.render_prompt(prompt_template, synthesis_input)
             # WeChat translation notes uses user prompt only
             formatted_prompt = user_prompt
 
@@ -972,19 +902,13 @@ class ArticleGenerator:
             provider = self.llm_factory.get_provider(provider_name)
             if not provider:
                 # Fallback to any available provider
-                logger.warning(
-                    f"Provider {provider_name} not available, trying fallback"
-                )
+                logger.warning(f"Provider {provider_name} not available, trying fallback")
                 for available_provider in self.llm_factory.providers_config.providers:
                     provider = self.llm_factory.get_provider(available_provider)
                     if provider:
                         provider_name = available_provider
-                        provider_config = self.llm_factory.providers_config.providers[
-                            available_provider
-                        ]
-                        model_name = (
-                            provider_config.default_model or provider_config.models[0]
-                        )
+                        provider_config = self.llm_factory.providers_config.providers[available_provider]
+                        model_name = provider_config.default_model or provider_config.models[0]
                         break
 
                 if not provider:
@@ -1051,9 +975,7 @@ class ArticleGenerator:
                 if digest:
                     # Unescape HTML entities
                     clean_digest = html.unescape(digest)
-                    html_parts.append(
-                        f'<p style="margin: 0 0 0px 0;"><strong>摘要：</strong>{clean_digest}</p>'
-                    )
+                    html_parts.append(f'<p style="margin: 0 0 0px 0;"><strong>摘要：</strong>{clean_digest}</p>')
 
                 if notes:
                     html_parts.append('<div style="padding-left: 10px;">')
@@ -1065,11 +987,7 @@ class ArticleGenerator:
                         )
                     html_parts.append("</div>")
 
-                return (
-                    "\n".join(html_parts)
-                    if html_parts
-                    else "<p><em>翻译笔记生成完成，但内容为空</em></p>"
-                )
+                return "\n".join(html_parts) if html_parts else "<p><em>翻译笔记生成完成，但内容为空</em></p>"
 
             except Exception as parse_error:
                 logger.warning(f"Failed to parse XML response: {parse_error}")
@@ -1080,9 +998,7 @@ class ArticleGenerator:
                     content = response.content
 
                     # Extract digest
-                    digest_match = re.search(
-                        r"digest:\s*(.+?)(?=\nnotes:|$)", content, re.DOTALL
-                    )
+                    digest_match = re.search(r"digest:\s*(.+?)(?=\nnotes:|$)", content, re.DOTALL)
                     digest = digest_match.group(1).strip() if digest_match else ""
 
                     # Extract notes
@@ -1107,9 +1023,7 @@ class ArticleGenerator:
                     if digest:
                         # Unescape HTML entities
                         clean_digest = html.unescape(digest)
-                        html_parts.append(
-                            f"<p><strong>摘要：</strong>{clean_digest}</p>"
-                        )
+                        html_parts.append(f"<p><strong>摘要：</strong>{clean_digest}</p>")
 
                     if notes:
                         html_parts.append('<div style="padding-left: 10px;">')
@@ -1157,9 +1071,7 @@ class ArticleGenerator:
             logger.error(f"Translation notes synthesis failed: {e}")
             return f"<p><em>翻译笔记生成失败：{str(e)}</em></p>"
 
-    def _calculate_step_cost(
-        self, provider: str, model: str, input_tokens: int, output_tokens: int
-    ) -> Optional[float]:
+    def _calculate_step_cost(self, provider: str, model: str, input_tokens: int, output_tokens: int) -> Optional[float]:
         """Calculate cost for a single step using the same method as workflow."""
         try:
             # Get pricing from configuration
@@ -1173,17 +1085,11 @@ class ArticleGenerator:
                     if provider in pricing and model in pricing[provider]:
                         model_pricing = pricing[provider][model]
                         # Pricing is RMB per 1K tokens
-                        input_cost = (input_tokens / 1000) * model_pricing.get(
-                            "input", 0
-                        )
-                        output_cost = (output_tokens / 1000) * model_pricing.get(
-                            "output", 0
-                        )
+                        input_cost = (input_tokens / 1000) * model_pricing.get("input", 0)
+                        output_cost = (output_tokens / 1000) * model_pricing.get("output", 0)
                         return input_cost + output_cost
 
-            logger.warning(
-                f"Failed to calculate cost for {provider}/{model}: No pricing info available"
-            )
+            logger.warning(f"Failed to calculate cost for {provider}/{model}: No pricing info available")
             return None
 
         except Exception as e:

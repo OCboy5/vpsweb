@@ -67,9 +67,7 @@ class ILLMProvider(ABC):
         """
 
     @abstractmethod
-    async def generate_stream(
-        self, request: LLMRequest
-    ) -> AsyncGenerator[LLMStreamChunk, None]:
+    async def generate_stream(self, request: LLMRequest) -> AsyncGenerator[LLMStreamChunk, None]:
         """
         Generate a streaming response from the LLM.
 
@@ -109,9 +107,7 @@ class ILLMFactory(ABC):
         """List all available providers."""
 
     @abstractmethod
-    def register_provider(
-        self, name: str, provider_class: type, config: Dict[str, Any]
-    ) -> None:
+    def register_provider(self, name: str, provider_class: type, config: Dict[str, Any]) -> None:
         """Register a new provider."""
 
 
@@ -204,9 +200,7 @@ class IOutputParser(ABC):
     """Interface for output parsing services."""
 
     @abstractmethod
-    def parse_xml(
-        self, output: str, expected_fields: Optional[List[str]] = None
-    ) -> ParsedOutput:
+    def parse_xml(self, output: str, expected_fields: Optional[List[str]] = None) -> ParsedOutput:
         """
         Parse XML output from LLM.
 
@@ -219,9 +213,7 @@ class IOutputParser(ABC):
         """
 
     @abstractmethod
-    def parse_json(
-        self, output: str, expected_fields: Optional[List[str]] = None
-    ) -> ParsedOutput:
+    def parse_json(self, output: str, expected_fields: Optional[List[str]] = None) -> ParsedOutput:
         """
         Parse JSON output from LLM.
 
@@ -234,9 +226,7 @@ class IOutputParser(ABC):
         """
 
     @abstractmethod
-    def extract_code_blocks(
-        self, output: str, language: Optional[str] = None
-    ) -> List[str]:
+    def extract_code_blocks(self, output: str, language: Optional[str] = None) -> List[str]:
         """
         Extract code blocks from output.
 
@@ -249,9 +239,7 @@ class IOutputParser(ABC):
         """
 
     @abstractmethod
-    def validate_output(
-        self, parsed_output: ParsedOutput, schema: Dict[str, Any]
-    ) -> bool:
+    def validate_output(self, parsed_output: ParsedOutput, schema: Dict[str, Any]) -> bool:
         """
         Validate parsed output against a schema.
 
@@ -344,9 +332,7 @@ class IWorkflowOrchestrator(ABC):
         """
 
     @abstractmethod
-    async def execute_step(
-        self, step: WorkflowStep, input_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def execute_step(self, step: WorkflowStep, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute a single workflow step.
 
@@ -419,9 +405,7 @@ class IStorageService(ABC):
     """Interface for storage operations."""
 
     @abstractmethod
-    async def save(
-        self, key: str, data: Any, metadata: Optional[Dict[str, Any]] = None
-    ) -> StorageResult:
+    async def save(self, key: str, data: Any, metadata: Optional[Dict[str, Any]] = None) -> StorageResult:
         """Save data with a key."""
 
     @abstractmethod
@@ -481,9 +465,7 @@ class ILogger(ABC):
         """Log error message."""
 
     @abstractmethod
-    async def log_async(
-        self, level: str, message: str, component: str, **kwargs
-    ) -> None:
+    async def log_async(self, level: str, message: str, component: str, **kwargs) -> None:
         """Log a message asynchronously."""
 
 
@@ -491,21 +473,15 @@ class IMetricsCollector(ABC):
     """Interface for metrics collection."""
 
     @abstractmethod
-    def increment_counter(
-        self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None
-    ) -> None:
+    def increment_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None) -> None:
         """Increment a counter metric."""
 
     @abstractmethod
-    def record_timing(
-        self, name: str, duration: float, tags: Optional[Dict[str, str]] = None
-    ) -> None:
+    def record_timing(self, name: str, duration: float, tags: Optional[Dict[str, str]] = None) -> None:
         """Record a timing metric."""
 
     @abstractmethod
-    def set_gauge(
-        self, name: str, value: float, tags: Optional[Dict[str, str]] = None
-    ) -> None:
+    def set_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
         """Set a gauge metric."""
 
     @abstractmethod
@@ -540,9 +516,7 @@ class IRetryService(ABC):
     """Interface for retry operations."""
 
     @abstractmethod
-    async def execute_with_retry(
-        self, operation: callable, policy: RetryPolicy, *args, **kwargs
-    ) -> Any:
+    async def execute_with_retry(self, operation: callable, policy: RetryPolicy, *args, **kwargs) -> Any:
         """
         Execute an operation with retry logic.
 
@@ -557,9 +531,7 @@ class IRetryService(ABC):
         """
 
     @abstractmethod
-    async def should_retry(
-        self, exception: Exception, attempt: int, policy: RetryPolicy
-    ) -> bool:
+    async def should_retry(self, exception: Exception, attempt: int, policy: RetryPolicy) -> bool:
         """Determine if operation should be retried."""
 
 

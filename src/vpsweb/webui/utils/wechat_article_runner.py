@@ -75,9 +75,7 @@ class WeChatArticleRunner:
                     workflow=WorkflowConfig(name="wechat", version="1.0.0"),
                 )
                 providers_config = ProvidersConfig()
-                self.config = CompleteConfig(
-                    main=main_config, providers=providers_config
-                )
+                self.config = CompleteConfig(main=main_config, providers=providers_config)
                 self._config_facade = None
                 self._using_facade = False
                 print("⚠️ Using compatibility config for WeChat article runner")
@@ -87,18 +85,12 @@ class WeChatArticleRunner:
             # Create article config from ConfigFacade
             from vpsweb.models.wechat import ArticleGenerationConfig
 
-            wechat_config = (
-                self._config_facade.models.get_wechat_article_generation_config() or {}
-            )
+            wechat_config = self._config_facade.models.get_wechat_article_generation_config() or {}
             article_config = ArticleGenerationConfig(**wechat_config)
-            self.article_generator = ArticleGenerator(
-                config=article_config, config_facade=self._config_facade
-            )
+            self.article_generator = ArticleGenerator(config=article_config, config_facade=self._config_facade)
         else:
             # Legacy pattern: check for WeChat configuration
-            if hasattr(self.config, "wechat") and hasattr(
-                self.config.wechat, "article_generation"
-            ):
+            if hasattr(self.config, "wechat") and hasattr(self.config.wechat, "article_generation"):
                 # Use complete WeChat configuration
                 wechat_config = self.config.wechat.article_generation.model_dump()
                 print("✅ Using WeChat configuration from legacy config")
@@ -118,13 +110,10 @@ class WeChatArticleRunner:
             self.article_config = ArticleGenerationConfig(**wechat_config)
             self.article_generator = ArticleGenerator(
                 config=self.article_config,
-                providers_config=(
-                    self.config.providers if hasattr(self.config, "providers") else None
-                ),
+                providers_config=(self.config.providers if hasattr(self.config, "providers") else None),
                 wechat_llm_config=(
                     self.config.providers.wechat_translation_notes.model_dump()
-                    if hasattr(self.config, "providers")
-                    and hasattr(self.config.providers, "wechat_translation_notes")
+                    if hasattr(self.config, "providers") and hasattr(self.config.providers, "wechat_translation_notes")
                     else None
                 ),
                 system_config=self.config.model_dump(),
@@ -156,9 +145,7 @@ class WeChatArticleRunner:
             文章生成结果
         """
         try:
-            print(
-                f"📄 Starting WeChat article generation from file: {translation_json_path}"
-            )
+            print(f"📄 Starting WeChat article generation from file: {translation_json_path}")
             logger.info(f"开始从翻译文件生成微信文章: {translation_json_path}")
 
             print(f"🔧 Calling article generator...")
@@ -173,9 +160,7 @@ class WeChatArticleRunner:
             print(f"✅ Article generator returned result successfully!")
 
             # Fix metadata paths and add source_html_path for WebUI usage
-            result = self._fix_webui_metadata(
-                result, translation_json_path, result.output_directory
-            )
+            result = self._fix_webui_metadata(result, translation_json_path, result.output_directory)
 
             # Custom metadata handling - skip for now since model doesn't support it
             # Note: custom_metadata parameter kept for API compatibility
@@ -218,9 +203,7 @@ class WeChatArticleRunner:
             # 创建临时JSON文件
             import tempfile
 
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
                 json.dump(translation_data, f, ensure_ascii=False, indent=2)
                 temp_json_path = f.name
 
@@ -240,9 +223,7 @@ class WeChatArticleRunner:
                 print(f"✅ Article generation completed successfully!")
 
                 # Fix metadata paths for WebUI usage
-                result = self._fix_webui_metadata(
-                    result, temp_json_path, result.output_directory
-                )
+                result = self._fix_webui_metadata(result, temp_json_path, result.output_directory)
 
                 return result
 
@@ -295,23 +276,17 @@ class WeChatArticleRunner:
             # Fix source_json_path - remove temporary file path and add meaningful reference
             if "source_json_path" in metadata_dict:
                 temp_path = metadata_dict["source_json_path"]
-                if temp_path.startswith("/var/folders/") or temp_path.startswith(
-                    "/tmp/"
-                ):
+                if temp_path.startswith("/var/folders/") or temp_path.startswith("/tmp/"):
                     # Replace with meaningful translation reference
                     if "poet_name" in metadata_dict and "poem_title" in metadata_dict:
                         poet = metadata_dict["poet_name"]
                         title = metadata_dict["poem_title"]
-                        metadata_dict["source_json_path"] = (
-                            f"WebUI Translation: {title} by {poet}"
-                        )
+                        metadata_dict["source_json_path"] = f"WebUI Translation: {title} by {poet}"
                     else:
                         metadata_dict["source_json_path"] = (
                             f"WebUI Translation (generated {datetime.now().strftime('%Y-%m-%d')})"
                         )
-                    print(
-                        f"🔧 Fixed source_json_path: {metadata_dict['source_json_path']}"
-                    )
+                    print(f"🔧 Fixed source_json_path: {metadata_dict['source_json_path']}")
 
             # Add source_html_path for browser viewing
             html_file_path = Path(output_dir) / "article.html"
@@ -362,9 +337,7 @@ class WeChatArticleRunner:
         results = []
         for i, translation_file in enumerate(translation_files):
             try:
-                logger.info(
-                    f"处理第 {i+1}/{len(translation_files)} 个文件: {translation_file}"
-                )
+                logger.info(f"处理第 {i+1}/{len(translation_files)} 个文件: {translation_file}")
 
                 result = self.generate_from_translation(
                     translation_json_path=translation_file,
@@ -438,10 +411,7 @@ class WeChatArticleRunner:
             summary["llm_metrics"] = result.llm_metrics
 
         # 封面图片信息
-        if (
-            hasattr(result.article, "cover_image_path")
-            and result.article.cover_image_path
-        ):
+        if hasattr(result.article, "cover_image_path") and result.article.cover_image_path:
             summary["cover_image_path"] = result.article.cover_image_path
             summary["show_cover_pic"] = getattr(result.article, "show_cover_pic", False)
 
@@ -472,9 +442,7 @@ class WeChatArticleRunner:
             # 检查文件是否存在
             file_path = Path(translation_json_path)
             if not file_path.exists():
-                validation_result["errors"].append(
-                    f"文件不存在: {translation_json_path}"
-                )
+                validation_result["errors"].append(f"文件不存在: {translation_json_path}")
                 return validation_result
 
             # 尝试加载JSON
@@ -559,9 +527,7 @@ class WeChatArticleRunner:
         validation = self.validate_translation_file(translation_json_path)
 
         if not validation["valid"]:
-            raise ArticleGeneratorError(
-                f"Invalid translation file: {', '.join(validation['errors'])}"
-            )
+            raise ArticleGeneratorError(f"Invalid translation file: {', '.join(validation['errors'])}")
 
         metadata = validation["metadata"]
 

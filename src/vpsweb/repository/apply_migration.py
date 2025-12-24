@@ -105,75 +105,23 @@ def create_tables():
         )
 
         # Create indexes
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_poems_created_at ON poems (created_at)"
-            )
-        )
-        conn.execute(
-            text("CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)")
-        )
-        conn.execute(
-            text("CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)")
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_poems_language ON poems (source_language)"
-            )
-        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_created_at ON poems (created_at)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_poet_name ON poems (poet_name)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_title ON poems (poem_title)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poems_language ON poems (source_language)"))
 
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_translations_poem_id ON translations (poem_id)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_translations_type ON translations (translator_type)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_translations_language ON translations (target_language)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_translations_created_at ON translations (created_at)"
-            )
-        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_poem_id ON translations (poem_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_type ON translations (translator_type)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_language ON translations (target_language)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_translations_created_at ON translations (created_at)"))
 
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_ai_logs_translation_id ON ai_logs (translation_id)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_ai_logs_model_name ON ai_logs (model_name)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_ai_logs_workflow_mode ON ai_logs (workflow_mode)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_logs (created_at)"
-            )
-        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_translation_id ON ai_logs (translation_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_model_name ON ai_logs (model_name)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_workflow_mode ON ai_logs (workflow_mode)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_logs (created_at)"))
 
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_human_notes_translation_id ON human_notes (translation_id)"
-            )
-        )
-        conn.execute(
-            text(
-                "CREATE INDEX IF NOT EXISTS idx_human_notes_created_at ON human_notes (created_at)"
-            )
-        )
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_human_notes_translation_id ON human_notes (translation_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_human_notes_created_at ON human_notes (created_at)"))
 
         conn.commit()
 

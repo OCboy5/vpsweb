@@ -63,9 +63,7 @@ class DIContainer:
             raise ValueError(f"Dependency {key} is already registered")
 
         if sum(bool(x) for x in [implementation, factory, instance]) != 1:
-            raise ValueError(
-                "Exactly one of implementation, factory, or instance must be provided"
-            )
+            raise ValueError("Exactly one of implementation, factory, or instance must be provided")
 
         if instance and lifetime != LifetimeScope.SINGLETON:
             raise ValueError("Instance can only be registered with SINGLETON lifetime")
@@ -129,9 +127,7 @@ class DIContainer:
         """Register a factory function."""
         self.register(interface, factory=factory, name=name)
 
-    def register_instance(
-        self, interface: Type[T], instance: T, name: Optional[str] = None
-    ) -> None:
+    def register_instance(self, interface: Type[T], instance: T, name: Optional[str] = None) -> None:
         """Register a pre-created instance."""
 
         self.register(
@@ -212,9 +208,7 @@ class DIContainer:
                 return implementation()
 
         else:
-            raise ValueError(
-                f"No valid creation strategy for {registration['interface']}"
-            )
+            raise ValueError(f"No valid creation strategy for {registration['interface']}")
 
     def _get_constructor_dependencies(self, cls: Type) -> Dict[str, Type]:
         """Analyze constructor to identify dependencies for injection."""
@@ -228,10 +222,7 @@ class DIContainer:
 
             # Only inject dependencies for parameters without defaults
             # that have type annotations
-            if (
-                param.annotation != inspect.Parameter.empty
-                and param.default == inspect.Parameter.empty
-            ):
+            if param.annotation != inspect.Parameter.empty and param.default == inspect.Parameter.empty:
                 dependencies[param_name] = param.annotation
 
         return dependencies
@@ -384,11 +375,7 @@ def auto_register(
         if inspect.isclass(obj) and hasattr(obj, "__bases__"):
             # Look for classes that inherit from ABC or have 'Interface' in the name
             for base in obj.__bases__:
-                if (
-                    (abc := base) != ABC
-                    and hasattr(abc, "__abstractmethods__")
-                    and abc.__abstractmethods__
-                ):
+                if (abc := base) != ABC and hasattr(abc, "__abstractmethods__") and abc.__abstractmethods__:
                     # This class implements an abstract base class
                     container.register(base, obj, lifetime=lifetime)
                     break

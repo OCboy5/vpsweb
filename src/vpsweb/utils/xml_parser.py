@@ -50,9 +50,7 @@ class WeChatXMLParser:
 
             # Validate root element
             if root.tag != "wechat_translation_notes":
-                raise XMLParseError(
-                    f"Expected root element 'wechat_translation_notes', got '{root.tag}'"
-                )
+                raise XMLParseError(f"Expected root element 'wechat_translation_notes', got '{root.tag}'")
 
             # Extract digest
             digest = WeChatXMLParser._extract_text_content(root, "digest")
@@ -191,9 +189,7 @@ class WeChatXMLParser:
 
             # Check root element
             if root.tag != "wechat_translation_notes":
-                result["errors"].append(
-                    f"Wrong root element: '{root.tag}' (expected 'wechat_translation_notes')"
-                )
+                result["errors"].append(f"Wrong root element: '{root.tag}' (expected 'wechat_translation_notes')")
                 return result
 
             result["structure"]["root"] = root.tag
@@ -206,13 +202,9 @@ class WeChatXMLParser:
                 digest_text = digest_elem.text or ""
                 digest_chars = len(digest_text.strip())
                 if digest_chars < 80:
-                    result["warnings"].append(
-                        "Digest too short (expected 80-120 characters)"
-                    )
+                    result["warnings"].append("Digest too short (expected 80-120 characters)")
                 elif digest_chars > 120:
-                    result["warnings"].append(
-                        "Digest too long (expected 80-120 characters)"
-                    )
+                    result["warnings"].append("Digest too long (expected 80-120 characters)")
 
                 result["structure"]["digest_length"] = digest_chars
 
@@ -232,13 +224,9 @@ class WeChatXMLParser:
                 # Check bullet point lengths
                 for i, bullet in enumerate(bullet_points):
                     if len(bullet) < 10:
-                        result["warnings"].append(
-                            f"Bullet point {i+1} too short (minimum 10 characters)"
-                        )
+                        result["warnings"].append(f"Bullet point {i+1} too short (minimum 10 characters)")
                     elif len(bullet) > 40:
-                        result["warnings"].append(
-                            f"Bullet point {i+1} too long (maximum 40 characters)"
-                        )
+                        result["warnings"].append(f"Bullet point {i+1} too long (maximum 40 characters)")
 
                 result["structure"]["bullet_count"] = len(bullet_points)
 

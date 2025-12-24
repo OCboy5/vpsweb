@@ -132,9 +132,7 @@ class WeChatClient:
                     if json_data is not None:
                         import json as _json
 
-                        body = _json.dumps(json_data, ensure_ascii=False).encode(
-                            "utf-8"
-                        )
+                        body = _json.dumps(json_data, ensure_ascii=False).encode("utf-8")
                         response = await client.request(
                             method=method,
                             url=url,
@@ -162,12 +160,10 @@ class WeChatClient:
                     # Check for API errors
                     if not api_response.is_success:
                         # Handle token expiration
-                        invalid_access_token_code = self.system_config.get(
-                            "api_error_codes", {}
-                        ).get("invalid_access_token", 40001)
-                        if (
-                            api_response.errcode == invalid_access_token_code
-                        ):  # Invalid access token
+                        invalid_access_token_code = self.system_config.get("api_error_codes", {}).get(
+                            "invalid_access_token", 40001
+                        )
+                        if api_response.errcode == invalid_access_token_code:  # Invalid access token
                             logger.info("Access token expired, refreshing...")
                             await self.token_manager.refresh_token()
                             access_token = await self.token_manager.get_access_token()
@@ -175,26 +171,20 @@ class WeChatClient:
                             continue  # Retry with fresh token
 
                         # Handle rate limiting
-                        rate_limit_exceeded_code = self.system_config.get(
-                            "api_error_codes", {}
-                        ).get("rate_limit_exceeded", 45009)
-                        if (
-                            api_response.errcode == rate_limit_exceeded_code
-                        ):  # Rate limit exceeded
+                        rate_limit_exceeded_code = self.system_config.get("api_error_codes", {}).get(
+                            "rate_limit_exceeded", 45009
+                        )
+                        if api_response.errcode == rate_limit_exceeded_code:  # Rate limit exceeded
                             wait_time = min(2**attempt, 10)  # Exponential backoff
-                            logger.warning(
-                                f"Rate limit exceeded, waiting {wait_time}s..."
-                            )
+                            logger.warning(f"Rate limit exceeded, waiting {wait_time}s...")
                             await asyncio.sleep(wait_time)
                             continue
 
                         # Handle invalid media_id error (usually related to show_cover_pic)
-                        invalid_media_id_code = self.system_config.get(
-                            "api_error_codes", {}
-                        ).get("invalid_media_id", 40007)
-                        if (
-                            api_response.errcode == invalid_media_id_code
-                        ):  # Invalid media_id
+                        invalid_media_id_code = self.system_config.get("api_error_codes", {}).get(
+                            "invalid_media_id", 40007
+                        )
+                        if api_response.errcode == invalid_media_id_code:  # Invalid media_id
                             error_msg = f"Invalid media_id error (code {api_response.errcode}): {api_response.errmsg}. "
                             error_msg += "Ensure thumb_media_id is a valid permanent image material uploaded via add_material(type=image). "
                             error_msg += "Do not use uploadimg URL as thumb_media_id."
@@ -218,9 +208,7 @@ class WeChatClient:
             except httpx.HTTPStatusError as e:
                 if attempt == retries - 1:  # Last attempt
                     status_code = e.response.status_code if e.response else "unknown"
-                    raise WeChatApiError(
-                        f"HTTP error (status {status_code}): {e}. URL: {url}"
-                    )
+                    raise WeChatApiError(f"HTTP error (status {status_code}): {e}. URL: {url}")
 
                 wait_time = min(2**attempt, 5)
                 logger.warning(f"HTTP error, retrying in {wait_time}s: {e}")
@@ -302,9 +290,7 @@ class WeChatClient:
             logger.error(f"Error creating draft: {e}")
             raise
 
-    async def update_draft(
-        self, media_id: str, article: WeChatArticle, index: int = 0
-    ) -> bool:
+    async def update_draft(self, media_id: str, article: WeChatArticle, index: int = 0) -> bool:
         """
         Update existing draft article.
 
@@ -386,9 +372,7 @@ class WeChatClient:
             logger.error(f"Error getting draft: {e}")
             raise
 
-    async def batch_get_drafts(
-        self, offset: int = 0, count: int = 20
-    ) -> Dict[str, Any]:
+    async def batch_get_drafts(self, offset: int = 0, count: int = 20) -> Dict[str, Any]:
         """
         Get list of draft articles.
 
@@ -512,9 +496,7 @@ class WeChatClient:
 
             media_id = response_data.get("media_id")
             if not media_id:
-                raise WeChatApiError(
-                    f"No media_id returned in add_material response: {response_data}"
-                )
+                raise WeChatApiError(f"No media_id returned in add_material response: {response_data}")
 
             logger.info(f"Cover image uploaded successfully, media_id: {media_id}")
             return media_id

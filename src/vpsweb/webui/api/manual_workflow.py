@@ -91,9 +91,7 @@ def get_manual_workflow_service(
         container = DIContainer()
 
         # Register dependencies
-        container.register_instance(
-            ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None)
-        )
+        container.register_instance(ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None))
         container.register_singleton(type(WorkflowServiceV2), WorkflowServiceV2)
 
         # Create services
@@ -123,9 +121,7 @@ def get_manual_workflow_service(
 async def start_manual_workflow(
     poem_id: str,
     request: ManualWorkflowStartRequest,
-    manual_workflow_service: ManualWorkflowService = Depends(
-        get_manual_workflow_service
-    ),
+    manual_workflow_service: ManualWorkflowService = Depends(get_manual_workflow_service),
 ):
     """
     Start a new manual translation workflow session.
@@ -134,9 +130,7 @@ async def start_manual_workflow(
     """
     try:
         # Start the session
-        result = await manual_workflow_service.start_session(
-            poem_id=poem_id, target_lang=request.target_lang
-        )
+        result = await manual_workflow_service.start_session(poem_id=poem_id, target_lang=request.target_lang)
 
         return WebAPIResponse(
             success=True,
@@ -158,9 +152,7 @@ async def submit_manual_workflow_step(
     poem_id: str,
     step_name: str,
     request: ManualWorkflowStepRequest,
-    manual_workflow_service: ManualWorkflowService = Depends(
-        get_manual_workflow_service
-    ),
+    manual_workflow_service: ManualWorkflowService = Depends(get_manual_workflow_service),
 ):
     """
     Submit a step response in the manual workflow.
@@ -203,9 +195,7 @@ async def submit_manual_workflow_step(
 async def get_manual_workflow_session(
     poem_id: str,
     session_id: str,
-    manual_workflow_service: ManualWorkflowService = Depends(
-        get_manual_workflow_service
-    ),
+    manual_workflow_service: ManualWorkflowService = Depends(get_manual_workflow_service),
 ):
     """
     Get the current state of a manual workflow session.
@@ -218,9 +208,7 @@ async def get_manual_workflow_session(
 
         # Validate session belongs to the specified poem
         if session.get("poem_id") != poem_id:
-            raise HTTPException(
-                status_code=400, detail="Session does not belong to this poem"
-            )
+            raise HTTPException(status_code=400, detail="Session does not belong to this poem")
 
         return WebAPIResponse(
             success=True,
@@ -237,9 +225,7 @@ async def get_manual_workflow_session(
 @router.post("/translate/manual/cleanup", response_model=WebAPIResponse)
 async def cleanup_expired_sessions(
     max_age_hours: int = 24,
-    manual_workflow_service: ManualWorkflowService = Depends(
-        get_manual_workflow_service
-    ),
+    manual_workflow_service: ManualWorkflowService = Depends(get_manual_workflow_service),
 ):
     """
     Clean up expired manual workflow sessions.

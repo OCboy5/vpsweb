@@ -80,14 +80,10 @@ class StepExecutor:
         strategy_config = self.system_config.get("translation_strategy", {})
         value = strategy_config.get(key, default)
         # Debug: Print strategy values being used
-        print(
-            f"🎛️ Strategy {key}: {value} (from {'config' if key in strategy_config else 'default'})"
-        )
+        print(f"🎛️ Strategy {key}: {value} (from {'config' if key in strategy_config else 'default'})")
         return value
 
-    async def execute_step(
-        self, step_name: str, input_data: Dict[str, Any], config: StepConfig
-    ) -> Dict[str, Any]:
+    async def execute_step(self, step_name: str, input_data: Dict[str, Any], config: StepConfig) -> Dict[str, Any]:
         """
         Execute a single workflow step with full error handling and retry logic.
 
@@ -111,43 +107,27 @@ class StepExecutor:
 
             # Step 2: Get LLM provider
             provider = await self._get_llm_provider(config)
-            logger.debug(
-                f"Using provider: {config.provider} with model: {config.model}"
-            )
+            logger.debug(f"Using provider: {config.provider} with model: {config.model}")
 
             # Step 3: Render prompt template
-            system_prompt, user_prompt = await self._render_prompt_template(
-                step_name, input_data, config
-            )
+            system_prompt, user_prompt = await self._render_prompt_template(step_name, input_data, config)
             logger.debug(f"Rendered system prompt: {len(system_prompt)} chars")
             logger.debug(f"Rendered user prompt: {len(user_prompt)} chars")
 
             # Step 4: Execute LLM call with retry logic
-            llm_response = await self._execute_llm_with_retry(
-                provider, system_prompt, user_prompt, config, step_name
-            )
-            logger.info(
-                f"LLM call successful, response length: {len(llm_response.content)} chars"
-            )
+            llm_response = await self._execute_llm_with_retry(provider, system_prompt, user_prompt, config, step_name)
+            logger.info(f"LLM call successful, response length: {len(llm_response.content)} chars")
             logger.debug(f"Tokens used: {llm_response.tokens_used}")
 
             # Step 5: Parse and validate output
-            parsed_output = await self._parse_and_validate_output(
-                step_name, llm_response.content, config
-            )
-            logger.debug(
-                f"Output parsing successful, fields: {list(parsed_output.keys())}"
-            )
+            parsed_output = await self._parse_and_validate_output(step_name, llm_response.content, config)
+            logger.debug(f"Output parsing successful, fields: {list(parsed_output.keys())}")
 
             # Step 6: Build result with metadata
             execution_time = time.time() - start_time
-            result = self._build_step_result(
-                step_name, parsed_output, llm_response, execution_time, config
-            )
+            result = self._build_step_result(step_name, parsed_output, llm_response, execution_time, config)
 
-            logger.info(
-                f"Step {step_name} completed successfully in {execution_time:.2f}s"
-            )
+            logger.info(f"Step {step_name} completed successfully in {execution_time:.2f}s")
             return result
 
         except StepExecutorError as e:
@@ -157,9 +137,7 @@ class StepExecutor:
             logger.exception(f"Unexpected error in step {step_name}: {e}")
             raise StepExecutorError(f"Unexpected error in step {step_name}: {e}")
 
-    def _validate_step_inputs(
-        self, step_name: str, input_data: Dict[str, Any], config: StepConfig
-    ) -> None:
+    def _validate_step_inputs(self, step_name: str, input_data: Dict[str, Any], config: StepConfig) -> None:
         """Validate step inputs and configuration."""
         if not step_name:
             raise ValueError("Step name cannot be empty")
@@ -180,9 +158,7 @@ class StepExecutor:
             # Get provider configuration from factory's models.yaml
             provider_config = self.llm_factory.get_provider_config(config.provider)
             if not provider_config:
-                raise LLMCallError(
-                    f"Provider '{config.provider}' not found in configuration"
-                )
+                raise LLMCallError(f"Provider '{config.provider}' not found in configuration")
 
             return self.llm_factory.get_provider(config.provider)
 
@@ -197,12 +173,8 @@ class StepExecutor:
         template_name = config.prompt_template
 
         try:
-            logger.debug(
-                f"Rendering template: {template_name} with variables: {list(input_data.keys())}"
-            )
-            system_prompt, user_prompt = self.prompt_service.render_prompt(
-                template_name, input_data
-            )
+            logger.debug(f"Rendering template: {template_name} with variables: {list(input_data.keys())}")
+            system_prompt, user_prompt = self.prompt_service.render_prompt(template_name, input_data)
 
             # DEBUG: Print the rendered prompts for verification
             print(f"\n=== {step_name.upper()} PROMPT DEBUG ===")
@@ -269,22 +241,14 @@ class StepExecutor:
 
             except Exception as e:
                 if attempt == max_retries:
-                    logger.error(
-                        f"LLM call failed after {max_retries + 1} attempts: {e}"
-                    )
-                    raise LLMCallError(
-                        f"LLM API call failed after {max_retries + 1} attempts: {e}"
-                    )
+                    logger.error(f"LLM call failed after {max_retries + 1} attempts: {e}")
+                    raise LLMCallError(f"LLM API call failed after {max_retries + 1} attempts: {e}")
 
                 delay = base_delay * (2**attempt)  # Exponential backoff
-                logger.warning(
-                    f"LLM call attempt {attempt + 1} failed: {e}. Retrying in {delay:.1f}s"
-                )
+                logger.warning(f"LLM call attempt {attempt + 1} failed: {e}. Retrying in {delay:.1f}s")
                 await asyncio.sleep(delay)
 
-    async def _parse_and_validate_output(
-        self, step_name: str, llm_content: str, config: StepConfig
-    ) -> Dict[str, Any]:
+    async def _parse_and_validate_output(self, step_name: str, llm_content: str, config: StepConfig) -> Dict[str, Any]:
         """Parse LLM output and validate required fields."""
         try:
             # Use specific parsers for workflow steps that need them
@@ -303,9 +267,7 @@ class StepExecutor:
                 parsed_data = OutputParser.parse_xml(llm_content)
 
                 if not parsed_data:
-                    logger.warning(
-                        f"No XML tags found in LLM response, treating as plain text"
-                    )
+                    logger.warning(f"No XML tags found in LLM response, treating as plain text")
                     parsed_data = {"content": llm_content.strip()}
 
             # Validate required fields if specified
@@ -320,12 +282,8 @@ class StepExecutor:
             if step_name in ["initial_translation", "translator_revision"]:
                 # Log specific translated title fields for these steps
                 if step_name == "initial_translation":
-                    logger.info(
-                        f"translated_poem_title: '{parsed_data.get('translated_poem_title', 'MISSING')}'"
-                    )
-                    logger.info(
-                        f"translated_poet_name: '{parsed_data.get('translated_poet_name', 'MISSING')}'"
-                    )
+                    logger.info(f"translated_poem_title: '{parsed_data.get('translated_poem_title', 'MISSING')}'")
+                    logger.info(f"translated_poet_name: '{parsed_data.get('translated_poet_name', 'MISSING')}'")
                 elif step_name == "translator_revision":
                     logger.info(
                         f"refined_translated_poem_title: '{parsed_data.get('refined_translated_poem_title', 'MISSING')}'"
@@ -371,16 +329,12 @@ class StepExecutor:
                 "usage": {
                     "tokens_used": llm_response.tokens_used,
                     "prompt_tokens": getattr(llm_response, "prompt_tokens", None),
-                    "completion_tokens": getattr(
-                        llm_response, "completion_tokens", None
-                    ),
+                    "completion_tokens": getattr(llm_response, "completion_tokens", None),
                 },
                 "raw_response": {
                     "content_length": len(llm_response.content),
                     "content_preview": (
-                        llm_response.content[:200] + "..."
-                        if len(llm_response.content) > 200
-                        else llm_response.content
+                        llm_response.content[:200] + "..." if len(llm_response.content) > 200 else llm_response.content
                     ),
                 },
             },
@@ -403,16 +357,8 @@ class StepExecutor:
             Execution result with initial translation
         """
         # Extract poem title and poet name from metadata
-        poem_title = (
-            translation_input.metadata.get("title", "Untitled")
-            if translation_input.metadata
-            else "Untitled"
-        )
-        poet_name = (
-            translation_input.metadata.get("author", "Unknown")
-            if translation_input.metadata
-            else "Unknown"
-        )
+        poem_title = translation_input.metadata.get("title", "Untitled") if translation_input.metadata else "Untitled"
+        poet_name = translation_input.metadata.get("author", "Unknown") if translation_input.metadata else "Unknown"
 
         input_data = {
             "original_poem": translation_input.original_poem,
@@ -421,16 +367,10 @@ class StepExecutor:
             "poem_title": poem_title,
             "poet_name": poet_name,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value(
-                "adaptation_level", "balanced"
-            ),
-            "repetition_policy": self._get_strategy_value(
-                "repetition_policy", "strict"
-            ),
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value(
-                "prosody_target", "free verse, cadence-aware"
-            ),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
             "few_shots": self._get_strategy_value("few_shots", ""),
         }
 
@@ -440,9 +380,7 @@ class StepExecutor:
             logger.debug("BBR content added to initial translation step")
         else:
             # Add empty BBR content if not available to satisfy template requirements
-            input_data["background_briefing_report"] = (
-                "No background briefing report available."
-            )
+            input_data["background_briefing_report"] = "No background briefing report available."
 
         return await self.execute_step("initial_translation", input_data, config)
 
@@ -464,16 +402,8 @@ class StepExecutor:
             Execution result with editor suggestions
         """
         # Extract poem title and poet name from metadata
-        poem_title = (
-            translation_input.metadata.get("title", "Untitled")
-            if translation_input.metadata
-            else "Untitled"
-        )
-        poet_name = (
-            translation_input.metadata.get("author", "Unknown")
-            if translation_input.metadata
-            else "Unknown"
-        )
+        poem_title = translation_input.metadata.get("title", "Untitled") if translation_input.metadata else "Untitled"
+        poet_name = translation_input.metadata.get("author", "Unknown") if translation_input.metadata else "Unknown"
 
         # Add line labels to original poem for reliable referencing
         from vpsweb.utils.text_processing import add_line_labels
@@ -491,16 +421,10 @@ class StepExecutor:
             "initial_translation": initial_translation.initial_translation,
             "initial_translation_notes": initial_translation.initial_translation_notes,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value(
-                "adaptation_level", "balanced"
-            ),
-            "repetition_policy": self._get_strategy_value(
-                "repetition_policy", "strict"
-            ),
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value(
-                "prosody_target", "free verse, cadence-aware"
-            ),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
         }
 
         return await self.execute_step("editor_review", input_data, config)
@@ -525,16 +449,8 @@ class StepExecutor:
             Execution result with revised translation
         """
         # Extract poem title and poet name from metadata
-        poem_title = (
-            translation_input.metadata.get("title", "Untitled")
-            if translation_input.metadata
-            else "Untitled"
-        )
-        poet_name = (
-            translation_input.metadata.get("author", "Unknown")
-            if translation_input.metadata
-            else "Unknown"
-        )
+        poem_title = translation_input.metadata.get("title", "Untitled") if translation_input.metadata else "Untitled"
+        poet_name = translation_input.metadata.get("author", "Unknown") if translation_input.metadata else "Unknown"
 
         input_data = {
             "original_poem": translation_input.original_poem,
@@ -548,16 +464,10 @@ class StepExecutor:
             "initial_translation_notes": initial_translation.initial_translation_notes,
             "editor_suggestions": editor_review.editor_suggestions,
             # Add strategy values from configuration
-            "adaptation_level": self._get_strategy_value(
-                "adaptation_level", "balanced"
-            ),
-            "repetition_policy": self._get_strategy_value(
-                "repetition_policy", "strict"
-            ),
+            "adaptation_level": self._get_strategy_value("adaptation_level", "balanced"),
+            "repetition_policy": self._get_strategy_value("repetition_policy", "strict"),
             "additions_policy": self._get_strategy_value("additions_policy", "forbid"),
-            "prosody_target": self._get_strategy_value(
-                "prosody_target", "free verse, cadence-aware"
-            ),
+            "prosody_target": self._get_strategy_value("prosody_target", "free verse, cadence-aware"),
         }
 
         return await self.execute_step("translator_revision", input_data, config)

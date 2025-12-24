@@ -223,9 +223,7 @@ def sample_poem(db_session, sample_poem_data, mock_ulid_generator):
 
 
 @pytest.fixture
-def sample_translation(
-    db_session, sample_poem, sample_translation_data, mock_ulid_generator
-):
+def sample_translation(db_session, sample_poem, sample_translation_data, mock_ulid_generator):
     """Create a sample translation in the database."""
     from src.vpsweb.repository.models import Translation
 
@@ -244,12 +242,8 @@ def sample_translation(
 # Custom pytest markers
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests (fast, no external dependencies)"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Integration tests (require database)"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests (fast, no external dependencies)")
+    config.addinivalue_line("markers", "integration: Integration tests (require database)")
     config.addinivalue_line("markers", "slow: Slow tests (marked for CI)")
     config.addinivalue_line("markers", "repository: Repository layer tests")
     config.addinivalue_line("markers", "api: API endpoint tests")

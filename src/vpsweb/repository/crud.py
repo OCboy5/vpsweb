@@ -265,17 +265,11 @@ class CRUDPoem:
 
     def get_by_poet(self, poet_name: str) -> List[Poem]:
         """Get all poems by a specific poet"""
-        stmt = (
-            select(Poem)
-            .where(Poem.poet_name == poet_name)
-            .order_by(Poem.created_at.desc())
-        )
+        stmt = select(Poem).where(Poem.poet_name == poet_name).order_by(Poem.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def get_recent_activity(
-        self, limit: int = 6, days: int = 30
-    ) -> List[Dict[str, Any]]:
+    def get_recent_activity(self, limit: int = 6, days: int = 30) -> List[Dict[str, Any]]:
         """
         Get poems with recent activity (new poems, translations, or BBRs)
 
@@ -343,9 +337,7 @@ class CRUDPoem:
         """
         )
 
-        result = self.db.execute(
-            query, {"cutoff_date": cutoff_date, "limit": limit}
-        ).fetchall()
+        result = self.db.execute(query, {"cutoff_date": cutoff_date, "limit": limit}).fetchall()
 
         # Convert to poem objects and add activity metadata
         poems_with_activity = []
@@ -354,9 +346,7 @@ class CRUDPoem:
             last_activity = row.last_activity
             if isinstance(last_activity, str):
                 try:
-                    last_activity = datetime.fromisoformat(
-                        last_activity.replace(" ", "T")
-                    )
+                    last_activity = datetime.fromisoformat(last_activity.replace(" ", "T"))
                     if last_activity.tzinfo is None:
                         last_activity = last_activity.replace(tzinfo=timezone.utc)
                 except (ValueError, AttributeError):
@@ -370,9 +360,7 @@ class CRUDPoem:
                     {
                         "poem": poem,
                         "last_activity": last_activity,
-                        "activity_type": self._determine_activity_type(
-                            row.id, last_activity, cutoff_date
-                        ),
+                        "activity_type": self._determine_activity_type(row.id, last_activity, cutoff_date),
                     }
                 )
 
@@ -408,9 +396,7 @@ class CRUDPoem:
             WHERE poem_id = :poem_id AND created_at > :cutoff_date
         """
         )
-        bbr_result = self.db.execute(
-            bbr_query, {"poem_id": poem_id, "cutoff_date": cutoff_date}
-        ).fetchone()
+        bbr_result = self.db.execute(bbr_query, {"poem_id": poem_id, "cutoff_date": cutoff_date}).fetchone()
 
         # Convert timestamps to datetime objects
         def parse_timestamp(ts):
@@ -425,12 +411,8 @@ class CRUDPoem:
                     return None
             return ts
 
-        poem_created_time = (
-            parse_timestamp(poem_result.created_at) if poem_result else None
-        )
-        poem_updated_time = (
-            parse_timestamp(poem_result.updated_at) if poem_result else None
-        )
+        poem_created_time = parse_timestamp(poem_result.created_at) if poem_result else None
+        poem_updated_time = parse_timestamp(poem_result.updated_at) if poem_result else None
         translation_time = parse_timestamp(translation_result.latest)
         bbr_time = parse_timestamp(bbr_result.latest)
 
@@ -438,10 +420,7 @@ class CRUDPoem:
         # Compare last_activity with individual activity timestamps to identify the type
 
         # Check for poem updates (selection changes, etc.)
-        if (
-            poem_updated_time
-            and abs((last_activity - poem_updated_time).total_seconds()) < 1
-        ):
+        if poem_updated_time and abs((last_activity - poem_updated_time).total_seconds()) < 1:
             # Check if this is a new poem creation (created_at and updated_at are very close)
             if poem_created_time:
                 time_diff = abs((poem_updated_time - poem_created_time).total_seconds())
@@ -453,10 +432,7 @@ class CRUDPoem:
                     return "unknown"
 
         # Check for new translations
-        if (
-            translation_time
-            and abs((last_activity - translation_time).total_seconds()) < 1
-        ):
+        if translation_time and abs((last_activity - translation_time).total_seconds()) < 1:
             return "new_translation"
 
         # Check for new BBRs
@@ -527,11 +503,7 @@ class CRUDTranslation:
 
     def get_by_poem(self, poem_id: str) -> List[Translation]:
         """Get all translations for a poem"""
-        stmt = (
-            select(Translation)
-            .where(Translation.poem_id == poem_id)
-            .order_by(Translation.created_at.desc())
-        )
+        stmt = select(Translation).where(Translation.poem_id == poem_id).order_by(Translation.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
@@ -557,9 +529,7 @@ class CRUDTranslation:
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def update(
-        self, translation_id: str, translation_data: TranslationUpdate
-    ) -> Optional[Translation]:
+    def update(self, translation_id: str, translation_data: TranslationUpdate) -> Optional[Translation]:
         """Update existing translation"""
         stmt = (
             update(Translation)
@@ -594,9 +564,7 @@ class CRUDTranslation:
         result = self.db.execute(stmt).scalar()
         return result
 
-    def get_by_language_pair(
-        self, source_lang: str, target_lang: str
-    ) -> List[Translation]:
+    def get_by_language_pair(self, source_lang: str, target_lang: str) -> List[Translation]:
         """Get translations by language pair"""
         stmt = (
             select(Translation)
@@ -663,31 +631,19 @@ class CRUDAILog:
 
     def get_by_translation(self, translation_id: str) -> List[AILog]:
         """Get all AI logs for a translation"""
-        stmt = (
-            select(AILog)
-            .where(AILog.translation_id == translation_id)
-            .order_by(AILog.created_at.desc())
-        )
+        stmt = select(AILog).where(AILog.translation_id == translation_id).order_by(AILog.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
     def get_by_model(self, model_name: str) -> List[AILog]:
         """Get AI logs by model name"""
-        stmt = (
-            select(AILog)
-            .where(AILog.model_name == model_name)
-            .order_by(AILog.created_at.desc())
-        )
+        stmt = select(AILog).where(AILog.model_name == model_name).order_by(AILog.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
     def get_by_workflow_mode(self, workflow_mode: WorkflowMode) -> List[AILog]:
         """Get AI logs by workflow mode"""
-        stmt = (
-            select(AILog)
-            .where(AILog.workflow_mode == workflow_mode)
-            .order_by(AILog.created_at.desc())
-        )
+        stmt = select(AILog).where(AILog.workflow_mode == workflow_mode).order_by(AILog.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
@@ -737,11 +693,7 @@ class CRUDHumanNote:
 
     def get_by_translation(self, translation_id: str) -> List[HumanNote]:
         """Get all human notes for a translation"""
-        stmt = (
-            select(HumanNote)
-            .where(HumanNote.translation_id == translation_id)
-            .order_by(HumanNote.created_at.desc())
-        )
+        stmt = select(HumanNote).where(HumanNote.translation_id == translation_id).order_by(HumanNote.created_at.desc())
         result = self.db.execute(stmt).scalars().all()
         return result
 
@@ -767,9 +719,7 @@ class CRUDTranslationWorkflowStep:
             # Ignore rollback errors - they occur when no transaction is active
             pass
 
-    def create(
-        self, step_data: TranslationWorkflowStepCreate
-    ) -> TranslationWorkflowStep:
+    def create(self, step_data: TranslationWorkflowStepCreate) -> TranslationWorkflowStep:
         """
         Create a new translation workflow step
 
@@ -820,9 +770,7 @@ class CRUDTranslationWorkflowStep:
 
     def get_by_id(self, step_id: str) -> Optional[TranslationWorkflowStep]:
         """Get workflow step by ID"""
-        stmt = select(TranslationWorkflowStep).where(
-            TranslationWorkflowStep.id == step_id
-        )
+        stmt = select(TranslationWorkflowStep).where(TranslationWorkflowStep.id == step_id)
         result = self.db.execute(stmt).scalar_one_or_none()
         return result
 
@@ -865,9 +813,7 @@ class CRUDTranslationWorkflowStep:
         result = self.db.execute(stmt).scalars().all()
         return result
 
-    def get_by_step_type(
-        self, translation_id: str, step_type: WorkflowStepType
-    ) -> Optional[TranslationWorkflowStep]:
+    def get_by_step_type(self, translation_id: str, step_type: WorkflowStepType) -> Optional[TranslationWorkflowStep]:
         """Get a specific step type for a translation"""
         stmt = (
             select(TranslationWorkflowStep)
@@ -900,9 +846,7 @@ class CRUDTranslationWorkflowStep:
             "step_count": result.step_count or 0,
         }
 
-    def update(
-        self, step_id: str, update_data: Dict[str, Any]
-    ) -> Optional[TranslationWorkflowStep]:
+    def update(self, step_id: str, update_data: Dict[str, Any]) -> Optional[TranslationWorkflowStep]:
         """Update workflow step by ID"""
         stmt = (
             update(TranslationWorkflowStep)
@@ -920,18 +864,14 @@ class CRUDTranslationWorkflowStep:
 
     def delete(self, step_id: str) -> bool:
         """Delete workflow step by ID"""
-        stmt = delete(TranslationWorkflowStep).where(
-            TranslationWorkflowStep.id == step_id
-        )
+        stmt = delete(TranslationWorkflowStep).where(TranslationWorkflowStep.id == step_id)
         result = self.db.execute(stmt)
         self.db.commit()
         return result.rowcount > 0
 
     def delete_by_workflow(self, workflow_id: str) -> int:
         """Delete all workflow steps for a workflow execution"""
-        stmt = delete(TranslationWorkflowStep).where(
-            TranslationWorkflowStep.workflow_id == workflow_id
-        )
+        stmt = delete(TranslationWorkflowStep).where(TranslationWorkflowStep.workflow_id == workflow_id)
         result = self.db.execute(stmt)
         self.db.commit()
         return result.rowcount
@@ -1011,9 +951,7 @@ class CRUDBackgroundBriefingReport:
         Returns:
             BBR object if found, None otherwise
         """
-        stmt = select(BackgroundBriefingReport).where(
-            BackgroundBriefingReport.id == bbr_id
-        )
+        stmt = select(BackgroundBriefingReport).where(BackgroundBriefingReport.id == bbr_id)
         return self.db.execute(stmt).scalar_one_or_none()
 
     def get_by_poem(self, poem_id: str) -> Optional[BackgroundBriefingReport]:
@@ -1026,14 +964,10 @@ class CRUDBackgroundBriefingReport:
         Returns:
             BBR object if found, None otherwise
         """
-        stmt = select(BackgroundBriefingReport).where(
-            BackgroundBriefingReport.poem_id == poem_id
-        )
+        stmt = select(BackgroundBriefingReport).where(BackgroundBriefingReport.poem_id == poem_id)
         return self.db.execute(stmt).scalar_one_or_none()
 
-    def update(
-        self, bbr_id: str, update_data: dict
-    ) -> Optional[BackgroundBriefingReport]:
+    def update(self, bbr_id: str, update_data: dict) -> Optional[BackgroundBriefingReport]:
         """
         Update BBR by ID
 
@@ -1068,9 +1002,7 @@ class CRUDBackgroundBriefingReport:
         Returns:
             True if deleted, False if not found
         """
-        stmt = delete(BackgroundBriefingReport).where(
-            BackgroundBriefingReport.id == bbr_id
-        )
+        stmt = delete(BackgroundBriefingReport).where(BackgroundBriefingReport.id == bbr_id)
         result = self.db.execute(stmt)
         self.db.commit()
         return result.rowcount > 0
@@ -1085,9 +1017,7 @@ class CRUDBackgroundBriefingReport:
         Returns:
             True if deleted, False if not found
         """
-        stmt = delete(BackgroundBriefingReport).where(
-            BackgroundBriefingReport.poem_id == poem_id
-        )
+        stmt = delete(BackgroundBriefingReport).where(BackgroundBriefingReport.poem_id == poem_id)
         result = self.db.execute(stmt)
         self.db.commit()
         return result.rowcount > 0
@@ -1116,27 +1046,17 @@ class RepositoryService:
     def get_repository_stats(self) -> Dict[str, Any]:
         """Get comprehensive repository statistics"""
         return {
-            "total_poets": self.db.execute(
-                select(func.count(func.distinct(Poem.poet_name)))
-            ).scalar(),
+            "total_poets": self.db.execute(select(func.count(func.distinct(Poem.poet_name)))).scalar(),
             "total_poems": self.poems.count(),
             "total_translations": self.translations.count(),
             "ai_translations": self.db.execute(
-                select(func.count(Translation.id)).where(
-                    Translation.translator_type == TranslatorType.AI
-                )
+                select(func.count(Translation.id)).where(Translation.translator_type == TranslatorType.AI)
             ).scalar(),
             "human_translations": self.db.execute(
-                select(func.count(Translation.id)).where(
-                    Translation.translator_type == TranslatorType.HUMAN
-                )
+                select(func.count(Translation.id)).where(Translation.translator_type == TranslatorType.HUMAN)
             ).scalar(),
-            "languages": list(
-                self.db.execute(select(Poem.source_language).distinct()).scalars()
-            ),
-            "latest_translation": self.db.execute(
-                select(func.max(Translation.created_at))
-            ).scalar(),
+            "languages": list(self.db.execute(select(Poem.source_language).distinct()).scalars()),
+            "latest_translation": self.db.execute(select(func.max(Translation.created_at))).scalar(),
         }
 
     def search_poems(self, query: str, limit: int = 50) -> List[Poem]:

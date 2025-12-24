@@ -21,9 +21,7 @@ class ICLIInputServiceV2(ABC):
         """Read poem text from file or stdin."""
 
     @abstractmethod
-    def validate_translation_input(
-        self, source_lang: str, target_lang: str, poem_text: str
-    ) -> Dict[str, Any]:
+    def validate_translation_input(self, source_lang: str, target_lang: str, poem_text: str) -> Dict[str, Any]:
         """Validate translation input parameters."""
 
     @abstractmethod
@@ -41,15 +39,11 @@ class ICLIConfigurationServiceV2(ABC):
     """Interface for CLI configuration management."""
 
     @abstractmethod
-    async def load_configuration(
-        self, config_path: Optional[str] = None, verbose: bool = False
-    ) -> Dict[str, Any]:
+    async def load_configuration(self, config_path: Optional[str] = None, verbose: bool = False) -> Dict[str, Any]:
         """Load and validate configuration."""
 
     @abstractmethod
-    async def validate_configuration(
-        self, config_path: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def validate_configuration(self, config_path: Optional[str] = None) -> Dict[str, Any]:
         """Validate configuration files."""
 
     @abstractmethod
@@ -65,9 +59,7 @@ class ICLIWorkflowServiceV2(ABC):
     """Interface for CLI workflow execution."""
 
     @abstractmethod
-    async def initialize_workflow(
-        self, config: Dict[str, Any], workflow_mode: WorkflowMode
-    ) -> Any:
+    async def initialize_workflow(self, config: Dict[str, Any], workflow_mode: WorkflowMode) -> Any:
         """Initialize translation workflow."""
 
     @abstractmethod
@@ -116,9 +108,7 @@ class ICLIOutputServiceV2(ABC):
         """Display translation workflow summary."""
 
     @abstractmethod
-    def format_workflow_progress(
-        self, step_name: str, progress_data: Dict[str, Any]
-    ) -> str:
+    def format_workflow_progress(self, step_name: str, progress_data: Dict[str, Any]) -> str:
         """Format workflow progress information."""
 
     @abstractmethod
@@ -209,9 +199,7 @@ class ICLIErrorHandlerV2(ABC):
     """Interface for CLI error handling."""
 
     @abstractmethod
-    def handle_cli_error(
-        self, error: Exception, command_context: str, verbose: bool = False
-    ) -> int:
+    def handle_cli_error(self, error: Exception, command_context: str, verbose: bool = False) -> int:
         """Handle CLI errors and return exit code."""
 
     @abstractmethod
@@ -227,25 +215,17 @@ class ICLILoggerServiceV2(ABC):
     """Interface for CLI logging operations."""
 
     @abstractmethod
-    async def setup_command_logging(
-        self, command_name: str, verbose: bool = False
-    ) -> None:
+    async def setup_command_logging(self, command_name: str, verbose: bool = False) -> None:
         """Setup logging for specific command."""
 
     @abstractmethod
-    async def log_command_start(
-        self, command_name: str, parameters: Dict[str, Any]
-    ) -> None:
+    async def log_command_start(self, command_name: str, parameters: Dict[str, Any]) -> None:
         """Log command start with parameters."""
 
     @abstractmethod
-    async def log_command_success(
-        self, command_name: str, result: Dict[str, Any]
-    ) -> None:
+    async def log_command_success(self, command_name: str, result: Dict[str, Any]) -> None:
         """Log successful command completion."""
 
     @abstractmethod
-    async def log_command_error(
-        self, command_name: str, error: Exception, context: Dict[str, Any]
-    ) -> None:
+    async def log_command_error(self, command_name: str, error: Exception, context: Dict[str, Any]) -> None:
         """Log command error with context."""

@@ -87,9 +87,7 @@ def test_translation_validation():
             target_language="en",
             translated_text="Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain.",
         )
-        print(
-            f"✓ Valid translation created: {translation.translator_type} - {translation.target_language}"
-        )
+        print(f"✓ Valid translation created: {translation.translator_type} - {translation.target_language}")
     except ValidationError as e:
         print(f"✗ Unexpected validation error: {e}")
 
@@ -167,9 +165,7 @@ def test_human_note_validation():
 
     # Invalid note text (too short)
     try:
-        note = HumanNoteCreate(
-            translation_id="test_translation_id", note_text="Hi"  # Too short
-        )
+        note = HumanNoteCreate(translation_id="test_translation_id", note_text="Hi")  # Too short
         print("✗ Should have failed with short note text")
     except ValidationError as e:
         print(f"✓ Correctly caught short note text: {e.errors()[0]['msg']}")

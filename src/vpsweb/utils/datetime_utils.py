@@ -359,9 +359,7 @@ class TimeCalculator:
         return dt.weekday() >= 5  # Saturday=5, Sunday=6
 
     @staticmethod
-    def is_business_hours(
-        dt: datetime, start_hour: int = 9, end_hour: int = 17
-    ) -> bool:
+    def is_business_hours(dt: datetime, start_hour: int = 9, end_hour: int = 17) -> bool:
         """
         Check if datetime falls within business hours.
 
@@ -398,9 +396,7 @@ class TimeCalculator:
         return result
 
     @staticmethod
-    def get_age(
-        birth_date: Union[date, datetime], reference: Optional[datetime] = None
-    ) -> Dict[str, int]:
+    def get_age(birth_date: Union[date, datetime], reference: Optional[datetime] = None) -> Dict[str, int]:
         """
         Calculate age from birth date.
 
@@ -691,9 +687,7 @@ def format_poetry_date(dt: datetime, style: str = "modern") -> str:
     return PoetryDateTimeUtils.format_creation_date(dt, style)
 
 
-def get_age(
-    birth_date: Union[date, datetime], reference: Optional[datetime] = None
-) -> Dict[str, int]:
+def get_age(birth_date: Union[date, datetime], reference: Optional[datetime] = None) -> Dict[str, int]:
     """Calculate age from birth date."""
     return TimeCalculator.get_age(birth_date, reference)
 

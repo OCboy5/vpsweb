@@ -37,12 +37,8 @@ class TranslationInput(BaseModel):
         max_length=50000,  # Increased to handle long poems while staying within 32k token context
         description="Original poem text for translation",
     )
-    source_lang: Language = Field(
-        ..., description="Source language (English, Chinese, or Polish)"
-    )
-    target_lang: Language = Field(
-        ..., description="Target language (English or Chinese only)"
-    )
+    source_lang: Language = Field(..., description="Source language (English, Chinese, or Polish)")
+    target_lang: Language = Field(..., description="Target language (English or Chinese only)")
     metadata: Optional[Dict[str, Any]] = Field(
         None,
         description="Additional metadata about the poem (author, title, etc.)",
@@ -94,9 +90,7 @@ class BackgroundBriefingReport(BaseModel):
         None,
         description="Model provider and version information used to generate BBR",
     )
-    tokens_used: Optional[int] = Field(
-        None, ge=0, description="Number of tokens used to generate this BBR"
-    )
+    tokens_used: Optional[int] = Field(None, ge=0, description="Number of tokens used to generate this BBR")
     prompt_tokens: Optional[int] = Field(
         None,
         ge=0,
@@ -107,15 +101,9 @@ class BackgroundBriefingReport(BaseModel):
         ge=0,
         description="Number of output tokens used for BBR generation",
     )
-    duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken to generate BBR in seconds"
-    )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for BBR generation"
-    )
-    poem_id: Optional[str] = Field(
-        None, description="ID of the poem this BBR belongs to"
-    )
+    duration: Optional[float] = Field(None, ge=0.0, description="Time taken to generate BBR in seconds")
+    cost: Optional[float] = Field(None, ge=0.0, description="Cost in RMB for BBR generation")
+    poem_id: Optional[str] = Field(None, description="ID of the poem this BBR belongs to")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with ISO format timestamp."""
@@ -139,22 +127,14 @@ class InitialTranslation(BaseModel):
         ...,
         description="Translator's explanation of translation choices (200-300 words)",
     )
-    translated_poem_title: str = Field(
-        ..., description="The translated poem title in target language"
-    )
-    translated_poet_name: str = Field(
-        ..., description="The translated poet name in target language"
-    )
+    translated_poem_title: str = Field(..., description="The translated poem title in target language")
+    translated_poet_name: str = Field(..., description="The translated poet name in target language")
     timestamp: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp when translation was created",
     )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this translation"
-    )
+    model_info: Dict[str, str] = Field(..., description="Model provider and version information")
+    tokens_used: int = Field(..., ge=0, description="Number of tokens used for this translation")
     prompt_tokens: Optional[int] = Field(
         None,
         ge=0,
@@ -170,9 +150,7 @@ class InitialTranslation(BaseModel):
         ge=0.0,
         description="Time taken for initial translation in seconds",
     )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this translation step"
-    )
+    cost: Optional[float] = Field(None, ge=0.0, description="Cost in RMB for this translation step")
 
     @field_validator("initial_translation_notes")
     @classmethod
@@ -206,24 +184,12 @@ class EditorReview(BaseModel):
         default_factory=datetime.now,
         description="Timestamp when review was created",
     )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this review"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this review"
-    )
-    completion_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of output tokens used for this review"
-    )
-    duration: Optional[float] = Field(
-        None, ge=0.0, description="Time taken for editor review in seconds"
-    )
-    cost: Optional[float] = Field(
-        None, ge=0.0, description="Cost in RMB for this editor review step"
-    )
+    model_info: Dict[str, str] = Field(..., description="Model provider and version information")
+    tokens_used: int = Field(..., ge=0, description="Number of tokens used for this review")
+    prompt_tokens: Optional[int] = Field(None, ge=0, description="Number of input tokens used for this review")
+    completion_tokens: Optional[int] = Field(None, ge=0, description="Number of output tokens used for this review")
+    duration: Optional[float] = Field(None, ge=0.0, description="Time taken for editor review in seconds")
+    cost: Optional[float] = Field(None, ge=0.0, description="Cost in RMB for this editor review step")
 
     def get_suggestions_list(self) -> List[str]:
         """Extract numbered suggestions from the editor's text."""
@@ -271,25 +237,15 @@ class RevisedTranslation(BaseModel):
         ...,
         description="Explanation of key changes and decisions (200-300 words)",
     )
-    refined_translated_poem_title: str = Field(
-        ..., description="The refined translated poem title in target language"
-    )
-    refined_translated_poet_name: str = Field(
-        ..., description="The refined translated poet name in target language"
-    )
+    refined_translated_poem_title: str = Field(..., description="The refined translated poem title in target language")
+    refined_translated_poet_name: str = Field(..., description="The refined translated poet name in target language")
     timestamp: datetime = Field(
         default_factory=datetime.now,
         description="Timestamp when revision was created",
     )
-    model_info: Dict[str, str] = Field(
-        ..., description="Model provider and version information"
-    )
-    tokens_used: int = Field(
-        ..., ge=0, description="Number of tokens used for this revision"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, description="Number of input tokens used for this revision"
-    )
+    model_info: Dict[str, str] = Field(..., description="Model provider and version information")
+    tokens_used: int = Field(..., ge=0, description="Number of tokens used for this revision")
+    prompt_tokens: Optional[int] = Field(None, ge=0, description="Number of input tokens used for this revision")
     completion_tokens: Optional[int] = Field(
         None,
         ge=0,
@@ -331,32 +287,18 @@ class RevisedTranslation(BaseModel):
 class TranslationOutput(BaseModel):
     """Complete workflow output matching the vpts.yml congregation format."""
 
-    workflow_id: str = Field(
-        ..., description="Unique identifier for this translation workflow"
-    )
+    workflow_id: str = Field(..., description="Unique identifier for this translation workflow")
     input: TranslationInput = Field(..., description="Original input to the workflow")
-    initial_translation: InitialTranslation = Field(
-        ..., description="Initial translation with notes"
-    )
-    editor_review: EditorReview = Field(
-        ..., description="Editor's detailed suggestions and feedback"
-    )
-    revised_translation: RevisedTranslation = Field(
-        ..., description="Final revised translation with notes"
-    )
-    total_tokens: int = Field(
-        ..., ge=0, description="Total tokens used across all workflow steps"
-    )
-    duration_seconds: float = Field(
-        ..., ge=0.0, description="Total workflow execution time in seconds"
-    )
+    initial_translation: InitialTranslation = Field(..., description="Initial translation with notes")
+    editor_review: EditorReview = Field(..., description="Editor's detailed suggestions and feedback")
+    revised_translation: RevisedTranslation = Field(..., description="Final revised translation with notes")
+    total_tokens: int = Field(..., ge=0, description="Total tokens used across all workflow steps")
+    duration_seconds: float = Field(..., ge=0.0, description="Total workflow execution time in seconds")
     workflow_mode: Optional[str] = Field(
         None,
         description="Workflow mode used for this translation (reasoning, non_reasoning, hybrid)",
     )
-    total_cost: Optional[float] = Field(
-        None, ge=0.0, description="Total cost in RMB for the entire workflow"
-    )
+    total_cost: Optional[float] = Field(None, ge=0.0, description="Total cost in RMB for the entire workflow")
     background_briefing_report: Optional[BackgroundBriefingReport] = Field(
         None, description="Background Briefing Report with contextual analysis"
     )
@@ -371,9 +313,7 @@ class TranslationOutput(BaseModel):
 
         # Add BBR if available (after input section, before workflow steps)
         if self.background_briefing_report:
-            result["background_briefing_report"] = (
-                self.background_briefing_report.to_dict()
-            )
+            result["background_briefing_report"] = self.background_briefing_report.to_dict()
 
         # Add workflow step sections
         result.update(
@@ -400,13 +340,9 @@ class TranslationOutput(BaseModel):
             workflow_id=data["workflow_id"],
             workflow_mode=data.get("workflow_mode"),
             input=TranslationInput.from_dict(data["input"]),
-            initial_translation=InitialTranslation.from_dict(
-                data["initial_translation"]
-            ),
+            initial_translation=InitialTranslation.from_dict(data["initial_translation"]),
             editor_review=EditorReview.from_dict(data["editor_review"]),
-            revised_translation=RevisedTranslation.from_dict(
-                data["revised_translation"]
-            ),
+            revised_translation=RevisedTranslation.from_dict(data["revised_translation"]),
             background_briefing_report=bbr,
             total_tokens=data["total_tokens"],
             duration_seconds=data["duration_seconds"],

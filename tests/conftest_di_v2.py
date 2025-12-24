@@ -400,9 +400,7 @@ class PerformanceMonitor:
 
         if name in self.metrics and self.start_time:
             end_time = time.time()
-            self.metrics[name].update(
-                {"end_time": end_time, "duration": end_time - self.start_time}
-            )
+            self.metrics[name].update({"end_time": end_time, "duration": end_time - self.start_time})
             del self.start_time
 
     def get_duration(self, name: str) -> float:
@@ -481,9 +479,7 @@ class AsyncTestHelpers:
     """Async testing utilities implementation."""
 
     @staticmethod
-    async def wait_for_condition(
-        condition_check: callable, timeout: float = 5.0, interval: float = 0.1
-    ) -> bool:
+    async def wait_for_condition(condition_check: callable, timeout: float = 5.0, interval: float = 0.1) -> bool:
         """Wait for a condition to become true."""
         import time
 

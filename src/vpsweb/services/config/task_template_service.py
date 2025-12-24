@@ -59,9 +59,7 @@ class TaskTemplateService:
         self._task_templates_config = task_templates_config
         self._task_templates = task_templates_config.get("task_templates", {})
 
-        logger.info(
-            f"TaskTemplateService initialized with {len(self._task_templates)} task templates"
-        )
+        logger.info(f"TaskTemplateService initialized with {len(self._task_templates)} task templates")
 
     def get_task_template(self, task_name: str) -> TaskTemplate:
         """
@@ -91,9 +89,7 @@ class TaskTemplateService:
             stop=task_data.get("stop"),
         )
 
-    def resolve_task_config(
-        self, task_name: str, model_registry_service
-    ) -> ResolvedTaskConfig:
+    def resolve_task_config(self, task_name: str, model_registry_service) -> ResolvedTaskConfig:
         """
         Resolve task template with actual model information.
 
@@ -110,9 +106,7 @@ class TaskTemplateService:
         task_template = self.get_task_template(task_name)
 
         # Resolve model reference to actual provider/model
-        provider, model_name = model_registry_service.resolve_model_reference(
-            task_template.model_ref
-        )
+        provider, model_name = model_registry_service.resolve_model_reference(task_template.model_ref)
 
         return ResolvedTaskConfig(
             task_name=task_name,
@@ -140,9 +134,7 @@ class TaskTemplateService:
             ValueError: If model_type is invalid
         """
         if model_type not in ["reasoning", "non_reasoning"]:
-            raise ValueError(
-                f"Invalid model_type '{model_type}'. Must be 'reasoning' or 'non_reasoning'"
-            )
+            raise ValueError(f"Invalid model_type '{model_type}'. Must be 'reasoning' or 'non_reasoning'")
 
         # Try multiple variations to handle potential naming inconsistencies
         possible_names = [
@@ -155,18 +147,13 @@ class TaskTemplateService:
         for task_name in possible_names:
             # Use explicit key matching to avoid encoding issues
             for existing_key in self._task_templates.keys():
-                if (
-                    existing_key.replace(" ", "").lower()
-                    == task_name.replace(" ", "").lower()
-                ):
+                if existing_key.replace(" ", "").lower() == task_name.replace(" ", "").lower():
                     return existing_key
 
         # List available WeChat tasks for debugging
         wechat_tasks = [k for k in self._task_templates.keys() if "wechat" in k.lower()]
         available_tasks = ", ".join(wechat_tasks)
-        raise ValueError(
-            f"WeChat task template for '{model_type}' not found. Available: {available_tasks}"
-        )
+        raise ValueError(f"WeChat task template for '{model_type}' not found. Available: {available_tasks}")
 
     def list_wechat_tasks(self) -> List[str]:
         """

@@ -159,9 +159,7 @@ def main():
         print("   - Basic structure is sound")
         print("   - Ready for integration with proper configuration")
     else:
-        print(
-            f"\n⚠️  {total - passed} tests failed, but this may be expected without proper config."
-        )
+        print(f"\n⚠️  {total - passed} tests failed, but this may be expected without proper config.")
 
     return passed == total
 

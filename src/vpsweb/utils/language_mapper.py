@@ -483,9 +483,7 @@ class LanguageMapper:
             BCP-47 language code or None if not found
         """
         normalized_name = name.strip().lower()
-        return self._name_to_code.get(normalized_name) or self._native_name_to_code.get(
-            normalized_name
-        )
+        return self._name_to_code.get(normalized_name) or self._native_name_to_code.get(normalized_name)
 
     def normalize_code(self, code: str) -> str:
         """
@@ -551,9 +549,7 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for common translation languages
         """
-        return [
-            info for info in self._code_to_info.values() if info.common_in_translation
-        ]
+        return [info for info in self._code_to_info.values() if info.common_in_translation]
 
     def get_rtl_languages(self) -> List[LanguageInfo]:
         """
@@ -562,11 +558,7 @@ class LanguageMapper:
         Returns:
             List of LanguageInfo objects for RTL languages
         """
-        return [
-            info
-            for info in self._code_to_info.values()
-            if info.direction == LanguageDirection.RTL
-        ]
+        return [info for info in self._code_to_info.values() if info.direction == LanguageDirection.RTL]
 
     def get_languages_by_script(self, script: ScriptType) -> List[LanguageInfo]:
         """
@@ -594,11 +586,7 @@ class LanguageMapper:
         results = []
 
         for code, info in self._code_to_info.items():
-            if (
-                query in code.lower()
-                or query in info.name.lower()
-                or query in info.native_name.lower()
-            ):
+            if query in code.lower() or query in info.name.lower() or query in info.native_name.lower():
                 results.append(info)
 
         return results

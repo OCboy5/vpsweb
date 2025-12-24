@@ -159,9 +159,7 @@ class SystemService:
                 "adaptation_level": getattr(strategy, "adaptation_level", "balanced"),
                 "repetition_policy": getattr(strategy, "repetition_policy", "strict"),
                 "additions_policy": getattr(strategy, "additions_policy", "forbid"),
-                "prosody_target": getattr(
-                    strategy, "prosody_target", "free verse, cadence-aware"
-                ),
+                "prosody_target": getattr(strategy, "prosody_target", "free verse, cadence-aware"),
                 "few_shots": getattr(strategy, "few_shots", ""),
             }
         return {}
@@ -177,9 +175,7 @@ class SystemService:
         Returns:
             Dictionary with preview length settings
         """
-        if hasattr(main_config, "system") and hasattr(
-            main_config.system, "preview_lengths"
-        ):
+        if hasattr(main_config, "system") and hasattr(main_config.system, "preview_lengths"):
             return main_config.system.preview_lengths
         return {
             "input_preview": 100,
@@ -205,12 +201,8 @@ class SystemService:
                     "default_digest",
                     "诗歌翻译作品，展现中英文学之美，传递文化精髓。",
                 ),
-                "token_refresh_buffer": getattr(
-                    system_config, "token_refresh_buffer", 300
-                ),
-                "default_token_expiry": getattr(
-                    system_config, "default_token_expiry", 7200
-                ),
+                "token_refresh_buffer": getattr(system_config, "token_refresh_buffer", 300),
+                "default_token_expiry": getattr(system_config, "default_token_expiry", 7200),
             }
         return {}
 

@@ -68,9 +68,7 @@ class TokenManager:
 
         expires_at = cache_data.get("expires_at", 0)
         # Add buffer from config to ensure we refresh before expiration
-        token_refresh_buffer = self.system_config.get("system", {}).get(
-            "token_refresh_buffer", 300
-        )
+        token_refresh_buffer = self.system_config.get("system", {}).get("token_refresh_buffer", 300)
         current_time = time.time()
         return expires_at > (current_time + token_refresh_buffer)
 
@@ -171,18 +169,14 @@ class TokenManager:
                 if "access_token" not in data:
                     error_code = data.get("errcode", "unknown")
                     error_msg = data.get("errmsg", "Unknown error")
-                    raise TokenManagerError(
-                        f"Failed to obtain access token: {error_code} - {error_msg}"
-                    )
+                    raise TokenManagerError(f"Failed to obtain access token: {error_code} - {error_msg}")
 
                 logger.info("Successfully obtained new access token")
                 return data
 
         except httpx.HTTPStatusError as e:
             status_code = e.response.status_code if e.response else "unknown"
-            raise TokenManagerError(
-                f"HTTP error requesting token (status {status_code}): {e}"
-            )
+            raise TokenManagerError(f"HTTP error requesting token (status {status_code}): {e}")
         except httpx.ConnectError as e:
             raise TokenManagerError(
                 f"Cannot connect to WeChat API server: {e}. Please check your internet connection and API endpoint configuration."
@@ -214,9 +208,7 @@ class TokenManager:
 
             access_token = token_data["access_token"]
             # Get default token expiry from system config
-            default_token_expiry = self.system_config.get("system", {}).get(
-                "default_token_expiry", 7200
-            )
+            default_token_expiry = self.system_config.get("system", {}).get("default_token_expiry", 7200)
             expires_in = token_data.get("expires_in", default_token_expiry)
 
             # Save to cache

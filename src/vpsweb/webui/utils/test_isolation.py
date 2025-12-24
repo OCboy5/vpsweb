@@ -198,9 +198,7 @@ class IsolationTester:
             )
 
             translation_ok = translation_result.get("dry_run", False)
-            self.log_test(
-                "快速翻译便捷函数", translation_ok, "quick_translate 正常工作"
-            )
+            self.log_test("快速翻译便捷函数", translation_ok, "quick_translate 正常工作")
 
             # 创建临时翻译文件用于测试微信文章
             mock_translation_data = {
@@ -216,9 +214,7 @@ class IsolationTester:
                 },
             }
 
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
                 json.dump(mock_translation_data, f, ensure_ascii=False, indent=2)
                 temp_file = f.name
 

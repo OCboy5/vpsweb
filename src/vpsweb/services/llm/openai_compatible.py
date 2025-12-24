@@ -100,17 +100,13 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         """
         # Validate inputs
         self.validate_messages(messages)
-        self.validate_generation_params(
-            temperature, max_tokens, top_p, frequency_penalty, presence_penalty
-        )
+        self.validate_generation_params(temperature, max_tokens, top_p, frequency_penalty, presence_penalty)
 
         if stream:
             raise NotImplementedError("Streaming is not currently supported")
 
         # Log request
-        self.log_request(
-            messages, model, temperature=temperature, max_tokens=max_tokens
-        )
+        self.log_request(messages, model, temperature=temperature, max_tokens=max_tokens)
 
         # Prepare request payload
         payload = self._prepare_request_payload(
@@ -129,9 +125,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         headers = self._prepare_headers()
 
         # Make request with retry logic
-        response_data = await self._make_request_with_retry(
-            payload=payload, headers=headers, timeout=timeout
-        )
+        response_data = await self._make_request_with_retry(payload=payload, headers=headers, timeout=timeout)
 
         # Parse response
         llm_response = self._parse_response(response_data, model)
@@ -239,9 +233,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                     http2=True,
                 ) as client:
 
-                    logger.info(
-                        f"Making POST request to {self.base_url}/chat/completions"
-                    )
+                    logger.info(f"Making POST request to {self.base_url}/chat/completions")
 
                     # Explicitly disable streaming and add read timeout
                     modified_payload = payload.copy()
@@ -261,14 +253,10 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                         await self._handle_http_error(response)
 
                     # DEBUG: Log response details
-                    logger.info(
-                        f"=== {self.get_provider_name().upper()} API RESPONSE DEBUG ==="
-                    )
+                    logger.info(f"=== {self.get_provider_name().upper()} API RESPONSE DEBUG ===")
                     logger.info(f"Status Code: {response.status_code}")
                     logger.info(f"Response Length: {len(response.content)} bytes")
-                    logger.info(
-                        f"Response Content (first 500 chars): {response.content[:500]}"
-                    )
+                    logger.info(f"Response Content (first 500 chars): {response.content[:500]}")
                     logger.info(f"=== END API RESPONSE DEBUG ===")
 
                     # Parse successful response with timeout
@@ -282,41 +270,27 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                             asyncio.to_thread(response.json),
                             timeout=10.0,  # 10 second timeout for JSON parsing
                         )
-                        logger.info(
-                            f"JSON parsing successful, keys: {list(response_data.keys())}"
-                        )
+                        logger.info(f"JSON parsing successful, keys: {list(response_data.keys())}")
                         return response_data
                     except asyncio.TimeoutError:
                         logger.error(f"JSON parsing timed out after 10 seconds")
-                        logger.error(
-                            f"Response content length: {len(response.content)} bytes"
-                        )
+                        logger.error(f"Response content length: {len(response.content)} bytes")
                         # Try to see what we got
-                        content_preview = (
-                            response.content[:500] if response.content else "No content"
-                        )
+                        content_preview = response.content[:500] if response.content else "No content"
                         logger.error(f"Response content preview: {content_preview}")
-                        raise LLMProviderError(
-                            f"JSON parsing timed out for {self.get_provider_name()}"
-                        )
+                        raise LLMProviderError(f"JSON parsing timed out for {self.get_provider_name()}")
                     except json.JSONDecodeError as e:
                         logger.error(f"JSON parsing failed: {e}")
                         logger.error(f"Response content: {response.content}")
-                        raise LLMProviderError(
-                            f"Invalid JSON response from {self.get_provider_name()}: {e}"
-                        )
+                        raise LLMProviderError(f"Invalid JSON response from {self.get_provider_name()}: {e}")
                     except Exception as e:
                         logger.error(f"Error parsing response: {e}")
-                        raise LLMProviderError(
-                            f"Error parsing response from {self.get_provider_name()}: {e}"
-                        )
+                        raise LLMProviderError(f"Error parsing response from {self.get_provider_name()}: {e}")
 
             except (ConnectError, TimeoutException) as e:
                 if attempt < self.max_retries:
                     wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
-                    logger.warning(
-                        f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
-                    )
+                    logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
                     await asyncio.sleep(wait_time)
                 else:
                     raise TimeoutError(
@@ -330,9 +304,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             except Exception as e:
                 if attempt < self.max_retries:
                     wait_time = self.retry_delay * (2**attempt)
-                    logger.warning(
-                        f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
-                    )
+                    logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
                     await asyncio.sleep(wait_time)
                 else:
                     raise LLMProviderError(
@@ -358,9 +330,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         """
         status_code = response.status_code
         error_content = await response.aread()
-        logger.error(
-            f"Raw error content from {self.get_provider_name()}: {error_content}"
-        )
+        logger.error(f"Raw error content from {self.get_provider_name()}: {error_content}")
 
         try:
             error_data = json.loads(error_content.decode("utf-8"))

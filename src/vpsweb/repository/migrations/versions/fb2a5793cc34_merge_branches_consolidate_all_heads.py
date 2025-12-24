@@ -25,11 +25,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def _table_exists(conn, table_name):
     """Check if table exists"""
-    result = conn.execute(
-        text(
-            f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
-        )
-    ).scalar()
+    result = conn.execute(text(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")).scalar()
     return result is not None
 
 
@@ -41,11 +37,7 @@ def _column_exists(conn, table_name, column_name):
 
 def _index_exists(conn, index_name):
     """Check if index exists"""
-    result = conn.execute(
-        text(
-            f"SELECT name FROM sqlite_master WHERE type='index' AND name='{index_name}'"
-        )
-    ).scalar()
+    result = conn.execute(text(f"SELECT name FROM sqlite_master WHERE type='index' AND name='{index_name}'")).scalar()
     return result is not None
 
 
@@ -116,9 +108,7 @@ def upgrade() -> None:
         )
     if not _column_exists(conn, "translations", "file_category"):
         # Create enum if not exists
-        file_category_enum = sa.Enum(
-            "recent", "poet_archive", name="file_category_enum"
-        )
+        file_category_enum = sa.Enum("recent", "poet_archive", name="file_category_enum")
         file_category_enum.create(op.get_bind())
         op.add_column(
             "translations",
@@ -185,9 +175,7 @@ def upgrade() -> None:
             sa.Column("timestamp", sa.DateTime(), nullable=False),
             sa.Column("created_at", sa.DateTime(), nullable=False),
             sa.ForeignKeyConstraint(["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"),
-            sa.ForeignKeyConstraint(
-                ["translation_id"], ["translations.id"], ondelete="CASCADE"
-            ),
+            sa.ForeignKeyConstraint(["translation_id"], ["translations.id"], ondelete="CASCADE"),
             sa.PrimaryKeyConstraint("id"),
         )
 
@@ -212,9 +200,7 @@ def upgrade() -> None:
             "translation_workflow_steps",
             ["translation_id", "step_order"],
         )
-        op.create_index(
-            "idx_workflow_steps_cost", "translation_workflow_steps", ["cost"]
-        )
+        op.create_index("idx_workflow_steps_cost", "translation_workflow_steps", ["cost"])
         op.create_index(
             "idx_workflow_steps_duration",
             "translation_workflow_steps",
@@ -262,13 +248,9 @@ def upgrade() -> None:
 
         # Create indexes
         op.create_index("idx_bbr_poem_id", "background_briefing_reports", ["poem_id"])
-        op.create_index(
-            "idx_bbr_created_at", "background_briefing_reports", ["created_at"]
-        )
+        op.create_index("idx_bbr_created_at", "background_briefing_reports", ["created_at"])
         op.create_index("idx_bbr_cost", "background_briefing_reports", ["cost"])
-        op.create_index(
-            "idx_bbr_time_spent", "background_briefing_reports", ["time_spent"]
-        )
+        op.create_index("idx_bbr_time_spent", "background_briefing_reports", ["time_spent"])
 
 
 def downgrade() -> None:
@@ -292,9 +274,7 @@ def downgrade() -> None:
         table_name="translation_workflow_steps",
     )
     op.drop_index("idx_workflow_steps_tokens", table_name="translation_workflow_steps")
-    op.drop_index(
-        "idx_workflow_steps_duration", table_name="translation_workflow_steps"
-    )
+    op.drop_index("idx_workflow_steps_duration", table_name="translation_workflow_steps")
     op.drop_index("idx_workflow_steps_cost", table_name="translation_workflow_steps")
     op.drop_index(
         "idx_workflow_steps_type_order",
@@ -304,9 +284,7 @@ def downgrade() -> None:
         "idx_workflow_steps_workflow_id",
         table_name="translation_workflow_steps",
     )
-    op.drop_index(
-        "idx_workflow_steps_ai_log_id", table_name="translation_workflow_steps"
-    )
+    op.drop_index("idx_workflow_steps_ai_log_id", table_name="translation_workflow_steps")
     op.drop_index(
         "idx_workflow_steps_translation_id",
         table_name="translation_workflow_steps",

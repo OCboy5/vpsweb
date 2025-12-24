@@ -40,19 +40,11 @@ class WebUIBase(BaseModel):
 class PoemFormCreate(WebUIBase):
     """Schema for poem creation form"""
 
-    poet_name: str = Field(
-        ..., min_length=1, max_length=200, description="Name of the poet"
-    )
-    poem_title: str = Field(
-        ..., min_length=1, max_length=300, description="Title of the poem"
-    )
-    source_language: str = Field(
-        ..., min_length=2, max_length=10, description="Source language code"
-    )
+    poet_name: str = Field(..., min_length=1, max_length=200, description="Name of the poet")
+    poem_title: str = Field(..., min_length=1, max_length=300, description="Title of the poem")
+    source_language: str = Field(..., min_length=2, max_length=10, description="Source language code")
     original_text: str = Field(..., min_length=1, description="Original poem text")
-    metadata: Optional[str] = Field(
-        None, max_length=1000, description="Optional metadata"
-    )
+    metadata: Optional[str] = Field(None, max_length=1000, description="Optional metadata")
 
     @field_validator("original_text")
     @classmethod
@@ -67,22 +59,12 @@ class TranslationFormCreate(WebUIBase):
     """Schema for translation creation form"""
 
     poem_id: str = Field(..., description="ID of the poem")
-    target_language: str = Field(
-        ..., min_length=2, max_length=10, description="Target language"
-    )
-    translated_poem_title: Optional[str] = Field(
-        None, max_length=500, description="Translated poem title"
-    )
-    translated_poet_name: Optional[str] = Field(
-        None, max_length=200, description="Translated poet name"
-    )
-    translator_name: Optional[str] = Field(
-        None, max_length=200, description="Human translator name"
-    )
+    target_language: str = Field(..., min_length=2, max_length=10, description="Target language")
+    translated_poem_title: Optional[str] = Field(None, max_length=500, description="Translated poem title")
+    translated_poet_name: Optional[str] = Field(None, max_length=200, description="Translated poet name")
+    translator_name: Optional[str] = Field(None, max_length=200, description="Human translator name")
     translated_text: str = Field(..., min_length=1, description="Translated text")
-    quality_rating: Optional[int] = Field(
-        None, ge=1, le=5, description="Quality rating"
-    )
+    quality_rating: Optional[int] = Field(None, ge=1, le=5, description="Quality rating")
 
     @field_validator("translated_text")
     @classmethod
@@ -97,12 +79,8 @@ class TranslationRequest(WebUIBase):
     """Schema for translation workflow request from form"""
 
     poem_id: str = Field(..., description="ID of the poem to translate")
-    target_lang: str = Field(
-        ..., min_length=2, max_length=10, description="Target language"
-    )
-    workflow_mode: WorkflowMode = Field(
-        WorkflowMode.HYBRID, description="Translation workflow mode"
-    )
+    target_lang: str = Field(..., min_length=2, max_length=10, description="Target language")
+    workflow_mode: WorkflowMode = Field(WorkflowMode.HYBRID, description="Translation workflow mode")
 
 
 # Page display schemas
@@ -119,12 +97,8 @@ class PoemDetailPage(WebUIBase):
     """Schema for poem detail page data"""
 
     poem: PoemResponse = Field(..., description="Poem information")
-    translations: List[TranslationResponse] = Field(
-        default_factory=list, description="All translations"
-    )
-    comparison_data: Optional[ComparisonView] = Field(
-        None, description="Comparison view data"
-    )
+    translations: List[TranslationResponse] = Field(default_factory=list, description="All translations")
+    comparison_data: Optional[ComparisonView] = Field(None, description="Comparison view data")
 
 
 class ComparisonPage(WebUIBase):
@@ -138,15 +112,9 @@ class ComparisonPage(WebUIBase):
 class SearchQuery(WebUIBase):
     """Schema for search queries"""
 
-    q: Optional[str] = Field(
-        None, min_length=1, max_length=100, description="Search query"
-    )
-    language: Optional[str] = Field(
-        None, min_length=2, max_length=10, description="Language filter"
-    )
-    poet: Optional[str] = Field(
-        None, min_length=1, max_length=100, description="Poet filter"
-    )
+    q: Optional[str] = Field(None, min_length=1, max_length=100, description="Search query")
+    language: Optional[str] = Field(None, min_length=2, max_length=10, description="Language filter")
+    poet: Optional[str] = Field(None, min_length=1, max_length=100, description="Poet filter")
     page: int = Field(1, ge=1, description="Page number")
     page_size: int = Field(10, ge=1, le=100, description="Items per page")
 
@@ -156,9 +124,7 @@ class WebAPIResponse(WebUIBase):
     """Generic web API response"""
 
     success: bool = Field(True, description="Request success status")
-    message: str = Field(
-        "Operation completed successfully", description="Response message"
-    )
+    message: str = Field("Operation completed successfully", description="Response message")
     data: Optional[dict] = Field(None, description="Response data")
     redirect_url: Optional[str] = Field(None, description="Optional redirect URL")
 
@@ -181,9 +147,7 @@ class TranslationCard(WebUIBase):
     created_at: datetime = Field(..., description="Creation timestamp")
     quality_rating: Optional[int] = Field(None, description="Quality rating")
     has_notes: bool = Field(False, description="Has human notes")
-    runtime_info: Optional[dict] = Field(
-        None, description="Runtime information for AI translations"
-    )
+    runtime_info: Optional[dict] = Field(None, description="Runtime information for AI translations")
 
 
 class PoemTranslationWithWorkflow(WebUIBase):
@@ -193,15 +157,11 @@ class PoemTranslationWithWorkflow(WebUIBase):
     translator_info: str = Field(..., description="Translator information")
     target_language: str = Field(..., description="Target language")
     translation_type: str = Field(..., description="Translation type (ai/human)")
-    has_workflow_steps: bool = Field(
-        ..., description="Whether translation has workflow steps"
-    )
+    has_workflow_steps: bool = Field(..., description="Whether translation has workflow steps")
     workflow_step_count: int = Field(..., description="Number of workflow steps")
     created_at: datetime = Field(..., description="Creation timestamp")
     quality_rating: Optional[int] = Field(None, description="Quality rating")
-    performance_summary: Optional[dict] = Field(
-        None, description="Performance metrics summary"
-    )
+    performance_summary: Optional[dict] = Field(None, description="Performance metrics summary")
 
 
 class PoemCard(WebUIBase):
@@ -231,12 +191,8 @@ class NavigationItem(WebUIBase):
 class NavigationBar(WebUIBase):
     """Schema for navigation bar"""
 
-    items: List[NavigationItem] = Field(
-        default_factory=list, description="Navigation items"
-    )
-    user_info: Optional[dict] = Field(
-        None, description="User information (for future auth)"
-    )
+    items: List[NavigationItem] = Field(default_factory=list, description="Navigation items")
+    user_info: Optional[dict] = Field(None, description="User information (for future auth)")
 
 
 # Pagination schemas
@@ -283,6 +239,4 @@ class FlashMessage(WebUIBase):
 class FlashMessages(WebUIBase):
     """Schema for flash messages list"""
 
-    messages: List[FlashMessage] = Field(
-        default_factory=list, description="List of flash messages"
-    )
+    messages: List[FlashMessage] = Field(default_factory=list, description="List of flash messages")

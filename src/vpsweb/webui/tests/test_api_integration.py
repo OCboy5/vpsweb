@@ -24,9 +24,7 @@ def db_session():
     from sqlalchemy.orm import sessionmaker
 
     # Use in-memory SQLite for testing
-    engine = create_engine(
-        "sqlite:///:memory:", connect_args={"check_same_thread": False}
-    )
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -229,17 +227,13 @@ class TestTranslationAPI:
             "translated_text": "这是一个测试翻译。",
             "quality_rating": 4,
         }
-        translation_response = client.post(
-            "/api/v1/translations/", json=translation_data
-        )
+        translation_response = client.post("/api/v1/translations/", json=translation_data)
         translation_id = translation_response.json()["id"]
 
         # Then add a note
         note_data = {"note_text": "This is a test note for the translation."}
 
-        response = client.post(
-            f"/api/v1/translations/{translation_id}/notes", json=note_data
-        )
+        response = client.post(f"/api/v1/translations/{translation_id}/notes", json=note_data)
         assert response.status_code == 200
         assert response.json()["success"] is True
 
@@ -293,9 +287,7 @@ class TestStatisticsAPI:
 
     def test_get_activity_timeline(self, db_session: Session, sample_poem):
         """Test getting activity timeline"""
-        response = client.get(
-            "/api/v1/statistics/timeline/activity", params={"days": 30}
-        )
+        response = client.get("/api/v1/statistics/timeline/activity", params={"days": 30})
         assert response.status_code == 200
 
         data = response.json()
@@ -336,9 +328,7 @@ class TestAPIErrorHandling:
 
     def test_invalid_query_parameters(self, db_session: Session):
         """Test validation of invalid query parameters"""
-        response = client.get(
-            "/api/v1/poems/", params={"limit": 200}  # Exceeds maximum limit
-        )
+        response = client.get("/api/v1/poems/", params={"limit": 200})  # Exceeds maximum limit
         # Should return validation error
         assert response.status_code == 422
 

@@ -26,9 +26,7 @@ from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 class AsyncTimer:
     """Context manager for timing async operations."""
 
-    def __init__(
-        self, name: str = "operation", logger: Optional[logging.Logger] = None
-    ):
+    def __init__(self, name: str = "operation", logger: Optional[logging.Logger] = None):
         self.name = name
         self.logger = logger or logging.getLogger(__name__)
         self.start_time = None
@@ -71,9 +69,7 @@ async def timeout_context(timeout_seconds: float, operation_name: str = "operati
         async with asyncio.timeout(timeout_seconds):
             yield
     except asyncio.TimeoutError:
-        raise asyncio.TimeoutError(
-            f"Operation '{operation_name}' timed out after {timeout_seconds}s"
-        )
+        raise asyncio.TimeoutError(f"Operation '{operation_name}' timed out after {timeout_seconds}s")
 
 
 async def gather_with_errors(*tasks, return_exceptions: bool = False) -> List[Any]:
@@ -163,9 +159,7 @@ class ErrorCollector:
         self.errors: List[ErrorInfo] = []
         self.max_errors = max_errors
 
-    def add_error(
-        self, error: Exception, context: Optional[Dict[str, Any]] = None
-    ) -> ErrorInfo:
+    def add_error(self, error: Exception, context: Optional[Dict[str, Any]] = None) -> ErrorInfo:
         """Add an error to the collector."""
         error_info = ErrorInfo(
             error_type=type(error).__name__,
@@ -332,9 +326,7 @@ class ResourceManager:
                     break
                 except Exception as e:
                     logger = logging.getLogger(__name__)
-                    logger.warning(
-                        f"Error calling {attr} on {resource_info['name']}: {e}"
-                    )
+                    logger.warning(f"Error calling {attr} on {resource_info['name']}: {e}")
 
 
 # ============================================================================
@@ -435,9 +427,7 @@ def deep_merge_dict(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, A
     return result
 
 
-def flatten_dict(
-    d: Dict[str, Any], parent_key: str = "", sep: str = "."
-) -> Dict[str, Any]:
+def flatten_dict(d: Dict[str, Any], parent_key: str = "", sep: str = ".") -> Dict[str, Any]:
     """
     Flatten a nested dictionary.
 
@@ -501,8 +491,7 @@ def validate_field_types(data: Dict[str, Any], field_types: Dict[str, type]) -> 
     for field, expected_type in field_types.items():
         if field in data and not isinstance(data[field], expected_type):
             raise ValidationError(
-                f"Field '{field}' should be {expected_type.__name__}, "
-                f"got {type(data[field]).__name__}"
+                f"Field '{field}' should be {expected_type.__name__}, " f"got {type(data[field]).__name__}"
             )
 
 
@@ -576,8 +565,7 @@ class PerformanceMetrics:
             "min_duration": self.min_duration,
             "max_duration": self.max_duration,
             "error_count": self.error_count,
-            "success_rate": (self.operation_count - self.error_count)
-            / max(self.operation_count, 1),
+            "success_rate": (self.operation_count - self.error_count) / max(self.operation_count, 1),
         }
 
 
@@ -587,9 +575,7 @@ class PerformanceMonitor:
     def __init__(self):
         self.metrics: Dict[str, PerformanceMetrics] = {}
 
-    def record_operation(
-        self, operation_name: str, duration: float, success: bool = True
-    ) -> None:
+    def record_operation(self, operation_name: str, duration: float, success: bool = True) -> None:
         """Record an operation performance."""
         if operation_name not in self.metrics:
             self.metrics[operation_name] = PerformanceMetrics()

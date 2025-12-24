@@ -205,9 +205,7 @@ class TestTranslationModel:
         assert sample_translation.ai_logs[0] == sample_ai_log
         assert sample_translation.human_notes[0] == sample_human_note
 
-    def test_translation_properties(
-        self, sample_translation, sample_ai_log, sample_human_note
-    ):
+    def test_translation_properties(self, sample_translation, sample_ai_log, sample_human_note):
         """Test translation helper properties"""
         # Set up relationships manually for testing
         sample_translation.ai_logs = [sample_ai_log]
@@ -228,9 +226,7 @@ class TestTranslationModel:
 class TestAILogModel:
     """Test cases for AILog model"""
 
-    def test_create_ai_log(
-        self, db_session, sample_poem, sample_translation, sample_ai_log
-    ):
+    def test_create_ai_log(self, db_session, sample_poem, sample_translation, sample_ai_log):
         """Test creating an AI log"""
         # Add poem and translation first
         db_session.add(sample_poem)
@@ -249,9 +245,7 @@ class TestAILogModel:
         assert sample_ai_log.runtime_seconds == 12.5
         assert sample_ai_log.created_at is not None
 
-    def test_ai_log_relationship(
-        self, db_session, sample_poem, sample_translation, sample_ai_log
-    ):
+    def test_ai_log_relationship(self, db_session, sample_poem, sample_translation, sample_ai_log):
         """Test AI log relationship with translation"""
         # Add all to database
         db_session.add(sample_poem)
@@ -296,9 +290,7 @@ class TestAILogModel:
 class TestHumanNoteModel:
     """Test cases for HumanNote model"""
 
-    def test_create_human_note(
-        self, db_session, sample_poem, sample_translation, sample_human_note
-    ):
+    def test_create_human_note(self, db_session, sample_poem, sample_translation, sample_human_note):
         """Test creating a human note"""
         # Add poem and translation first
         db_session.add(sample_poem)
@@ -318,9 +310,7 @@ class TestHumanNoteModel:
         )
         assert sample_human_note.created_at is not None
 
-    def test_human_note_relationship(
-        self, db_session, sample_poem, sample_translation, sample_human_note
-    ):
+    def test_human_note_relationship(self, db_session, sample_poem, sample_translation, sample_human_note):
         """Test human note relationship with translation"""
         # Add all to database
         db_session.add(sample_poem)

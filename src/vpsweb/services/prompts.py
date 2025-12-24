@@ -61,9 +61,7 @@ class PromptService:
             raise TemplateLoadError(f"Prompts directory not found: {self.prompts_dir}")
 
         if not self.prompts_dir.is_dir():
-            raise TemplateLoadError(
-                f"Prompts path is not a directory: {self.prompts_dir}"
-            )
+            raise TemplateLoadError(f"Prompts path is not a directory: {self.prompts_dir}")
 
         # Initialize Jinja2 environment
         from jinja2 import StrictUndefined
@@ -79,9 +77,7 @@ class PromptService:
         # Add custom filters if needed
         self._setup_custom_filters()
 
-        logger.info(
-            f"Initialized PromptService with prompts directory: {self.prompts_dir}"
-        )
+        logger.info(f"Initialized PromptService with prompts directory: {self.prompts_dir}")
         if self.fallback_dir.exists():
             logger.info(f"V1 fallback directory available: {self.fallback_dir}")
 
@@ -118,11 +114,7 @@ class PromptService:
                     template_file = fallback_file
                 else:
                     available_templates = list(self.prompts_dir.glob("*.yaml"))
-                    fallback_templates = (
-                        list(self.fallback_dir.glob("*.yaml"))
-                        if self.fallback_dir.exists()
-                        else []
-                    )
+                    fallback_templates = list(self.fallback_dir.glob("*.yaml")) if self.fallback_dir.exists() else []
                     available_names = [f.stem for f in available_templates]
                     fallback_names = [f.stem for f in fallback_templates]
                     raise TemplateLoadError(
@@ -142,9 +134,7 @@ class PromptService:
                 template_data = yaml.safe_load(f)
 
             if template_data is None:
-                raise TemplateLoadError(
-                    f"Template file '{template_name}.yaml' is empty"
-                )
+                raise TemplateLoadError(f"Template file '{template_name}.yaml' is empty")
 
             # Log which version was loaded
             if str(self.fallback_dir) in str(template_file):
@@ -155,13 +145,9 @@ class PromptService:
             return template_data
 
         except yaml.YAMLError as e:
-            raise TemplateLoadError(
-                f"Invalid YAML in template file '{template_name}.yaml': {e}"
-            )
+            raise TemplateLoadError(f"Invalid YAML in template file '{template_name}.yaml': {e}")
         except Exception as e:
-            raise TemplateLoadError(
-                f"Error loading template file '{template_name}.yaml': {e}"
-            )
+            raise TemplateLoadError(f"Error loading template file '{template_name}.yaml': {e}")
 
     def get_template(self, template_name: str) -> Dict[str, Any]:
         """
@@ -210,7 +196,9 @@ class PromptService:
         """
         # Simple regex to find Jinja2 variables {{ variable_name }}
         # This handles nested variables and filters
-        variable_pattern = r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\s*(?:\|[\w\(\)\s,\.]*)?\s*\}\}"
+        variable_pattern = (
+            r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)\s*(?:\|[\w\(\)\s,\.]*)?\s*\}\}"
+        )
         matches = re.findall(variable_pattern, template_str)
 
         # Extract base variable names (before any dots for attribute access)
@@ -222,9 +210,7 @@ class PromptService:
 
         return variables
 
-    def _validate_template_variables(
-        self, template_data: Dict[str, Any], variables: Dict[str, Any]
-    ) -> None:
+    def _validate_template_variables(self, template_data: Dict[str, Any], variables: Dict[str, Any]) -> None:
         """
         Validate that all required template variables are provided.
 
@@ -256,9 +242,7 @@ class PromptService:
                 f"Available variables: {available_vars}"
             )
 
-    def render_prompt(
-        self, template_name: str, variables: Dict[str, Any]
-    ) -> Tuple[str, str]:
+    def render_prompt(self, template_name: str, variables: Dict[str, Any]) -> Tuple[str, str]:
         """
         Render a prompt template with the given variables.
 
@@ -274,9 +258,7 @@ class PromptService:
             TemplateVariableError: If required variables are missing
             TemplateError: If template rendering fails
         """
-        logger.debug(
-            f"Rendering template: {template_name} with variables: {list(variables.keys())}"
-        )
+        logger.debug(f"Rendering template: {template_name} with variables: {list(variables.keys())}")
 
         # Load template data
         template_data = self.get_template(template_name)
@@ -338,9 +320,7 @@ class PromptService:
             return self.render_prompt(template_name, variables)
         except TemplateVariableError as e:
             # If validation fails with defaults, try without strict validation
-            logger.warning(
-                f"Template validation failed with defaults, attempting safe render: {e}"
-            )
+            logger.warning(f"Template validation failed with defaults, attempting safe render: {e}")
 
             # Load template and render with available variables
             template_data = self.get_template(template_name)
@@ -419,9 +399,7 @@ class PromptService:
 
         return self.render_prompt("background_briefing_report", variables)
 
-    def get_prompt_template(
-        self, template_name: str, version: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def get_prompt_template(self, template_name: str, version: Optional[str] = None) -> Dict[str, Any]:
         """
         Get a prompt template with optional version specification.
 
@@ -472,9 +450,7 @@ class PromptService:
                     required_sections = ["<SOURCE_TEXT>", "{{ source_text }}"]
                     for section in required_sections:
                         if section not in user_content:
-                            logger.warning(
-                                f"V2 BBR template missing required section: {section}"
-                            )
+                            logger.warning(f"V2 BBR template missing required section: {section}")
                             return False
 
                 logger.debug(f"V2 template validation passed: {template_name}")
@@ -537,9 +513,7 @@ class PromptService:
             template_file = self.prompts_dir / f"{template_name}.yaml"
 
             # Determine if V1 or V2
-            is_v1 = str(self.fallback_dir) in str(
-                self._load_template_file.__wrapped__(self, template_name)
-            )
+            is_v1 = str(self.fallback_dir) in str(self._load_template_file.__wrapped__(self, template_name))
             version = "v1" if is_v1 else "v2"
 
             info = {
@@ -548,9 +522,7 @@ class PromptService:
                 "has_system": "system" in template_data,
                 "has_user": "user" in template_data,
                 "file_path": str(template_file),
-                "file_size": (
-                    template_file.stat().st_size if template_file.exists() else 0
-                ),
+                "file_size": (template_file.stat().st_size if template_file.exists() else 0),
                 "validation_status": self.validate_template(template_name),
             }
 
@@ -571,12 +543,5 @@ class PromptService:
     def __repr__(self) -> str:
         """String representation of the service."""
         v2_count = len(list(self.prompts_dir.glob("*.yaml")))
-        v1_count = (
-            len(list(self.fallback_dir.glob("*.yaml")))
-            if self.fallback_dir.exists()
-            else 0
-        )
-        return (
-            f"PromptService(prompts_dir='{self.prompts_dir}', "
-            f"v2_templates={v2_count}, v1_templates={v1_count})"
-        )
+        v1_count = len(list(self.fallback_dir.glob("*.yaml"))) if self.fallback_dir.exists() else 0
+        return f"PromptService(prompts_dir='{self.prompts_dir}', " f"v2_templates={v2_count}, v1_templates={v1_count})"

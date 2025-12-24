@@ -99,9 +99,7 @@ class PoemBase(BaseSchema):
 
         # Allow letters, spaces, hyphens, and common punctuation including all types of apostrophes and quotes
         # This covers: regular apostrophe ('), curly apostrophes (' and '), and quotes
-        if not re.match(
-            r"^[\w\s\-\.\,\u0027\u2019\u2018\u201C\u201D\u4e00-\u9fff]+$", v
-        ):
+        if not re.match(r"^[\w\s\-\.\,\u0027\u2019\u2018\u201C\u201D\u4e00-\u9fff]+$", v):
             raise ValueError("Poet name contains invalid characters")
 
         return v
@@ -233,9 +231,7 @@ class PoemUpdate(BaseSchema):
     source_language: Optional[str] = Field(None, min_length=2, max_length=10)
     original_text: Optional[str] = Field(None, min_length=1)
     metadata_json: Optional[str] = None
-    selected: Optional[bool] = Field(
-        None, description="Whether the poem is marked as selected"
-    )
+    selected: Optional[bool] = Field(None, description="Whether the poem is marked as selected")
 
 
 class PoemSelectionUpdate(BaseSchema):
@@ -251,18 +247,10 @@ class PoemResponse(PoemBase):
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
     translation_count: Optional[int] = Field(0, description="Number of translations")
-    ai_translation_count: Optional[int] = Field(
-        0, description="Number of AI translations"
-    )
-    human_translation_count: Optional[int] = Field(
-        0, description="Number of human translations"
-    )
-    has_bbr: Optional[bool] = Field(
-        False, description="Whether poem has a Background Briefing Report"
-    )
-    bbr_metadata: Optional[Dict[str, Any]] = Field(
-        None, description="BBR metadata including generation info"
-    )
+    ai_translation_count: Optional[int] = Field(0, description="Number of AI translations")
+    human_translation_count: Optional[int] = Field(0, description="Number of human translations")
+    has_bbr: Optional[bool] = Field(False, description="Whether poem has a Background Briefing Report")
+    bbr_metadata: Optional[Dict[str, Any]] = Field(None, description="BBR metadata including generation info")
 
 
 class PoemList(BaseSchema):
@@ -300,9 +288,7 @@ class TranslationBase(BaseSchema):
         ...,
         min_length=10,
         description="Translated text (minimum 10 characters)",
-        examples=[
-            "Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain."
-        ],
+        examples=["Picking chrysanthemums by the eastern fence, I calmly see the Southern Mountain."],
     )
     translated_poem_title: Optional[str] = Field(
         None,
@@ -322,9 +308,7 @@ class TranslationBase(BaseSchema):
         le=10,
         description="Quality rating (0=Not Rated, 1-10=Rating)",
     )
-    raw_path: Optional[str] = Field(
-        None, max_length=500, description="Path to raw output file"
-    )
+    raw_path: Optional[str] = Field(None, max_length=500, description="Path to raw output file")
 
     @field_validator("translator_info")
     @classmethod
@@ -338,9 +322,7 @@ class TranslationBase(BaseSchema):
             return None
 
         if len(v) < 1:
-            raise ValueError(
-                "Translator info must be at least 1 character long if provided"
-            )
+            raise ValueError("Translator info must be at least 1 character long if provided")
 
         # Allow letters, numbers, spaces, hyphens, dots, and common punctuation
         if not re.match(r"^[\w\s\-\.\,\(\)\[\]\u4e00-\u9fff]+$", v):
@@ -359,9 +341,7 @@ class TranslationBase(BaseSchema):
 
         # Enhanced validation: check basic format first
         if not re.match(r"^[a-z]{2}(-[A-Z]{2})?$", v, re.IGNORECASE):
-            raise ValueError(
-                'Target language code must be in valid format (e.g., "en", "zh-CN")'
-            )
+            raise ValueError('Target language code must be in valid format (e.g., "en", "zh-CN")')
 
         # Normalize language code format (e.g., 'zh-cn' -> 'zh-CN')
         if "-" in v and len(v.split("-")) == 2:
@@ -408,9 +388,7 @@ class TranslationBase(BaseSchema):
         # Check for valid file extensions
         valid_extensions = [".txt", ".json", ".md", ".log"]
         if not any(v.lower().endswith(ext) for ext in valid_extensions):
-            raise ValueError(
-                f'Path must have valid file extension: {", ".join(valid_extensions)}'
-            )
+            raise ValueError(f'Path must have valid file extension: {", ".join(valid_extensions)}')
 
         return v
 
@@ -418,9 +396,7 @@ class TranslationBase(BaseSchema):
 class TranslationCreate(TranslationBase):
     """Schema for creating a new translation"""
 
-    poem_id: str = Field(
-        ..., min_length=1, max_length=50, description="ID of the parent poem"
-    )
+    poem_id: str = Field(..., min_length=1, max_length=50, description="ID of the parent poem")
 
     @model_validator(mode="after")
     def validate_translation_consistency(self) -> "TranslationCreate":
@@ -436,10 +412,7 @@ class TranslationCreate(TranslationBase):
                 "qwen",
                 "llama",
             ]
-            if not any(
-                pattern.lower() in self.translator_info.lower()
-                for pattern in model_patterns
-            ):
+            if not any(pattern.lower() in self.translator_info.lower() for pattern in model_patterns):
                 # This is just a warning, not an error, as AI models can vary
                 pass
 
@@ -447,9 +420,7 @@ class TranslationCreate(TranslationBase):
         if self.translator_type == TranslatorType.HUMAN and self.translator_info:
             # Basic check for human name format
             if len(self.translator_info) < 2 or len(self.translator_info) > 100:
-                raise ValueError(
-                    "Human translator name must be between 2 and 100 characters"
-                )
+                raise ValueError("Human translator name must be between 2 and 100 characters")
 
         return self
 
@@ -474,14 +445,10 @@ class TranslationResponse(TranslationBase):
 
     # Computed fields for API compatibility
     translation_id: str = Field(..., description="Translation ID (same as id)")
-    model_name: Optional[str] = Field(
-        None, description="AI model name used for translation"
-    )
+    model_name: Optional[str] = Field(None, description="AI model name used for translation")
 
     # Workflow step fields
-    has_workflow_steps: bool = Field(
-        False, description="Whether translation has workflow steps"
-    )
+    has_workflow_steps: bool = Field(False, description="Whether translation has workflow steps")
     workflow_step_count: int = Field(0, description="Number of workflow steps")
     has_translation_notes: bool = Field(
         False,
@@ -554,12 +521,10 @@ class TranslationResponse(TranslationBase):
             # Set model_name based on translator_type and translator_info
             if not data_dict.get("model_name"):
                 translator_type = data_dict.get("translator_type")
-                if (
-                    hasattr(translator_type, "value") and translator_type.value == "ai"
-                ) or (isinstance(translator_type, str) and translator_type == "ai"):
-                    data_dict["model_name"] = data_dict.get(
-                        "translator_info", "AI Model"
-                    )
+                if (hasattr(translator_type, "value") and translator_type.value == "ai") or (
+                    isinstance(translator_type, str) and translator_type == "ai"
+                ):
+                    data_dict["model_name"] = data_dict.get("translator_info", "AI Model")
                 else:
                     data_dict["model_name"] = data_dict.get("translator_info", None)
 
@@ -595,9 +560,7 @@ class TranslationResponse(TranslationBase):
 class TranslationList(BaseSchema):
     """Schema for translation list response"""
 
-    translations: List[TranslationResponse] = Field(
-        default_factory=list, description="List of translations"
-    )
+    translations: List[TranslationResponse] = Field(default_factory=list, description="List of translations")
     total: int = Field(..., description="Total number of translations")
     poem_id: str = Field(..., description="Parent poem ID")
 
@@ -623,12 +586,8 @@ class AILogBase(BaseSchema):
             WorkflowMode.MANUAL,
         ],
     )
-    token_usage_json: Optional[str] = Field(
-        None, max_length=2000, description="Token usage data as JSON string"
-    )
-    cost_info_json: Optional[str] = Field(
-        None, max_length=1000, description="Cost information as JSON string"
-    )
+    token_usage_json: Optional[str] = Field(None, max_length=2000, description="Token usage data as JSON string")
+    cost_info_json: Optional[str] = Field(None, max_length=1000, description="Cost information as JSON string")
     runtime_seconds: Optional[float] = Field(
         None,
         ge=0,
@@ -767,15 +726,9 @@ class AILogCreate(AILogBase):
                 usage_data = json.loads(self.token_usage_json)
                 # Basic sanity checks
                 if isinstance(usage_data, dict):
-                    if (
-                        "total_tokens" in usage_data
-                        and usage_data["total_tokens"] > 100000
-                    ):
+                    if "total_tokens" in usage_data and usage_data["total_tokens"] > 100000:
                         pass  # Very high token usage, but allowed
-                    if (
-                        "prompt_tokens" in usage_data
-                        and usage_data["prompt_tokens"] < 1
-                    ):
+                    if "prompt_tokens" in usage_data and usage_data["prompt_tokens"] < 1:
                         raise ValueError("Prompt tokens must be at least 1")
             except json.JSONDecodeError:
                 # This is already validated in field validator, but keep as backup
@@ -845,15 +798,9 @@ class TranslationRequest(BaseSchema):
     """Schema for translation workflow request"""
 
     poem_id: str = Field(..., description="ID of the poem to translate")
-    target_language: str = Field(
-        ..., min_length=2, max_length=10, description="Target language"
-    )
-    workflow_mode: WorkflowMode = Field(
-        WorkflowMode.HYBRID, description="Translation workflow mode"
-    )
-    model_override: Optional[str] = Field(
-        None, max_length=100, description="Override AI model"
-    )
+    target_language: str = Field(..., min_length=2, max_length=10, description="Target language")
+    workflow_mode: WorkflowMode = Field(WorkflowMode.HYBRID, description="Translation workflow mode")
+    model_override: Optional[str] = Field(None, max_length=100, description="Override AI model")
 
 
 # Comparison schemas
@@ -861,15 +808,9 @@ class ComparisonView(BaseSchema):
     """Schema for comparison view data"""
 
     poem: PoemResponse = Field(..., description="Poem information")
-    translations: List[TranslationResponse] = Field(
-        ..., description="All translations for the poem"
-    )
-    ai_logs: List[AILogResponse] = Field(
-        default_factory=list, description="AI logs for translations"
-    )
-    human_notes: List[HumanNoteResponse] = Field(
-        default_factory=list, description="Human notes for translations"
-    )
+    translations: List[TranslationResponse] = Field(..., description="All translations for the poem")
+    ai_logs: List[AILogResponse] = Field(default_factory=list, description="AI logs for translations")
+    human_notes: List[HumanNoteResponse] = Field(default_factory=list, description="Human notes for translations")
 
 
 # Statistics schemas
@@ -878,19 +819,11 @@ class RepositoryStats(BaseSchema):
 
     total_poets: int = Field(..., ge=0, description="Total number of unique poets")
     total_poems: int = Field(..., ge=0, description="Total number of poems")
-    total_translations: int = Field(
-        ..., ge=0, description="Total number of translations"
-    )
+    total_translations: int = Field(..., ge=0, description="Total number of translations")
     ai_translations: int = Field(..., ge=0, description="Number of AI translations")
-    human_translations: int = Field(
-        ..., ge=0, description="Number of human translations"
-    )
-    languages: List[str] = Field(
-        default_factory=list, description="Languages in repository"
-    )
-    latest_translation: Optional[datetime] = Field(
-        None, description="Latest translation timestamp"
-    )
+    human_translations: int = Field(..., ge=0, description="Number of human translations")
+    languages: List[str] = Field(default_factory=list, description="Languages in repository")
+    latest_translation: Optional[datetime] = Field(None, description="Latest translation timestamp")
 
 
 # Workflow Task schemas
@@ -929,50 +862,26 @@ class WorkflowTaskResult(BaseSchema):
 class TranslationWorkflowStepBase(BaseSchema):
     """Base translation workflow step schema with enhanced validation"""
 
-    workflow_id: str = Field(
-        ..., min_length=1, max_length=50, description="Workflow execution ID"
-    )
+    workflow_id: str = Field(..., min_length=1, max_length=50, description="Workflow execution ID")
     step_type: WorkflowStepType = Field(..., description="Type of workflow step")
-    step_order: int = Field(
-        ..., ge=1, le=10, description="Step order in workflow (1-10)"
-    )
-    content: str = Field(
-        ..., min_length=1, max_length=50000, description="Step content/text"
-    )
-    notes: Optional[str] = Field(
-        None, max_length=50000, description="Additional notes about the step"
-    )
-    model_info: Optional[str] = Field(
-        None, max_length=500, description="Model information as JSON string"
-    )
+    step_order: int = Field(..., ge=1, le=10, description="Step order in workflow (1-10)")
+    content: str = Field(..., min_length=1, max_length=50000, description="Step content/text")
+    notes: Optional[str] = Field(None, max_length=50000, description="Additional notes about the step")
+    model_info: Optional[str] = Field(None, max_length=500, description="Model information as JSON string")
 
     # Dedicated metric fields
-    tokens_used: Optional[int] = Field(
-        None, ge=0, le=100000, description="Total tokens used in this step"
-    )
-    prompt_tokens: Optional[int] = Field(
-        None, ge=0, le=50000, description="Prompt tokens used"
-    )
-    completion_tokens: Optional[int] = Field(
-        None, ge=0, le=50000, description="Completion tokens generated"
-    )
-    duration_seconds: Optional[float] = Field(
-        None, ge=0, le=3600, description="Step duration in seconds"
-    )
+    tokens_used: Optional[int] = Field(None, ge=0, le=100000, description="Total tokens used in this step")
+    prompt_tokens: Optional[int] = Field(None, ge=0, le=50000, description="Prompt tokens used")
+    completion_tokens: Optional[int] = Field(None, ge=0, le=50000, description="Completion tokens generated")
+    duration_seconds: Optional[float] = Field(None, ge=0, le=3600, description="Step duration in seconds")
     cost: Optional[float] = Field(None, ge=0, le=100, description="Step cost in USD")
 
     # Flexible JSON for additional metrics
-    additional_metrics: Optional[str] = Field(
-        None, max_length=2000, description="Additional metrics as JSON string"
-    )
+    additional_metrics: Optional[str] = Field(None, max_length=2000, description="Additional metrics as JSON string")
 
     # Translated metadata for translation steps
-    translated_title: Optional[str] = Field(
-        None, max_length=500, description="Translated poem title"
-    )
-    translated_poet_name: Optional[str] = Field(
-        None, max_length=200, description="Translated poet name"
-    )
+    translated_title: Optional[str] = Field(None, max_length=500, description="Translated poem title")
+    translated_poet_name: Optional[str] = Field(None, max_length=200, description="Translated poet name")
 
     timestamp: datetime = Field(..., description="Step execution timestamp")
 
@@ -1052,9 +961,7 @@ class TranslationWorkflowStepCreate(TranslationWorkflowStepBase):
         max_length=50,
         description="ID of the parent translation",
     )
-    ai_log_id: str = Field(
-        ..., min_length=1, max_length=50, description="ID of the parent AI log"
-    )
+    ai_log_id: str = Field(..., min_length=1, max_length=50, description="ID of the parent AI log")
 
     @model_validator(mode="after")
     def validate_workflow_step_consistency(
@@ -1089,9 +996,7 @@ class APIResponse(BaseSchema):
     """Generic API response wrapper"""
 
     success: bool = Field(True, description="Request success status")
-    message: str = Field(
-        "Operation completed successfully", description="Response message"
-    )
+    message: str = Field("Operation completed successfully", description="Response message")
     data: Optional[Any] = Field(None, description="Response data")
 
 
@@ -1101,6 +1006,4 @@ class ErrorResponse(BaseSchema):
     success: bool = Field(False, description="Request success status")
     message: str = Field(..., description="Error message")
     error_code: Optional[str] = Field(None, description="Error code")
-    details: Optional[Dict[str, Any]] = Field(
-        None, description="Additional error details"
-    )
+    details: Optional[Dict[str, Any]] = Field(None, description="Additional error details")

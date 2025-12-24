@@ -139,9 +139,7 @@ class MarkdownExporter:
             "full_log": full_log_path,
         }
 
-    def _format_final_translation_markdown(
-        self, translation_output: TranslationOutput
-    ) -> str:
+    def _format_final_translation_markdown(self, translation_output: TranslationOutput) -> str:
         """
         Format final translation as markdown.
 
@@ -203,9 +201,7 @@ class MarkdownExporter:
         # Summary
         content.append("## 📊 Summary")
         content.append("")
-        content.append(
-            f"- **Total Duration:** {translation_output.duration_seconds:.2f} seconds"
-        )
+        content.append(f"- **Total Duration:** {translation_output.duration_seconds:.2f} seconds")
         content.append(f"- **Total Tokens:** {translation_output.total_tokens}")
         content.append(
             f"- **Editor Suggestions:** {len(translation_output.editor_review.editor_suggestions)} characters"
@@ -219,15 +215,9 @@ class MarkdownExporter:
         # Step 1: Initial Translation
         content.append("## 🔄 Step 1: Initial Translation")
         content.append("")
-        content.append(
-            f"**Model:** {translation_output.initial_translation.model_info}"
-        )
-        content.append(
-            f"**Tokens Used:** {translation_output.initial_translation.tokens_used}"
-        )
-        content.append(
-            f"**Timestamp:** {translation_output.initial_translation.timestamp}"
-        )
+        content.append(f"**Model:** {translation_output.initial_translation.model_info}")
+        content.append(f"**Tokens Used:** {translation_output.initial_translation.tokens_used}")
+        content.append(f"**Timestamp:** {translation_output.initial_translation.timestamp}")
         content.append("")
 
         content.append("### 📖 Original Poem")
@@ -255,9 +245,7 @@ class MarkdownExporter:
         content.append("## 👁️ Step 2: Editor Review")
         content.append("")
         content.append(f"**Model:** {translation_output.editor_review.model_info}")
-        content.append(
-            f"**Tokens Used:** {translation_output.editor_review.tokens_used}"
-        )
+        content.append(f"**Tokens Used:** {translation_output.editor_review.tokens_used}")
         content.append(f"**Timestamp:** {translation_output.editor_review.timestamp}")
         content.append("")
 
@@ -271,15 +259,9 @@ class MarkdownExporter:
         content.append("")
         content.append("## ✍️ Step 3: Final Revision")
         content.append("")
-        content.append(
-            f"**Model:** {translation_output.revised_translation.model_info}"
-        )
-        content.append(
-            f"**Tokens Used:** {translation_output.revised_translation.tokens_used}"
-        )
-        content.append(
-            f"**Timestamp:** {translation_output.revised_translation.timestamp}"
-        )
+        content.append(f"**Model:** {translation_output.revised_translation.model_info}")
+        content.append(f"**Tokens Used:** {translation_output.revised_translation.tokens_used}")
+        content.append(f"**Timestamp:** {translation_output.revised_translation.timestamp}")
         content.append("")
 
         content.append("### 🎭 Final Translation")

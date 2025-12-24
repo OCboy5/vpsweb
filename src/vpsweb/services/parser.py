@@ -67,9 +67,7 @@ class OutputParser:
             XMLParsingError: If parsing fails or XML is malformed
         """
         if not xml_string or not isinstance(xml_string, str):
-            raise XMLParsingError(
-                f"Invalid XML input: expected non-empty string, got {type(xml_string)}"
-            )
+            raise XMLParsingError(f"Invalid XML input: expected non-empty string, got {type(xml_string)}")
 
         try:
             # Remove whitespace between tags (exact logic from vpts.yml)
@@ -88,17 +86,11 @@ class OutputParser:
                 # Recursively parse nested tags if present (exact logic from vpts.yml)
                 # Only recurse if content has well-formed opening/closing tag pairs
                 if re.search(r"<\w+>", content) and re.search(r"</\w+>", content):
-                    result[tag] = OutputParser.parse_xml(
-                        content
-                    )  # Recursive call for nested tags
+                    result[tag] = OutputParser.parse_xml(content)  # Recursive call for nested tags
                 else:
-                    result[tag] = (
-                        content  # Preserve internal whitespace, don't strip content
-                    )
+                    result[tag] = content  # Preserve internal whitespace, don't strip content
 
-            logger.debug(
-                f"Successfully parsed XML with {len(result)} tags: {list(result.keys())}"
-            )
+            logger.debug(f"Successfully parsed XML with {len(result)} tags: {list(result.keys())}")
             return result
 
         except re.error as e:
@@ -137,19 +129,13 @@ class OutputParser:
                 missing_tags.append(tag)
 
         if missing_tags:
-            logger.warning(
-                f"Missing expected tags: {missing_tags}. Available tags: {list(parsed_data.keys())}"
-            )
+            logger.warning(f"Missing expected tags: {missing_tags}. Available tags: {list(parsed_data.keys())}")
 
-        logger.debug(
-            f"Extracted {len(result)} of {len(tags)} requested tags: {list(result.keys())}"
-        )
+        logger.debug(f"Extracted {len(result)} of {len(tags)} requested tags: {list(result.keys())}")
         return result
 
     @staticmethod
-    def validate_output(
-        parsed_data: Dict[str, Any], required_fields: List[str]
-    ) -> bool:
+    def validate_output(parsed_data: Dict[str, Any], required_fields: List[str]) -> bool:
         """
         Validate that parsed output contains all required fields.
 
@@ -167,9 +153,7 @@ class OutputParser:
             return True
 
         if not isinstance(parsed_data, dict):
-            raise ValidationError(
-                f"Expected dict for validation, got {type(parsed_data)}"
-            )
+            raise ValidationError(f"Expected dict for validation, got {type(parsed_data)}")
 
         missing_fields = []
         empty_fields = []
@@ -177,15 +161,12 @@ class OutputParser:
         for field in required_fields:
             if field not in parsed_data:
                 missing_fields.append(field)
-            elif (
-                isinstance(parsed_data[field], str) and not parsed_data[field].strip()
-            ) or (parsed_data[field] is None):
+            elif (isinstance(parsed_data[field], str) and not parsed_data[field].strip()) or (
+                parsed_data[field] is None
+            ):
                 empty_fields.append(field)
             # Additional check for empty JSON objects
-            elif (
-                isinstance(parsed_data[field], str)
-                and parsed_data[field].strip() == "{}"
-            ):
+            elif isinstance(parsed_data[field], str) and parsed_data[field].strip() == "{}":
                 empty_fields.append(field)
 
         if missing_fields or empty_fields:
@@ -197,8 +178,7 @@ class OutputParser:
             available_fields = list(parsed_data.keys())
 
             raise ValidationError(
-                f"Output validation failed: {'; '.join(error_messages)}. "
-                f"Available fields: {available_fields}"
+                f"Output validation failed: {'; '.join(error_messages)}. " f"Available fields: {available_fields}"
             )
 
         logger.debug(f"Output validation passed for fields: {required_fields}")
@@ -240,11 +220,7 @@ class OutputParser:
             parsed_data = OutputParser.parse_xml(xml_string)
 
             # If no XML tags are found at all by the general parser, return empty content for all fields
-            if (
-                not parsed_data
-                and not initial_translation
-                and not initial_translation_notes
-            ):
+            if not parsed_data and not initial_translation and not initial_translation_notes:
                 return {
                     "initial_translation": "",
                     "initial_translation_notes": "",
@@ -254,26 +230,16 @@ class OutputParser:
 
             # If robust extraction was empty, try to get from parsed_data (for well-formed cases)
             if not initial_translation:
-                initial_translation = str(
-                    parsed_data.get("initial_translation", "")
-                ).strip()
+                initial_translation = str(parsed_data.get("initial_translation", "")).strip()
             if not initial_translation_notes:
-                initial_translation_notes = str(
-                    parsed_data.get("initial_translation_notes", "")
-                ).strip()
+                initial_translation_notes = str(parsed_data.get("initial_translation_notes", "")).strip()
 
-            translated_poem_title = str(
-                parsed_data.get("translated_poem_title", "")
-            ).strip()
-            translated_poet_name = str(
-                parsed_data.get("translated_poet_name", "")
-            ).strip()
+            translated_poem_title = str(parsed_data.get("translated_poem_title", "")).strip()
+            translated_poet_name = str(parsed_data.get("translated_poet_name", "")).strip()
 
             if not initial_translation:
                 # If after all attempts, initial_translation is still missing, raise an error
-                raise XMLParsingError(
-                    "Missing required 'initial_translation' tag in XML"
-                )
+                raise XMLParsingError("Missing required 'initial_translation' tag in XML")
 
             result = {
                 "initial_translation": initial_translation,
@@ -288,9 +254,7 @@ class OutputParser:
             return result
 
         except KeyError as e:
-            raise XMLParsingError(
-                f"Missing expected tag in initial translation XML: {e}"
-            )
+            raise XMLParsingError(f"Missing expected tag in initial translation XML: {e}")
         except Exception as e:
             raise XMLParsingError(f"Error parsing initial translation XML: {e}")
 
@@ -330,11 +294,7 @@ class OutputParser:
             parsed_data = OutputParser.parse_xml(xml_string)
 
             # If no XML tags are found at all by the general parser, return empty content for all fields
-            if (
-                not parsed_data
-                and not revised_translation
-                and not revised_translation_notes
-            ):
+            if not parsed_data and not revised_translation and not revised_translation_notes:
                 return {
                     "revised_translation": "",
                     "revised_translation_notes": "",
@@ -344,25 +304,15 @@ class OutputParser:
 
             # If robust extraction was empty, try to get from parsed_data (for well-formed cases)
             if not revised_translation:
-                revised_translation = str(
-                    parsed_data.get("revised_translation", "")
-                ).strip()
+                revised_translation = str(parsed_data.get("revised_translation", "")).strip()
             if not revised_translation_notes:
-                revised_translation_notes = str(
-                    parsed_data.get("revised_translation_notes", "")
-                ).strip()
+                revised_translation_notes = str(parsed_data.get("revised_translation_notes", "")).strip()
 
-            refined_translated_poem_title = str(
-                parsed_data.get("refined_translated_poem_title", "")
-            ).strip()
-            refined_translated_poet_name = str(
-                parsed_data.get("refined_translated_poet_name", "")
-            ).strip()
+            refined_translated_poem_title = str(parsed_data.get("refined_translated_poem_title", "")).strip()
+            refined_translated_poet_name = str(parsed_data.get("refined_translated_poet_name", "")).strip()
 
             if not revised_translation:
-                raise XMLParsingError(
-                    "Missing required 'revised_translation' tag in XML"
-                )
+                raise XMLParsingError("Missing required 'revised_translation' tag in XML")
 
             result = {
                 "revised_translation": revised_translation,
@@ -377,16 +327,12 @@ class OutputParser:
             return result
 
         except KeyError as e:
-            raise XMLParsingError(
-                f"Missing expected tag in revised translation XML: {e}"
-            )
+            raise XMLParsingError(f"Missing expected tag in revised translation XML: {e}")
         except Exception as e:
             raise XMLParsingError(f"Error parsing revised translation XML: {e}")
 
     @staticmethod
-    def _extract_content_robustly(
-        xml_string: str, start_tag: str, end_tag: str, tag_name: str
-    ) -> str:
+    def _extract_content_robustly(xml_string: str, start_tag: str, end_tag: str, tag_name: str) -> str:
         """
         Robustly extracts content between a start and end XML tag.
         Handles cases where the end tag might be missing.
@@ -400,9 +346,7 @@ class OutputParser:
 
         if end_index == -1:
             # If end tag is not found, extract from start tag to the end of the string
-            logger.warning(
-                f"Missing {end_tag} closing tag for <{tag_name}>. Extracting to end of string."
-            )
+            logger.warning(f"Missing {end_tag} closing tag for <{tag_name}>. Extracting to end of string.")
             content = xml_string[content_start:].strip()
         else:
             # If both tags are found, extract the content between them
@@ -435,9 +379,7 @@ class OutputParser:
                     return {"editor_suggestions": parsed_data["editor_suggestions"]}
                 else:
                     # As a last resort, return the whole string if no tags are found
-                    logger.warning(
-                        "Could not find <editor_suggestions> tag, returning raw content."
-                    )
+                    logger.warning("Could not find <editor_suggestions> tag, returning raw content.")
                     return {"editor_suggestions": xml_string}
 
             # Find the end of the editor_suggestions tag
@@ -446,9 +388,7 @@ class OutputParser:
 
             if end_index == -1:
                 # If end tag is not found, extract from start tag to the end of the string
-                logger.warning(
-                    "Missing </editor_suggestions> closing tag. Parsing to end of string."
-                )
+                logger.warning("Missing </editor_suggestions> closing tag. Parsing to end of string.")
                 content = xml_string[start_index + len(start_tag) :]
             else:
                 # If both tags are found, extract the content between them
@@ -566,9 +506,7 @@ def parse_revised_translation(xml_string: str) -> Dict[str, str]:
     return OutputParser.parse_revised_translation_xml(xml_string)
 
 
-def extract_translation_data(
-    xml_string: str, translation_type: str = "initial"
-) -> Dict[str, str]:
+def extract_translation_data(xml_string: str, translation_type: str = "initial") -> Dict[str, str]:
     """
     Extract translation data based on type.
 

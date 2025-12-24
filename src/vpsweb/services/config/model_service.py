@@ -48,10 +48,7 @@ class ModelService:
         """
         if provider_name not in self._config.providers:
             available_providers = list(self._config.providers.keys())
-            raise ValueError(
-                f"Provider '{provider_name}' not found. "
-                f"Available providers: {available_providers}"
-            )
+            raise ValueError(f"Provider '{provider_name}' not found. " f"Available providers: {available_providers}")
         return self._config.providers[provider_name]
 
     def get_provider_info(self, provider_name: str) -> Dict[str, Any]:
@@ -64,11 +61,7 @@ class ModelService:
             "type": config.type.value,
             "default_model": config.default_model,
             "available_models": config.models,
-            "capabilities": {
-                "reasoning": (
-                    config.capabilities.reasoning if config.capabilities else False
-                )
-            },
+            "capabilities": {"reasoning": (config.capabilities.reasoning if config.capabilities else False)},
         }
 
     # Model access and classification
@@ -128,9 +121,7 @@ class ModelService:
         """
         # First check model_classification if available
         if self._config.model_classification:
-            reasoning_models = self._config.model_classification.get(
-                "reasoning_models", []
-            )
+            reasoning_models = self._config.model_classification.get("reasoning_models", [])
             if model_name in reasoning_models:
                 return True
 
@@ -138,11 +129,7 @@ class ModelService:
         try:
             provider_name = self.get_model_provider(model_name)
             provider_config = self.get_provider_config(provider_name)
-            return (
-                provider_config.capabilities.reasoning
-                if provider_config.capabilities
-                else False
-            )
+            return provider_config.capabilities.reasoning if provider_config.capabilities else False
         except ValueError:
             return False
 
@@ -157,10 +144,7 @@ class ModelService:
                 provider_name,
                 provider_config,
             ) in self._config.providers.items():
-                if (
-                    provider_config.capabilities
-                    and provider_config.capabilities.reasoning
-                ):
+                if provider_config.capabilities and provider_config.capabilities.reasoning:
                     reasoning_models.extend(provider_config.models)
                 else:
                     non_reasoning_models.extend(provider_config.models)
@@ -276,10 +260,7 @@ class ModelService:
                 continue
 
             # Validate default model
-            if (
-                provider_config.default_model
-                and provider_config.default_model not in provider_config.models
-            ):
+            if provider_config.default_model and provider_config.default_model not in provider_config.models:
                 errors.append(
                     f"Provider {provider_name} default_model '{provider_config.default_model}' "
                     f"not in available models: {provider_config.models}"
@@ -296,9 +277,7 @@ class ModelService:
                 "models": provider_config.models,
                 "default_model": provider_config.default_model,
                 "reasoning_capable": (
-                    provider_config.capabilities.reasoning
-                    if provider_config.capabilities
-                    else False
+                    provider_config.capabilities.reasoning if provider_config.capabilities else False
                 ),
             }
         return summary

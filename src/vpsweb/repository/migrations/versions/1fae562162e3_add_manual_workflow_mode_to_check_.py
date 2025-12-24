@@ -26,9 +26,7 @@ def upgrade() -> None:
         # Note: The constraint might not exist in the actual database, only in the model
         batch_op.create_check_constraint(
             "ck_workflow_mode",
-            sa.text(
-                "workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid', 'manual')"
-            ),
+            sa.text("workflow_mode IN ('reasoning', 'non_reasoning', 'hybrid', 'manual')"),
         )
 
 

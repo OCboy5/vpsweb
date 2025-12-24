@@ -56,9 +56,7 @@ class VPSWebWorkflowAdapterV2:
 
         self.logger = logging.getLogger(__name__)
 
-        self.logger.info(
-            "VPSWebWorkflowAdapterV2 initialized with dependency injection"
-        )
+        self.logger.info("VPSWebWorkflowAdapterV2 initialized with dependency injection")
 
     def _convert_language_code(self, lang_code: str) -> str:
         """
@@ -245,9 +243,7 @@ class VPSWebWorkflowAdapterV2:
             raise WorkflowExecutionError("Poem ID is required")
 
         if source_lang == target_lang:
-            raise WorkflowExecutionError(
-                "Source and target languages must be different"
-            )
+            raise WorkflowExecutionError("Source and target languages must be different")
 
         # Retrieve poem from repository
         poem = await self.poem_service.get_poem(poem_id)
@@ -322,9 +318,7 @@ class VPSWebWorkflowAdapterV2:
             target_lang: Target language code
             workflow_mode_str: Workflow mode as string
         """
-        self.logger.info(
-            f"Starting refactored workflow execution for task_id: {task_id}"
-        )
+        self.logger.info(f"Starting refactored workflow execution for task_id: {task_id}")
 
         # Get FastAPI app instance
         from vpsweb.webui.main import app
@@ -336,17 +330,13 @@ class VPSWebWorkflowAdapterV2:
 
         try:
             # Map poem data to workflow input
-            workflow_input = self._map_repository_to_workflow_input(
-                poem, source_lang, target_lang
-            )
+            workflow_input = self._map_repository_to_workflow_input(poem, source_lang, target_lang)
 
             # Create workflow configuration
             workflow_config = self._create_workflow_config_from_mode(workflow_mode_str)
 
             # Create progress callback for SSE compatibility
-            async def progress_callback(
-                step_name: str, details: Dict[str, Any]
-            ) -> None:
+            async def progress_callback(step_name: str, details: Dict[str, Any]) -> None:
                 # Skip updates if task is already completed or failed
                 current_task_status = app.state.tasks.get(task_id)
                 if not current_task_status or current_task_status.status in [
@@ -431,39 +421,21 @@ class VPSWebWorkflowAdapterV2:
                 # Debug each step result
                 if hasattr(result.results, "items"):
                     for step_name, step_data in result.results.items():
-                        self.logger.info(
-                            f"🔍 [DEBUG] Step '{step_name}' type: {type(step_data)}"
-                        )
+                        self.logger.info(f"🔍 [DEBUG] Step '{step_name}' type: {type(step_data)}")
                         if hasattr(step_data, "__dict__"):
-                            step_attrs = {
-                                k: v
-                                for k, v in step_data.__dict__.items()
-                                if not k.startswith("_")
-                            }
-                            self.logger.info(
-                                f"🔍 [DEBUG] Step '{step_name}' attrs: {list(step_attrs.keys())}"
-                            )
+                            step_attrs = {k: v for k, v in step_data.__dict__.items() if not k.startswith("_")}
+                            self.logger.info(f"🔍 [DEBUG] Step '{step_name}' attrs: {list(step_attrs.keys())}")
                             # Check for duration and cost specifically
                             if "duration" in step_attrs:
-                                self.logger.info(
-                                    f"🔍 [DEBUG] Step '{step_name}' duration: {step_attrs['duration']}"
-                                )
+                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' duration: {step_attrs['duration']}")
                             if "cost" in step_attrs:
-                                self.logger.info(
-                                    f"🔍 [DEBUG] Step '{step_name}' cost: {step_attrs['cost']}"
-                                )
+                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' cost: {step_attrs['cost']}")
                         elif isinstance(step_data, dict):
-                            self.logger.info(
-                                f"🔍 [DEBUG] Step '{step_name}' dict keys: {list(step_data.keys())}"
-                            )
+                            self.logger.info(f"🔍 [DEBUG] Step '{step_name}' dict keys: {list(step_data.keys())}")
                             if "duration" in step_data:
-                                self.logger.info(
-                                    f"🔍 [DEBUG] Step '{step_name}' duration: {step_data['duration']}"
-                                )
+                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' duration: {step_data['duration']}")
                             if "cost" in step_data:
-                                self.logger.info(
-                                    f"🔍 [DEBUG] Step '{step_name}' cost: {step_data['cost']}"
-                                )
+                                self.logger.info(f"🔍 [DEBUG] Step '{step_name}' cost: {step_data['cost']}")
 
                 await self._save_workflow_result(
                     task_id,
@@ -487,14 +459,10 @@ class VPSWebWorkflowAdapterV2:
                     )
                     task_status.progress = 100
 
-                self.logger.info(
-                    f"Workflow {task_id} completed successfully in {result.execution_time:.2f}s"
-                )
+                self.logger.info(f"Workflow {task_id} completed successfully in {result.execution_time:.2f}s")
             else:
                 # Workflow failed
-                error_msg = (
-                    "; ".join(result.errors) if result.errors else "Unknown error"
-                )
+                error_msg = "; ".join(result.errors) if result.errors else "Unknown error"
                 with app.state.task_locks[task_id]:
                     task_status.set_failed(
                         error=error_msg,
@@ -557,9 +525,7 @@ class VPSWebWorkflowAdapterV2:
 
             # Save translation using repository service
             # Note: This would need to be adapted to match actual schema
-            self.logger.info(
-                f"Translation data prepared for saving: {len(str(translation_data))} chars"
-            )
+            self.logger.info(f"Translation data prepared for saving: {len(str(translation_data))} chars")
 
             # TODO: Implement actual database save with proper schema mapping
             # saved_translation = self.repository_service.create_translation(translation_data)
@@ -590,9 +556,7 @@ class VPSWebWorkflowAdapterV2:
                 # This is a limitation of the current design
                 return None
             else:
-                return asyncio.run(
-                    self.workflow_orchestrator.get_workflow_status(workflow_id)
-                )
+                return asyncio.run(self.workflow_orchestrator.get_workflow_status(workflow_id))
         except Exception:
             return None
 
@@ -615,9 +579,7 @@ class VPSWebWorkflowAdapterV2:
             if loop.is_running():
                 return False
             else:
-                return asyncio.run(
-                    self.workflow_orchestrator.cancel_workflow(workflow_id)
-                )
+                return asyncio.run(self.workflow_orchestrator.cancel_workflow(workflow_id))
         except Exception:
             return False
 

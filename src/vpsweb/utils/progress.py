@@ -84,11 +84,7 @@ class ProgressTracker:
         base_line = f"  Step {self.step_order.index(step_name) + 1}: {step.display_name}... {icon} {step.status.value.replace('_', ' ').title()}"
 
         # Add model info for in-progress steps
-        if (
-            step.status == StepStatus.IN_PROGRESS
-            and step.result
-            and "model_info" in step.result
-        ):
+        if step.status == StepStatus.IN_PROGRESS and step.result and "model_info" in step.result:
             model_info = step.result["model_info"]
             if model_info:
                 provider = model_info.get("provider", "Unknown")
@@ -97,16 +93,16 @@ class ProgressTracker:
                 is_reasoning = model_info.get("is_reasoning", False)
                 model_type = "Reasoning" if is_reasoning else "Non-Reasoning"
 
-                model_line = f"      🤖 Provider: {provider.title()} | 🧠 Model: {model} | 🌡️ Temp: {temp} | ⚡ {model_type}"
+                model_line = (
+                    f"      🤖 Provider: {provider.title()} | 🧠 Model: {model} | 🌡️ Temp: {temp} | ⚡ {model_type}"
+                )
                 return base_line + "\n" + model_line
             else:
                 return base_line
 
         return base_line
 
-    def start_step(
-        self, step_name: str, model_info: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def start_step(self, step_name: str, model_info: Optional[Dict[str, Any]] = None) -> None:
         """Mark a step as in progress."""
         if step_name in self.steps:
             self.steps[step_name].status = StepStatus.IN_PROGRESS
@@ -146,10 +142,7 @@ class ProgressTracker:
 
         for step_name in self.step_order:
             step = self.steps[step_name]
-            if (
-                step.status == StepStatus.IN_PROGRESS
-                or step.status == StepStatus.FAILED
-            ):
+            if step.status == StepStatus.IN_PROGRESS or step.status == StepStatus.FAILED:
                 current_step = step_name
             elif step.status == StepStatus.COMPLETED:
                 completed_steps.append(step_name)
@@ -258,20 +251,12 @@ class ProgressTracker:
         if suggestions:
             # Count lines that start with numbers (1., 2., 3., etc.)
             suggestion_count = len(
-                [
-                    line
-                    for line in suggestions.split("\n")
-                    if line.strip() and line.strip()[0].isdigit()
-                ]
+                [line for line in suggestions.split("\n") if line.strip() and line.strip()[0].isdigit()]
             )
             print(f"  📋 Editor Suggestions: {suggestion_count}")
 
             # Show first 2-3 suggestions as preview
-            suggestion_lines = [
-                line
-                for line in suggestions.split("\n")
-                if line.strip() and line.strip()[0].isdigit()
-            ]
+            suggestion_lines = [line for line in suggestions.split("\n") if line.strip() and line.strip()[0].isdigit()]
             if suggestion_lines:
                 print(f"  💬 Sample Suggestions:")
                 for i, line in enumerate(suggestion_lines[:3]):  # Show first 3
@@ -307,13 +292,9 @@ class ProgressTracker:
 
     def get_summary(self) -> Dict[str, Any]:
         """Get overall progress summary."""
-        completed_steps = [
-            s for s in self.steps.values() if s.status == StepStatus.COMPLETED
-        ]
+        completed_steps = [s for s in self.steps.values() if s.status == StepStatus.COMPLETED]
         total_duration = sum(s.duration for s in completed_steps)
-        total_tokens = sum(
-            s.result.get("tokens_used", 0) for s in completed_steps if s.result
-        )
+        total_tokens = sum(s.result.get("tokens_used", 0) for s in completed_steps if s.result)
 
         return {
             "total_steps": len(self.step_order),

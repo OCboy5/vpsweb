@@ -162,9 +162,7 @@ class FileStorageManager:
         """
         return self.repo_root / "human_notes" / note_id
 
-    def validate_file_path(
-        self, file_path: Path, allowed_extensions: Optional[List[str]] = None
-    ) -> bool:
+    def validate_file_path(self, file_path: Path, allowed_extensions: Optional[List[str]] = None) -> bool:
         """
         Validate file path for security.
 
@@ -186,12 +184,9 @@ class FileStorageManager:
 
         # Check file extension
         if allowed_extensions:
-            if file_path.suffix.lower() not in [
-                ext.lower() for ext in allowed_extensions
-            ]:
+            if file_path.suffix.lower() not in [ext.lower() for ext in allowed_extensions]:
                 raise SecurityValidationError(
-                    f"File extension not allowed: {file_path.suffix}. "
-                    f"Allowed: {allowed_extensions}"
+                    f"File extension not allowed: {file_path.suffix}. " f"Allowed: {allowed_extensions}"
                 )
 
         # Check for dangerous file patterns
@@ -330,9 +325,7 @@ class FileStorageManager:
         except Exception as e:
             raise FileStorageError(f"Failed to delete file {file_path}: {str(e)}")
 
-    async def calculate_file_hash(
-        self, file_path: Path, algorithm: str = "sha256"
-    ) -> str:
+    async def calculate_file_hash(self, file_path: Path, algorithm: str = "sha256") -> str:
         """
         Calculate hash of a file.
 
@@ -443,9 +436,7 @@ class FileStorageManager:
 
         await asyncio.to_thread(extract_zip)
 
-    async def save_poem_data(
-        self, poem_id: str, poem_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def save_poem_data(self, poem_id: str, poem_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save poem data to structured file storage.
 
@@ -482,9 +473,7 @@ class FileStorageManager:
         content = await self.load_file(poem_file, "r")
         return json.loads(content)
 
-    async def save_translation_data(
-        self, translation_id: str, translation_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def save_translation_data(self, translation_id: str, translation_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save translation data to structured file storage.
 
@@ -517,15 +506,11 @@ class FileStorageManager:
         Raises:
             FileNotFoundError: If translation file doesn't exist
         """
-        translation_file = (
-            self.get_translation_directory(translation_id) / "translation.json"
-        )
+        translation_file = self.get_translation_directory(translation_id) / "translation.json"
         content = await self.load_file(translation_file, "r")
         return json.loads(content)
 
-    async def list_files(
-        self, directory: Path, pattern: str = "*", recursive: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def list_files(self, directory: Path, pattern: str = "*", recursive: bool = False) -> List[Dict[str, Any]]:
         """
         List files in a directory with metadata.
 
@@ -544,9 +529,7 @@ class FileStorageManager:
                 return []
 
             files = []
-            glob_pattern = (
-                directory.rglob(pattern) if recursive else directory.glob(pattern)
-            )
+            glob_pattern = directory.rglob(pattern) if recursive else directory.glob(pattern)
 
             for file_path in glob_pattern:
                 if file_path.is_file():
@@ -558,12 +541,8 @@ class FileStorageManager:
                             "path": str(file_path),
                             "name": file_path.name,
                             "size": stat.st_size,
-                            "created": datetime.fromtimestamp(
-                                stat.st_ctime, tz=timezone.utc
-                            ),
-                            "modified": datetime.fromtimestamp(
-                                stat.st_mtime, tz=timezone.utc
-                            ),
+                            "created": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc),
+                            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
                             "hash": file_hash,
                             "extension": file_path.suffix,
                             "relative_path": str(file_path.relative_to(self.repo_root)),

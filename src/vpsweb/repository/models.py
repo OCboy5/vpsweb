@@ -121,20 +121,14 @@ class Translation(Base):
     )
 
     # Translation metadata
-    translator_type: Mapped[str] = mapped_column(
-        String(10), nullable=False, index=True
-    )  # 'ai' or 'human'
+    translator_type: Mapped[str] = mapped_column(String(10), nullable=False, index=True)  # 'ai' or 'human'
     translator_info: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     target_language: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     translated_text: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Translated title and poet name metadata
-    translated_poem_title: Mapped[Optional[str]] = mapped_column(
-        String(500), nullable=True, index=False
-    )
-    translated_poet_name: Mapped[Optional[str]] = mapped_column(
-        String(200), nullable=True, index=False
-    )
+    translated_poem_title: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, index=False)
+    translated_poet_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, index=False)
 
     # Optional fields
     quality_rating: Mapped[Optional[int]] = mapped_column(
@@ -147,12 +141,8 @@ class Translation(Base):
     raw_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     # File organization fields for poet-based storage
-    poet_subdirectory: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True, index=True
-    )
-    relative_json_path: Mapped[Optional[str]] = mapped_column(
-        String(500), nullable=True
-    )
+    poet_subdirectory: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    relative_json_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     file_category: Mapped[Optional[str]] = mapped_column(
         Enum("recent", "poet_archive", name="file_category_enum"),
         nullable=True,
@@ -169,9 +159,7 @@ class Translation(Base):
 
     # Relationships
     poem: Mapped["Poem"] = relationship("Poem", back_populates="translations")
-    ai_logs: Mapped[List["AILog"]] = relationship(
-        "AILog", back_populates="translation", cascade="all, delete-orphan"
-    )
+    ai_logs: Mapped[List["AILog"]] = relationship("AILog", back_populates="translation", cascade="all, delete-orphan")
     human_notes: Mapped[List["HumanNote"]] = relationship(
         "HumanNote", back_populates="translation", cascade="all, delete-orphan"
     )
@@ -202,9 +190,7 @@ class Translation(Base):
             "poet_subdirectory",
             "file_category",
         ),
-        CheckConstraint(
-            "translator_type IN ('ai', 'human')", name="ck_translator_type"
-        ),
+        CheckConstraint("translator_type IN ('ai', 'human')", name="ck_translator_type"),
     )
 
     def __repr__(self) -> str:
@@ -290,9 +276,7 @@ class AILog(Base):
     )
 
     # Relationships
-    translation: Mapped["Translation"] = relationship(
-        "Translation", back_populates="ai_logs"
-    )
+    translation: Mapped["Translation"] = relationship("Translation", back_populates="ai_logs")
     workflow_steps: Mapped[List["TranslationWorkflowStep"]] = relationship(
         "TranslationWorkflowStep",
         back_populates="ai_log",
@@ -312,9 +296,7 @@ class AILog(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"AILog(id={self.id}, model={self.model_name}, mode={self.workflow_mode})"
-        )
+        return f"AILog(id={self.id}, model={self.model_name}, mode={self.workflow_mode})"
 
     @property
     def token_usage(self) -> Optional[dict]:
@@ -368,9 +350,7 @@ class HumanNote(Base):
     )
 
     # Relationships
-    translation: Mapped["Translation"] = relationship(
-        "Translation", back_populates="human_notes"
-    )
+    translation: Mapped["Translation"] = relationship("Translation", back_populates="human_notes")
 
     # Indexes
     __table_args__ = (
@@ -421,14 +401,10 @@ class TranslationWorkflowStep(Base):
     model_info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # NEW: Dedicated columns for key metrics (SQL-queryable)
-    tokens_used: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True, index=True
-    )
+    tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     prompt_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     completion_tokens: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    duration_seconds: Mapped[Optional[float]] = mapped_column(
-        Float, nullable=True, index=True
-    )
+    duration_seconds: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
     cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
 
     # Keep JSON for additional/future metrics (flexibility)
@@ -436,9 +412,7 @@ class TranslationWorkflowStep(Base):
 
     # Translated metadata (for initial_translation and revised_translation steps)
     translated_title: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    translated_poet_name: Mapped[Optional[str]] = mapped_column(
-        String(200), nullable=True
-    )
+    translated_poet_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
 
     # Timestamps
     timestamp: Mapped[datetime] = mapped_column(
@@ -456,9 +430,7 @@ class TranslationWorkflowStep(Base):
     )
 
     # Relationships
-    translation: Mapped["Translation"] = relationship(
-        "Translation", back_populates="workflow_steps"
-    )
+    translation: Mapped["Translation"] = relationship("Translation", back_populates="workflow_steps")
     ai_log: Mapped["AILog"] = relationship("AILog", back_populates="workflow_steps")
 
     # Indexes for performance
@@ -530,9 +502,7 @@ class BackgroundBriefingReport(Base):
     model_info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Performance metrics
-    tokens_used: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True, index=True
-    )
+    tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     cost: Mapped[Optional[float]] = mapped_column(Float, nullable=True, index=True)
     time_spent: Mapped[Optional[float]] = mapped_column(
         Float, nullable=True, index=True

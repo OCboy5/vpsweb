@@ -396,9 +396,7 @@ class TestAccessibility:
                 for img_tag in img_tags:
                     # Check if alt attribute is present
                     has_alt = "alt=" in img_tag or 'alt="' in img_tag
-                    assert (
-                        has_alt
-                    ), f"Image tag missing alt attribute: {img_tag[:50]}..."
+                    assert has_alt, f"Image tag missing alt attribute: {img_tag[:50]}..."
 
     @pytest.mark.asyncio
     async def test_form_labels_present(self, webui_test_client: TestClient):

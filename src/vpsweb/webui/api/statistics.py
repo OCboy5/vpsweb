@@ -44,9 +44,7 @@ async def get_repository_overview(
 @router.get("/translations/comparison/{poem_id}", response_model=ComparisonView)
 async def get_translation_comparison(
     poem_id: str,
-    target_language: Optional[str] = Query(
-        None, description="Filter by target language"
-    ),
+    target_language: Optional[str] = Query(None, description="Filter by target language"),
     service: RepositoryService = Depends(get_repository_service),
 ):
     """
@@ -64,9 +62,7 @@ async def get_translation_comparison(
     # Check if poem exists
     poem = service.poems.get_by_id(poem_id)
     if not poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     try:
         comparison = service.get_translation_comparison(poem_id, target_language)
@@ -79,9 +75,7 @@ async def get_translation_comparison(
 
 
 @router.get("/translations/quality-summary/{poem_id}")
-async def get_translation_quality_summary(
-    poem_id: str, service: RepositoryService = Depends(get_repository_service)
-):
+async def get_translation_quality_summary(poem_id: str, service: RepositoryService = Depends(get_repository_service)):
     """
     Get quality summary for all translations of a poem.
 
@@ -94,9 +88,7 @@ async def get_translation_quality_summary(
     # Check if poem exists
     poem = service.poems.get_by_id(poem_id)
     if not poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     try:
         # Get all translations for this poem
@@ -115,9 +107,7 @@ async def get_translation_quality_summary(
             }
 
         # Calculate quality metrics
-        ratings = [
-            t.quality_rating for t in translations if t.quality_rating is not None
-        ]
+        ratings = [t.quality_rating for t in translations if t.quality_rating is not None]
 
         if ratings:
             average_rating = sum(ratings) / len(ratings)
@@ -247,14 +237,10 @@ async def get_translator_productivity(
                     }
 
                 translator_stats[translator]["total_translations"] += 1
-                translator_stats[translator]["target_languages"].add(
-                    translation.target_language
-                )
+                translator_stats[translator]["target_languages"].add(translation.target_language)
 
                 if translation.quality_rating is not None:
-                    translator_stats[translator]["quality_ratings"].append(
-                        translation.quality_rating
-                    )
+                    translator_stats[translator]["quality_ratings"].append(translation.quality_rating)
 
         # Calculate average quality for each translator
         for translator, stats in translator_stats.items():
@@ -312,9 +298,7 @@ async def get_activity_timeline(
 
         # Get poems created in the time range
         poems = service.poems.get_multi(skip=0, limit=10000)
-        poems_in_range = [
-            poem for poem in poems if start_date <= poem.created_at <= end_date
-        ]
+        poems_in_range = [poem for poem in poems if start_date <= poem.created_at <= end_date]
 
         # Get translations created in the time range
         translations_in_range = []
@@ -359,10 +343,7 @@ async def get_activity_timeline(
                 "total_poems_created": len(poems_in_range),
                 "total_translations_created": len(translations_in_range),
                 "total_activity": len(poems_in_range) + len(translations_in_range),
-                "average_daily_activity": (
-                    len(poems_in_range) + len(translations_in_range)
-                )
-                / days,
+                "average_daily_activity": (len(poems_in_range) + len(translations_in_range)) / days,
             },
             "daily_activity": activity_by_date,
         }

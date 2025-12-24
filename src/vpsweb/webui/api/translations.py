@@ -70,16 +70,10 @@ async def trigger_translation(
 @router.get("/", response_model=Dict[str, Any])
 async def list_translations(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        100, ge=1, le=100, description="Maximum number of records to return"
-    ),
+    limit: int = Query(100, ge=1, le=100, description="Maximum number of records to return"),
     poem_id: Optional[str] = Query(None, description="Filter by poem ID"),
-    target_language: Optional[str] = Query(
-        None, description="Filter by target language"
-    ),
-    translator_type: Optional[str] = Query(
-        None, description="Filter by translator type"
-    ),
+    target_language: Optional[str] = Query(None, description="Filter by target language"),
+    translator_type: Optional[str] = Query(None, description="Filter by translator type"),
     service: RepositoryWebService = Depends(get_repository_service),
 ):
     """
@@ -123,9 +117,7 @@ async def create_translation(
         translation = service.repo.translations.create(translation_data)
         return translation
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to create translation: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to create translation: {str(e)}")
 
 
 @router.get("/{translation_id}", response_model=TranslationResponse)
@@ -162,22 +154,16 @@ async def update_translation(
         )
 
     try:
-        updated_translation = service.repo.translations.update(
-            translation_id, translation_data
-        )
+        updated_translation = service.repo.translations.update(translation_id, translation_data)
         return updated_translation
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to update translation: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to update translation: {str(e)}")
 
 
 class QualityRatingUpdate(BaseModel):
     """Schema for updating translation quality rating"""
 
-    quality_rating: int = Field(
-        ..., ge=0, le=10, description="Quality rating from 0-10 (0 = unrated)"
-    )
+    quality_rating: int = Field(..., ge=0, le=10, description="Quality rating from 0-10 (0 = unrated)")
 
 
 @router.put("/{translation_id}/quality", response_model=WebAPIResponse)
@@ -212,11 +198,7 @@ async def update_quality_rating(
                 detail=f"Translation with ID '{translation_id}' not found",
             )
 
-        rating_text = (
-            "unrated"
-            if rating_data.quality_rating == 0
-            else f"{rating_data.quality_rating}/10"
-        )
+        rating_text = "unrated" if rating_data.quality_rating == 0 else f"{rating_data.quality_rating}/10"
         return WebAPIResponse(
             success=True,
             message=f"Quality rating updated to {rating_text} successfully",
@@ -250,9 +232,7 @@ async def delete_translation(
         service.repo.translations.delete(translation_id)
         return WebAPIResponse(success=True, message="Translation deleted successfully")
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to delete translation: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to delete translation: {str(e)}")
 
 
 # Human Note Management
@@ -276,11 +256,7 @@ class HumanNoteResponse(BaseModel):
         """Custom model validation to handle datetime objects"""
         if hasattr(obj, "created_at") and obj.created_at:
             # Convert datetime to string
-            created_at_str = (
-                obj.created_at.isoformat()
-                if hasattr(obj.created_at, "isoformat")
-                else str(obj.created_at)
-            )
+            created_at_str = obj.created_at.isoformat() if hasattr(obj.created_at, "isoformat") else str(obj.created_at)
             return cls(
                 id=obj.id,
                 translation_id=obj.translation_id,
@@ -328,9 +304,7 @@ async def create_human_note(
             "data": HumanNoteResponse.model_validate(human_note),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to create human note: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to create human note: {str(e)}")
 
 
 @router.get("/{translation_id}/human-notes", response_model=Dict[str, Any])
@@ -359,9 +333,7 @@ async def list_human_notes(
             "count": len(human_notes),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to fetch human notes: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to fetch human notes: {str(e)}")
 
 
 @router.delete("/human-notes/{note_id}", response_model=WebAPIResponse)
@@ -388,6 +360,4 @@ async def delete_human_note(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail=f"Failed to delete human note: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to delete human note: {str(e)}")

@@ -232,9 +232,7 @@ class TestCRUDPoem:
 class TestCRUDTranslation:
     """Test cases for CRUDTranslation operations"""
 
-    def test_create_translation(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_create_translation(self, repository_service, poem_create_data, translation_create_data):
         """Test creating a translation"""
         # Create poem first
         poem = repository_service.poems.create(poem_create_data)
@@ -252,9 +250,7 @@ class TestCRUDTranslation:
         assert translation.translated_text == translation_create_data.translated_text
         assert translation.created_at is not None
 
-    def test_get_translations_by_poem(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_get_translations_by_poem(self, repository_service, poem_create_data, translation_create_data):
         """Test getting translations by poem"""
         # Create poem
         poem = repository_service.poems.create(poem_create_data)
@@ -267,9 +263,7 @@ class TestCRUDTranslation:
 
         translation_create_data.translator_type = TranslatorType.HUMAN
         translation_create_data.translator_info = "John Translator"
-        human_translation = repository_service.translations.create(
-            translation_create_data
-        )
+        human_translation = repository_service.translations.create(translation_create_data)
 
         # Get translations by poem
         translations = repository_service.translations.get_by_poem(poem.id)
@@ -278,9 +272,7 @@ class TestCRUDTranslation:
         assert ai_translation in translations
         assert human_translation in translations
 
-    def test_filter_translations_by_type(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_filter_translations_by_type(self, repository_service, poem_create_data, translation_create_data):
         """Test filtering translations by type"""
         # Create poem
         poem = repository_service.poems.create(poem_create_data)
@@ -291,20 +283,14 @@ class TestCRUDTranslation:
         repository_service.translations.create(translation_create_data)
 
         # Filter by translator type
-        ai_translations = repository_service.translations.get_multi(
-            translator_type=TranslatorType.AI
-        )
-        human_translations = repository_service.translations.get_multi(
-            translator_type=TranslatorType.HUMAN
-        )
+        ai_translations = repository_service.translations.get_multi(translator_type=TranslatorType.AI)
+        human_translations = repository_service.translations.get_multi(translator_type=TranslatorType.HUMAN)
 
         assert len(ai_translations) == 1
         assert len(human_translations) == 0
         assert ai_translations[0].translator_type == TranslatorType.AI
 
-    def test_update_translation(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_update_translation(self, repository_service, poem_create_data, translation_create_data):
         """Test updating a translation"""
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
@@ -317,9 +303,7 @@ class TestCRUDTranslation:
             translated_text=translation.translated_text + " (Improved version)",
         )
 
-        updated_translation = repository_service.translations.update(
-            translation.id, update_data
-        )
+        updated_translation = repository_service.translations.update(translation.id, update_data)
 
         assert updated_translation is not None
         assert updated_translation.quality_rating == 5
@@ -416,9 +400,7 @@ class TestCRUDAILog:
 class TestCRUDHumanNote:
     """Test cases for CRUDHumanNote operations"""
 
-    def test_create_human_note(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_create_human_note(self, repository_service, poem_create_data, translation_create_data):
         """Test creating a human note"""
         # Create poem and translation first
         poem = repository_service.poems.create(poem_create_data)
@@ -438,9 +420,7 @@ class TestCRUDHumanNote:
         assert note.note_text == note_data.note_text
         assert note.created_at is not None
 
-    def test_get_human_notes_by_translation(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_get_human_notes_by_translation(self, repository_service, poem_create_data, translation_create_data):
         """Test getting human notes by translation"""
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
@@ -467,9 +447,7 @@ class TestCRUDHumanNote:
         assert note1 in notes
         assert note2 in notes
 
-    def test_delete_human_note(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_delete_human_note(self, repository_service, poem_create_data, translation_create_data):
         """Test deleting a human note"""
         # Create poem and translation
         poem = repository_service.poems.create(poem_create_data)
@@ -477,9 +455,7 @@ class TestCRUDHumanNote:
         translation = repository_service.translations.create(translation_create_data)
 
         # Create note
-        note_data = HumanNoteCreate(
-            translation_id=translation.id, note_text="Test note for deletion."
-        )
+        note_data = HumanNoteCreate(translation_id=translation.id, note_text="Test note for deletion.")
         note = repository_service.human_notes.create(note_data)
 
         # Delete note
@@ -495,9 +471,7 @@ class TestCRUDHumanNote:
 class TestRepositoryService:
     """Test cases for RepositoryService"""
 
-    def test_get_repository_stats(
-        self, repository_service, poem_create_data, translation_create_data
-    ):
+    def test_get_repository_stats(self, repository_service, poem_create_data, translation_create_data):
         """Test getting repository statistics"""
         # Initially should be empty
         stats = repository_service.get_repository_stats()

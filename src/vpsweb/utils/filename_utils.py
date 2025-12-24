@@ -44,9 +44,7 @@ def sanitize_filename_component(component: str, max_length: int = 30) -> str:
     return sanitized.lower()
 
 
-def extract_poet_and_title(
-    poem_text: str, metadata: Optional[Dict[str, Any]] = None
-) -> tuple[str, str]:
+def extract_poet_and_title(poem_text: str, metadata: Optional[Dict[str, Any]] = None) -> tuple[str, str]:
     """
     Extract poet and title from poem text or metadata.
 
@@ -59,14 +57,8 @@ def extract_poet_and_title(
     """
     # First try to extract from metadata
     if metadata:
-        poet = (
-            metadata.get("author") or metadata.get("poet") or metadata.get("poet_name")
-        )
-        title = (
-            metadata.get("title")
-            or metadata.get("poem_title")
-            or metadata.get("poem_name")
-        )
+        poet = metadata.get("author") or metadata.get("poet") or metadata.get("poet_name")
+        title = metadata.get("title") or metadata.get("poem_title") or metadata.get("poem_name")
 
         if poet and title:
             return sanitize_filename_component(poet), sanitize_filename_component(title)
@@ -81,17 +73,11 @@ def extract_poet_and_title(
     # Look for common patterns: "Title\nAuthor: Name" or "Author\n\nTitle"
     if len(lines) >= 2:
         # Pattern 1: Author: Name on second line
-        if (
-            "作者" in lines[1]
-            or "author" in lines[1].lower()
-            or "by" in lines[1].lower()
-        ):
+        if "作者" in lines[1] or "author" in lines[1].lower() or "by" in lines[1].lower():
             title = lines[0] if lines[0].strip() else "untitled"
             author_line = lines[1]
             # Extract name after common patterns
-            author_match = re.search(
-                r"(?:作者|author|by)[:：]\s*(.+)", author_line, re.IGNORECASE
-            )
+            author_match = re.search(r"(?:作者|author|by)[:：]\s*(.+)", author_line, re.IGNORECASE)
             if author_match:
                 poet = author_match.group(1).strip()
             else:
@@ -201,8 +187,6 @@ def generate_legacy_filename(
         return f"translation_log_{source_lang.lower()}_{target_lang.lower()}_{timestamp}_{hash_suffix}.{file_format}"
     else:
         if workflow_mode:
-            return (
-                f"translation_{workflow_mode}_{timestamp}_{hash_suffix}.{file_format}"
-            )
+            return f"translation_{workflow_mode}_{timestamp}_{hash_suffix}.{file_format}"
         else:
             return f"translation_{timestamp}_{hash_suffix}.{file_format}"

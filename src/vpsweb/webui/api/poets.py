@@ -30,9 +30,7 @@ def get_repository_service(
 @router.get("/", response_model=WebAPIResponse)
 async def list_poets(
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        50, ge=1, le=100, description="Maximum number of records to return"
-    ),
+    limit: int = Query(50, ge=1, le=100, description="Maximum number of records to return"),
     search: Optional[str] = Query(None, description="Search poets by name"),
     sort_by: Optional[str] = Query(
         "name",
@@ -40,9 +38,7 @@ async def list_poets(
     ),
     sort_order: Optional[str] = Query("asc", description="Sort order: asc, desc"),
     min_poems: Optional[int] = Query(None, ge=0, description="Minimum number of poems"),
-    min_translations: Optional[int] = Query(
-        None, ge=0, description="Minimum number of translations"
-    ),
+    min_translations: Optional[int] = Query(None, ge=0, description="Minimum number of translations"),
     service: RepositoryWebService = Depends(get_repository_service),
 ):
     """
@@ -67,19 +63,13 @@ async def list_poets(
                 Poem.poet_name,
                 func.count(Poem.id).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
-                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label(
-                    "ai_translation_count"
-                ),
-                func.sum(
-                    case((Translation.translator_type == "human", 1), else_=0)
-                ).label("human_translation_count"),
+                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label("ai_translation_count"),
+                func.sum(case((Translation.translator_type == "human", 1), else_=0)).label("human_translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
                 func.group_concat(Poem.source_language, ", ").label("source_languages"),
-                func.group_concat(Translation.target_language, ", ").label(
-                    "target_languages"
-                ),
+                func.group_concat(Translation.target_language, ", ").label("target_languages"),
             )
             .outerjoin(Translation, Poem.id == Translation.poem_id)
             .group_by(Poem.poet_name)
@@ -137,26 +127,12 @@ async def list_poets(
                 "translation_count": row.translation_count or 0,
                 "ai_translation_count": row.ai_translation_count or 0,
                 "human_translation_count": row.human_translation_count or 0,
-                "avg_quality_rating": (
-                    float(row.avg_quality_rating) if row.avg_quality_rating else None
-                ),
-                "last_translation_date": (
-                    row.last_translation_date.isoformat()
-                    if row.last_translation_date
-                    else None
-                ),
-                "last_poem_date": (
-                    row.last_poem_date.isoformat() if row.last_poem_date else None
-                ),
-                "source_languages": [
-                    lang for lang in row.source_languages if lang is not None
-                ],
-                "target_languages": [
-                    lang for lang in row.target_languages if lang is not None
-                ],
-                "has_recent_activity": (
-                    (row.last_translation_date or row.last_poem_date) is not None
-                ),
+                "avg_quality_rating": (float(row.avg_quality_rating) if row.avg_quality_rating else None),
+                "last_translation_date": (row.last_translation_date.isoformat() if row.last_translation_date else None),
+                "last_poem_date": (row.last_poem_date.isoformat() if row.last_poem_date else None),
+                "source_languages": [lang for lang in row.source_languages if lang is not None],
+                "target_languages": [lang for lang in row.target_languages if lang is not None],
+                "has_recent_activity": ((row.last_translation_date or row.last_poem_date) is not None),
             }
             poets.append(poet_info)
 
@@ -182,16 +158,10 @@ async def list_poets(
 async def get_poems_by_poet(
     poet_name: str,
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of records to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of records to return"),
     language: Optional[str] = Query(None, description="Filter by source language"),
-    has_translations: Optional[bool] = Query(
-        None, description="Filter by translation status"
-    ),
-    sort_by: Optional[str] = Query(
-        "title", description="Sort by: title, created_at, translation_count"
-    ),
+    has_translations: Optional[bool] = Query(None, description="Filter by translation status"),
+    sort_by: Optional[str] = Query("title", description="Sort by: title, created_at, translation_count"),
     sort_order: Optional[str] = Query("asc", description="Sort order: asc, desc"),
     service: RepositoryWebService = Depends(get_repository_service),
 ):
@@ -217,9 +187,7 @@ async def get_poems_by_poet(
                 Poem,
                 func.count(Translation.id).label("translation_count"),
                 func.max(Translation.created_at).label("last_translation_date"),
-                func.group_concat(Translation.target_language, ", ").label(
-                    "target_languages"
-                ),
+                func.group_concat(Translation.target_language, ", ").label("target_languages"),
             )
             .outerjoin(Translation, Poem.id == Translation.poem_id)
             .filter(Poem.poet_name == poet_name)
@@ -271,22 +239,14 @@ async def get_poems_by_poet(
                 "poem_title": poem.poem_title,
                 "source_language": poem.source_language,
                 "original_text": (
-                    poem.original_text[:200] + "..."
-                    if len(poem.original_text) > 200
-                    else poem.original_text
+                    poem.original_text[:200] + "..." if len(poem.original_text) > 200 else poem.original_text
                 ),
                 "created_at": poem.created_at.isoformat(),
                 "updated_at": poem.updated_at.isoformat(),
                 "translation_count": translation_count or 0,
-                "last_translation_date": (
-                    last_translation_date.isoformat() if last_translation_date else None
-                ),
+                "last_translation_date": (last_translation_date.isoformat() if last_translation_date else None),
                 "target_languages": (
-                    [
-                        lang.strip()
-                        for lang in (target_languages or "").split(",")
-                        if lang and lang.strip()
-                    ]
+                    [lang.strip() for lang in (target_languages or "").split(",") if lang and lang.strip()]
                     if target_languages
                     else []
                 ),
@@ -323,21 +283,11 @@ async def get_poems_by_poet(
 async def get_translations_by_poet(
     poet_name: str,
     skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of records to return"
-    ),
-    target_language: Optional[str] = Query(
-        None, description="Filter by target language"
-    ),
-    translator_type: Optional[str] = Query(
-        None, description="Filter by translator type"
-    ),
-    min_quality: Optional[int] = Query(
-        None, ge=1, le=5, description="Minimum quality rating"
-    ),
-    sort_by: Optional[str] = Query(
-        "created_at", description="Sort by: created_at, quality_rating, title"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of records to return"),
+    target_language: Optional[str] = Query(None, description="Filter by target language"),
+    translator_type: Optional[str] = Query(None, description="Filter by translator type"),
+    min_quality: Optional[int] = Query(None, ge=1, le=5, description="Minimum quality rating"),
+    sort_by: Optional[str] = Query("created_at", description="Sort by: created_at, quality_rating, title"),
     sort_order: Optional[str] = Query("desc", description="Sort order: asc, desc"),
     service: RepositoryWebService = Depends(get_repository_service),
 ):
@@ -470,9 +420,7 @@ async def get_poet_statistics(
         stats = (
             service.db.query(
                 func.count(Poem.id).label("total_poems"),
-                func.count(func.distinct(Poem.source_language)).label(
-                    "source_languages_count"
-                ),
+                func.count(func.distinct(Poem.source_language)).label("source_languages_count"),
                 func.min(Poem.created_at).label("first_poem_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
             )
@@ -483,13 +431,9 @@ async def get_poet_statistics(
         translation_stats = (
             service.db.query(
                 func.count(Translation.id).label("total_translations"),
-                func.count(func.distinct(Translation.target_language)).label(
-                    "target_languages_count"
-                ),
+                func.count(func.distinct(Translation.target_language)).label("target_languages_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
-                func.count(func.distinct(Translation.translator_type)).label(
-                    "translator_types_count"
-                ),
+                func.count(func.distinct(Translation.translator_type)).label("translator_types_count"),
                 func.min(Translation.created_at).label("first_translation_date"),
                 func.max(Translation.created_at).label("last_translation_date"),
             )
@@ -531,20 +475,14 @@ async def get_poet_statistics(
             "poem_statistics": {
                 "total_poems": stats.total_poems,
                 "source_languages_count": stats.source_languages_count,
-                "first_poem_date": (
-                    stats.first_poem_date.isoformat() if stats.first_poem_date else None
-                ),
-                "last_poem_date": (
-                    stats.last_poem_date.isoformat() if stats.last_poem_date else None
-                ),
+                "first_poem_date": (stats.first_poem_date.isoformat() if stats.first_poem_date else None),
+                "last_poem_date": (stats.last_poem_date.isoformat() if stats.last_poem_date else None),
             },
             "translation_statistics": {
                 "total_translations": translation_stats.total_translations or 0,
                 "target_languages_count": translation_stats.target_languages_count or 0,
                 "avg_quality_rating": (
-                    float(translation_stats.avg_quality_rating)
-                    if translation_stats.avg_quality_rating
-                    else None
+                    float(translation_stats.avg_quality_rating) if translation_stats.avg_quality_rating else None
                 ),
                 "translator_types_count": translation_stats.translator_types_count or 0,
                 "first_translation_date": (
@@ -570,9 +508,7 @@ async def get_poet_statistics(
                 {
                     "translator_type": dist.translator_type,
                     "count": dist.count,
-                    "avg_quality": (
-                        float(dist.avg_quality) if dist.avg_quality else None
-                    ),
+                    "avg_quality": (float(dist.avg_quality) if dist.avg_quality else None),
                 }
                 for dist in translator_distribution
             ],

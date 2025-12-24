@@ -60,9 +60,7 @@ class WorkflowService:
             modes.append(WorkflowMode.HYBRID.value)
         return modes
 
-    def get_workflow_steps(
-        self, mode: WorkflowMode
-    ) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
+    def get_workflow_steps(self, mode: WorkflowMode) -> Dict[str, Union[StepConfig, TaskTemplateStepConfig]]:
         """
         Get workflow steps for the specified mode.
 
@@ -103,9 +101,7 @@ class WorkflowService:
 
         return workflow_data
 
-    def get_step_config(
-        self, mode: WorkflowMode, step_name: str
-    ) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_step_config(self, mode: WorkflowMode, step_name: str) -> Union[StepConfig, TaskTemplateStepConfig]:
         """
         Get configuration for a specific workflow step.
 
@@ -120,27 +116,20 @@ class WorkflowService:
         if step_name not in steps:
             available_steps = list(steps.keys())
             raise ValueError(
-                f"Step '{step_name}' not found in {mode.value} workflow. "
-                f"Available steps: {available_steps}"
+                f"Step '{step_name}' not found in {mode.value} workflow. " f"Available steps: {available_steps}"
             )
         return steps[step_name]
 
     # Step-specific convenience methods
-    def get_initial_translation_config(
-        self, mode: WorkflowMode
-    ) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_initial_translation_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get initial translation step configuration."""
         return self.get_step_config(mode, "initial_translation")
 
-    def get_editor_review_config(
-        self, mode: WorkflowMode
-    ) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_editor_review_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get editor review step configuration."""
         return self.get_step_config(mode, "editor_review")
 
-    def get_translator_revision_config(
-        self, mode: WorkflowMode
-    ) -> Union[StepConfig, TaskTemplateStepConfig]:
+    def get_translator_revision_config(self, mode: WorkflowMode) -> Union[StepConfig, TaskTemplateStepConfig]:
         """Get translator revision step configuration."""
         return self.get_step_config(mode, "translator_revision")
 
@@ -197,9 +186,7 @@ class WorkflowService:
                 ]
                 for required_step in required_steps:
                     if required_step not in steps:
-                        errors.append(
-                            f"Workflow mode {mode_str} missing required step: {required_step}"
-                        )
+                        errors.append(f"Workflow mode {mode_str} missing required step: {required_step}")
 
             except Exception as e:
                 errors.append(f"Error validating workflow mode {mode_str}: {e}")

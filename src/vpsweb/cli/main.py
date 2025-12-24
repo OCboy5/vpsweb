@@ -175,15 +175,11 @@ class CLIApplicationV2:
                 )
 
                 if dry_run:
-                    click.echo(
-                        "\n✅ Dry run completed - configuration and input are valid!"
-                    )
+                    click.echo("\n✅ Dry run completed - configuration and input are valid!")
                 return result
 
             except Exception as e:
-                exit_code = self.error_handler.handle_cli_error(
-                    error=e, command_context="translate", verbose=verbose
-                )
+                exit_code = self.error_handler.handle_cli_error(error=e, command_context="translate", verbose=verbose)
                 sys.exit(exit_code)
 
         return translate
@@ -282,9 +278,7 @@ class CLIApplicationV2:
 
                 # Display results (would be handled by the service)
                 click.echo("\n✅ Article generated successfully!")
-                click.echo(
-                    f"📁 Output directory: {result.get('output_directory', 'N/A')}"
-                )
+                click.echo(f"📁 Output directory: {result.get('output_directory', 'N/A')}")
                 click.echo(f"📄 Article HTML: {result.get('html_path', 'N/A')}")
                 click.echo(f"📋 Metadata: {result.get('metadata_path', 'N/A')}")
 
@@ -368,9 +362,7 @@ class CLIApplicationV2:
                 else:
                     click.echo("\n✅ Article published successfully!")
                     click.echo(f"📋 Draft ID: {result.get('draft_id', 'N/A')}")
-                    click.echo(
-                        "📝 Review and publish manually in WeChat Official Account backend"
-                    )
+                    click.echo("📝 Review and publish manually in WeChat Official Account backend")
 
                 return result
 
@@ -403,9 +395,7 @@ class CLIFactoryV2:
 
         # Register core services as singletons
         container.register_singleton(ICLIInputServiceV2, CLIInputServiceV2)
-        container.register_singleton(
-            ICLIConfigurationServiceV2, CLIConfigurationServiceV2
-        )
+        container.register_singleton(ICLIConfigurationServiceV2, CLIConfigurationServiceV2)
         container.register_singleton(ICLIWorkflowServiceV2, CLIWorkflowServiceV2)
         container.register_singleton(ICLIStorageServiceV2, CLIStorageServiceV2)
         container.register_singleton(ICLIOutputServiceV2, CLIOutputServiceV2)

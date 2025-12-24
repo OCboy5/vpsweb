@@ -118,9 +118,7 @@ async def generate_wechat_article(
         print(f"❌ {error_msg}")
         raise HTTPException(status_code=404, detail=error_msg)
 
-    print(
-        f"✅ Found translation: {translation.id} (type: {translation.translator_type})"
-    )
+    print(f"✅ Found translation: {translation.id} (type: {translation.translator_type})")
 
     # Verify it's an AI translation with workflow steps
     if translation.translator_type != "ai":
@@ -156,9 +154,7 @@ async def generate_wechat_article(
     try:
         print(f"🔧 Building translation data structure...")
         # Build translation data structure compatible with CLI article generator
-        translation_data = await _build_translation_data(
-            translation, poem, workflow_steps, service
-        )
+        translation_data = await _build_translation_data(translation, poem, workflow_steps, service)
         print(f"✅ Translation data built successfully")
 
         print(f"🏃 Initializing WeChat article runner...")
@@ -214,17 +210,13 @@ async def generate_wechat_article(
                 # Update task status
                 app_state.wechat_tasks[task_id]["status"] = "completed"
                 app_state.wechat_tasks[task_id]["result"] = article_summary
-                app_state.wechat_tasks[task_id][
-                    "completed_at"
-                ] = datetime.now().isoformat()
+                app_state.wechat_tasks[task_id]["completed_at"] = datetime.now().isoformat()
 
             except Exception as e:
                 print(f"❌ Background task {task_id} failed: {e}")
                 app_state.wechat_tasks[task_id]["status"] = "failed"
                 app_state.wechat_tasks[task_id]["error"] = str(e)
-                app_state.wechat_tasks[task_id][
-                    "failed_at"
-                ] = datetime.now().isoformat()
+                app_state.wechat_tasks[task_id]["failed_at"] = datetime.now().isoformat()
 
         # Start background task
         executor = ThreadPoolExecutor(max_workers=1)
@@ -405,7 +397,9 @@ async def _build_translation_data(
         # Store in appropriate congregated output field
         if step_type == "initial_translation":
             # Format translation for CLI compatibility (prefixes handled by template)
-            formatted_translation = f"{translation.translated_poem_title}\n{translation.translated_poet_name}\n\n{step.content}"
+            formatted_translation = (
+                f"{translation.translated_poem_title}\n{translation.translated_poet_name}\n\n{step.content}"
+            )
             congregated_output["initial_translation"] = formatted_translation
             congregated_output["initial_translation_notes"] = step.notes or ""
             steps_data["initial_translation"] = step_data
@@ -417,7 +411,9 @@ async def _build_translation_data(
 
         elif step_type == "revised_translation":
             # Format translation for CLI compatibility (prefixes handled by template)
-            formatted_translation = f"{translation.translated_poem_title}\n{translation.translated_poet_name}\n\n{step.content}"
+            formatted_translation = (
+                f"{translation.translated_poem_title}\n{translation.translated_poet_name}\n\n{step.content}"
+            )
             congregated_output["revised_translation"] = formatted_translation
             congregated_output["revised_translation_notes"] = step.notes or ""
             steps_data["revised_translation"] = step_data
@@ -578,10 +574,7 @@ async def get_wechat_article_metadata(
     # Find completed tasks for this translation
     completed_tasks = []
     for task_id, task_info in request.app.state.wechat_tasks.items():
-        if (
-            task_info.get("translation_id") == translation_id
-            and task_info.get("status") == "completed"
-        ):
+        if task_info.get("translation_id") == translation_id and task_info.get("status") == "completed":
             completed_tasks.append(
                 {
                     "task_id": task_id,
@@ -699,9 +692,7 @@ async def view_wechat_article_html(
         if not html_content:
             try:
                 # Get metadata endpoint result
-                metadata_response = await get_wechat_article_metadata(
-                    translation_id, request, db, service
-                )
+                metadata_response = await get_wechat_article_metadata(translation_id, request, db, service)
                 if metadata_response.success and metadata_response.data:
                     metadata = metadata_response.data
                     if metadata.get("source_html_path"):
@@ -727,6 +718,4 @@ async def view_wechat_article_html(
         raise
     except Exception as e:
         print(f"Failed to serve WeChat article HTML: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to serve article: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to serve article: {str(e)}")

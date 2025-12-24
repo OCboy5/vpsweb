@@ -25,16 +25,10 @@ class LLMResponse(BaseModel):
     """Standardized response format from LLM providers."""
 
     content: str = Field(..., description="The generated text content")
-    tokens_used: int = Field(
-        ..., ge=0, description="Total number of tokens used in the request"
-    )
+    tokens_used: int = Field(..., ge=0, description="Total number of tokens used in the request")
     prompt_tokens: int = Field(..., ge=0, description="Number of tokens in the prompt")
-    completion_tokens: int = Field(
-        ..., ge=0, description="Number of tokens in the completion"
-    )
-    model_name: str = Field(
-        ..., description="Name of the model that generated the response"
-    )
+    completion_tokens: int = Field(..., ge=0, description="Number of tokens in the completion")
+    model_name: str = Field(..., description="Name of the model that generated the response")
     finish_reason: Optional[str] = Field(
         None,
         description="Reason why generation finished (e.g., 'stop', 'length')",
@@ -178,9 +172,7 @@ class BaseLLMProvider(ABC):
             ValueError: If any parameter is invalid
         """
         if not (0.0 <= temperature <= 2.0):
-            raise ValueError(
-                f"Temperature must be between 0.0 and 2.0, got {temperature}"
-            )
+            raise ValueError(f"Temperature must be between 0.0 and 2.0, got {temperature}")
 
         if max_tokens <= 0:
             raise ValueError(f"max_tokens must be positive, got {max_tokens}")
@@ -189,14 +181,10 @@ class BaseLLMProvider(ABC):
             raise ValueError(f"top_p must be between 0.0 and 1.0, got {top_p}")
 
         if not (-2.0 <= frequency_penalty <= 2.0):
-            raise ValueError(
-                f"frequency_penalty must be between -2.0 and 2.0, got {frequency_penalty}"
-            )
+            raise ValueError(f"frequency_penalty must be between -2.0 and 2.0, got {frequency_penalty}")
 
         if not (-2.0 <= presence_penalty <= 2.0):
-            raise ValueError(
-                f"presence_penalty must be between -2.0 and 2.0, got {presence_penalty}"
-            )
+            raise ValueError(f"presence_penalty must be between -2.0 and 2.0, got {presence_penalty}")
 
     def log_request(self, messages: List[Dict[str, str]], model: str, **params) -> None:
         """
@@ -209,9 +197,7 @@ class BaseLLMProvider(ABC):
         """
         logger.debug(f"Request to {self.__class__.__name__} - Model: {model}")
         logger.debug(f"Messages count: {len(messages)}")
-        logger.debug(
-            f"First message role: {messages[0]['role'] if messages else 'None'}"
-        )
+        logger.debug(f"First message role: {messages[0]['role'] if messages else 'None'}")
         logger.debug(f"Parameters: {params}")
 
     def log_response(self, response: LLMResponse) -> None:

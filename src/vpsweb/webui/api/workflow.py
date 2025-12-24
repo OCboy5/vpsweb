@@ -35,9 +35,7 @@ def get_workflow_service(db: Session = Depends(get_db)) -> IWorkflowServiceV2:
 
         container = DIContainer()
         # Register minimal dependencies needed for workflow service
-        container.register_instance(
-            ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None)
-        )
+        container.register_instance(ITaskManagementServiceV2, TaskManagementServiceV2({}, logger=None))
         container.register_singleton(IWorkflowServiceV2, WorkflowServiceV2)
 
         return container.resolve(IWorkflowServiceV2)
@@ -92,9 +90,7 @@ async def cancel_workflow_task(
         task = await workflow_service.get_task_status(task_id)
 
         if task.get("status") == "completed":
-            raise HTTPException(
-                status_code=404, detail="Task not found or already completed."
-            )
+            raise HTTPException(status_code=404, detail="Task not found or already completed.")
 
         success = await workflow_service.cancel_task(task_id)
 
@@ -106,9 +102,7 @@ async def cancel_workflow_task(
                 }
             )
         else:
-            raise HTTPException(
-                status_code=404, detail="Task not found or already completed."
-            )
+            raise HTTPException(status_code=404, detail="Task not found or already completed.")
     except HTTPException:
         raise
     except Exception as e:

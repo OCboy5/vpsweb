@@ -35,14 +35,10 @@ class TaskStatus:
     progress: int = 0  # Overall progress 0-100
 
     # Step tracking
-    current_step: str = (
-        ""  # "Initial Translation", "Editor Review", "Translator Revision"
-    )
+    current_step: str = ""  # "Initial Translation", "Editor Review", "Translator Revision"
     step_details: Optional[Dict[str, Any]] = None  # Step-specific details
     step_progress: Optional[Dict[str, int]] = None  # Individual step percentages
-    step_states: Optional[Dict[str, str]] = (
-        None  # Individual step states: "waiting", "running", "completed"
-    )
+    step_states: Optional[Dict[str, str]] = None  # Individual step states: "waiting", "running", "completed"
 
     # Metadata
     message: str = ""
@@ -79,9 +75,7 @@ class TaskStatus:
             "result": self.result,
             "created_at": self.created_at.isoformat(),
             "started_at": (self.started_at.isoformat() if self.started_at else None),
-            "completed_at": (
-                self.completed_at.isoformat() if self.completed_at else None
-            ),
+            "completed_at": (self.completed_at.isoformat() if self.completed_at else None),
             "updated_at": self.updated_at.isoformat(),
         }
 

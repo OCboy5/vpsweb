@@ -219,9 +219,7 @@ def get_log_file_info() -> Optional[dict]:
 
     root_logger = logging.getLogger()
     file_handlers = [
-        handler
-        for handler in root_logger.handlers
-        if isinstance(handler, logging.handlers.RotatingFileHandler)
+        handler for handler in root_logger.handlers if isinstance(handler, logging.handlers.RotatingFileHandler)
     ]
 
     if not file_handlers:
@@ -239,9 +237,7 @@ def get_log_file_info() -> Optional[dict]:
     }
 
 
-def log_workflow_start(
-    workflow_id: str, source_lang: str, target_lang: str, poem_length: int
-) -> None:
+def log_workflow_start(workflow_id: str, source_lang: str, target_lang: str, poem_length: int) -> None:
     """
     Log the start of a translation workflow.
 
@@ -252,15 +248,10 @@ def log_workflow_start(
         poem_length: Length of the poem in characters
     """
     logger = get_logger("vpsweb.workflow")
-    logger.info(
-        f"Starting translation workflow {workflow_id}: "
-        f"{source_lang} → {target_lang}, {poem_length} chars"
-    )
+    logger.info(f"Starting translation workflow {workflow_id}: " f"{source_lang} → {target_lang}, {poem_length} chars")
 
 
-def log_workflow_step(
-    workflow_id: str, step_name: str, tokens_used: int, duration: float
-) -> None:
+def log_workflow_step(workflow_id: str, step_name: str, tokens_used: int, duration: float) -> None:
     """
     Log the completion of a workflow step.
 
@@ -271,15 +262,10 @@ def log_workflow_step(
         duration: Execution time in seconds
     """
     logger = get_logger("vpsweb.workflow")
-    logger.info(
-        f"Workflow {workflow_id} - {step_name}: "
-        f"{tokens_used} tokens, {duration:.2f}s"
-    )
+    logger.info(f"Workflow {workflow_id} - {step_name}: " f"{tokens_used} tokens, {duration:.2f}s")
 
 
-def log_workflow_completion(
-    workflow_id: str, total_tokens: int, total_duration: float
-) -> None:
+def log_workflow_completion(workflow_id: str, total_tokens: int, total_duration: float) -> None:
     """
     Log the successful completion of a translation workflow.
 
@@ -290,14 +276,11 @@ def log_workflow_completion(
     """
     logger = get_logger("vpsweb.workflow")
     logger.info(
-        f"Workflow {workflow_id} completed successfully: "
-        f"{total_tokens} total tokens, {total_duration:.2f}s total"
+        f"Workflow {workflow_id} completed successfully: " f"{total_tokens} total tokens, {total_duration:.2f}s total"
     )
 
 
-def log_api_call(
-    provider: str, model: str, prompt_length: int, response_length: int
-) -> None:
+def log_api_call(provider: str, model: str, prompt_length: int, response_length: int) -> None:
     """
     Log an API call to an LLM provider.
 
@@ -308,15 +291,10 @@ def log_api_call(
         response_length: Length of the response in characters
     """
     logger = get_logger("vpsweb.api")
-    logger.debug(
-        f"API call: {provider}/{model}, "
-        f"prompt: {prompt_length} chars, response: {response_length} chars"
-    )
+    logger.debug(f"API call: {provider}/{model}, " f"prompt: {prompt_length} chars, response: {response_length} chars")
 
 
-def log_error_with_context(
-    error: Exception, context: str = "", workflow_id: str = ""
-) -> None:
+def log_error_with_context(error: Exception, context: str = "", workflow_id: str = "") -> None:
     """
     Log an error with additional context information.
 

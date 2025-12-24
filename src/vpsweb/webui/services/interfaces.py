@@ -33,9 +33,7 @@ class IPoemServiceV2(ABC):
         """Create a new poem with validation."""
 
     @abstractmethod
-    async def update_poem(
-        self, poem_id: str, poem_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def update_poem(self, poem_id: str, poem_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing poem."""
 
     @abstractmethod
@@ -70,9 +68,7 @@ class ITranslationServiceV2(ABC):
         """Get comparison data for a translation."""
 
     @abstractmethod
-    async def create_translation(
-        self, translation_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def create_translation(self, translation_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new translation with validation."""
 
     @abstractmethod
@@ -209,9 +205,7 @@ class ITemplateServiceV2(ABC):
         """Get list of available templates."""
 
     @abstractmethod
-    async def validate_template_data(
-        self, template_name: str, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def validate_template_data(self, template_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate template data before rendering."""
 
 
@@ -219,9 +213,7 @@ class IExceptionHandlerServiceV2(ABC):
     """Interface for error handling and response formatting."""
 
     @abstractmethod
-    async def handle_http_error(
-        self, error: Exception, request: Any, is_web_request: bool
-    ) -> Any:
+    async def handle_http_error(self, error: Exception, request: Any, is_web_request: bool) -> Any:
         """Handle HTTP errors with appropriate formatting."""
 
     @abstractmethod
@@ -316,9 +308,7 @@ class ISSEServiceV2(ABC):
         """Create SSE stream for real-time updates."""
 
     @abstractmethod
-    async def send_sse_event(
-        self, task_id: str, event_type: str, data: Dict[str, Any]
-    ) -> None:
+    async def send_sse_event(self, task_id: str, event_type: str, data: Dict[str, Any]) -> None:
         """Send SSE event to connected clients."""
 
     @abstractmethod
@@ -350,9 +340,7 @@ class IBBRServiceV2(ABC):
         """Get Background Briefing Report for a poem."""
 
     @abstractmethod
-    async def generate_bbr(
-        self, poem_id: str, background_tasks: Optional[BackgroundTasks] = None
-    ) -> Dict[str, Any]:
+    async def generate_bbr(self, poem_id: str, background_tasks: Optional[BackgroundTasks] = None) -> Dict[str, Any]:
         """Generate Background Briefing Report for a poem."""
 
     @abstractmethod

@@ -18,9 +18,7 @@ class TestManualWorkflowService:
     def mock_prompt_service(self):
         """Create a mock prompt service."""
         service = Mock()
-        service.render_prompt = Mock(
-            return_value=("system prompt", "user prompt with {poem_title}")
-        )
+        service.render_prompt = Mock(return_value=("system prompt", "user prompt with {poem_title}"))
         return service
 
     @pytest.fixture
@@ -85,9 +83,7 @@ class TestManualWorkflowService:
         return poem
 
     @pytest.mark.asyncio
-    async def test_start_session_success(
-        self, manual_workflow_service, mock_repository_service, sample_poem
-    ):
+    async def test_start_session_success(self, manual_workflow_service, mock_repository_service, sample_poem):
         """Test successful session start."""
         # Setup mock
         mock_repository_service.repo.poems.get_by_id.return_value = sample_poem
@@ -97,19 +93,14 @@ class TestManualWorkflowService:
         )
 
         # Execute
-        result = await manual_workflow_service.start_session(
-            poem_id="test-poem-id", target_lang="Chinese"
-        )
+        result = await manual_workflow_service.start_session(poem_id="test-poem-id", target_lang="Chinese")
 
         # Verify
         assert result["session_id"] is not None
         assert result["step_name"] == "initial_translation_nonreasoning"
         assert result["step_index"] == 0
         assert result["total_steps"] == 3
-        assert (
-            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\n"
-            "Test prompt" == result["prompt"]
-        )
+        assert "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\n" "Test prompt" == result["prompt"]
         assert result["poem_title"] == "Test Poem"
         assert result["poet_name"] == "Test Poet"
 
@@ -122,18 +113,14 @@ class TestManualWorkflowService:
         assert session["current_step_index"] == 0
 
     @pytest.mark.asyncio
-    async def test_start_session_poem_not_found(
-        self, manual_workflow_service, mock_repository_service
-    ):
+    async def test_start_session_poem_not_found(self, manual_workflow_service, mock_repository_service):
         """Test session start with non-existent poem."""
         # Setup mock
         mock_repository_service.repo.poems.get_by_id.return_value = None
 
         # Execute and verify
         with pytest.raises(ValueError, match="Poem not found: test-poem-id"):
-            await manual_workflow_service.start_session(
-                poem_id="test-poem-id", target_lang="Chinese"
-            )
+            await manual_workflow_service.start_session(poem_id="test-poem-id", target_lang="Chinese")
 
     @pytest.mark.asyncio
     async def test_submit_step_success(self, manual_workflow_service, sample_poem):
@@ -155,9 +142,7 @@ class TestManualWorkflowService:
         }
 
         # Setup mocks
-        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = (
-            sample_poem
-        )
+        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = sample_poem
         manual_workflow_service.prompt_service.render_prompt.return_value = (
             "System prompt",
             "Next prompt",
@@ -175,10 +160,7 @@ class TestManualWorkflowService:
         assert result["status"] == "continue"
         assert result["step_name"] == "editor_review_reasoning"
         assert result["step_index"] == 1
-        assert (
-            "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nNext prompt"
-            == result["prompt"]
-        )
+        assert "=== SYSTEM PROMPT ===\nSystem prompt\n\n=== USER PROMPT ===\nNext prompt" == result["prompt"]
 
         # Verify step was stored
         session = manual_workflow_service.sessions["test-session"]
@@ -216,9 +198,7 @@ class TestManualWorkflowService:
         }
 
         # Setup mocks
-        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = (
-            sample_poem
-        )
+        manual_workflow_service.repository_service.repo.poems.get_by_id.return_value = sample_poem
 
         # Execute
         result = await manual_workflow_service.submit_step(
@@ -285,14 +265,10 @@ class TestManualWorkflowService:
         }
 
         # Setup mock to raise error
-        manual_workflow_service.output_parser.parse_xml.side_effect = Exception(
-            "Invalid XML"
-        )
+        manual_workflow_service.output_parser.parse_xml.side_effect = Exception("Invalid XML")
 
         # Execute and verify
-        with pytest.raises(
-            ValueError, match="Failed to parse LLM response: Invalid XML"
-        ):
+        with pytest.raises(ValueError, match="Failed to parse LLM response: Invalid XML"):
             await manual_workflow_service.submit_step(
                 session_id="test-session",
                 step_name="initial_translation_nonreasoning",
@@ -356,9 +332,7 @@ class TestManualWorkflowService:
         )
 
     @pytest.mark.asyncio
-    async def test_get_step_prompt_with_previous_results(
-        self, manual_workflow_service, sample_poem
-    ):
+    async def test_get_step_prompt_with_previous_results(self, manual_workflow_service, sample_poem):
         """Test getting step prompt with previous results."""
         # Setup previous results
         previous_results = {
@@ -405,9 +379,7 @@ class TestManualWorkflowService:
         }
 
         # Execute
-        cleaned_count = manual_workflow_service.cleanup_expired_sessions(
-            max_age_hours=1
-        )
+        cleaned_count = manual_workflow_service.cleanup_expired_sessions(max_age_hours=1)
 
         # Verify
         assert cleaned_count == 1

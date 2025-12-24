@@ -133,17 +133,13 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         if self._llm_factory is None and self.container.is_registered(ILLMFactory):
             self._llm_factory = self.container.resolve(ILLMFactory)
 
-        if self._prompt_service is None and self.container.is_registered(
-            IPromptService
-        ):
+        if self._prompt_service is None and self.container.is_registered(IPromptService):
             self._prompt_service = self.container.resolve(IPromptService)
 
         if self._output_parser is None and self.container.is_registered(IOutputParser):
             self._output_parser = self.container.resolve(IOutputParser)
 
-        if self._config_service is None and self.container.is_registered(
-            IConfigurationService
-        ):
+        if self._config_service is None and self.container.is_registered(IConfigurationService):
             self._config_service = self.container.resolve(IConfigurationService)
 
     def _log_debug(self, message: str, **kwargs) -> None:
@@ -170,9 +166,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         """Emit an event if event bus is available."""
         if self.event_bus:
             try:
-                event = Event(
-                    name=event_name, data=data, source="WorkflowOrchestratorV2"
-                )
+                event = Event(name=event_name, data=data, source="WorkflowOrchestratorV2")
                 # Note: This should be awaited if event_bus.publish is async
                 # For now, we'll fire and forget
                 asyncio.create_task(self._emit_event_async(event))
@@ -322,9 +316,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                         # This could be configurable based on step configuration
 
                 # Calculate execution time
-                execution_time = (
-                    datetime.now(timezone.utc) - context.start_time
-                ).total_seconds()
+                execution_time = (datetime.now(timezone.utc) - context.start_time).total_seconds()
 
                 # Create workflow result
                 workflow_result = WorkflowResult(
@@ -333,11 +325,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                     total_tokens_used=total_tokens,
                     execution_time=execution_time,
                     results=self._merge_step_results(results),
-                    errors=(
-                        self._get_workflow_errors(workflow_id)
-                        if self.error_collector.has_errors()
-                        else None
-                    ),
+                    errors=(self._get_workflow_errors(workflow_id) if self.error_collector.has_errors() else None),
                     metadata={
                         **context.metadata,
                         "workflow_id": workflow_id,
@@ -375,9 +363,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
 
         except Exception as e:
             # Workflow failed
-            execution_time = (
-                datetime.now(timezone.utc) - context.start_time
-            ).total_seconds()
+            execution_time = (datetime.now(timezone.utc) - context.start_time).total_seconds()
             error_msg = str(e)
 
             self._log_error(f"Workflow execution failed: {error_msg}", exc_info=True)
@@ -417,9 +403,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             # Cleanup
             self._cleanup_workflow(workflow_id)
 
-    async def execute_step(
-        self, step: WorkflowStep, input_data: Dict[str, Any]
-    ) -> WorkflowStepResult:
+    async def execute_step(self, step: WorkflowStep, input_data: Dict[str, Any]) -> WorkflowStepResult:
         """
         Execute a single workflow step.
 
@@ -461,9 +445,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                     backoff_factor=2.0,
                 )
 
-                response = await self.retry_service.execute_with_retry(
-                    llm_provider.generate, retry_policy, request
-                )
+                response = await self.retry_service.execute_with_retry(llm_provider.generate, retry_policy, request)
             else:
                 response = await llm_provider.generate(request)
 
@@ -551,9 +533,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 return WorkflowStatus.FAILED
 
             # Check if all steps completed
-            completed_steps = [
-                r for r in results if r.status == WorkflowStepStatus.COMPLETED
-            ]
+            completed_steps = [r for r in results if r.status == WorkflowStepStatus.COMPLETED]
             if len(completed_steps) == len(context.config.steps):
                 return WorkflowStatus.COMPLETED
 
@@ -627,17 +607,13 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
         if not step.prompt_template:
             raise ValueError(f"Step {step.name} missing prompt template")
 
-    async def _create_llm_request(
-        self, step: WorkflowStep, input_data: Dict[str, Any]
-    ) -> LLMRequest:
+    async def _create_llm_request(self, step: WorkflowStep, input_data: Dict[str, Any]) -> LLMRequest:
         """Create LLM request from step configuration and input data."""
         # Render prompt template
         if not self._prompt_service:
             raise RuntimeError("Prompt service not available")
 
-        system_prompt, user_prompt = await self._prompt_service.render_prompt(
-            step.prompt_template, input_data
-        )
+        system_prompt, user_prompt = await self._prompt_service.render_prompt(step.prompt_template, input_data)
 
         messages = []
         if system_prompt:
@@ -653,18 +629,14 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
             timeout=step.timeout,
         )
 
-    async def _parse_llm_response(
-        self, response: LLMResponse, step: WorkflowStep
-    ) -> Dict[str, Any]:
+    async def _parse_llm_response(self, response: LLMResponse, step: WorkflowStep) -> Dict[str, Any]:
         """Parse and validate LLM response."""
         if not self._output_parser:
             # Fallback to basic parsing
             return {"content": response.content}
 
         try:
-            parsed = self._output_parser.parse_xml(
-                response.content, step.required_fields
-            )
+            parsed = self._output_parser.parse_xml(response.content, step.required_fields)
 
             if parsed.result_type.value == "failed":
                 raise ValueError(f"Failed to parse LLM response: {parsed.errors}")
@@ -724,9 +696,7 @@ class WorkflowOrchestratorV2(IWorkflowOrchestrator):
                 "error_summary": self.error_collector.get_error_summary(),
             },
             "active_workflows": len(self._active_workflows),
-            "resource_manager": {
-                "managed_resources": len(self.resource_manager.resources)
-            },
+            "resource_manager": {"managed_resources": len(self.resource_manager.resources)},
         }
 
     async def cleanup(self) -> None:

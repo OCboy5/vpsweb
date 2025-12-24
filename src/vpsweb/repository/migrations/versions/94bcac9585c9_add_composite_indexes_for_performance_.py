@@ -22,9 +22,7 @@ def upgrade() -> None:
 
     # Composite indexes for Poem table
     # Common queries: "Get poems by poet with pagination" and "Search poems by poet and title"
-    op.create_index(
-        "idx_poems_poet_name_created_at", "poems", ["poet_name", "created_at"]
-    )
+    op.create_index("idx_poems_poet_name_created_at", "poems", ["poet_name", "created_at"])
     op.create_index("idx_poems_poet_title", "poems", ["poet_name", "poem_title"])
     op.create_index(
         "idx_poems_language_created_at",
@@ -57,9 +55,7 @@ def upgrade() -> None:
 
     # Composite indexes for AILog table
     # Common queries: "Get AI logs by model with pagination" and "Performance analysis by model and mode"
-    op.create_index(
-        "idx_ai_logs_model_created_at", "ai_logs", ["model_name", "created_at"]
-    )
+    op.create_index("idx_ai_logs_model_created_at", "ai_logs", ["model_name", "created_at"])
     op.create_index(
         "idx_ai_logs_mode_created_at",
         "ai_logs",

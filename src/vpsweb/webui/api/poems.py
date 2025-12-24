@@ -123,9 +123,7 @@ async def list_poems(
                     "yes",
                 )
             else:
-                selected_mapping[poem_id] = (
-                    bool(selected_val) if selected_val is not None else False
-                )
+                selected_mapping[poem_id] = bool(selected_val) if selected_val is not None else False
 
     # Build response data for each poem with individual translation counts
     for poem in poems:
@@ -263,13 +261,9 @@ async def get_filter_options(
         poets = [poet for poet in poets_result if poet]  # Filter out None values
 
         # Get all unique languages from database
-        languages_query = (
-            select(Poem.source_language).distinct().order_by(Poem.source_language)
-        )
+        languages_query = select(Poem.source_language).distinct().order_by(Poem.source_language)
         languages_result = service.db.execute(languages_query).scalars().all()
-        languages = [
-            lang for lang in languages_result if lang
-        ]  # Filter out None values
+        languages = [lang for lang in languages_result if lang]  # Filter out None values
 
         return PoemFilterOptions(
             poets=poets,
@@ -277,9 +271,7 @@ async def get_filter_options(
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get filter options: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get filter options: {str(e)}")
 
 
 @router.get("/recent-activity", response_model=WebAPIResponse)
@@ -327,9 +319,7 @@ async def get_recent_activity(
         )
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get recent activity: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get recent activity: {str(e)}")
 
 
 @router.get("/{poem_id}", response_model=PoemResponse)
@@ -349,9 +339,7 @@ async def get_poem(
     """
     poem = service.poems.get_by_id(poem_id)
     if not poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     # Check if BBR exists
     has_bbr = bbr_service.has_bbr(poem_id)
@@ -419,9 +407,7 @@ async def update_poem(
     # Check if poem exists
     existing_poem = service.poems.get_by_id(poem_id)
     if not existing_poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     # Convert form schema to update schema
     poem_update = PoemUpdate(
@@ -460,14 +446,10 @@ async def toggle_poem_selection(
     # Check if poem exists
     existing_poem = service.poems.get_by_id(poem_id)
     if not existing_poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     try:
-        updated_poem = service.poems.update_selection(
-            poem_id, selection_update.selected
-        )
+        updated_poem = service.poems.update_selection(poem_id, selection_update.selected)
         if not updated_poem:
             raise HTTPException(
                 status_code=500,
@@ -498,9 +480,7 @@ async def toggle_poem_selection(
 
 
 @router.delete("/{poem_id}", response_model=WebAPIResponse)
-async def delete_poem(
-    poem_id: str, service: RepositoryService = Depends(get_repository_service)
-):
+async def delete_poem(poem_id: str, service: RepositoryService = Depends(get_repository_service)):
     """
     Delete a poem and all its associated translations.
 
@@ -513,9 +493,7 @@ async def delete_poem(
     # Check if poem exists
     existing_poem = service.poems.get_by_id(poem_id)
     if not existing_poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     try:
         service.poems.delete(poem_id)
@@ -528,9 +506,7 @@ async def delete_poem(
 
 
 @router.get("/{poem_id}/translations", response_model=List[dict])
-async def get_poem_translations(
-    poem_id: str, service: RepositoryService = Depends(get_repository_service)
-):
+async def get_poem_translations(poem_id: str, service: RepositoryService = Depends(get_repository_service)):
     """
     Get all translations for a specific poem.
 
@@ -543,9 +519,7 @@ async def get_poem_translations(
     # Check if poem exists
     poem = service.poems.get_by_id(poem_id)
     if not poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     # Get translations for this poem
     translations = service.translations.get_by_poem(poem_id)
@@ -583,9 +557,7 @@ async def get_poem_translations(
 @router.post("/search", response_model=List[PoemResponse])
 async def search_poems(
     query: str = Query(..., min_length=1, max_length=100, description="Search query"),
-    search_type: str = Query(
-        "title", regex="^(title|poet|text|all)$", description="Search field"
-    ),
+    search_type: str = Query("title", regex="^(title|poet|text|all)$", description="Search field"),
     service: RepositoryService = Depends(get_repository_service),
 ):
     """
@@ -636,9 +608,7 @@ async def get_poem_translations_with_workflows(
     # Check if poem exists
     poem = service.poems.get_by_id(poem_id)
     if not poem:
-        raise HTTPException(
-            status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
     # Get translations for this poem
     translations = service.translations.get_by_poem(poem_id)
@@ -700,9 +670,7 @@ async def generate_bbr(
         # Verify poem exists
         poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
-            raise HTTPException(
-                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
         # Check if BBR already exists
         if bbr_service.has_bbr(poem_id):
@@ -746,9 +714,7 @@ async def get_bbr(
         # Verify poem exists
         poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
-            raise HTTPException(
-                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
         # Get BBR
         bbr = await bbr_service.get_bbr(poem_id)
@@ -788,9 +754,7 @@ async def delete_bbr(
         # Verify poem exists
         poem = repository_service.poems.get_by_id(poem_id)
         if not poem:
-            raise HTTPException(
-                status_code=404, detail=f"Poem with ID '{poem_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Poem with ID '{poem_id}' not found")
 
         # Check if BBR exists
         if not bbr_service.has_bbr(poem_id):

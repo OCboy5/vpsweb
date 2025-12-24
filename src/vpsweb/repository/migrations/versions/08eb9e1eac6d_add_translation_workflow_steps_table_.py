@@ -47,9 +47,7 @@ def upgrade() -> None:
         sa.Column("timestamp", sa.DateTime(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(["ai_log_id"], ["ai_logs.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["translation_id"], ["translations.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["translation_id"], ["translations.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
 

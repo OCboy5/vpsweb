@@ -638,12 +638,8 @@ def get_ulid_stats(ulids: List[str]) -> Dict[str, Any]:
         "time_range": {
             "oldest_timestamp": oldest_ts,
             "newest_timestamp": newest_ts,
-            "oldest_datetime": datetime.fromtimestamp(
-                oldest_ts / 1000, tz=timezone.utc
-            ).isoformat(),
-            "newest_datetime": datetime.fromtimestamp(
-                newest_ts / 1000, tz=timezone.utc
-            ).isoformat(),
+            "oldest_datetime": datetime.fromtimestamp(oldest_ts / 1000, tz=timezone.utc).isoformat(),
+            "newest_datetime": datetime.fromtimestamp(newest_ts / 1000, tz=timezone.utc).isoformat(),
         },
         "oldest": valid_ulids[timestamps.index(oldest_ts)],
         "newest": valid_ulids[timestamps.index(newest_ts)],

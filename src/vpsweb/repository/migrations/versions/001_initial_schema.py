@@ -96,9 +96,7 @@ def upgrade() -> None:
         sa.Column("runtime_seconds", sa.Float(), nullable=True),
         sa.Column("notes", sa.Text(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["translation_id"], ["translations.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["translation_id"], ["translations.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_ai_logs_id"), "ai_logs", ["id"], unique=False)
@@ -108,9 +106,7 @@ def upgrade() -> None:
         ["translation_id"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_ai_logs_model_name"), "ai_logs", ["model_name"], unique=False
-    )
+    op.create_index(op.f("ix_ai_logs_model_name"), "ai_logs", ["model_name"], unique=False)
     op.create_index(
         op.f("ix_ai_logs_workflow_mode"),
         "ai_logs",
@@ -126,9 +122,7 @@ def upgrade() -> None:
         sa.Column("translation_id", sa.String(length=26), nullable=False),
         sa.Column("note_text", sa.Text(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["translation_id"], ["translations.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["translation_id"], ["translations.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_human_notes_id"), "human_notes", ["id"], unique=False)
@@ -164,18 +158,14 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["poem_id"], ["poems.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_workflow_tasks_id"), "workflow_tasks", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_workflow_tasks_id"), "workflow_tasks", ["id"], unique=False)
     op.create_index(
         "idx_workflow_tasks_poem_id",
         "workflow_tasks",
         ["poem_id"],
         unique=False,
     )
-    op.create_index(
-        "idx_workflow_tasks_status", "workflow_tasks", ["status"], unique=False
-    )
+    op.create_index("idx_workflow_tasks_status", "workflow_tasks", ["status"], unique=False)
     op.create_index(
         "idx_workflow_tasks_created_at",
         "workflow_tasks",

@@ -29,9 +29,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     with op.batch_alter_table("translation_workflow_steps", schema=None) as batch_op:
-        batch_op.add_column(
-            sa.Column("user_model_name", sa.VARCHAR(length=200), nullable=True)
-        )
+        batch_op.add_column(sa.Column("user_model_name", sa.VARCHAR(length=200), nullable=True))
         batch_op.add_column(
             sa.Column(
                 "manual_mode",

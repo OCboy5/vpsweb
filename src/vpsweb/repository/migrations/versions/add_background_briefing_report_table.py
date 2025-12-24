@@ -47,9 +47,7 @@ def upgrade() -> None:
         ["created_at"],
         unique=False,
     )
-    op.create_index(
-        "idx_bbr_cost", "background_briefing_reports", ["cost"], unique=False
-    )
+    op.create_index("idx_bbr_cost", "background_briefing_reports", ["cost"], unique=False)
     op.create_index(
         "idx_bbr_time_spent",
         "background_briefing_reports",

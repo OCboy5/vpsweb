@@ -70,9 +70,7 @@ class ManualWorkflowService:
             # Get BBR if available
             bbr_content = ""
             try:
-                bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(
-                    poem_id
-                )
+                bbr = self.repository_service.repo.background_briefing_reports.get_by_poem(poem_id)
                 if bbr:
                     bbr_content = bbr.content
                     self.logger.info(
@@ -114,9 +112,7 @@ class ManualWorkflowService:
                 bbr_content=bbr_content,
             )
 
-            self.logger.info(
-                f"Started manual workflow session {session_id} for poem {poem_id}"
-            )
+            self.logger.info(f"Started manual workflow session {session_id} for poem {poem_id}")
 
             return {
                 "session_id": session_id,
@@ -163,9 +159,7 @@ class ManualWorkflowService:
             # Validate step name matches current step
             expected_step = step_sequence[current_step_index]
             if step_name != expected_step:
-                raise ValueError(
-                    f"Step mismatch: expected {expected_step}, got {step_name}"
-                )
+                raise ValueError(f"Step mismatch: expected {expected_step}, got {step_name}")
 
             # Parse the LLM response
             try:
@@ -201,9 +195,7 @@ class ManualWorkflowService:
                 poem = self.repository_service.repo.poems.get_by_id(session["poem_id"])
 
                 # Get previous results for context
-                previous_results = {
-                    k: v["parsed_data"] for k, v in session["completed_steps"].items()
-                }
+                previous_results = {k: v["parsed_data"] for k, v in session["completed_steps"].items()}
 
                 # Generate next step prompt
                 next_prompt = await self._get_step_prompt(
@@ -275,28 +267,16 @@ class ManualWorkflowService:
             if previous_results:
                 if "initial_translation_nonreasoning" in previous_results:
                     data = previous_results["initial_translation_nonreasoning"]
-                    template_vars["initial_translation"] = data.get(
-                        "initial_translation", ""
-                    )
-                    template_vars["initial_translation_notes"] = data.get(
-                        "initial_translation_notes", ""
-                    )
-                    template_vars["translated_poem_title"] = data.get(
-                        "translated_poem_title", ""
-                    )
-                    template_vars["translated_poet_name"] = data.get(
-                        "translated_poet_name", ""
-                    )
+                    template_vars["initial_translation"] = data.get("initial_translation", "")
+                    template_vars["initial_translation_notes"] = data.get("initial_translation_notes", "")
+                    template_vars["translated_poem_title"] = data.get("translated_poem_title", "")
+                    template_vars["translated_poet_name"] = data.get("translated_poet_name", "")
                 if "editor_review_reasoning" in previous_results:
                     data = previous_results["editor_review_reasoning"]
-                    template_vars["editor_suggestions"] = data.get(
-                        "editor_suggestions", ""
-                    )
+                    template_vars["editor_suggestions"] = data.get("editor_suggestions", "")
 
             # Render prompt (returns system_prompt, user_prompt)
-            system_prompt, user_prompt = self.prompt_service.render_prompt(
-                template_name, template_vars
-            )
+            system_prompt, user_prompt = self.prompt_service.render_prompt(template_name, template_vars)
 
             # Combine system and user prompts for manual workflow
             prompt = f"=== SYSTEM PROMPT ===\n{system_prompt}\n\n=== USER PROMPT ===\n{user_prompt}"
@@ -337,27 +317,19 @@ class ManualWorkflowService:
             )
 
             # Extract data from completed steps
-            initial_data = completed_steps["initial_translation_nonreasoning"][
-                "parsed_data"
-            ]
+            initial_data = completed_steps["initial_translation_nonreasoning"]["parsed_data"]
             editor_data = completed_steps["editor_review_reasoning"]["parsed_data"]
-            revision_data = completed_steps["translator_revision_nonreasoning"][
-                "parsed_data"
-            ]
+            revision_data = completed_steps["translator_revision_nonreasoning"]["parsed_data"]
 
             # Create InitialTranslation from parsed XML data
             initial_translation = InitialTranslation(
                 initial_translation=initial_data.get("initial_translation", ""),
-                initial_translation_notes=initial_data.get(
-                    "initial_translation_notes", ""
-                ),
+                initial_translation_notes=initial_data.get("initial_translation_notes", ""),
                 translated_poem_title=initial_data.get("translated_poem_title", ""),
                 translated_poet_name=initial_data.get("translated_poet_name", ""),
                 model_info={
                     "provider": "manual",
-                    "model": completed_steps["initial_translation_nonreasoning"][
-                        "model_name"
-                    ],
+                    "model": completed_steps["initial_translation_nonreasoning"]["model_name"],
                     "temperature": "0.7",
                     "max_tokens": "4000",
                 },
@@ -379,20 +351,12 @@ class ManualWorkflowService:
 
             revised_translation = RevisedTranslation(
                 revised_translation=revision_data.get("revised_translation", ""),
-                revised_translation_notes=revision_data.get(
-                    "revised_translation_notes", ""
-                ),
-                refined_translated_poem_title=revision_data.get(
-                    "refined_translated_poem_title", ""
-                ),
-                refined_translated_poet_name=revision_data.get(
-                    "refined_translated_poet_name", ""
-                ),
+                revised_translation_notes=revision_data.get("revised_translation_notes", ""),
+                refined_translated_poem_title=revision_data.get("refined_translated_poem_title", ""),
+                refined_translated_poet_name=revision_data.get("refined_translated_poet_name", ""),
                 model_info={
                     "provider": "manual",
-                    "model": completed_steps["translator_revision_nonreasoning"][
-                        "model_name"
-                    ],
+                    "model": completed_steps["translator_revision_nonreasoning"]["model_name"],
                     "temperature": "0.7",
                     "max_tokens": "4000",
                 },
@@ -409,17 +373,12 @@ class ManualWorkflowService:
             language_mapper = LanguageMapper()
 
             # Convert source language to proper code
-            source_lang_code = (
-                language_mapper.get_language_code(session["source_lang"])
-                or session["source_lang"]
-            )
+            source_lang_code = language_mapper.get_language_code(session["source_lang"]) or session["source_lang"]
             # Normalize the code
             source_lang_code = language_mapper.normalize_code(source_lang_code)
 
             # Convert target language to proper code and enum
-            target_lang_code = (
-                language_mapper.get_language_code(target_lang) or target_lang
-            )
+            target_lang_code = language_mapper.get_language_code(target_lang) or target_lang
             # Normalize the code
             target_lang_code = language_mapper.normalize_code(target_lang_code)
 
@@ -492,8 +451,6 @@ class ManualWorkflowService:
             del self.sessions[session_id]
 
         if expired_sessions:
-            self.logger.info(
-                f"Cleaned up {len(expired_sessions)} expired manual workflow sessions"
-            )
+            self.logger.info(f"Cleaned up {len(expired_sessions)} expired manual workflow sessions")
 
         return len(expired_sessions)

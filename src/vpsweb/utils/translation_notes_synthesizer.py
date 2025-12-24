@@ -54,13 +54,9 @@ class TranslationNotesSynthesizer:
                 provider_type=self.provider_config.get("type", "deepseek"),
                 config=self.provider_config,
             )
-            logger.info(
-                f"Translation notes synthesizer initialized with {self.provider_config.get('type')} provider"
-            )
+            logger.info(f"Translation notes synthesizer initialized with {self.provider_config.get('type')} provider")
         except Exception as e:
-            raise TranslationNotesSynthesizerError(
-                f"Failed to initialize LLM provider: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"Failed to initialize LLM provider: {e}")
 
     async def synthesize_notes(
         self, translation_data: Dict[str, Any], workflow_mode: str = "hybrid"
@@ -97,9 +93,7 @@ class TranslationNotesSynthesizer:
                 # Fallback to manual formatting if render fails
                 logger.warning(f"Template rendering failed, using fallback: {e}")
                 prompt_template = self.prompt_service.get_template(prompt_file)
-                formatted_prompt = self._format_prompt_fallback(
-                    prompt_template, notes_sources
-                )
+                formatted_prompt = self._format_prompt_fallback(prompt_template, notes_sources)
 
             # Generate notes using LLM
             response = await self._generate_with_llm(formatted_prompt, workflow_mode)
@@ -107,33 +101,23 @@ class TranslationNotesSynthesizer:
             # Parse XML response
             translation_notes = self._parse_xml_response(response)
 
-            logger.info(
-                f"Successfully synthesized {len(translation_notes.notes)} translation notes"
-            )
+            logger.info(f"Successfully synthesized {len(translation_notes.notes)} translation notes")
             return translation_notes
 
         except Exception as e:
             logger.error(f"Translation notes synthesis failed: {e}")
-            raise TranslationNotesSynthesizerError(
-                f"Failed to synthesize translation notes: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"Failed to synthesize translation notes: {e}")
 
-    def _extract_notes_sources(
-        self, translation_data: Dict[str, Any]
-    ) -> Dict[str, str]:
+    def _extract_notes_sources(self, translation_data: Dict[str, Any]) -> Dict[str, str]:
         """Extract translation notes sources from workflow data."""
         congregated = translation_data.get("congregated_output", {})
 
         sources = {
             "original_poem": "",
             "revised_translation": "",
-            "revised_translation_notes": congregated.get(
-                "revised_translation_notes", ""
-            ),
+            "revised_translation_notes": congregated.get("revised_translation_notes", ""),
             "editor_suggestions": congregated.get("editor_suggestions", ""),
-            "initial_translation_notes": congregated.get(
-                "initial_translation_notes", ""
-            ),
+            "initial_translation_notes": congregated.get("initial_translation_notes", ""),
         }
 
         # Extract original poem from input data
@@ -146,9 +130,7 @@ class TranslationNotesSynthesizer:
 
         # Fallback to top-level fields if congregated_output is not available
         if not sources["revised_translation_notes"]:
-            sources["revised_translation_notes"] = revised.get(
-                "revised_translation_notes", ""
-            )
+            sources["revised_translation_notes"] = revised.get("revised_translation_notes", "")
 
         if not sources["editor_suggestions"]:
             editor = translation_data.get("editor_review", {})
@@ -156,9 +138,7 @@ class TranslationNotesSynthesizer:
 
         if not sources["initial_translation_notes"]:
             initial = translation_data.get("initial_translation", {})
-            sources["initial_translation_notes"] = initial.get(
-                "initial_translation_notes", ""
-            )
+            sources["initial_translation_notes"] = initial.get("initial_translation_notes", "")
 
         return sources
 
@@ -169,9 +149,7 @@ class TranslationNotesSynthesizer:
         else:
             return "wechat_article_notes_nonreasoning.yaml"
 
-    def _format_prompt_fallback(
-        self, prompt_template: Dict[str, str], sources: Dict[str, str]
-    ) -> str:
+    def _format_prompt_fallback(self, prompt_template: Dict[str, str], sources: Dict[str, str]) -> str:
         """Fallback method to format prompt template using Python string formatting."""
         try:
             # Extract user prompt
@@ -183,9 +161,7 @@ class TranslationNotesSynthesizer:
             return formatted_user_prompt
 
         except KeyError as e:
-            raise TranslationNotesSynthesizerError(
-                f"Missing required template variable: {e}"
-            )
+            raise TranslationNotesSynthesizerError(f"Missing required template variable: {e}")
         except Exception as e:
             raise TranslationNotesSynthesizerError(f"Error formatting prompt: {e}")
 
@@ -193,9 +169,7 @@ class TranslationNotesSynthesizer:
         """Generate translation notes using LLM."""
         try:
             # Get parameters from system config or use defaults
-            translation_notes_config = self.system_config.get("system", {}).get(
-                "translation_notes", {}
-            )
+            translation_notes_config = self.system_config.get("system", {}).get("translation_notes", {})
 
             if workflow_mode in ["reasoning", "hybrid"]:
                 config = translation_notes_config.get("reasoning", {})
@@ -244,13 +218,9 @@ class TranslationNotesSynthesizer:
             xml_end = cleaned_response.find("</wechat_translation_notes>")
 
             if xml_start == -1 or xml_end == -1:
-                raise TranslationNotesSynthesizerError(
-                    "No valid XML found in LLM response"
-                )
+                raise TranslationNotesSynthesizerError("No valid XML found in LLM response")
 
-            xml_content = cleaned_response[
-                xml_start : xml_end + len("</wechat_translation_notes>")
-            ]
+            xml_content = cleaned_response[xml_start : xml_end + len("</wechat_translation_notes>")]
 
             # Parse XML
             root = ET.fromstring(xml_content)
@@ -279,16 +249,12 @@ class TranslationNotesSynthesizer:
                         bullet_points.append(bullet_point)
 
             if not bullet_points:
-                raise TranslationNotesSynthesizerError(
-                    "No bullet points found in XML response"
-                )
+                raise TranslationNotesSynthesizerError("No bullet points found in XML response")
 
             # Validate and create TranslationNotes
             translation_notes = TranslationNotes(digest=digest, notes=bullet_points)
 
-            logger.info(
-                f"Parsed {len(bullet_points)} translation notes from XML response"
-            )
+            logger.info(f"Parsed {len(bullet_points)} translation notes from XML response")
             return translation_notes
 
         except ET.ParseError as e:
@@ -337,9 +303,7 @@ class TranslationNotesSynthesizer:
                     notes_sources = self._extract_notes_sources(translation_data)
                     prompt_file = self._get_prompt_file(workflow_mode)
                     prompt_template = self.prompt_service.get_template(prompt_file)
-                    formatted_prompt = self._format_prompt_fallback(
-                        prompt_template, notes_sources
-                    )
+                    formatted_prompt = self._format_prompt_fallback(prompt_template, notes_sources)
 
                     # Configure fallback parameters
                     temperature = 0.3

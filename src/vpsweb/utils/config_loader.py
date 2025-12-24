@@ -56,9 +56,7 @@ def substitute_env_vars(value: str) -> str:
 
             env_value = os.getenv(var_name)
             if env_value is None:
-                logger.info(
-                    f"Environment variable '{var_name}' not set, using default value"
-                )
+                logger.info(f"Environment variable '{var_name}' not set, using default value")
                 return default_value
             return env_value
         else:
@@ -77,9 +75,7 @@ def substitute_env_vars(value: str) -> str:
         result = re.sub(pattern, replace_var, value)
         return result
     except Exception as e:
-        raise ConfigLoadError(
-            f"Error substituting environment variables in '{value}': {e}"
-        )
+        raise ConfigLoadError(f"Error substituting environment variables in '{value}': {e}")
 
 
 def substitute_env_vars_in_data(data: Any) -> Any:
@@ -142,9 +138,7 @@ def load_yaml_file(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise ConfigLoadError(f"Error reading configuration file {file_path}: {e}")
 
 
-def load_article_generation_config(
-    config_data: Dict[str, Any]
-) -> ArticleGenerationConfig:
+def load_article_generation_config(config_data: Dict[str, Any]) -> ArticleGenerationConfig:
     """
     Load and validate article generation configuration.
 
@@ -164,9 +158,7 @@ def load_article_generation_config(
         # Validate with Pydantic
         article_gen_config = ArticleGenerationConfig(**article_gen_data)
 
-        logger.info(
-            "Article generation configuration loaded and validated successfully"
-        )
+        logger.info("Article generation configuration loaded and validated successfully")
         return article_gen_config
 
     except ValidationError as e:
@@ -175,16 +167,12 @@ def load_article_generation_config(
             loc = " -> ".join(str(x) for x in error["loc"])
             error_details.append(f"  {loc}: {error['msg']}")
 
-        raise ConfigLoadError(
-            f"Invalid article generation configuration:\n" + "\n".join(error_details)
-        )
+        raise ConfigLoadError(f"Invalid article generation configuration:\n" + "\n".join(error_details))
     except Exception as e:
         raise ConfigLoadError(f"Error loading article generation configuration: {e}")
 
 
-def load_wechat_complete_config(
-    config_dir: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
+def load_wechat_complete_config(config_dir: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
     """
     Load complete WeChat-related configuration including API, article generation, and content settings.
 
@@ -212,21 +200,13 @@ def load_wechat_complete_config(
             "appid": full_config_data.get("appid"),
             "secret": full_config_data.get("secret"),
             "base_url": full_config_data.get("base_url", "https://api.weixin.qq.com"),
-            "token_cache_path": full_config_data.get(
-                "token_cache_path", "outputs/.cache/wechat_token.json"
-            ),
-            "timeouts": full_config_data.get(
-                "timeouts", {"connect": 5.0, "read": 20.0}
-            ),
-            "retry_config": full_config_data.get(
-                "retry", {"attempts": 3, "backoff": "exponential"}
-            ),
+            "token_cache_path": full_config_data.get("token_cache_path", "outputs/.cache/wechat_token.json"),
+            "timeouts": full_config_data.get("timeouts", {"connect": 5.0, "read": 20.0}),
+            "retry_config": full_config_data.get("retry", {"attempts": 3, "backoff": "exponential"}),
         }
 
         # Load article generation configuration
-        article_gen_config = load_article_generation_config(
-            full_config_data.get("article_generation", {})
-        )
+        article_gen_config = load_article_generation_config(full_config_data.get("article_generation", {}))
 
         # Combine all configurations
         complete_config = {
@@ -276,15 +256,9 @@ def validate_wechat_setup(config_dir: Optional[Union[str, Path]] = None) -> bool
             "appid": full_config_data.get("appid"),
             "secret": full_config_data.get("secret"),
             "base_url": full_config_data.get("base_url", "https://api.weixin.qq.com"),
-            "token_cache_path": full_config_data.get(
-                "token_cache_path", "outputs/.cache/wechat_token.json"
-            ),
-            "timeouts": full_config_data.get(
-                "timeouts", {"connect": 5.0, "read": 20.0}
-            ),
-            "retry_config": full_config_data.get(
-                "retry", {"attempts": 3, "backoff": "exponential"}
-            ),
+            "token_cache_path": full_config_data.get("token_cache_path", "outputs/.cache/wechat_token.json"),
+            "timeouts": full_config_data.get("timeouts", {"connect": 5.0, "read": 20.0}),
+            "retry_config": full_config_data.get("retry", {"attempts": 3, "backoff": "exponential"}),
         }
 
         # Convert to WeChatConfig object
@@ -298,9 +272,7 @@ def validate_wechat_setup(config_dir: Optional[Union[str, Path]] = None) -> bool
             raise ConfigLoadError("WeChat Secret is not configured")
 
         # Validate article generation configuration
-        article_gen_config = load_article_generation_config(
-            full_config_data.get("article_generation", {})
-        )
+        article_gen_config = load_article_generation_config(full_config_data.get("article_generation", {}))
 
         # Check if essential directories can be created
         output_dir = Path(wechat_config.token_cache_path).parent
@@ -309,9 +281,7 @@ def validate_wechat_setup(config_dir: Optional[Union[str, Path]] = None) -> bool
                 output_dir.mkdir(parents=True, exist_ok=True)
                 logger.info(f"Created cache directory: {output_dir}")
             except Exception as e:
-                raise ConfigLoadError(
-                    f"Cannot create cache directory {output_dir}: {e}"
-                )
+                raise ConfigLoadError(f"Cannot create cache directory {output_dir}: {e}")
 
         logger.info("WeChat configuration validation passed")
         return True
@@ -361,9 +331,7 @@ def load_task_templates_config() -> Dict[str, Any]:
     try:
         task_templates_path = Path("config/task_templates.yaml")
         if not task_templates_path.exists():
-            raise ConfigLoadError(
-                f"Task templates file not found: {task_templates_path}"
-            )
+            raise ConfigLoadError(f"Task templates file not found: {task_templates_path}")
 
         with open(task_templates_path, "r", encoding="utf-8") as f:
             task_templates_config = yaml.safe_load(f)
@@ -377,9 +345,7 @@ def load_task_templates_config() -> Dict[str, Any]:
         raise ConfigLoadError(f"Failed to load task templates configuration: {e}")
 
 
-def validate_config_files(
-    config_path: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
+def validate_config_files(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
     """
     Validate all configuration files.
 
@@ -472,9 +438,7 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
             main_config_path = Path(config_path)
 
         if not main_config_path.exists():
-            raise ConfigLoadError(
-                f"Main configuration file not found: {main_config_path}"
-            )
+            raise ConfigLoadError(f"Main configuration file not found: {main_config_path}")
 
         with open(main_config_path, "r", encoding="utf-8") as f:
             main_config_data = yaml.safe_load(f)
@@ -497,9 +461,7 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
                     if provider_name:
                         if provider_name not in provider_models:
                             provider_models[provider_name] = []
-                        provider_models[provider_name].append(
-                            model_info.get("name", model_name)
-                        )
+                        provider_models[provider_name].append(model_info.get("name", model_name))
 
             for provider_name, provider_info in models_config["providers"].items():
                 providers_data[provider_name] = {
@@ -507,15 +469,9 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> "CompleteConf
                     "base_url": provider_info.get("base_url"),
                     "type": provider_info.get("type", "openai_compatible"),
                     "models": provider_models.get(provider_name, []),  # Add models list
-                    "timeout": models_config.get("provider_settings", {}).get(
-                        "timeout", 180.0
-                    ),
-                    "max_retries": models_config.get("provider_settings", {}).get(
-                        "max_retries", 3
-                    ),
-                    "retry_delay": models_config.get("provider_settings", {}).get(
-                        "retry_delay", 1.0
-                    ),
+                    "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                    "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                    "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
                 }
 
         # Create providers config

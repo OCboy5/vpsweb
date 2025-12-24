@@ -62,9 +62,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 if not poem_text:
                     raise ValueError(f"Input file is empty: {input_path}")
 
-                self.logger.info(
-                    f"Read poem from file: {input_path} ({len(poem_text)} chars)"
-                )
+                self.logger.info(f"Read poem from file: {input_path} ({len(poem_text)} chars)")
                 return poem_text
 
             else:
@@ -91,9 +89,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
             self.logger.error(f"Error reading poem input: {e}")
             raise
 
-    def validate_translation_input(
-        self, source_lang: str, target_lang: str, poem_text: str
-    ) -> Dict[str, Any]:
+    def validate_translation_input(self, source_lang: str, target_lang: str, poem_text: str) -> Dict[str, Any]:
         """Validate translation input parameters."""
         try:
             errors = []
@@ -108,9 +104,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
                 errors.append("Poem text cannot be empty")
 
             if len(poem_text.strip()) < 10:
-                warnings.append(
-                    "Poem text is very short, translation quality may be affected"
-                )
+                warnings.append("Poem text is very short, translation quality may be affected")
 
             if len(poem_text.strip()) > 10000:
                 warnings.append("Poem text is very long, processing may take time")
@@ -178,9 +172,7 @@ class CLIInputServiceV2(ICLIInputServiceV2):
             if metadata:
                 input_data.metadata.update(metadata)
 
-            self.logger.debug(
-                f"Created TranslationInput: {source_lang} → {target_lang}"
-            )
+            self.logger.debug(f"Created TranslationInput: {source_lang} → {target_lang}")
             return input_data
 
         except Exception as e:
@@ -203,9 +195,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
         self.logger = logger or logging.getLogger(__name__)
         self.error_collector = ErrorCollector()
 
-    async def load_configuration(
-        self, config_path: Optional[str] = None, verbose: bool = False
-    ) -> Dict[str, Any]:
+    async def load_configuration(self, config_path: Optional[str] = None, verbose: bool = False) -> Dict[str, Any]:
         """Load and validate configuration using ConfigFacade."""
         try:
             click.echo("⚙️  Loading configuration...")
@@ -238,33 +228,21 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         if provider_name:
                             if provider_name not in provider_models:
                                 provider_models[provider_name] = []
-                            provider_models[provider_name].append(
-                                model_info.get("name", model_name)
-                            )
+                            provider_models[provider_name].append(model_info.get("name", model_name))
 
                 for provider_name, provider_info in models_config["providers"].items():
                     providers_data[provider_name] = {
                         "api_key_env": provider_info.get("api_key_env"),
                         "base_url": provider_info.get("base_url"),
                         "type": provider_info.get("type", "openai_compatible"),
-                        "models": provider_models.get(
-                            provider_name, []
-                        ),  # Add models list
-                        "timeout": models_config.get("provider_settings", {}).get(
-                            "timeout", 180.0
-                        ),
-                        "max_retries": models_config.get("provider_settings", {}).get(
-                            "max_retries", 3
-                        ),
-                        "retry_delay": models_config.get("provider_settings", {}).get(
-                            "retry_delay", 1.0
-                        ),
+                        "models": provider_models.get(provider_name, []),  # Add models list
+                        "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                        "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                        "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
                     }
 
             providers_config = ProvidersConfig(providers=providers_data)
-            complete_config = CompleteConfig(
-                main=main_config, providers=providers_config
-            )
+            complete_config = CompleteConfig(main=main_config, providers=providers_config)
 
             # Initialize ConfigFacade with CompleteConfig and new configs
             config_facade = initialize_config_facade(
@@ -298,12 +276,8 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             # Display configuration using ConfigFacade
             workflow_info = config_facade.get_workflow_info()
             self.logger.info(f"Configuration loaded from: {config_path or 'default'}")
-            self.logger.info(
-                f"Workflow: {workflow_info['name']} v{workflow_info['version']}"
-            )
-            self.logger.info(
-                f"Providers: {', '.join(config_facade.get_provider_names())}"
-            )
+            self.logger.info(f"Workflow: {workflow_info['name']} v{workflow_info['version']}")
+            self.logger.info(f"Providers: {', '.join(config_facade.get_provider_names())}")
 
             return {
                 "config_facade": config_facade,
@@ -319,9 +293,7 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
             self.logger.error(f"Error loading configuration: {e}")
             raise
 
-    async def validate_configuration(
-        self, config_path: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def validate_configuration(self, config_path: Optional[str] = None) -> Dict[str, Any]:
         """Validate configuration files using new config pattern."""
         try:
             click.echo("🔍 Validating configuration...")
@@ -365,42 +337,26 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         # Extract models for each provider
                         provider_models = {}
                         if "models" in models_config:
-                            for model_name, model_info in models_config[
-                                "models"
-                            ].items():
+                            for model_name, model_info in models_config["models"].items():
                                 provider_name = model_info.get("provider")
                                 if provider_name:
                                     if provider_name not in provider_models:
                                         provider_models[provider_name] = []
-                                    provider_models[provider_name].append(
-                                        model_info.get("name", model_name)
-                                    )
+                                    provider_models[provider_name].append(model_info.get("name", model_name))
 
-                        for provider_name, provider_info in models_config[
-                            "providers"
-                        ].items():
+                        for provider_name, provider_info in models_config["providers"].items():
                             providers_data[provider_name] = {
                                 "api_key_env": provider_info.get("api_key_env"),
                                 "base_url": provider_info.get("base_url"),
                                 "type": provider_info.get("type", "openai_compatible"),
-                                "models": provider_models.get(
-                                    provider_name, []
-                                ),  # Add models list
-                                "timeout": models_config.get(
-                                    "provider_settings", {}
-                                ).get("timeout", 180.0),
-                                "max_retries": models_config.get(
-                                    "provider_settings", {}
-                                ).get("max_retries", 3),
-                                "retry_delay": models_config.get(
-                                    "provider_settings", {}
-                                ).get("retry_delay", 1.0),
+                                "models": provider_models.get(provider_name, []),  # Add models list
+                                "timeout": models_config.get("provider_settings", {}).get("timeout", 180.0),
+                                "max_retries": models_config.get("provider_settings", {}).get("max_retries", 3),
+                                "retry_delay": models_config.get("provider_settings", {}).get("retry_delay", 1.0),
                             }
 
                     providers_config = ProvidersConfig(providers=providers_data)
-                    complete_config = CompleteConfig(
-                        main=main_config, providers=providers_config
-                    )
+                    complete_config = CompleteConfig(main=main_config, providers=providers_config)
 
                     config_facade = initialize_config_facade(
                         complete_config,
@@ -408,17 +364,13 @@ class CLIConfigurationServiceV2(ICLIConfigurationServiceV2):
                         task_templates_config=task_templates_config,
                     )
                 else:
-                    raise Exception(
-                        "Cannot initialize ConfigFacade due to model configuration errors"
-                    )
+                    raise Exception("Cannot initialize ConfigFacade due to model configuration errors")
                 click.echo("  ✅ ConfigFacade initialization successful")
 
                 # Test basic functionality
                 config_facade.get_workflow_info()
                 provider_names = config_facade.get_provider_names()
-                click.echo(
-                    f"  ✅ Found {len(provider_names)} providers: {', '.join(provider_names)}"
-                )
+                click.echo(f"  ✅ Found {len(provider_names)} providers: {', '.join(provider_names)}")
 
             except Exception as e:
                 errors.append(f"ConfigFacade initialization failed: {e}")
@@ -492,17 +444,13 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
         self.error_collector = ErrorCollector()
         self.performance_monitor = PerformanceMonitor()
 
-    async def initialize_workflow(
-        self, config: Dict[str, Any], workflow_mode: WorkflowMode
-    ) -> TranslationWorkflow:
+    async def initialize_workflow(self, config: Dict[str, Any], workflow_mode: WorkflowMode) -> TranslationWorkflow:
         """Initialize translation workflow."""
         try:
             workflow_config = config["workflow_config"]
             providers_config = config["providers_config"]
 
-            workflow = TranslationWorkflow(
-                workflow_config, providers_config, workflow_mode
-            )
+            workflow = TranslationWorkflow(workflow_config, providers_config, workflow_mode)
 
             self.logger.info(f"Workflow initialized: {workflow_mode.value}")
             return workflow
@@ -527,9 +475,7 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
             click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
 
             # Display original poem
-            click.echo(
-                f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):"
-            )
+            click.echo(f"\n📄 Original Poem ({input_data.source_lang} → {input_data.target_lang}):")
             click.echo("-" * 30)
             poem = input_data.original_poem
             if len(poem) > 200:
@@ -539,13 +485,9 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
             click.echo()
 
             # Execute workflow
-            translation_output = await workflow.execute(
-                input_data, show_progress=show_progress
-            )
+            translation_output = await workflow.execute(input_data, show_progress=show_progress)
 
-            self.logger.info(
-                f"Workflow completed successfully: {translation_output.workflow_id}"
-            )
+            self.logger.info(f"Workflow completed successfully: {translation_output.workflow_id}")
             return translation_output
 
         except Exception as e:
@@ -590,9 +532,7 @@ class CLIWorkflowServiceV2(ICLIWorkflowServiceV2):
                 click.echo("✅ Input validation passed")
                 click.echo(f"   Source: {input_data.source_lang}")
                 click.echo(f"   Target: {input_data.target_lang}")
-                click.echo(
-                    f"   Poem length: {len(input_data.original_poem)} characters"
-                )
+                click.echo(f"   Poem length: {len(input_data.original_poem)} characters")
             else:
                 for error in result["errors"]:
                     click.echo(f"❌ {error}")
@@ -612,9 +552,7 @@ class CLIStorageServiceV2(ICLIStorageServiceV2):
         self.logger = logger or logging.getLogger(__name__)
         self.error_collector = ErrorCollector()
 
-    async def setup_storage_handler(
-        self, output_dir: Optional[str] = None
-    ) -> StorageHandler:
+    async def setup_storage_handler(self, output_dir: Optional[str] = None) -> StorageHandler:
         """Setup storage handler for results."""
         try:
             storage_handler = StorageHandler(output_dir or "outputs")
@@ -642,15 +580,9 @@ class CLIStorageServiceV2(ICLIStorageServiceV2):
             workflow_id = translation_output.workflow_id[:8]
 
             result = {
-                "json": Path(
-                    f"outputs/json/translation_{workflow_id}_{timestamp}.json"
-                ),
-                "markdown_final": Path(
-                    f"outputs/markdown/translation_{workflow_id}_{timestamp}.md"
-                ),
-                "markdown_log": Path(
-                    f"outputs/markdown/translation_{workflow_id}_{timestamp}_log.md"
-                ),
+                "json": Path(f"outputs/json/translation_{workflow_id}_{timestamp}.json"),
+                "markdown_final": Path(f"outputs/markdown/translation_{workflow_id}_{timestamp}.md"),
+                "markdown_log": Path(f"outputs/markdown/translation_{workflow_id}_{timestamp}_log.md"),
             }
 
             self.logger.info(f"Translation results saved: {len(result)} files")
@@ -694,15 +626,9 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
 
             # Step-by-step details
             click.echo("\n📊 Step-by-Step Details:")
-            click.echo(
-                f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens"
-            )
-            click.echo(
-                f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens"
-            )
-            click.echo(
-                f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens"
-            )
+            click.echo(f"  Step 1 (Initial): 🧮 {translation_output.initial_translation.tokens_used} tokens")
+            click.echo(f"  Step 2 (Editor): 🧮 {translation_output.editor_review.tokens_used} tokens")
+            click.echo(f"  Step 3 (Revision): 🧮 {translation_output.revised_translation.tokens_used} tokens")
 
             # Total summary
             click.echo(
@@ -713,11 +639,7 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
             editor_suggestions = translation_output.editor_review.editor_suggestions
             if editor_suggestions:
                 suggestions_count = len(
-                    [
-                        line
-                        for line in editor_suggestions.split("\n")
-                        if line.strip() and line.strip()[0].isdigit()
-                    ]
+                    [line for line in editor_suggestions.split("\n") if line.strip() and line.strip()[0].isdigit()]
                 )
                 click.echo(f"📋 Editor suggestions: {suggestions_count}")
             else:
@@ -729,15 +651,11 @@ class CLIOutputServiceV2(ICLIOutputServiceV2):
             self.logger.error(f"Error displaying translation summary: {e}")
             # Don't raise - display errors shouldn't stop the workflow
 
-    def format_workflow_progress(
-        self, step_name: str, progress_data: Dict[str, Any]
-    ) -> str:
+    def format_workflow_progress(self, step_name: str, progress_data: Dict[str, Any]) -> str:
         """Format workflow progress information."""
         try:
             if progress_data.get("status") == "in_progress":
-                return (
-                    f"🔄 {step_name}: {progress_data.get('message', 'Processing...')}"
-                )
+                return f"🔄 {step_name}: {progress_data.get('message', 'Processing...')}"
             elif progress_data.get("status") == "completed":
                 return f"✅ {step_name}: Completed"
             elif progress_data.get("status") == "error":
@@ -788,9 +706,7 @@ class CLIErrorHandlerV2(ICLIErrorHandlerV2):
         self.logger = logger or logging.getLogger(__name__)
         self.error_collector = ErrorCollector()
 
-    def handle_cli_error(
-        self, error: Exception, command_context: str, verbose: bool = False
-    ) -> int:
+    def handle_cli_error(self, error: Exception, command_context: str, verbose: bool = False) -> int:
         """Handle CLI errors and return exit code."""
         try:
             error_type = self.categorize_error(error)
@@ -873,24 +789,18 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
 
-    async def setup_command_logging(
-        self, command_name: str, verbose: bool = False
-    ) -> None:
+    async def setup_command_logging(self, command_name: str, verbose: bool = False) -> None:
         """Setup logging for specific command."""
         try:
             log_level = LogLevel.DEBUG if verbose else LogLevel.INFO
             setup_logging(log_level)
 
-            self.logger.info(
-                f"CLI command logging setup: {command_name} (level: {log_level.value})"
-            )
+            self.logger.info(f"CLI command logging setup: {command_name} (level: {log_level.value})")
 
         except Exception as e:
             self.logger.error(f"Error setting up command logging: {e}")
 
-    async def log_command_start(
-        self, command_name: str, parameters: Dict[str, Any]
-    ) -> None:
+    async def log_command_start(self, command_name: str, parameters: Dict[str, Any]) -> None:
         """Log command start with parameters."""
         try:
             # Log sensitive parameters appropriately
@@ -902,16 +812,12 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
                 else:
                     safe_params[key] = value
 
-            self.logger.info(
-                f"CLI command started: {command_name} with params: {safe_params}"
-            )
+            self.logger.info(f"CLI command started: {command_name} with params: {safe_params}")
 
         except Exception as e:
             self.logger.error(f"Error logging command start: {e}")
 
-    async def log_command_success(
-        self, command_name: str, result: Dict[str, Any]
-    ) -> None:
+    async def log_command_success(self, command_name: str, result: Dict[str, Any]) -> None:
         """Log successful command completion."""
         try:
             # Log key result information
@@ -923,16 +829,12 @@ class CLILoggerServiceV2(ICLILoggerServiceV2):
             if "duration" in result:
                 summary["duration"] = f"{result['duration']:.2f}s"
 
-            self.logger.info(
-                f"CLI command completed: {command_name} - Result: {summary}"
-            )
+            self.logger.info(f"CLI command completed: {command_name} - Result: {summary}")
 
         except Exception as e:
             self.logger.error(f"Error logging command success: {e}")
 
-    async def log_command_error(
-        self, command_name: str, error: Exception, context: Dict[str, Any]
-    ) -> None:
+    async def log_command_error(self, command_name: str, error: Exception, context: Dict[str, Any]) -> None:
         """Log command error with context."""
         try:
             error_info = {
@@ -1048,18 +950,12 @@ class CLICommandServiceV2(ICLICommandServiceV2):
             poem_text = await self.input_service.read_poem_from_input(input_path)
 
             # Validate input
-            validation_result = self.input_service.validate_translation_input(
-                source_lang, target_lang, poem_text
-            )
+            validation_result = self.input_service.validate_translation_input(source_lang, target_lang, poem_text)
             if not validation_result["valid"]:
-                raise ValueError(
-                    f"Input validation failed: {validation_result['errors']}"
-                )
+                raise ValueError(f"Input validation failed: {validation_result['errors']}")
 
             # Create translation input
-            input_data = self.input_service.create_translation_input(
-                poem_text, source_lang, target_lang
-            )
+            input_data = self.input_service.create_translation_input(poem_text, source_lang, target_lang)
 
             # Load configuration
             config = await self.config_service.load_configuration(config_path, verbose)
@@ -1069,34 +965,24 @@ class CLICommandServiceV2(ICLICommandServiceV2):
 
             if dry_run:
                 # Validation only
-                validation_result = await self.workflow_service.validate_workflow_input(
-                    input_data, config_path
-                )
+                validation_result = await self.workflow_service.validate_workflow_input(input_data, config_path)
                 return {"dry_run": True, "validation": validation_result}
 
             # Initialize and execute workflow
-            workflow = await self.workflow_service.initialize_workflow(
-                config, workflow_mode_enum
-            )
-            translation_output = (
-                await self.workflow_service.execute_translation_workflow(
-                    workflow, input_data, workflow_mode, show_progress=True
-                )
+            workflow = await self.workflow_service.initialize_workflow(config, workflow_mode_enum)
+            translation_output = await self.workflow_service.execute_translation_workflow(
+                workflow, input_data, workflow_mode, show_progress=True
             )
 
             # Setup storage and save results
-            storage_handler = await self.storage_service.setup_storage_handler(
-                output_dir
-            )
+            storage_handler = await self.storage_service.setup_storage_handler(output_dir)
             include_mode_tag = config["storage_config"].workflow_mode_tag
             saved_files = await self.storage_service.save_translation_results(
                 translation_output, workflow_mode, include_mode_tag
             )
 
             # Display summary
-            await self.output_service.display_translation_summary(
-                translation_output, saved_files
-            )
+            await self.output_service.display_translation_summary(translation_output, saved_files)
 
             # Log success
             result = {
@@ -1183,9 +1069,7 @@ class CLICommandServiceV2(ICLICommandServiceV2):
                 },
             )
 
-            result = await self.wechat_service.publish_wechat_article(
-                directory, config_path, dry_run
-            )
+            result = await self.wechat_service.publish_wechat_article(directory, config_path, dry_run)
 
             await self.logger_service.log_command_success("publish-article", result)
             return result

@@ -644,12 +644,8 @@ async def test_client(db_session):
     # Create comprehensive mock BBR service
     mock_bbr_service = MagicMock()
     mock_bbr_service.has_bbr.return_value = False
-    mock_bbr_service.generate_bbr = AsyncMock(
-        return_value={"task_id": "mock-task", "status": "started"}
-    )
-    mock_bbr_service.get_bbr = AsyncMock(
-        return_value={"id": "mock-bbr", "content": "Mock BBR content"}
-    )
+    mock_bbr_service.generate_bbr = AsyncMock(return_value={"task_id": "mock-task", "status": "started"})
+    mock_bbr_service.get_bbr = AsyncMock(return_value={"id": "mock-bbr", "content": "Mock BBR content"})
     mock_bbr_service.delete_bbr = AsyncMock(return_value={"success": True})
 
     # Create mock Poem service
@@ -658,12 +654,8 @@ async def test_client(db_session):
 
     # Create mock Workflow service
     mock_workflow_service = MagicMock()
-    mock_workflow_service.start_workflow = AsyncMock(
-        return_value={"task_id": "mock-workflow", "status": "started"}
-    )
-    mock_workflow_service.start_translation_workflow = AsyncMock(
-        return_value="mock-task-id"
-    )
+    mock_workflow_service.start_workflow = AsyncMock(return_value={"task_id": "mock-workflow", "status": "started"})
+    mock_workflow_service.start_translation_workflow = AsyncMock(return_value="mock-task-id")
 
     # Create test Repository service that uses test database session
     from src.vpsweb.repository.service import RepositoryWebService
@@ -890,8 +882,7 @@ def poem_generator():
                 "poet_name": f"Poet {i+1}",
                 "poem_title": f"Test Poem {i+1}",
                 "source_language": "English" if i % 2 == 0 else "Chinese",
-                "original_text": f"This is test poem number {i+1} with sufficient content for validation. "
-                * 3,
+                "original_text": f"This is test poem number {i+1} with sufficient content for validation. " * 3,
                 "metadata_json": f'{{"test_index": {i+1}}}',
             }
             poems.append(poem)
@@ -910,8 +901,7 @@ def translation_generator():
             translation = {
                 "poem_id": poem_id,
                 "target_language": target_lang,
-                "translated_text": f"This is translation {i+1} for poem {poem_id}. "
-                * 2,
+                "translated_text": f"This is translation {i+1} for poem {poem_id}. " * 2,
                 "translator_type": "ai",
                 "translator_info": f"Test Translator {i+1}",
             }
@@ -1049,17 +1039,11 @@ def performance_timer():
 # Enhanced pytest markers
 def pytest_configure(config):
     """Configure enhanced custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests (fast, no external dependencies)"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Integration tests (require database)"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests (fast, no external dependencies)")
+    config.addinivalue_line("markers", "integration: Integration tests (require database)")
     config.addinivalue_line("markers", "slow: Slow tests (marked for CI)")
     config.addinivalue_line("markers", "repository: Repository layer tests")
     config.addinivalue_line("markers", "webui: Web UI tests")
     config.addinivalue_line("markers", "workflow: Workflow tests")
     config.addinivalue_line("markers", "api: API endpoint tests")
-    config.addinivalue_line(
-        "markers", "database: Database tests (requires in-memory DB)"
-    )
+    config.addinivalue_line("markers", "database: Database tests (requires in-memory DB)")

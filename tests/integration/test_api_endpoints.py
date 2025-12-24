@@ -52,9 +52,7 @@ class TestPoemEndpoints:
     async def test_poem_pagination_and_filtering(self, test_client, test_context):
         """Test poem pagination and filtering in one comprehensive test."""
         # Create test data
-        test_context.create_poem(
-            poet_name="李白", poem_title="静夜思", source_language="zh-CN"
-        )
+        test_context.create_poem(poet_name="李白", poem_title="静夜思", source_language="zh-CN")
         test_context.create_poem(poet_name="Shakespeare", source_language="en")
 
         # Test pagination
@@ -99,9 +97,7 @@ And sings the tune without the words,""",
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
-    async def test_get_poem_success_and_not_found(
-        self, test_client: AsyncClient, sample_poem
-    ):
+    async def test_get_poem_success_and_not_found(self, test_client: AsyncClient, sample_poem):
         """Test GET /api/v1/poems/{poem_id} success and 404 cases."""
         # Test success
         response = await test_client.get(f"/api/v1/poems/{sample_poem.id}")
@@ -124,9 +120,7 @@ And sings the tune without the words,""",
             "source_language": sample_poem.source_language,
             "original_text": sample_poem.original_text,
         }
-        response = await test_client.put(
-            f"/api/v1/poems/{sample_poem.id}", json=update_data
-        )
+        response = await test_client.put(f"/api/v1/poems/{sample_poem.id}", json=update_data)
         assert response.status_code == 200
         data = response.json()
         assert data["poet_name"] == "Updated Poet"
@@ -137,17 +131,13 @@ And sings the tune without the words,""",
         assert response.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_poem_selection_and_deletion(
-        self, test_client: AsyncClient, sample_poem
-    ):
+    async def test_poem_selection_and_deletion(self, test_client: AsyncClient, sample_poem):
         """Test poem selection toggle and deletion."""
         # Store poem ID before any database operations
         poem_id = sample_poem.id
 
         # Test selection toggle
-        response = await test_client.patch(
-            f"/api/v1/poems/{poem_id}/selected", json={"selected": True}
-        )
+        response = await test_client.patch(f"/api/v1/poems/{poem_id}/selected", json={"selected": True})
         assert response.status_code == 200
         data = response.json()
         assert data["selected"] is True
@@ -161,9 +151,7 @@ And sings the tune without the words,""",
         assert response.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_poem_translations_workflow(
-        self, test_client: AsyncClient, sample_poem
-    ):
+    async def test_poem_translations_workflow(self, test_client: AsyncClient, sample_poem):
         """Test GET /api/v1/poems/{poem_id}/translations workflow."""
         # Test empty translations
         response = await test_client.get(f"/api/v1/poems/{sample_poem.id}/translations")
@@ -172,9 +160,7 @@ And sings the tune without the words,""",
         assert len(data) == 0  # API returns List[dict] directly
 
     @pytest.mark.asyncio
-    async def test_get_filter_options_and_activity(
-        self, test_client: AsyncClient, test_context
-    ):
+    async def test_get_filter_options_and_activity(self, test_client: AsyncClient, test_context):
         """Test GET endpoints for filter options and recent activity."""
         # Create test data
         test_context.create_poem(poet_name="李白", source_language="zh-CN")
@@ -205,9 +191,7 @@ class TestTranslationEndpoints:
     """Essential translation API endpoint tests."""
 
     @pytest.mark.asyncio
-    async def test_list_translations_workflow(
-        self, test_client: AsyncClient, test_context
-    ):
+    async def test_list_translations_workflow(self, test_client: AsyncClient, test_context):
         """Test translation listing workflow."""
         # Create poem and translation
         poem = test_context.create_poem(
@@ -238,9 +222,7 @@ class TestTranslationEndpoints:
         assert translation.target_language == "zh-CN"
 
     @pytest.mark.asyncio
-    async def test_trigger_translation_workflow(
-        self, test_client: AsyncClient, sample_poem
-    ):
+    async def test_trigger_translation_workflow(self, test_client: AsyncClient, sample_poem):
         """Test translation triggering with different modes."""
         # Mock LLM providers to avoid external dependencies
         with patch("src.vpsweb.services.llm.factory.LLMFactory.get_provider"):
@@ -282,9 +264,7 @@ class TestBBREndpoints:
         # Note: BBR service is already mocked globally in conftest.py
 
         # Test generation
-        response = await test_client.post(
-            f"/api/v1/poems/{sample_poem.id}/bbr/generate"
-        )
+        response = await test_client.post(f"/api/v1/poems/{sample_poem.id}/bbr/generate")
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -332,9 +312,7 @@ class TestBusinessWorkflows:
     """Essential business workflow integration tests."""
 
     @pytest.mark.asyncio
-    async def test_complete_poem_translation_workflow(
-        self, test_client: AsyncClient, test_context
-    ):
+    async def test_complete_poem_translation_workflow(self, test_client: AsyncClient, test_context):
         """Test complete workflow: create poem -> generate translations -> verify results."""
         # Create poem
         poem = test_context.create_poem(
@@ -370,27 +348,19 @@ class TestBusinessWorkflows:
             assert "target_language" in data[0]
 
     @pytest.mark.asyncio
-    async def test_filter_and_search_integration(
-        self, test_client: AsyncClient, test_context
-    ):
+    async def test_filter_and_search_integration(self, test_client: AsyncClient, test_context):
         """Test integrated filtering and search functionality."""
         # Create diverse test data
-        test_context.create_poem(
-            poet_name="Emily Dickinson", poem_title="Hope", source_language="en"
-        )
+        test_context.create_poem(poet_name="Emily Dickinson", poem_title="Hope", source_language="en")
         test_context.create_poem(
             poet_name="Emily Dickinson",
             poem_title="Because I could not stop for Death",
             source_language="en",
         )
-        test_context.create_poem(
-            poet_name="李白", poem_title="静夜思", source_language="zh-CN"
-        )
+        test_context.create_poem(poet_name="李白", poem_title="静夜思", source_language="zh-CN")
 
         # Test combined filters
-        response = await test_client.get(
-            "/api/v1/poems/?poet_name=Emily Dickinson&language=en"
-        )
+        response = await test_client.get("/api/v1/poems/?poet_name=Emily Dickinson&language=en")
         assert response.status_code == 200
         data = response.json()
         # Due to test isolation, we focus on filter behavior rather than exact counts

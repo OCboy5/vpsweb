@@ -56,9 +56,7 @@ class StorageHandler:
             # Create output directories if they don't exist
             self.output_dir.mkdir(parents=True, exist_ok=True)
             self.json_dir.mkdir(parents=True, exist_ok=True)
-            logger.info(
-                f"Storage handler initialized with output directory: {self.output_dir.absolute()}"
-            )
+            logger.info(f"Storage handler initialized with output directory: {self.output_dir.absolute()}")
             logger.info(f"JSON files will be stored in: {self.json_dir.absolute()}")
 
             # Initialize markdown exporter
@@ -66,9 +64,7 @@ class StorageHandler:
 
         except Exception as e:
             logger.error(f"Failed to create output directory '{self.output_dir}': {e}")
-            raise StorageError(
-                f"Could not create output directory '{self.output_dir}': {e}"
-            )
+            raise StorageError(f"Could not create output directory '{self.output_dir}': {e}")
 
     def save_translation(
         self,
@@ -95,9 +91,7 @@ class StorageHandler:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # Extract poet and title information
-            poet, title = extract_poet_and_title(
-                output.input.original_poem, output.input.metadata
-            )
+            poet, title = extract_poet_and_title(output.input.original_poem, output.input.metadata)
 
             # Generate new descriptive filename
             filename = generate_translation_filename(
@@ -122,17 +116,13 @@ class StorageHandler:
                 json.dump(output_dict, f, ensure_ascii=False, indent=2)
 
             logger.info(f"Translation saved to: {file_path}")
-            logger.debug(
-                f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}"
-            )
+            logger.debug(f"Workflow ID: {output.workflow_id}, Total tokens: {output.total_tokens}")
             logger.info(f"Generated filename with poet '{poet}' and title '{title}'")
 
             return file_path
 
         except Exception as e:
-            logger.error(
-                f"JSON serialization failed for workflow {output.workflow_id}: {e}"
-            )
+            logger.error(f"JSON serialization failed for workflow {output.workflow_id}: {e}")
             raise SaveError(f"Failed to serialize translation output: {e}")
         except IOError as e:
             logger.error(f"File I/O error while saving translation: {e}")
@@ -208,9 +198,7 @@ class StorageHandler:
             # Sort by modification time (newest first)
             translation_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
-            logger.debug(
-                f"Found {len(translation_files)} translation files in {self.json_dir}"
-            )
+            logger.debug(f"Found {len(translation_files)} translation files in {self.json_dir}")
 
             return translation_files
 
@@ -238,9 +226,7 @@ class StorageHandler:
                 try:
                     translation = self.load_translation(file_path)
                     if translation.workflow_id == workflow_id:
-                        logger.info(
-                            f"Found translation with workflow ID: {workflow_id}"
-                        )
+                        logger.info(f"Found translation with workflow ID: {workflow_id}")
                         return translation
                 except LoadError:
                     # Skip files that can't be loaded
@@ -269,9 +255,7 @@ class StorageHandler:
         try:
             # Ensure the file is within our output directory for safety
             if not file_path.is_relative_to(self.output_dir):
-                logger.warning(
-                    f"Attempted to delete file outside output directory: {file_path}"
-                )
+                logger.warning(f"Attempted to delete file outside output directory: {file_path}")
                 return False
 
             if file_path.exists() and file_path.is_file():
@@ -347,9 +331,7 @@ class StorageHandler:
         """
         try:
             translation_files = self.list_translations()
-            total_size = sum(
-                file_path.stat().st_size for file_path in translation_files
-            )
+            total_size = sum(file_path.stat().st_size for file_path in translation_files)
 
             return {
                 "output_directory": str(self.output_dir.absolute()),
@@ -357,14 +339,10 @@ class StorageHandler:
                 "total_size_bytes": total_size,
                 "total_size_mb": round(total_size / (1024 * 1024), 2),
                 "oldest_file": (
-                    min(translation_files, key=lambda x: x.stat().st_mtime).name
-                    if translation_files
-                    else None
+                    min(translation_files, key=lambda x: x.stat().st_mtime).name if translation_files else None
                 ),
                 "newest_file": (
-                    max(translation_files, key=lambda x: x.stat().st_mtime).name
-                    if translation_files
-                    else None
+                    max(translation_files, key=lambda x: x.stat().st_mtime).name if translation_files else None
                 ),
             }
 
@@ -408,9 +386,7 @@ class StorageHandler:
 
             # Generate timestamp and filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            poet, title = extract_poet_and_title(
-                output.input.original_poem, output.input.metadata
-            )
+            poet, title = extract_poet_and_title(output.input.original_poem, output.input.metadata)
 
             # Use provided poet_name or extracted poet
             effective_poet_name = poet_name or poet

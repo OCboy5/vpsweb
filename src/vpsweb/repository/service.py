@@ -46,9 +46,7 @@ class RepositoryWebService:
         return {
             "stats": stats,
             "recent_poems": [self._poem_to_response(p) for p in recent_poems],
-            "recent_translations": [
-                self._translation_to_response(t) for t in recent_translations
-            ],
+            "recent_translations": [self._translation_to_response(t) for t in recent_translations],
         }
 
     # Poem Methods
@@ -82,9 +80,7 @@ class RepositoryWebService:
             poems = self.repo.search_poems(search, limit=page_size)
             total = len(poems)  # Note: For large datasets, this should be optimized
         else:
-            poems = self.repo.poems.get_multi(
-                skip=offset, limit=page_size, poet_name=poet, language=language
-            )
+            poems = self.repo.poems.get_multi(skip=offset, limit=page_size, poet_name=poet, language=language)
             total = self.repo.poems.count()
 
         return {
@@ -99,9 +95,7 @@ class RepositoryWebService:
             },
         }
 
-    def update_poem(
-        self, poem_id: str, poem_data: PoemUpdate
-    ) -> Optional[PoemResponse]:
+    def update_poem(self, poem_id: str, poem_data: PoemUpdate) -> Optional[PoemResponse]:
         """Update a poem"""
         try:
             poem = self.repo.poems.update(poem_id, poem_data)
@@ -125,9 +119,7 @@ class RepositoryWebService:
             raise self._handle_error("Failed to delete poem", e)
 
     # Translation Methods
-    def create_translation(
-        self, translation_data: TranslationCreate
-    ) -> TranslationResponse:
+    def create_translation(self, translation_data: TranslationCreate) -> TranslationResponse:
         """Create a new translation"""
         try:
             # Verify poem exists
@@ -158,15 +150,11 @@ class RepositoryWebService:
                 ai_logs = self.repo.ai_logs.get_by_translation(translation.id)
                 workflow_mode = ai_logs[0].workflow_mode if ai_logs else None
 
-            translation_response = self._translation_to_response(
-                translation, workflow_mode
-            )
+            translation_response = self._translation_to_response(translation, workflow_mode)
             result.append(translation_response)
         return result
 
-    def get_translation_with_details(
-        self, translation_id: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_translation_with_details(self, translation_id: str) -> Optional[Dict[str, Any]]:
         """Get translation with all related details (AI logs, human notes)"""
         translation = self.repo.translations.get_by_id(translation_id)
         if not translation:
@@ -186,9 +174,7 @@ class RepositoryWebService:
     ) -> Optional[TranslationResponse]:
         """Update a translation"""
         try:
-            translation = self.repo.translations.update(
-                translation_id, translation_data
-            )
+            translation = self.repo.translations.update(translation_id, translation_data)
             if translation:
                 return self._translation_to_response(translation)
             return None
@@ -209,9 +195,7 @@ class RepositoryWebService:
             # Verify translation exists
             translation = self.repo.translations.get_by_id(ai_log_data.translation_id)
             if not translation:
-                raise ValueError(
-                    f"Translation with ID {ai_log_data.translation_id} not found"
-                )
+                raise ValueError(f"Translation with ID {ai_log_data.translation_id} not found")
 
             ai_log = self.repo.ai_logs.create(ai_log_data)
             return self._ai_log_to_response(ai_log)
@@ -235,18 +219,14 @@ class RepositoryWebService:
             # Verify translation exists
             translation = self.repo.translations.get_by_id(note_data.translation_id)
             if not translation:
-                raise ValueError(
-                    f"Translation with ID {note_data.translation_id} not found"
-                )
+                raise ValueError(f"Translation with ID {note_data.translation_id} not found")
 
             note = self.repo.human_notes.create(note_data)
             return self._human_note_to_response(note)
         except Exception as e:
             raise self._handle_error("Failed to create human note", e)
 
-    def get_human_notes_by_translation(
-        self, translation_id: str
-    ) -> List[HumanNoteResponse]:
+    def get_human_notes_by_translation(self, translation_id: str) -> List[HumanNoteResponse]:
         """Get all human notes for a translation"""
         notes = self.repo.human_notes.get_by_translation(translation_id)
         return [self._human_note_to_response(note) for note in notes]
@@ -362,12 +342,8 @@ class RepositoryWebService:
                 Poem.poet_name,
                 func.count(func.distinct(Poem.id)).label("poem_count"),
                 func.count(Translation.id).label("translation_count"),
-                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label(
-                    "ai_translation_count"
-                ),
-                func.sum(
-                    case((Translation.translator_type == "human", 1), else_=0)
-                ).label("human_translation_count"),
+                func.sum(case((Translation.translator_type == "ai", 1), else_=0)).label("ai_translation_count"),
+                func.sum(case((Translation.translator_type == "human", 1), else_=0)).label("human_translation_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
                 func.max(Translation.created_at).label("last_translation_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
@@ -428,11 +404,7 @@ class RepositoryWebService:
                     "translation_count": row.translation_count or 0,
                     "ai_translation_count": row.ai_translation_count or 0,
                     "human_translation_count": row.human_translation_count or 0,
-                    "avg_quality_rating": (
-                        float(row.avg_quality_rating)
-                        if row.avg_quality_rating
-                        else None
-                    ),
+                    "avg_quality_rating": (float(row.avg_quality_rating) if row.avg_quality_rating else None),
                     "last_translation_date": row.last_translation_date,
                     "last_poem_date": row.last_poem_date,
                 }
@@ -641,9 +613,7 @@ class RepositoryWebService:
         poem_stats = (
             self.db.query(
                 func.count(Poem.id).label("total_poems"),
-                func.count(func.distinct(Poem.source_language)).label(
-                    "source_languages_count"
-                ),
+                func.count(func.distinct(Poem.source_language)).label("source_languages_count"),
                 func.min(Poem.created_at).label("first_poem_date"),
                 func.max(Poem.created_at).label("last_poem_date"),
             )
@@ -655,13 +625,9 @@ class RepositoryWebService:
         translation_stats = (
             self.db.query(
                 func.count(Translation.id).label("total_translations"),
-                func.count(func.distinct(Translation.target_language)).label(
-                    "target_languages_count"
-                ),
+                func.count(func.distinct(Translation.target_language)).label("target_languages_count"),
                 func.avg(Translation.quality_rating).label("avg_quality_rating"),
-                func.count(func.distinct(Translation.translator_type)).label(
-                    "translator_types_count"
-                ),
+                func.count(func.distinct(Translation.translator_type)).label("translator_types_count"),
                 func.min(Translation.created_at).label("first_translation_date"),
                 func.max(Translation.created_at).label("last_translation_date"),
             )
@@ -685,9 +651,7 @@ class RepositoryWebService:
                 "total_translations": translation_stats.total_translations or 0,
                 "target_languages_count": translation_stats.target_languages_count or 0,
                 "avg_quality_rating": (
-                    float(translation_stats.avg_quality_rating)
-                    if translation_stats.avg_quality_rating
-                    else None
+                    float(translation_stats.avg_quality_rating) if translation_stats.avg_quality_rating else None
                 ),
                 "translator_types_count": translation_stats.translator_types_count or 0,
                 "first_translation_date": translation_stats.first_translation_date,

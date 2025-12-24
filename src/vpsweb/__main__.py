@@ -186,10 +186,7 @@ async def execute_translation_workflow(
         click.echo(f"🚀 Starting translation workflow ({workflow_mode} mode)...")
 
         # Display original poem
-        click.echo(
-            f"\n📄 Original Poem ({input_data.source_lang} → "
-            f"{input_data.target_lang}):"
-        )
+        click.echo(f"\n📄 Original Poem ({input_data.source_lang} → " f"{input_data.target_lang}):")
         click.echo("-" * 30)
         # Show poem with proper formatting, limiting length for display
         poem = input_data.original_poem
@@ -289,11 +286,7 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
     if editor_suggestions:
         # Count lines that start with numbers (1., 2., 3., etc.)
         suggestions_count = len(
-            [
-                line
-                for line in editor_suggestions.split("\n")
-                if line.strip() and line.strip()[0].isdigit()
-            ]
+            [line for line in editor_suggestions.split("\n") if line.strip() and line.strip()[0].isdigit()]
         )
         click.echo(f"📋 Editor suggestions: {suggestions_count}")
     else:
@@ -302,9 +295,7 @@ def display_summary(translation_output, saved_files: Dict[str, Path]) -> None:
     click.echo("\n✅ Translation saved successfully!")
 
 
-def validate_input_only(
-    input_data: TranslationInput, config_path: Optional[str]
-) -> None:
+def validate_input_only(input_data: TranslationInput, config_path: Optional[str]) -> None:
     """
     Validate input and configuration without executing workflow.
 
@@ -407,9 +398,7 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
         poem_text = read_poem_from_input(input)
 
         # Create translation input
-        input_data = TranslationInput(
-            original_poem=poem_text, source_lang=source, target_lang=target
-        )
+        input_data = TranslationInput(original_poem=poem_text, source_lang=source, target_lang=target)
 
         # Initialize system
         complete_config, workflow_config = initialize_system(config, verbose)
@@ -482,9 +471,7 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
     type=click.Path(path_type=Path),
     help="Output directory for generated article",
 )
-@click.option(
-    "--author", type=str, help="Article author name (default: 知韵VoxPoetica)"
-)
+@click.option("--author", type=str, help="Article author name (default: 知韵VoxPoetica)")
 @click.option("--digest", type=str, help="Custom digest (80-120 characters)")
 @click.option(
     "--model-type",
@@ -499,9 +486,7 @@ def translate(input, source, target, workflow_mode, config, output, verbose, dry
     help="Generate article without external API calls",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
-def generate_article(
-    input_json, output_dir, author, digest, model_type, dry_run, verbose
-):
+def generate_article(input_json, output_dir, author, digest, model_type, dry_run, verbose):
     """Generate a WeChat article from translation JSON output.
 
     Creates a WeChat-compatible HTML article with translation notes,
@@ -587,28 +572,19 @@ def generate_article(
                 article_gen_config.prompt_template = "wechat_article_notes_nonreasoning"
             click.echo(f"   🎯 Using Model Type: {model_type} (CLI override)")
         else:
-            click.echo(
-                f"   🎯 Using Model Type: {article_gen_config.model_type} (from config)"
-            )
+            click.echo(f"   🎯 Using Model Type: {article_gen_config.model_type} (from config)")
 
-        article_generator = ArticleGenerator(
-            config=article_gen_config, config_facade=config_facade
-        )
+        article_generator = ArticleGenerator(config=article_gen_config, config_facade=config_facade)
 
         # Display important configuration items
         click.echo("\n📋 Article Generation Configuration:")
         click.echo(f"   📄 HTML Template: {article_gen_config.article_template}")
         click.echo(f"   🤖 LLM Prompt Template: {article_gen_config.prompt_template}")
-        click.echo(
-            f"   📝 Include Translation Notes: {article_gen_config.include_translation_notes}"
-        )
+        click.echo(f"   📝 Include Translation Notes: {article_gen_config.include_translation_notes}")
 
         # Display LLM provider information for translation notes synthesis
         if article_gen_config.include_translation_notes:
-            if (
-                hasattr(article_generator, "llm_factory")
-                and article_generator.llm_factory
-            ):
+            if hasattr(article_generator, "llm_factory") and article_generator.llm_factory:
                 # LLM is configured and available - use hardcoded WeChat config for now
                 model_type = article_gen_config.model_type
 
@@ -623,9 +599,7 @@ def generate_article(
                 click.echo(f"   🧠 LLM Provider (Notes): {llm_provider}")
                 click.echo(f"   🎯 LLM Model (Notes): {llm_model}")
             else:
-                click.echo(
-                    f"   ⚠️  LLM Not Available: Translation notes synthesis disabled"
-                )
+                click.echo(f"   ⚠️  LLM Not Available: Translation notes synthesis disabled")
         else:
             click.echo(f"   ⚠️  Translation Notes: DISABLED in configuration")
 
@@ -687,9 +661,7 @@ def generate_article(
 
         # Next steps suggestion
         click.echo("\n🎯 Next steps:")
-        click.echo(
-            f"   Publish with: vpsweb publish-article -d {result.output_directory}"
-        )
+        click.echo(f"   Publish with: vpsweb publish-article -d {result.output_directory}")
 
     except InputError as e:
         click.echo(f"❌ Input error: {e}", err=True)
@@ -797,9 +769,7 @@ def publish_article(directory, config, dry_run, verbose):
                 cover_images = validation_result["files"].get("cover_images")
                 if cover_images:
                     preferred_cover = validation_result["files"]["preferred_cover"]
-                    click.echo(
-                        f"📸 Found {len(cover_images)} cover image(s), would use: {preferred_cover.name}"
-                    )
+                    click.echo(f"📸 Found {len(cover_images)} cover image(s), would use: {preferred_cover.name}")
                 else:
                     click.echo("📷 No cover images found")
 
@@ -1100,47 +1070,31 @@ async def _publish_article_async(directory, config, verbose):
         # Priority 1: Use cover image from metadata (configured path)
         if wechat_article.cover_image_path and wechat_article.show_cover_pic:
             try:
-                click.echo(
-                    f"📸 Uploading cover image from metadata: {Path(wechat_article.cover_image_path).name}"
-                )
-                thumb_media_id = await wechat_client.upload_thumb_image(
-                    wechat_article.cover_image_path
-                )
+                click.echo(f"📸 Uploading cover image from metadata: {Path(wechat_article.cover_image_path).name}")
+                thumb_media_id = await wechat_client.upload_thumb_image(wechat_article.cover_image_path)
                 show_cover_pic = True
-                click.echo(
-                    f"✅ Cover image uploaded successfully (Media ID: {thumb_media_id})"
-                )
+                click.echo(f"✅ Cover image uploaded successfully (Media ID: {thumb_media_id})")
 
                 # Update WeChat article with cover image info
                 wechat_article.thumb_media_id = thumb_media_id
                 wechat_article.show_cover_pic = show_cover_pic
 
             except Exception as e:
-                click.echo(
-                    f"⚠️  Warning: Failed to upload cover image from metadata: {e}"
-                )
+                click.echo(f"⚠️  Warning: Failed to upload cover image from metadata: {e}")
 
         # Priority 2: Fallback to file detection in directory (legacy method)
         elif not wechat_article.cover_image_path:
             cover_images = validation_result["files"].get("cover_images")
             if cover_images and verbose:
-                click.echo(
-                    f"📸 Found {len(cover_images)} cover image(s) via file detection"
-                )
+                click.echo(f"📸 Found {len(cover_images)} cover image(s) via file detection")
 
             if cover_images:
                 preferred_cover = validation_result["files"]["preferred_cover"]
                 try:
-                    click.echo(
-                        f"📸 Uploading cover image via file detection: {preferred_cover.name}"
-                    )
-                    thumb_media_id = await wechat_client.upload_thumb_image(
-                        str(preferred_cover)
-                    )
+                    click.echo(f"📸 Uploading cover image via file detection: {preferred_cover.name}")
+                    thumb_media_id = await wechat_client.upload_thumb_image(str(preferred_cover))
                     show_cover_pic = True
-                    click.echo(
-                        f"✅ Cover image uploaded successfully (Media ID: {thumb_media_id})"
-                    )
+                    click.echo(f"✅ Cover image uploaded successfully (Media ID: {thumb_media_id})")
 
                     # Update WeChat article with cover image info
                     wechat_article.thumb_media_id = thumb_media_id
@@ -1163,9 +1117,7 @@ async def _publish_article_async(directory, config, verbose):
         if draft_response.media_id:
             click.echo(f"✅ Article published to drafts successfully!")
             click.echo(f"📋 Draft ID: {draft_response.media_id}")
-            click.echo(
-                "📝 Review and publish manually in WeChat Official Account backend"
-            )
+            click.echo("📝 Review and publish manually in WeChat Official Account backend")
 
             # Save publish result
             publish_result = {
@@ -1174,11 +1126,7 @@ async def _publish_article_async(directory, config, verbose):
                 "article_path": str(validation_result["files"]["html_path"]),
                 "metadata_path": str(validation_result["files"]["metadata_path"]),
                 "directory": str(directory),
-                "published_at": (
-                    draft_response.created_at.isoformat()
-                    if draft_response.created_at
-                    else None
-                ),
+                "published_at": (draft_response.created_at.isoformat() if draft_response.created_at else None),
                 "created_at": datetime.now().isoformat(),
             }
 
