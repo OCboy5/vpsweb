@@ -1036,6 +1036,34 @@ def performance_timer():
     return Timer()
 
 
+# Session-scoped fixture to ensure repository_root directory exists
+@pytest.fixture(scope="session", autouse=True)
+def ensure_repository_root_exists():
+    """
+    Ensure the repository_root directory exists before any tests run.
+
+    This is needed because the global database engine in database.py
+    is initialized with a file-based database URL. Even though tests
+    override get_db to use an in-memory database, if any code touches
+    the global engine, it will fail if the directory doesn't exist.
+
+    This fixture runs automatically before all tests.
+    """
+    from pathlib import Path
+
+    repo_root = Path("repository_root")
+    repo_root.mkdir(exist_ok=True)
+
+    # Also create the data subdirectory if needed
+    data_path = repo_root / "data"
+    data_path.mkdir(exist_ok=True)
+
+    yield
+
+    # Cleanup after all tests complete
+    # Note: We don't remove the directory as it might be used by other processes
+
+
 # Enhanced pytest markers
 def pytest_configure(config):
     """Configure enhanced custom pytest markers."""
