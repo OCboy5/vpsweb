@@ -1,0 +1,661 @@
+app:
+  description: 一个专业的翻译和编辑团队共同合作，将诗歌在英文和中文之间进行专业翻译，以保留原诗的美感和音乐性。
+  icon: books
+  icon_background: '#E4FBCC'
+  mode: workflow
+  name: 知韵诗歌翻译坊 Vox Poetica Translation Studio
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.0.50@c02ff3d0e0c1c4dd685adbeb632d25cfae78e4816b0e516d5c9675d5feccafc3
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.6@dd589dc093c8084925858034ab5ec1fdf0d33819f43226c2f8c4a749a9acbbb2
+    version: null
+kind: app
+version: 0.4.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: 1718674431213-source-1718674457724-target
+      source: '1718674431213'
+      sourceHandle: source
+      target: '1718674457724'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: template-transform
+        targetType: end
+      id: 1718775458781-source-1718674958086-target
+      source: '1718775458781'
+      sourceHandle: source
+      target: '1718674958086'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: llm
+      id: 1718684710547-source-1718684720932-target
+      source: '1718684710547'
+      sourceHandle: source
+      target: '1718684720932'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: 1718674457724-source-1719585465114-target
+      source: '1718674457724'
+      sourceHandle: source
+      target: '1719585465114'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: llm
+      id: 1719585465114-source-1718684710547-target
+      source: '1719585465114'
+      sourceHandle: source
+      target: '1718684710547'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: code
+      id: 1718684720932-source-1719585842514-target
+      source: '1718684720932'
+      sourceHandle: source
+      target: '1719585842514'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: template-transform
+      id: 1719585842514-source-1718775458781-target
+      source: '1719585842514'
+      sourceHandle: source
+      target: '1718775458781'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: 原诗 Original Poem
+          max_length: 2000
+          options: []
+          required: true
+          type: paragraph
+          variable: original_poem
+        - label: 原诗语言 Source Language
+          max_length: 48
+          options:
+          - English
+          - Chinese
+          - Polish
+          required: true
+          type: select
+          variable: source_lang
+        - label: 翻译语言 Target Language
+          max_length: 48
+          options:
+          - Chinese
+          - English
+          required: true
+          type: select
+          variable: target_lang
+      height: 139
+      id: '1718674431213'
+      position:
+        x: -503.8953032450499
+        y: -68.79525298812449
+      positionAbsolute:
+        x: -503.8953032450499
+        y: -68.79525298812449
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen-max-latest
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: fbb48d13-017b-48fc-aab7-2cc1599371e9
+          role: system
+          text: You are a renowned poet and professional {{#1718674431213.source_lang#}}-to-{{#1718674431213.target_lang#}}poetry
+            translator, specializing in creating translations that retain the original
+            poem's beauty, musicality, and emotional resonance. You have a deep understanding
+            of both{{#1718674431213.source_lang#}}and {{#1718674431213.target_lang#}}
+            poetic traditions and are skilled at adapting poetic devices across languages.
+        - id: 2076b3f6-fe20-4228-8b9d-35d54eecfc52
+          role: user
+          text: "Your task is to provide a high-quality translation of a poem from\
+            \ {{#1718674431213.source_lang#}} to {{#1718674431213.target_lang#}}.\
+            \ The source text is provided below, delimited by XML tags:\n\n\n<SOURCE_TEXT>\n\
+            {{#1718674431213.original_poem#}}\n</SOURCE_TEXT>\nPlease follow these\
+            \ steps to create your translation:\n1. Understanding the Original:\n\
+            a. Identify the title of the poem and the poet's name.\nb. Research the\
+            \ poet's style and body of work.\nc. Analyze the background, context,\
+            \ and era in which the poem was written.\nd. Identify the poem's form\
+            \ (e.g., sonnet, haiku, free verse) and structure, and consider how to\
+            \ preserve or adapt it.\ne. Understand the style, meaning, tone, mood\
+            \ and intent of the original poem.\nf. Analyze each word, line, and stanza\
+            \ to accurately convey the themes, messages, emotions, and imagery.\n\
+            2. Research and Preparation:\na. Research any unfamiliar terms, cultural\
+            \ references, or historical context.\nb. Create a glossary of key terms\
+            \ and their translations.\nc. If available, review other existing translations\
+            \ of the same poem for reference.\n3. Preserving Rhythm and Form:\na.\
+            \ Understand the rhythm, meter, rhyme, and cadence of the original poem.\n\
+            b. Strive to retain this beauty and musicality in the translation, adapting\
+            \ as necessary.\nc. Attempt to preserve the original form if possible,\
+            \ or choose an appropriate alternative in {{#1718674431213.target_lang#}}.\n\
+            d. Pay close attention to line breaks and stanza structure.\n\n\n4. Faithfulness\
+            \ to Imagery and Poetic Devices:\na. Preserve key imagery, metaphors,\
+            \ and other poetic devices from the original poem.\nb. Ensure the imagery\
+            \ and devices evoke similar emotional resonance in {{#1718674431213.target_lang#}}.\n\
+            \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nc. Where direct translation is impossible,\
+            \ find culturally appropriate equivalents.\n5. Word Choice and Sentence\
+            \ Structure:\na. Choose words that are faithful to the original meaning\
+            \ while fitting {{#1718674431213.target_lang#}} expression habits, maintaining\
+            \ the poem's artistic quality.\n\n\n\n\n\n\nb. Ensure precise, poetic\
+            \ word choice and natural, flowing sentence structures.\n\nc. Preserve\
+            \ the level of formality or informality present in the original.\nd. Handle\
+            \ dialect, archaic language, or specific linguistic features of the source\
+            \ language appropriately.\n6. Cultural Adaptation:\na. Consider cultural\
+            \ differences and adjust the translation as needed to suit {{#1718674431213.target_lang#}}\
+            \ readers.\n\n\n\n\n\n\n\nb. Retain the poem's cultural essence without\
+            \ over-localizing.\n\n\nc. Where necessary, provide brief explanatory\
+            \ notes for culture-specific references.\n7. Creative Translation:\na.\
+            \ Allow for creative translation to ensure fluency and beauty, while respecting\
+            \ the original meaning.\nb. Consider multiple options for challenging\
+            \ lines or phrases.\n8. Multiple Drafts:\na. Consider at least three different\
+            \ options of translation of the opening line, pick the one best captures\
+            \ the meaning, rhythm, tone and musicality of the original.\nb. Then,\
+            \ create at least two different versions of your translation of the who\
+            \ poem.\nb. Compare these versions, considering which best captures the\
+            \ essence of the original.\n9. Revision and Refinement:\na. Review and\
+            \ revise your chosen translation against the original poem.\nb. Ensure\
+            \ a balance between faithfulness to the original and effectiveness in\
+            \ {{#1718674431213.target_lang#}}.\n\n\n\n\n\n\nc. Read the translation\
+            \ aloud to check for flow and musicality.\n\n\nd. Ensure consistency in\
+            \ terminology, style, and tone throughout the poem.\ne. Maintain consistent\
+            \ formatting and punctuation conventions appropriate for poetry in {{#1718674431213.target_lang#}}.\n\
+            \n\n\n\n\n\n\nAdditionally, include a brief (200-300 words) explanation\
+            \ of your translation choices, highlighting:\n\n1. Any significant challenges\
+            \ you faced and how you resolved them.\n2. Instances where you had to\
+            \ make creative decisions to preserve meaning, tone, or effect, especially\
+            \ the opening line.\n3. How you addressed cultural-specific elements or\
+            \ references.\n4. Your approach to preserving or adapting the poem's form\
+            \ and rhythm.\n\nFirst provide only the final version of your translation\
+            \ include the poem's title and poet's name but no notes. Then include\
+            \ your translation notes. Don't use any XML delimiter tags in these two\
+            \ writings.\n\nFormat your response as follows, delimited by XML tags:\n\
+            <initial_translation>\n[Your Translation]\n</initial_translation>\n<initial_translation_notes>\n\
+            [Your explanation of translation choices] \n</initial_translation_notes>"
+        selected: false
+        structured_output_enabled: false
+        title: Initial Translation
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 87
+      id: '1718674457724'
+      position:
+        x: 101.92465978103735
+        y: -180.69391166266817
+      positionAbsolute:
+        x: 101.92465978103735
+        y: -180.69391166266817
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        desc: The records of translation, review, revision and evaluation.
+        outputs:
+        - value_selector:
+          - '1719585842514'
+          - revised_translation
+          variable: output
+        - value_selector:
+          - '1718775458781'
+          - output
+          variable: logs
+        selected: false
+        title: End
+        type: end
+      height: 157
+      id: '1718674958086'
+      position:
+        x: 1397.0517486520994
+        y: 225.81396981694456
+      positionAbsolute:
+        x: 1397.0517486520994
+        y: 225.81396981694456
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            max_tokens: 8192
+          mode: chat
+          name: deepseek-reasoner
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: a753eae0-cbb9-4807-aebc-d7b5af07f89f
+          role: system
+          text: 'You are a bilingual literary critic and expert linguist, specializing
+            in comparative literature and the nuances of translating poetry from {{#1718674431213.source_lang#}}
+            to {{#1718674431213.target_lang#}}. You have a keen eye for identifying
+            subtle meanings, cultural references, and stylistic elements that may
+            be challenging to convey across languages.
+
+
+            '
+        - id: 94b962fe-0ae1-4957-95cf-74f525754ba8
+          role: user
+          text: "Your task is to provide expert feedback on a poetry translation from\
+            \ {{#1718674431213.source_lang#}} to {{#1718674431213.target_lang#}}.\
+            \ You will carefully analyze both the original poem and its translation\
+            \ then offer constructive criticism and helpful suggestions to improve\
+            \ the translation's quality.\n\n\n\n\nFor this evaluation, you are to\
+            \ adopt a fresh, critical perspective. Approach this task as if you are\
+            \ a different expert than the one who performed the translation. Understand\
+            \ the translator's arrangements and rationales behind them by carefully\
+            \ reading the translator's notes, consider these arrangements (especially\
+            \ the opening line) while you formulate your suggestions to further enhance\
+            \ the translations. \n\nThe source text, the initial translation and the\
+            \ translator's notes are provided below, delimited by XML tags:\n<SOURCE_TEXT>\n\
+            {{#1718674431213.original_poem#}}\n</SOURCE_TEXT>\n<TRANSLATION>\n{{#1719585465114.initial_translation#}}\n\
+            </TRANSLATION>\n<TRANSLATION_NOTES>\n{{#1719585465114.initial_translation_notes#}}\n\
+            </TRANSLATION_NOTES>\nWhen analyzing each word, line and stanza of the\
+            \ translation against the original poem and formulating your suggestions,\
+            \ focus on the following aspects:\n1. Faithfulness:\na. Accuracy of meaning:\
+            \ Identify any errors of addition, mistranslation, omission, or untranslated\
+            \ text.\nb. Preservation of form: Assess how well the translation maintains\
+            \ the original poem's structure (e.g., sonnet, haiku, free verse).\nc.\
+            \ Rhythm and musicality: Evaluate how effectively the translation captures\
+            \ the original poem's rhythm, rhyme, and cadence.\nd. Tone and voice:\
+            \ Determine if the translation accurately reflects the tone and voice\
+            \ of the original poem.\ne. Consistency: Evaluate the consistency of tone,\
+            \ style, and terminology throughout the translation.\n2. Expressiveness:\n\
+            a. Linguistic accuracy: Check for proper application of {{#1718674431213.target_lang#}}\
+            \ grammar, spelling, and punctuation rules.\n\n\n\n\n\nb. Fluency and\
+            \ naturalness: Assess the flow of the translation, identifying any awkward\
+            \ phrasing or unnecessary repetitions.\nc. Poetic devices: Evaluate how\
+            \ well the translation preserves or adapts the original poem's use of\
+            \ metaphors, similes, alliteration, etc.\n3. Elegance:\na. Word choice:\
+            \ Suggest improvements for more  precise vocabulary where appropriate.\n\
+            b. Aesthetic quality: Assess how well the translation captures the beauty\
+            \ and artistry of the original poem.\nc. Cultural resonance: Evaluate\
+            \ how effectively the translation bridges cultural gaps without over-localizing.\n\
+            4. Cultural Context:\na. Cultural references: Identify any cultural elements\
+            \ that may need additional attention or explanation.\nb. Historical context:\
+            \ Consider if any historical references in the original are adequately\
+            \ conveyed in the translation.\nc. Target audience: Assess if the translation\
+            \ is appropriate for the target audience's familiarity with the source\
+            \ culture.\n5. Reader experience:\na. Evaluate if the translation will\
+            \ evoke similar emotions and thoughts in the {{#1718674431213.target_lang#}}\
+            \ readers as the original does for {{#1718674431213.source_lang#}} readers.\n\
+            \n\n\n\n\nb. Consider the overall impact and accessibility of the poem\
+            \ in {{#1718674431213.target_lang#}}.\n\n\n\n\n\n6. Alternative interpretations:\n\
+            a. Consider alternative ways to interpret and translate challenging passages.\n\
+            Please provide a numbered list of specific, constructive suggestions for\
+            \ improving the translation.  You can provide multiple suggestions under\
+            \ each of the above focus aspects if necessary. For each suggestion:\n\
+            1. Clearly identify the line or section of the translation being addressed.\n\
+            2. Explain the issue with the current translation.\n3. Provide a specific\
+            \ recommendation for improvement.\n4. Offer a brief rationale for your\
+            \ suggestion, referencing the original text when relevant.\n5. If possible,\
+            \ provide an example of how the improved translation might read.\n6. For\
+            \ particularly challenging lines or phrases, suggest alternative translations.\n\
+            Prioritize your suggestions, addressing the most critical issues first.\
+            \ Aim for a balance between faithfulness to the original and effectiveness\
+            \ in the {{#1718674431213.target_lang#}}.\n\n\n\n\n\nReview your suggestions\
+            \ against these quality criteria:\n   - Does it accurately reflect the\
+            \ original's meaning and tone?\n   - Is it fluent and natural in {{#1718674431213.target_lang#}}?\n\
+            \n\n\n\n\n   - Does it maintain or enhance the poetic qualities of the\
+            \ original?\n   - Is it culturally appropriate for {{#1718674431213.target_lang#}}\
+            \ readers?\n\n\n\n\n\n    - Does it maintain consistency in style and\
+            \ terminology throughout the poem?\nMake any final adjustments based on\
+            \ your review.\nFormat your response as follows:\nSuggestions for Improving\
+            \ the Translation of \"[Poem Title]\" by [Poet's Name]:\n1. [Your first\
+            \ suggestion]\n2. [Your second suggestion]\n3. [Your third suggestion]\n\
+            ...\nConclude with a brief overall assessment (2-3 sentences) of the translation's\
+            \ current quality and its potential for improvement. "
+        selected: false
+        title: Editor Review
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 87
+      id: '1718684710547'
+      position:
+        x: 446.020055256487
+        y: -45.48504046101712
+      positionAbsolute:
+        x: 446.020055256487
+        y: -45.48504046101712
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            max_tokens: 8001
+            temperature: 0.2
+          mode: chat
+          name: qwen-max-0919
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: f6f1c862-d2e8-48a1-975c-1801df2b5aac
+          role: system
+          text: You are an award-winning poet, expert linguist, and experienced editor,
+            specializing in refining poem translations from {{#1718674431213.source_lang#}}
+            to {{#1718674431213.target_lang#}}. You have a talent for harmonizing
+            faithfulness to the original text with the artistic requirements of the
+            target language, ensuring that the final translation is both accurate
+            and poetically compelling.
+        - id: f87cec53-185f-48a2-9088-73bb321e53be
+          role: user
+          text: "Your task is to revise a translation of a poem from {{#1718674431213.source_lang#}}\
+            \ to {{#1718674431213.target_lang#}}, with the help of a list of expert\
+            \ suggestions. Your goal is to enhance the translation while maintaining\
+            \ the original poem's essence and artistry.\n\n\n\nThe source text of\
+            \ the poem, the initial translation, and the expert suggestions are provided\
+            \ below, delimited by XML tags:\n\n<SOURCE_TEXT>\n{{#1718674431213.original_poem#}}\n\
+            </SOURCE_TEXT>\n<TRANSLATION>\n{{#1719585465114.initial_translation#}}\n\
+            </TRANSLATION>\n<EXPERT_SUGGESTIONS>\n{{#1718684710547.text#}}\n</EXPERT_SUGGESTIONS>\n\
+            In your revision process:\n1. Expert Suggestions:\na) Double check the\
+            \ accuracy of the expert suggestions, avoid reference errors\nb) Evaluate\
+            \ and implement expert suggestions.\n- If you choose to implement a suggestion,\
+            \ think about if you can further improve the suggestion.\n- If you choose\
+            \ not to implement a suggestion, have a clear rationale for your decision.\n\
+            2.  Final Review:\nConduct a final review of the entire translation, against\
+            \ the original poem, focusing on these key areas:\na) Accuracy and Faithfulness:\n\
+            - Correct any errors of addition, mistranslation, omission, or untranslated\
+            \ text\n- Ensure the translation accurately reflects the meaning, tone,\
+            \ and intent of the original poem\n- Preserve the original poem's form\
+            \ (e.g., sonnet, haiku, free verse) where possible.\n- Pay close attention\
+            \ to line breaks and stanza structure.\nb) Fluency and Naturalness:\n\
+            - Apply {{#1718674431213.target_lang#}}\n\n\n\ngrammar, spelling, and\
+            \ punctuation rules correctly.\n- Eliminate unnecessary repetitions and\
+            \ awkward phrasing.\n- Ensure natural flow in {{#1718674431213.target_lang#}}\n\
+            \n\n\nc) Style and Poetic Quality:\n- Reflect the original style and voice\n\
+            - Enhance the poetic quality by improving word choice, rhythm, and rhyme\n\
+            - Preserve or adapt poetic devices (e.g., metaphors, alliteration) effectively\n\
+            d) Musicality and Rhythm:\n- Capture the musicality, cadence, rhyme and\
+            \ rhythm of the original poem.\n- If the original has a specific rhyme\
+            \ scheme, strive to preserve it or find an effective alternative\ne) Cultural\
+            \ Context:\n- Address any cultural references or nuances appropriately\
+            \ for {{#1718674431213.target_lang#}}\n\n\n\nreaders\n- Avoid over-localization\
+            \ while ensuring the poem resonates with the target audience\nf) Consistency:\n\
+            - Ensure consistency in terminology, style, and tone throughout the translation.\n\
+            - Maintain consistent formatting and punctuation conventions appropriate\
+            \ for poetry in {{#1718674431213.target_lang#}}.\n\n\n\n3. Final Refinement\n\
+            a. Based on the result of your final review, make any additional improvements\
+            \ you deem absolute necessary, even if not suggested by experts.\nb. Read\
+            \ the revised translation aloud to check for rhythm and flow. Make any\
+            \ final adjustments based on your review.\nPlease provide your revised\
+            \ translation, followed by a brief explanation (200-300 words) of the\
+            \ key changes you made and why. Include:\n1. Major revisions and the reasoning\
+            \ behind them.\n2. Any significant expert suggestions you chose not to\
+            \ implement and why.\n3. How you balanced preserving the original poem's\
+            \ essence with making it effective in {{#1718674431213.target_lang#}}.\n\
+            \n\n\n4. Any particular challenges you faced and how you resolved them.\n\
+            Format your response as follows, delimited by XML tags:\n<revised_translation>\n\
+            [Your Revised Translation]\n</revised_translation>\n<revised_translation_notes>\n\
+            [Your explanation of key changes and decisions]\t \n</revised_translation_notes>\n"
+        selected: true
+        title: Translator Revision
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 87
+      id: '1718684720932'
+      position:
+        x: 433.16579784396015
+        y: 403.6530259664835
+      positionAbsolute:
+        x: 433.16579784396015
+        y: 403.6530259664835
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        desc: ''
+        selected: false
+        template: "\"The Original Poem\"\r\n\r\n{{ original_poem }}\r\n---\r\n\"The\
+          \ Initial Translation\"\r\n\r\n{{ initial_translation }}\r\n---\r\n\"The\
+          \ Initial Translation Notes\"\r\n\r\n{{ initial_translation_notes }}\r\n\
+          ---\r\n\"The Editor Suggestions\"\r\n\r\n{{ editor_suggestions }}\r\n---\r\
+          \n\"The Final Translation\"\r\n\r\n{{ revised_translation }}\r\n---\r\n\"\
+          The Final Translation Notes\"\r\n\r\n{{ revised_translation_notes }}\r\n\
+          ---\r\n\"The End.\""
+        title: Congregate
+        type: template-transform
+        variables:
+        - value_selector:
+          - '1718674431213'
+          - original_poem
+          variable: original_poem
+        - value_selector:
+          - '1719585465114'
+          - initial_translation
+          variable: initial_translation
+        - value_selector:
+          - '1719585842514'
+          - revised_translation
+          variable: revised_translation
+        - value_selector:
+          - '1718684710547'
+          - text
+          variable: editor_suggestions
+        - value_selector:
+          - '1719585465114'
+          - initial_translation_notes
+          variable: initial_translation_notes
+        - value_selector:
+          - '1719585842514'
+          - revised_translation_notes
+          variable: revised_translation_notes
+      height: 51
+      id: '1718775458781'
+      position:
+        x: 1088.9411330180142
+        y: 141.02770555909814
+      positionAbsolute:
+        x: 1088.9411330180142
+        y: 141.02770555909814
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "import re\nimport json\n\ndef xml_to_dict(xml_string):\n    # Remove\
+          \ whitespace between tags\n    xml_string = re.sub(r'\\s+(<|>)', r'\\1',\
+          \ xml_string.strip())\n    \n    # Find all tags and their contents\n  \
+          \  pattern = r'<(\\w+)>(.*?)</\\1>'\n    matches = re.findall(pattern, xml_string,\
+          \ re.DOTALL)\n    \n    result = {}\n    for tag, content in matches:\n\
+          \        # Recursively parse nested tags\n        if re.search(r'<\\w+>',\
+          \ content):\n            result[tag] = xml_to_dict(content)\n        else:\n\
+          \            result[tag] = content.strip()\n    \n    return result\n\n\
+          def main(arg1: str) -> dict:\n    xml_dict = xml_to_dict(arg1)\n    it =\
+          \ str(xml_dict['initial_translation'])\n    itn = str(xml_dict['initial_translation_notes'])\n\
+          \    \n    return {\n        \"initial_translation\": it,\n        \"initial_translation_notes\"\
+          : itn, \n    }"
+        code_language: python3
+        desc: ''
+        outputs:
+          initial_translation:
+            children: null
+            type: string
+          initial_translation_notes:
+            children: null
+            type: string
+        selected: false
+        title: Extract Initial Translation
+        type: code
+        variables:
+        - value_selector:
+          - '1718674457724'
+          - text
+          variable: arg1
+      height: 51
+      id: '1719585465114'
+      position:
+        x: 421.6951866753131
+        y: -221.51236581761748
+      positionAbsolute:
+        x: 421.6951866753131
+        y: -221.51236581761748
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "\nimport re\nimport json\n\ndef xml_to_dict(xml_string):\n    # Remove\
+          \ whitespace between tags\n    xml_string = re.sub(r'\\s+(<|>)', r'\\1',\
+          \ xml_string.strip())\n    \n    # Find all tags and their contents\n  \
+          \  pattern = r'<(\\w+)>(.*?)</\\1>'\n    matches = re.findall(pattern, xml_string,\
+          \ re.DOTALL)\n    \n    result = {}\n    for tag, content in matches:\n\
+          \        # Recursively parse nested tags\n        if re.search(r'<\\w+>',\
+          \ content):\n            result[tag] = xml_to_dict(content)\n        else:\n\
+          \            result[tag] = content.strip()\n    \n    return result\n\n\
+          def main(arg1: str) -> dict:\n    xml_dict = xml_to_dict(arg1)\n    rt =\
+          \ str(xml_dict['revised_translation'])\n    rtn = str(xml_dict['revised_translation_notes'])\n\
+          \    return {\n        \"revised_translation\": rt,\n        \"revised_translation_notes\"\
+          : rtn, \n    }"
+        code_language: python3
+        desc: ''
+        outputs:
+          revised_translation:
+            children: null
+            type: string
+          revised_translation_notes:
+            children: null
+            type: string
+        selected: false
+        title: Extract Revised Translation
+        type: code
+        variables:
+        - value_selector:
+          - '1718684720932'
+          - text
+          variable: arg1
+      height: 51
+      id: '1719585842514'
+      position:
+        x: 728.8059836573003
+        y: 351.04667445061176
+      positionAbsolute:
+        x: 728.8059836573003
+        y: 351.04667445061176
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: 549.7892153992598
+      y: 527.7276515407067
+      zoom: 0.6597539658795973
+  rag_pipeline_variables: []

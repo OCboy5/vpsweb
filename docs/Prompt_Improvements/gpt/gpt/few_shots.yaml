@@ -1,0 +1,170 @@
+EXEMPLARS:
+  CN_TO_EN:
+    - title: 杜甫《春望》Chun Wang (Spring View)
+      original: |
+        国破山河在，
+        城春草木深。
+        感时花溅泪，
+        恨别鸟惊心。
+      translation: |
+        The nation shattered, yet mountains and rivers remain,
+        In the city, spring deepens with grass and trees.
+        Moved by the times, flowers shed tears,
+        Hating separation, birds startle the heart.
+      translator: Burton Watson
+      note: Preserve classical imagery and emotional depth; maintain concise, rhythmic English while conveying patriotic sorrow and personal grief.
+
+    - title: 徐志摩《再别康桥》Xu Zhimo – Taking Leave of Cambridge Again
+      original: |
+        轻轻的我走了，
+        正如我轻轻的来；
+        我轻轻的招手，
+        作别西天的云彩。
+      translation: |
+        Softly I am leaving,
+        Just as softly as I came;
+        I softly wave my hand,
+        Saying goodbye to the clouds in the western sky.
+      translator: Arthur Waley
+      note: Convey modern lyric grace and wistful cadence; maintain musicality and gentle rhythm; preserve natural imagery.
+
+    - title: 海子《面朝大海，春暖花开》Haizi – Facing the Sea, with Spring Blossoms
+      original: |
+        从明天起，做一个幸福的人，
+        喂马、劈柴，周游世界。
+        从明天起，关心粮食和蔬菜。
+        我有一所房子，面朝大海，春暖花开。
+      translation: |
+        From tomorrow on, I will be a happy man,
+        Feeding horses, chopping wood, traveling the world.
+        From tomorrow on, caring for grain and vegetables.
+        I will have a house, facing the sea, with spring blossoms.
+      translator: Willis Barnstone
+      note: Preserve simple, hopeful tone; maintain natural cadence and clear imagery; emphasize direct emotional appeal and modern poetic voice.
+
+    - title: 北岛《回答》Bei Dao – The Answer
+      original: |
+        命运像一只鸟
+        死在我面前
+        我是它的捕手
+        它从我的手心逃走
+      translation: |
+        Fate is like a bird
+        Dying before my eyes
+        I am its catcher
+        It escapes from the palm of my hand
+      translator: Eliot Weinberger
+      note: Convey modernist, sparse style; preserve tension and metaphorical imagery; maintain stark rhythm and emotional immediacy.
+
+    - title: 李清照《如梦令》Li Qingzhao – As If in a Dream
+      original: |
+        常记溪亭日暮，
+        沉醉不知归路。
+        兴尽晚回舟，
+        误入藕花深处。
+      translation: |
+        I often remember evenings by the creek pavilion,
+        Drunken, not knowing the way home.
+        When pleasure ends, I return late by boat,
+        Mistakenly entering the depths of lotus flowers.
+      translator: Stephen Owen
+      note: Preserve classical lyricism and imagery; convey delicate, wistful tone; maintain natural, flowing English rhythm.
+
+    - title: 顾城《一代人》Gu Cheng – A Generation
+      original: |
+        黑夜给了我黑色的眼睛，
+        我却用它寻找光明。
+      translation: |
+        The night has given me black eyes,
+        Yet I use them to seek the light.
+      translator: Howard Goldblatt
+      note: Convey modern, concise expression; maintain metaphorical clarity; preserve emotional depth and philosophical tone.
+
+  EN_TO_CN:
+    - title: John Keats “Ode to a Nightingale”
+      original: |
+        My heart aches, and a drowsy numbness pains
+        My sense, as though of hemlock I had drunk,
+        Or emptied some dull opiate to the drains
+        One minute past, and Lethe-wards had sunk:
+      translation: |
+        我心悲痛，昏沉麻木袭来，
+        仿佛饮下毒芹，
+        或倒尽无趣的麻醉，
+        一瞬已沉入忘川。
+      translator: 余光中
+      note: Emphasize Romantic imagery, lush rhythm, and musicality; adapt classical English metaphors (Lethe, hemlock) into culturally understandable Chinese equivalents while preserving emotional intensity.
+
+    - title: William Shakespeare Sonnet 18
+      original: |
+        Shall I compare thee to a summer’s day?
+        Thou art more lovely and more temperate:
+        Rough winds do shake the darling buds of May,
+        And summer’s lease hath all too short a date:
+      translation: |
+        我可否把你比作夏日？
+        你更可爱，温柔无比：
+        粗风摇动五月娇蕾，
+        夏日租期何其短暂！
+      translator: 许渊冲
+      note: Preserve rhyme, meter, and graceful diction; ensure Shakespearean imagery is rendered naturally in Chinese while keeping lyrical cadence.
+
+    - title: Langston Hughes “I, Too”
+      original: |
+        I, too, sing America.
+        I am the darker brother.
+        They send me to eat in the kitchen
+        When company comes,
+        But I laugh,
+        And eat well,
+        And grow strong.
+      translation: |
+        我也歌唱美国。
+        我是肤色更深的兄弟。
+        客来时，他们让我到厨房去吃，
+        但我笑，
+        享受美食，
+        健壮成长。
+      translator: 顾城风格现代中文译
+      note: Convey modern tone, rhythmic concision, and emotional dignity; maintain the assertive yet optimistic voice, ensuring social context is clear for Chinese readers.
+
+    - title: Robert Frost “The Road Not Taken”
+      original: |
+        Two roads diverged in a yellow wood,
+        And sorry I could not travel both
+        And be one traveler, long I stood
+        And looked down one as far as I could
+        To where it bent in the undergrowth;
+      translation: |
+        两条路在金黄林中分岔，
+        可惜我不能两者兼行。
+        我独自驻足良久，
+        远望其中一条，直至其在丛林中弯曲；
+      translator: 杨宪益 / Gladys Yang
+      note: Maintain narrative reflection and natural imagery; carefully render metaphors (“yellow wood”) and subtle emotional tension; ensure flow is smooth in classical-modern Chinese style.
+
+    - title: Emily Dickinson “Hope is the thing with feathers”
+      original: |
+        “Hope” is the thing with feathers -
+        That perches in the soul -
+        And sings the tune without the words -
+        And never stops - at all -
+      translation: |
+        “希望”是带羽之物—
+        栖息在灵魂之中—
+        唱着无词之曲—
+        永不止息—
+      translator: 林庚 / 现代中文译
+      note: Preserve delicate metaphor, lyrical concision, and musicality; ensure feather imagery conveys uplifting, subtle hope in Chinese.
+
+    - title: T. S. Eliot “The Love Song of J. Alfred Prufrock”
+      original: |
+        Let us go then, you and I,
+        When the evening is spread out against the sky
+        Like a patient etherized upon a table;
+      translation: |
+        那么，让我们走吧，你与我，
+        当夜幕铺展在天空，
+        仿佛一位病人静卧手术台；
+      translator: 朱湘 / 现代中文译
+      note: Retain modernist tone, urban imagery, and unsettling mood; translate complex metaphors (etherized patient) into culturally intelligible Chinese while preserving stylistic nuance.

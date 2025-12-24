@@ -1,0 +1,107 @@
+# Translator Revision Prompt Template (Non-Reasoning)
+# Enhanced version of current template with minimal output constraints
+
+system: |
+  You are an award-winning poet, expert linguist, and experienced editor,
+  specializing in refining poem translations from {{ source_lang }} to {{ target_lang }}.
+  You have a talent for harmonizing faithfulness to the original text with the artistic
+  requirements of the target language, ensuring that the final translation is both accurate
+  and poetically compelling.
+
+user: |
+  Your task is to revise a translation of a poem from {{ source_lang }} to {{ target_lang }},
+  with the help of a list of expert suggestions. Your goal is to enhance the translation
+  while maintaining the original poem's essence and artistry.
+
+  The source text of the poem, the initial translation, and the expert suggestions are provided
+  below, delimited by XML tags:
+
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <INITIAL_TRANSLATION_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </INITIAL_TRANSLATION_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <EXPERT_SUGGESTIONS>
+  {{ editor_suggestions }}
+  </EXPERT_SUGGESTIONS>
+
+  In your revision process:
+
+  1. Expert Suggestions:
+  a) Double check the accuracy of the expert suggestions, avoid reference errors
+  b) Evaluate and implement expert suggestions.
+  - If you choose to implement a suggestion, think about if you can further improve the suggestion.
+  - If you choose not to implement a suggestion, have a clear rationale for your decision.
+
+  2. Final Review:
+  Conduct a final review of the entire translation, against the original poem, focusing on these key areas:
+
+  a) Accuracy and Faithfulness:
+  - Correct any errors of addition, mistranslation, omission, or untranslated text
+  - Ensure the translation accurately reflects the meaning, tone, and intent of the original poem
+  - Preserve the original poem's form (e.g., sonnet, haiku, free verse) where possible.
+  - Pay close attention to line breaks and stanza structure.
+
+  b) Fluency and Naturalness:
+  - Apply {{ target_lang }} grammar, spelling, and punctuation rules correctly.
+  - Eliminate unnecessary repetitions and awkward phrasing.
+  - Ensure natural flow in {{ target_lang }}
+
+  c) Style and Poetic Quality:
+  - Reflect the original style and voice
+  - Enhance the poetic quality by improving word choice, rhythm, and rhyme
+  - Preserve or adapt poetic devices (e.g., metaphors, alliteration) effectively
+
+  d) Musicality and Rhythm:
+  - Capture the musicality, cadence, rhyme and rhythm of the original poem.
+  - If the original has a specific rhyme scheme, strive to preserve it or find an effective alternative
+
+  e) Cultural Context:
+  - Address any cultural references or nuances appropriately for {{ target_lang }} readers
+  - Avoid over-localization while ensuring the poem resonates with the target audience
+
+  f) Consistency:
+  - Ensure consistency in terminology, style, and tone throughout the translation.
+  - Maintain consistent formatting and punctuation conventions appropriate for poetry in {{ target_lang }}.
+
+  3. Final Refinement
+  a. Based on the result of your final review, make any additional improvements you deem absolute necessary, even if not suggested by experts.
+  b. Read the revised translation aloud to check for rhythm and flow. Make any final adjustments based on your review.
+
+  Please provide your revised translation, followed by an explanation in Chinese of the changes you made and why. Include:
+  1. Major revisions and the reasoning behind them.
+  2. Any significant expert suggestions you chose not to implement and why.
+  3. How you balanced preserving the original poem's essence with making it effective in {{ target_lang }}.
+  4. Any particular challenges you faced and how you resolved them.
+
+  IMPORTANT OUTPUT RULES:
+  - Output exactly the four XML blocks below; no extra text or code fences.
+
+  <refined_translated_poem_title>
+  [Refined version of the translated poem title, or confirm the initial translation if it's already excellent]
+  </refined_translated_poem_title>
+
+  <refined_translated_poet_name>
+  [Refined version of the translated poet name, or confirm the initial translation if it's already excellent]
+  </refined_translated_poet_name>
+
+  <revised_translation>
+  [Your Revised Translation]
+  </revised_translation>
+
+  <revised_translation_notes>
+  [Your explanation of changes and decisions]
+  </revised_translation_notes>

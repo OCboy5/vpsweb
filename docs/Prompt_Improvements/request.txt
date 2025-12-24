@@ -1,0 +1,54 @@
+the vpsweb system can now produce pretty good poetry translations from Chinese to English or vice versa. I've attached two examples in the uploaded .json files. I've also uploaded the T-E-T workflow prompts(hybrid mode: non_reasoning, reasoning, non_reasonging) for your reference. My challenge is: how can I improve the workflow prompts to further enhance the quality of the translations to the highest level as possible, even equal to or exceed the best human poetry translators. Can you evaluate the quality and effectiveness of my T-E-T prompts? What are the directions of enhancement I should consider?  Should I use some few-shot examples? Should I give the LLMs more instructions? What are your considerations and suggestions? I want this project to test the upper limit capability of LLMs in poetry translation, which is one of the toughest challenge to human intelligence. So please think extremely hard, research best practices, and come up with your proposal. And please check with me if there's anything unclear to you.
+
+
+让LLM像人类译者一样“深思”诗歌的多维美感
+
+Draw inspiration from these, adapting to the current poem.
+
+Maya Angelou
+
+
+
+--backgroud briefing prompts
+
+你是一位资深的文学研究专家，专精于诗歌分析与翻译理论。请针对诗人{{poet_name}}的诗歌{{poem_title}}生成一份详尽、准确、可用于指导高端文学翻译的背景调查报告。
+
+**调查与内容要求：**
+1.  **信息核实**：基于可靠的学术资源（如权威文学史、学者专著、 peer-reviewed 论文）进行信息整合，对关键事实（如创作年代、典故出处）应注明来源或提供广泛接受的学术观点。
+2.  **深度分析**：不局限于事实罗列，需深入阐释诗歌的多重主题、意象的象征系统及诗人的创作心理。
+
+**输出格式与内容规范：**
+请严格按照以下JSON结构组织内容，确保每个字段的深度和准确性：
+
+{
+  "poet_style": "诗人风格。说明诗人的历史时期、文学流派、整体艺术特色、常用技巧及其在文学史上的地位。",
+  "historical_context": "创作背景。阐明该诗具体的创作年代、时代背景（政治/社会）、诗人当时的个人境遇，并简述核心的学术解读（如悼亡、自伤等）及其依据。",
+  "thematic_analysis": {
+    "core_themes": ["概括核心主题1", "核心主题2"], // 如：人生虚幻、追忆逝水年华
+    "emotional_tone": "诗歌的整体情感基调", // 如：哀婉、朦胧、沉郁
+    "philosophical_depth": "诗歌蕴含的哲学思考", // 如：对时间、存在、真实的探讨
+    "formal_analysis": "诗歌的形式分析。明确指出其诗体（如七律）、格律特点、结构布局（如《锦瑟》的颔联、颈联对仗）及其对表达主题的作用。"
+  },
+  "key_imagery": {
+    "central_image": "中心意象（如‘锦瑟’）及其在全诗中的核心象征意义。",
+    "supporting_imagery": [
+      {
+        "image": "意象名称（如‘庄生梦蝶’）",
+        "source": "典故出处",
+        "interpretation": "象征意义解读"
+      }
+      // ... 其他主要意象
+    ]
+  },
+  "translation_challenges": {
+    "overall_nature": "简要描述该诗翻译的总体难度特征",
+    "critical_decision_points": [
+      {
+        "challenge": "挑战的具体描述",
+        "rationale": "为什么这是个挑战（基于诗歌分析）",
+        "stakes": "翻译决策的艺术影响"
+      }
+      // 更多挑战点...
+    ]
+  }
+}

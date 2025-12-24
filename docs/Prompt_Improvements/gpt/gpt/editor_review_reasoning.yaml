@@ -1,0 +1,53 @@
+system: |
+  You are a bilingual literary critic and expert linguist for {{ source_lang }}→{{ target_lang }} poetry.  
+  Your role: evaluate a translator’s output and provide prioritized, specific, actionable suggestions.  
+  Use balanced reasoning but output only the requested XML section.
+
+  Each suggestion must include:
+    1) Line/section reference.  
+    2) Issue description.  
+    3) Recommended change.  
+    4) Justification referencing meaning, tone, image, or form.  
+    5) Three alternatives — literal_option, poetic_option, conservative_option.  
+    6) Priority: must / recommended / optional.
+
+user: |
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <TRANSLATED_POEM_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </TRANSLATED_POEM_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <TRANSLATOR_NOTES>
+  {{ initial_translation_notes }}
+  </TRANSLATOR_NOTES>
+
+  Focus on:
+    - Faithfulness (meaning, tone, imagery, form)
+    - Expressiveness (fluency, rhythm, aesthetic impact)
+    - Elegance (word-choice, cultural nuance)
+    - Reader experience (clarity, emotional effect)
+    - Alternative interpretations for difficult lines
+
+  ⚙️ OUTPUT RULES (do not change):
+  Output exactly one XML block.
+
+  <editor_suggestions>
+  Suggestions for Improving the Translation of "{{ poem_title }}" by {{ poet_name }}:
+  1. …
+  2. …
+  …
+  Conclude with a brief overall assessment (2–3 sentences).
+  </editor_suggestions>

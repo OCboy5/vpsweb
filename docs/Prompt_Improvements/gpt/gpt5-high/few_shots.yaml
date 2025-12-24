@@ -1,0 +1,124 @@
+# Few-shot exemplars for optional injection via the `few_shots` variable
+# Keep these tiny. Pick ONE per run (or none). Use the `render` block verbatim.
+
+few_shots:
+  - id: C2E_symbolist_repetition_synesthesia
+    source_lang: Chinese
+    target_lang: English
+    purpose: "repetition mirroring + synesthesia; minimal additions"
+    source_excerpt: |
+      雨声绵长，绵长，
+      小巷在伞下退去；
+      丁香把夜色染成呼吸。
+    target_exemplar: |
+      The rain goes on and on—
+      the alley slips back under my umbrella;
+      lilac dyes the night the shade of breath.
+    notes_zh: "重复“绵长，绵长”→“goes on and on—”并用破折号延长停顿；保留通感（夜色/呼吸）；不新增语义。"
+    render: |
+      Few-shot exemplar [C2E_symbolist_repetition_synesthesia] — Purpose: repetition mirroring + synesthesia
+      Source (Chinese):
+      雨声绵长，绵长，
+      小巷在伞下退去；
+      丁香把夜色染成呼吸。
+      Target (English):
+      The rain goes on and on—
+      the alley slips back under my umbrella;
+      lilac dyes the night the shade of breath.
+      Notes (ZH): 重复“绵长，绵长”→“goes on and on—”+破折号延长停顿；保留通感“夜色/呼吸”；无新增语义。
+
+  - id: E2C_modern_lyric_balance
+    source_lang: English
+    target_lang: Chinese
+    purpose: "modern lyric naturalness; keep metaphor intact; no archaizing"
+    source_excerpt: |
+      I carry the dusk like water in my hands,
+      it leaks between my lifelines—
+      I walk home shining and diminished.
+    target_exemplar: |
+      我捧着黄昏，如掌中的清水，
+      它沿着掌纹渗漏——
+      我发着光，又被削减地回家。
+    notes_zh: "语体保持现代书面语；用破折号处理节奏转折；“shining and diminished”并置张力保留为“发光/被削减”。"
+    render: |
+      Few-shot exemplar [E2C_modern_lyric_balance] — Purpose: modern lyric naturalness
+      Source (English):
+      I carry the dusk like water in my hands,
+      it leaks between my lifelines—
+      I walk home shining and diminished.
+      Target (Chinese):
+      我捧着黄昏，如掌中的清水，
+      它沿着掌纹渗漏——
+      我发着光，又被削减地回家。
+      Notes (ZH): 现代语体；破折号转折；“shining/diminished”对置保留，不做解释性扩写。
+
+  - id: C2E_formal_loose_meter
+    source_lang: Chinese
+    target_lang: English
+    purpose: "loose iambic feel; light alliteration; clarity"
+    source_excerpt: |
+      她在雨中站立，
+      白衣微凉，
+      一个字从唇边落下。
+    target_exemplar: |
+      She stands in rain,
+      her white dress cool,
+      a single word drops from her lips.
+    notes_zh: "弱化为松散抑扬感；“dress/drops”轻度头韵；严格不添新意象。"
+    render: |
+      Few-shot exemplar [C2E_formal_loose_meter] — Purpose: loose iambic cadence + light alliteration
+      Source (Chinese):
+      她在雨中站立，
+      白衣微凉，
+      一个字从唇边落下。
+      Target (English):
+      She stands in rain,
+      her white dress cool,
+      a single word drops from her lips.
+      Notes (ZH): 松散抑扬；轻度头韵（dress/drops）；无新增语义与解释。
+
+  - id: C2E_cultural_object_retention
+    source_lang: Chinese
+    target_lang: English
+    purpose: "retain culturally specific object; no in-line gloss"
+    source_excerpt: |
+      他撑着油纸伞，穿过石板路，
+      青苔把时间按在脚下。
+    target_exemplar: |
+      He holds an oil-paper umbrella, crosses the stone-laid lane;
+      moss pins time beneath his feet.
+    notes_zh: "保留“oil-paper umbrella”不加注；节奏用分号与停顿；意象不解释。"
+    render: |
+      Few-shot exemplar [C2E_cultural_object_retention] — Purpose: cultural object retention, no gloss
+      Source (Chinese):
+      他撑着油纸伞，穿过石板路，
+      青苔把时间按在脚下。
+      Target (English):
+      He holds an oil-paper umbrella, crosses the stone-laid lane;
+      moss pins time beneath his feet.
+      Notes (ZH): 直译文化物件；分号控制节奏；避免解释性扩展。
+
+  - id: C2E_negative_overinterpretation
+    source_lang: Chinese
+    target_lang: English
+    purpose: "negative example: avoid over-interpretation; then corrected"
+    source_excerpt: |
+      灯光在水面颤动，
+      船影无言。
+    bad_translation: |
+      Lights shiver on the water, fate hums, the boat is lonely and mute.
+    fixed_translation: |
+      Lamplight trembles on the water;
+      the boat’s shadow says nothing.
+    notes_zh: "错误示例新增“命运/孤独”等未见于原文；修正版删除外加心理描写，仅保留可见动作与状态。"
+    render: |
+      Few-shot exemplar [C2E_negative_overinterpretation] — Purpose: avoid over-interpretation
+      Source (Chinese):
+      灯光在水面颤动，
+      船影无言。
+      Bad Target (English):
+      Lights shiver on the water, fate hums, the boat is lonely and mute.
+      Better Target (English):
+      Lamplight trembles on the water;
+      the boat’s shadow says nothing.
+      Notes (ZH): 删除新增的“命运/孤独”等解释性内容；只呈现可感之物。

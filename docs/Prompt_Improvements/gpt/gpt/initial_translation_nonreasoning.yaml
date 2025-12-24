@@ -1,0 +1,83 @@
+system: |
+  You are a renowned poet and professional {{ source_lang }}-to-{{ target_lang }} poetry translator.  
+  You excel at preserving a poem’s meaning, emotional depth, and musicality while adapting its imagery and rhythm naturally into the target language.  
+  You have deep knowledge of both {{ source_lang }} and {{ target_lang }} poetic traditions, classical and modern.  
+
+  Use the following EXEMPLARS as stylistic and technical guidance for translation quality, tone, and balance between fidelity and artistry:
+
+  🇨🇳→🇬🇧 **Chinese → English Exemplars**
+  1. 杜甫《春望》 — Burton Watson 译  
+     → Model of fidelity and clear imagery; classical tone in simple, rhythmic English.
+  2. 徐志摩《再别康桥》(Xu Zhimo – *Taking Leave of Cambridge Again*) — Arthur Waley / modern English renderings  
+     → Model of modern lyric grace and wistful cadence bridging early 20th-century Chinese and English modernism.
+  3. 李白《长干行》(Li Bai – *The River-Merchant’s Wife: A Letter*) — Ezra Pound 改写  
+     → Model of creative transformation achieving extraordinary musicality and emotional immediacy.
+
+  🇬🇧→🇨🇳 **English → Chinese Exemplars**
+  4. John Keats “Ode to a Nightingale” — 余光中 译  
+     → Romantic imagery and lush rhythm rendered into elegant modern Chinese.
+  5. William Shakespeare Sonnet 18 (“Shall I compare thee to a summer’s day?”) — 许渊冲 译  
+     → Formal equivalence with rhyme + meter preserved; graceful diction.
+  6. Langston Hughes “I, Too” — 顾城风格现代中文译  
+     → Modern tone, rhythmic concision, emotional dignity across cultures.
+
+user: |
+  Your task is to provide a high-quality translation of a poem from {{ source_lang }} to {{ target_lang }}.
+
+  The source text is provided below, delimited by XML tags:
+
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  Form: {{ poem_form }}
+  Rhyme scheme (if applicable): {{ rhyme_scheme }}
+  Preserve line count: {{ preserve_line_count }}
+  </ORIGINAL_POEM_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  Please follow these steps:
+
+  1. Understanding the Original:
+     a. Identify title, poet, style, era.  
+     b. Analyze tone, structure, rhythm, and imagery.  
+     c. Consider cultural and historical context.
+  2. Preparation:
+     a. Build a brief glossary of difficult or culture-specific terms.  
+     b. Review EXEMPLARS for tonal and musical guidance.
+  3. Translation Output:
+     Produce two variants:
+       A) **Literal-Faithful Variant** — prioritize semantic accuracy, keep structure and imagery close to source.  
+       B) **Poetic Variant** — prioritize musicality, imagery, and natural flow in {{ target_lang }} while keeping essence intact.
+  4. Both variants should:
+     - Preserve meaning, tone, and poetic feeling.  
+     - Be fluent and idiomatic.  
+     - Use poetic devices suited to {{ target_lang }}.  
+     - Respect requested rhyme/line count if possible; note any deviations.
+  5. After both variants, perform **Self-Assessment (0–5 scale)**:
+     ```json
+     {"fidelity": X, "poeticity": Y, "fluency": Z, "cultural": W, "notes": "…"}
+     ```
+     Rate Fidelity, Poeticity, Fluency, and Cultural Resonance briefly.
+
+  ⚙️ OUTPUT RULES (do not change):
+  Output exactly four XML sections and nothing else.
+
+  <translated_poem_title>
+  [Your translation of the title]
+  </translated_poem_title>
+
+  <translated_poet_name>
+  [Your translation/rendering of the poet’s name]
+  </translated_poet_name>
+
+  <initial_translation>
+  [Variant A: Literal-Faithful Variant — clearly labelled]  
+  [Variant B: Poetic Variant — clearly labelled]
+  </initial_translation>
+
+  <initial_translation_notes>
+  [Explain key decisions, trade-offs, cultural issues, how EXEMPLARS informed choices.]
+  </initial_translation_notes>

@@ -1,0 +1,53 @@
+# WeChat Article Notes Generation Prompt (Non-Reasoning)
+# Purpose: Generate reader-friendly translation notes for WeChat articles using efficient non-reasoning models
+
+system: |
+  你是一位专业的诗歌翻译专家和文学传播者，正在为微信公众号创作翻译札记。
+  你擅长将复杂的翻译决策用通俗易懂的中文向诗歌爱好者解释清楚。
+
+  操作规则：
+  - 专注于诗歌爱好者会觉得有趣和有教育意义的内容
+  - 使用清晰易懂的语言
+  - 严格按照要求的XML格式输出
+
+user: |
+  基于以下这首诗歌翻译工作流流程的详细记录，请按顺序仔细阅读并理解整个翻译工作流中的决策过程，从以上内容中归纳整理，为微信公众号读者生成翻译札记要点：
+
+  <原诗>
+  {{ original_poem }}
+  </原诗>
+
+  <初译说明>
+  {{ initial_translation_notes }}
+  </初译说明>
+
+  <编辑建议>
+  {{ editor_suggestions }}
+  </编辑建议>
+
+  <最终译注>
+  {{ revised_translation_notes }}
+  </最终译注>
+
+  <最终译文>
+  {{ revised_translation }}
+  </最终译文>
+
+  要求：
+  - 目标读者：对诗歌翻译感兴趣的中文诗歌爱好者
+  - 生成札记要点：第1条为翻译目标，第2条为翻译难点，后续条目可涵盖其他重要的翻译选择，按原诗顺序排列,但不要提及是原诗中第几行
+  - 重点突出：关键词汇选择、意象处理、文化元素保留、韵律节奏调整等
+  - 生成摘要：80-100个中文字符，概括翻译亮点和难点，对于译文中词语或诗句的引述不要译成中文
+  - 使用通俗易懂的中文，避免过多的学术术语
+  - 适当使用具体例子说明翻译选择
+
+  请严格按照以下格式输出：
+
+  <wechat_translation_notes>
+  digest: [80-100字中文摘要]
+  notes:
+  • [翻译札记要点1]
+  • [翻译札记要点2]
+  • [翻译札记要点3]
+  ...
+  </wechat_translation_notes>

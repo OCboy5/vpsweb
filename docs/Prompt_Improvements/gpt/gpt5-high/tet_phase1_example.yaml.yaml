@@ -1,0 +1,52 @@
+# Sample runtime config for Phase 1 (T–E–T) with temperatures and dials
+# Fill in your actual model names/providers. Set few_shots to "" to disable.
+
+workflow: tet_phase1
+
+variables:
+  adaptation_level: balanced          # foreignizing | balanced | domesticating
+  repetition_policy: strict           # strict | adaptive
+  additions_policy: forbid            # forbid | allow_with_alt
+  prosody_target: "free verse, cadence-aware"
+  few_shots: |
+    Few-shot exemplar [C2E_symbolist_repetition_synesthesia] — Purpose: repetition mirroring + synesthesia
+    Source (Chinese):
+    雨声绵长，绵长，
+    小巷在伞下退去；
+    丁香把夜色染成呼吸。
+    Target (English):
+    The rain goes on and on—
+    the alley slips back under my umbrella;
+    lilac dyes the night the shade of breath.
+    Notes (ZH): 重复“绵长，绵长”→“goes on and on—”+破折号延长停顿；保留通感“夜色/呼吸”；无新增语义。
+  # To disable few-shots globally, set:
+  # few_shots: ""
+
+models:
+  initial_translation:
+    provider: your_fluent_model_provider
+    model: your_fluent_model_name
+    temperature: 0.7
+    top_p: 0.9
+  editor_review:
+    provider: your_reasoning_model_provider
+    model: your_reasoning_model_name
+    temperature: 0.2
+    top_p: 0.8
+  translator_revision:
+    provider: your_fluent_model_provider
+    model: your_fluent_model_name
+    temperature: 0.4
+    top_p: 0.9
+
+# Optional per-poem overrides (example):
+overrides:
+  long_poem:
+    variables:
+      repetition_policy: adaptive
+      prosody_target: "free verse with periodic slant-rhyme echoes"
+    models:
+      initial_translation:
+        temperature: 0.75
+      translator_revision:
+        temperature: 0.45

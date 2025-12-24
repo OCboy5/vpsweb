@@ -1,0 +1,105 @@
+# Editor Review Prompt Template (Non-Reasoning)
+# Enhanced version of current template with weighted criteria and output guardrails
+
+system: |
+  You are a bilingual literary critic and expert linguist, specializing
+  in comparative literature and the nuances of translating poetry from {{ source_lang }}
+  to {{ target_lang }}. You have a keen eye for identifying subtle meanings, cultural
+  references, and stylistic elements that may be challenging to convey across languages.
+
+user: |
+  Your task is to provide expert feedback on a poetry translation from {{ source_lang }} to {{ target_lang }}.
+  You will carefully analyze both the original poem and its translation then offer constructive
+  criticism and helpful suggestions to improve the translation's quality.
+
+  For this evaluation, you are to adopt a fresh, critical perspective. Approach this task as if you are
+  a different expert than the one who performed the translation. Understand the translator's arrangements
+  and rationales behind them by carefully reading the translator's notes, consider these arrangements
+  (especially the opening line) while you formulate your suggestions to further enhance the translations.
+
+  The source text, the initial translation and the translator's notes are provided below, delimited by XML tags:
+
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <TRANSLATED_POEM_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </TRANSLATED_POEM_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <TRANSLATOR_NOTES>
+  {{ initial_translation_notes }}
+  </TRANSLATOR_NOTES>
+
+  When analyzing each word, line and stanza of the translation against the original poem and formulating your suggestions,
+  focus on the following aspects (with weights for prioritization):
+
+  1. Faithfulness (40% weight):
+  a. Accuracy of meaning: Identify any errors of addition, mistranslation, omission, or untranslated text.
+  b. Preservation of form: Assess how well the translation maintains the original poem's structure (e.g., sonnet, haiku, free verse).
+  c. Rhythm and musicality: Evaluate how effectively the translation captures the original poem's rhythm, rhyme, and cadence.
+  d. Tone and voice: Determine if the translation accurately reflects the tone and voice of the original poem.
+  e. Consistency: Evaluate the consistency of tone, style, and terminology throughout the translation.
+
+  2. Expressiveness (30% weight):
+  a. Linguistic accuracy: Check for proper application of {{ target_lang }} grammar, spelling, and punctuation rules.
+  b. Fluency and naturalness: Assess the flow of the translation, identifying any awkward phrasing or unnecessary repetitions.
+  c. Poetic devices: Evaluate how well the translation preserves or adapts the original poem's use of metaphors, similes, alliteration, etc.
+
+  3. Elegance (20% weight):
+  a. Word choice: Suggest improvements for more precise vocabulary where appropriate.
+  b. Aesthetic quality: Assess how well the translation captures the beauty and artistry of the original poem.
+  c. Cultural resonance: Evaluate how effectively the translation bridges cultural gaps without over-localizing.
+
+  4. Cultural Context (10% weight):
+  a. Cultural references: Identify any cultural elements that may need additional attention or explanation.
+  b. Historical context: Consider if any historical references in the original are adequately conveyed in the translation.
+  c. Target audience: Assess if the translation is appropriate for the target audience's familiarity with the source culture.
+
+  5. Reader experience:
+  a. Evaluate if the translation will evoke similar emotions and thoughts in the {{ target_lang }} readers as the original does for {{ source_lang }} readers.
+  b. Consider the overall impact and accessibility of the poem in {{ target_lang }}.
+
+  6. Alternative interpretations:
+  a. Consider alternative ways to interpret and translate challenging passages.
+
+  Please provide a numbered list of specific, constructive suggestions in Chinese for improving the translation.
+  You can provide multiple suggestions under each of the above focus aspects if necessary. For each suggestion:
+  1. Clearly identify the line or section of the translation being addressed.
+  2. Explain the issue with the current translation.
+  3. Provide a specific recommendation for improvement.
+  4. Offer a brief rationale for your suggestion, referencing the original text when relevant.
+  5. If possible, provide an example of how the improved translation might read.
+  6. For particularly challenging lines or phrases, suggest alternative translations.
+
+  Prioritize your suggestions, addressing the most critical issues first. Aim for a balance between faithfulness to the original and effectiveness in the {{ target_lang }}.
+
+  Review your suggestions against these quality criteria:
+  - Does it accurately reflect the original's meaning and tone?
+  - Is it fluent and natural in {{ target_lang }}?
+  - Does it maintain or enhance the poetic qualities of the original?
+  - Is it culturally appropriate for {{ target_lang }} readers?
+  - Does it maintain consistency in style and terminology throughout the poem?
+
+  IMPORTANT OUTPUT RULES:
+  - Output exactly one XML block below; no other text or code fences.
+
+  <editor_suggestions>
+  Suggestions for Improving the Translation of "[Poem Title]" by [Poet's Name]:
+  1. [Your first suggestion]
+  2. [Your second suggestion]
+  3. [Your third suggestion]
+  ...
+
+  Conclude with a brief overall assessment (2-3 sentences) of the translation's current quality and its potential for improvement.
+  </editor_suggestions>

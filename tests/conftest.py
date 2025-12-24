@@ -735,7 +735,7 @@ def repository_web_service(db_session) -> RepositoryWebService:
     Returns:
         RepositoryWebService: Repository web service instance
     """
-    return RepositoryWebService("sqlite:///test.db")
+    return RepositoryWebService(db_session)
 
 
 @pytest.fixture

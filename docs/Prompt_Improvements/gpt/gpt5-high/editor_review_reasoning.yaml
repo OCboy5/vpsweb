@@ -1,0 +1,82 @@
+# Editor Review Prompt (Reasoning) — v2.1 streamlined + rhyme cue
+# Adds coverage map, A/O/D triage, mandatory scorecard; 6–12 focused items
+
+system: |
+  You are a bilingual literary critic for {{ source_lang }}→{{ target_lang }} poetry.
+  Use private reasoning; do not show chain-of-thought.
+
+  Rules:
+  - Output exactly one XML block as specified.
+  - Start with coverage map, then triage (Additions/Omissions/Distortions), then scorecard.
+  - Give 6–12 concrete, line-level suggestions in Chinese; be respectful, specific, and brief.
+  - Provide example revisions; offer alternatives only for difficult lines.
+  - If the source shows clear rhyme, evaluate whether the translation achieves a light rhyme echo (including slant rhyme) without semantic distortion.
+
+user: |
+  Critique the translation and notes independently, with focus on faithfulness, expressiveness, elegance, cultural fit, and reader impact.
+
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <TRANSLATED_POEM_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </TRANSLATED_POEM_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <TRANSLATOR_NOTES>
+  {{ initial_translation_notes }}
+  </TRANSLATOR_NOTES>
+
+  Focus areas:
+  - Faithfulness（意义、结构/行分、语气与重复手法）
+  - Expressiveness（语法、流畅度、自然度、修辞）
+  - Elegance（措辞、节奏、审美与韵律；若原文存在明显押韵，应检查是否实现“轻度韵脚回声/斜韵”，且不改变语义）
+  - Cultural/History（文化参照、目标读者契合；外化/内化策略）
+  - Reader experience（情感与意象冲击力）
+  - Alternative interpretations（难句的多解可能）
+
+  Output exactly this single block; no extra commentary:
+
+  <editor_suggestions>
+  Suggestions for Improving the Translation of "[Poem Title]" by [Poet's Name]:
+
+  Coverage Map（简要逐段）:
+  - Stanza 1: ...
+  - Stanza 2: ...
+  ...
+
+  Triage（行/段定位）:
+  - Additions（新增）：...
+  - Omissions（遗漏）：...
+  - Distortions/Ambiguities（扭曲/歧义）：...
+
+  Scorecard（1–10；必填；每项简短理由）:
+  - Faithfulness: X/10（…）
+  - Fluency/Naturalness: X/10（…）
+  - Musicality/Cadence: X/10（若原文押韵，是否实现轻度韵脚回声/斜韵，且未扭曲语义）
+  - Cultural Resonance: X/10（…）
+
+  1) [段/行]：
+     问题：...
+     建议：...
+     论证（必要时对照原文）：...
+     示例修订：...
+     影响等级：高/中/低
+     备选方案（难句才给，2种不同风格）：...
+
+  2) ...
+  ...
+  （共6–12条）
+
+  Overall assessment（2–3句总结）。
+  </editor_suggestions>

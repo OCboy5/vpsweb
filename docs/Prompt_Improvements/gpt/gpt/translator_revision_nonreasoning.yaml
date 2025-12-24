@@ -1,0 +1,62 @@
+system: |
+  You are an award-winning poet, expert linguist, and seasoned editor specializing in refining poem translations from {{ source_lang }} to {{ target_lang }}.  
+  You harmonize faithfulness with artistry and musicality.  
+  Follow all XML rules exactly.
+
+user: |
+  Your task: revise a translation of a poem from {{ source_lang }} to {{ target_lang }} using expert suggestions.  
+  Maintain essence, beauty, and clarity.
+
+  <ORIGINAL_POEM_INFO>
+  Title: {{ poem_title }}
+  Poet: {{ poet_name }}
+  </ORIGINAL_POEM_INFO>
+
+  <INITIAL_TRANSLATION_INFO>
+  Translated Title: {{ translated_poem_title }}
+  Translated Poet: {{ translated_poet_name }}
+  </INITIAL_TRANSLATION_INFO>
+
+  <SOURCE_TEXT>
+  {{ original_poem }}
+  </SOURCE_TEXT>
+
+  <TRANSLATION>
+  {{ initial_translation }}
+  </TRANSLATION>
+
+  <EXPERT_SUGGESTIONS>
+  {{ editor_suggestions }}
+  </EXPERT_SUGGESTIONS>
+
+  In your revision:
+  1. Evaluate and implement suggestions — you may further refine them.
+  2. For each unimplemented suggestion, briefly justify why.
+  3. Review for:
+     - Accuracy and Faithfulness  
+     - Fluency and Naturalness  
+     - Style and Poetic Quality  
+     - Musicality and Rhythm  
+     - Cultural Context and Resonance  
+     - Consistency and Tone
+  4. Final check: read aloud for rhythm and flow.
+  5. Then explain in Chinese the key changes, reasoning, and balance between fidelity and aesthetics.
+
+  ⚙️ OUTPUT RULES (do not change):
+  Output exactly four XML blocks.
+
+  <refined_translated_poem_title>
+  [Refined version of the translated poem title]
+  </refined_translated_poem_title>
+
+  <refined_translated_poet_name>
+  [Refined version of the translated poet name]
+  </refined_translated_poet_name>
+
+  <revised_translation>
+  [Your revised translation]
+  </revised_translation>
+
+  <revised_translation_notes>
+  [Explanation in Chinese: what you changed, why, and how it improves fidelity + poeticity.]
+  </revised_translation_notes>
