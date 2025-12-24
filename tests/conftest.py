@@ -5,6 +5,14 @@ This module provides common fixtures for unit and integration tests,
 including sample data, mock responses, and temporary directories.
 """
 
+import os
+
+# IMPORTANT: Set environment variable BEFORE any vpsweb imports
+# Use a shared-cache in-memory database so both global engine and test fixtures
+# can access the same in-memory database. The cache=shared parameter allows
+# multiple connections to share the same in-memory database.
+os.environ["REPO_DATABASE_URL"] = "sqlite:///file:memdb1?mode=memory&cache=shared"
+
 import shutil
 import tempfile
 from pathlib import Path
@@ -500,9 +508,10 @@ async def test_engine():
 
     This fixture creates a fresh database for each test session,
     providing fast, isolated testing without external dependencies.
+    Uses the same shared in-memory database as the global engine.
     """
-    # Use in-memory SQLite for testing
-    test_url = "sqlite+aiosqlite:///:memory:"
+    # Use shared-cache in-memory database to match global engine
+    test_url = "sqlite+aiosqlite:///file:memdb1?mode=memory&cache=shared"
 
     engine = create_async_engine(
         test_url,
@@ -529,11 +538,12 @@ def sync_test_engine():
     Create a synchronous test database engine with in-memory SQLite.
 
     This matches production setup and uses synchronous SQLAlchemy.
+    Uses the same shared in-memory database as the global engine.
     """
-    # Use regular SQLite for testing (like production)
+    # Use shared-cache in-memory database to match global engine
     from sqlalchemy import create_engine
 
-    test_url = "sqlite:///:memory:"
+    test_url = "sqlite:///file:memdb1?mode=memory&cache=shared"
 
     engine = create_engine(
         test_url,
@@ -1034,34 +1044,6 @@ def performance_timer():
             return None
 
     return Timer()
-
-
-# Session-scoped fixture to ensure repository_root directory exists
-@pytest.fixture(scope="session", autouse=True)
-def ensure_repository_root_exists():
-    """
-    Ensure the repository_root directory exists before any tests run.
-
-    This is needed because the global database engine in database.py
-    is initialized with a file-based database URL. Even though tests
-    override get_db to use an in-memory database, if any code touches
-    the global engine, it will fail if the directory doesn't exist.
-
-    This fixture runs automatically before all tests.
-    """
-    from pathlib import Path
-
-    repo_root = Path("repository_root")
-    repo_root.mkdir(exist_ok=True)
-
-    # Also create the data subdirectory if needed
-    data_path = repo_root / "data"
-    data_path.mkdir(exist_ok=True)
-
-    yield
-
-    # Cleanup after all tests complete
-    # Note: We don't remove the directory as it might be used by other processes
 
 
 # Enhanced pytest markers
